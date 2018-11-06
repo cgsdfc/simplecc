@@ -29,10 +29,11 @@ def tokenize(readline):
     """
     numchars = '0123456789'
     lnum = 0
+    readline = iter(readline, '')
 
     while True:
         try:
-            line = readline()
+            line = next(readline)
             lnum += 1
         except StopIteration:
             break

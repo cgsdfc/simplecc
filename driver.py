@@ -72,7 +72,7 @@ class Driver(object):
 
     def parse_stream(self, stream, debug=False):
         """Parse a stream and return the syntax tree."""
-        tokens = tokenize(stream.readline)
+        tokens = tokenize(stream.__next__)
         return self.parse_tokens(tokens, debug)
 
     def parse_file(self, filename, debug=False):

@@ -48,7 +48,7 @@ class Parser(object):
     def addtoken(self, type, value, context):
         """Add a token; return True iff this is the end of the program."""
         # Map from token to label
-        logger.debug('addtoken: {}'.format(str((type, value))))
+        logger.debug('addtoken: {}'.format(str((type, value, context))))
         ilabel = self.classify(type, value, context)
         # Loop until the token is shifted; may raise exceptions
         assert self.stack, (type, value)
