@@ -16,18 +16,15 @@ __author__ = "Guido van Rossum <guido@python.org>"
 __all__ = ["Driver"]
 
 # Python imports
-import codecs
-import token
-import tokenize
 import io
 import os
 import logging
 import sys
 
-# Pgen imports
-from .python_parser import ParseError, Parser
+# Local imports
+from tokenizer import tokenize
+from parser import ParseError, Parser
 
-IGNORED_TOKENS = (tokenize.ENCODING, tokenize.NL, tokenize.COMMENT)
 
 class Driver(object):
 
@@ -56,16 +53,8 @@ class Driver(object):
                 if column < s_column:
                     prefix += line_text[column:s_column]
                     column = s_column
-            if type in IGNORED_TOKENS:
-                prefix += value
-                lineno, column = end
-                if value.endswith("\n"):
-                    lineno += 1
-                    column = 0
-                continue
             if debug:
-                self.logger.debug("%s %r (prefix=%r)",
-                                  token.tok_name[type], value, prefix)
+                self.logger.debug("%s %r (prefix=%r)", type, value, prefix)
             if self.parser.addtoken(type, value, (prefix, start)):
                 if debug:
                     self.logger.debug("Stop.")
@@ -81,21 +70,17 @@ class Driver(object):
                                    type, value, (prefix, start))
         return self.parser.rootnode
 
-    def parse_stream_raw(self, stream, debug=False):
-        """Parse a stream and return the syntax tree."""
-        tokens = tokenize.tokenize(stream.readline)
-        return self.parse_tokens(tokens, debug)
-
     def parse_stream(self, stream, debug=False):
         """Parse a stream and return the syntax tree."""
-        return self.parse_stream_raw(stream, debug)
+        tokens = tokenize(stream.readline)
+        return self.parse_tokens(tokens, debug)
 
-    def parse_file(self, filename, encoding=None, debug=False):
+    def parse_file(self, filename, debug=False):
         """Parse a file and return the syntax tree."""
-        with open(filename, 'rb') as stream:
+        with open(filename) as stream:
             return self.parse_stream(stream, debug)
 
     def parse_string(self, text, debug=False):
         """Parse a string and return the syntax tree."""
-        tokens = tokenize.tokenize(io.StringIO(text).readline)
+        tokens = tokenize(io.StringIO(text).readline)
         return self.parse_tokens(tokens, debug)

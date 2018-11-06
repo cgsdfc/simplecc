@@ -40,11 +40,9 @@ term: factor (('*'|'/') factor)*
 
 factor: NAME [ trailer ] | NUMBER | CHAR | '(' expr ')'
 
-trailer: subscript | '(' [paralist] ')'
+trailer: subscript | '(' [arglist] ')'
 
 subscript: '[' expr ']'
-
-paralist: type NAME (',' type NAME)*
 
 # declaration
 var_decl: type var_item (',' var_item)* ';'
@@ -62,6 +60,8 @@ type: 'int' | 'char' | 'void'
 declaration: type NAME decl_trailer
 
 decl_trailer: '(' [paralist] ')' '{' compound_stmt '}' | [subscript2] (',' var_item)* ';'
+
+paralist: type NAME (',' type NAME)*
 
 subscript2: '[' NUMBER ']'
 

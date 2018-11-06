@@ -1,10 +1,9 @@
-
 const int const_int_decl=1;
 const int const_int_1=1, const_int_2=2,
       const_int_3=3, const_int_4=4;
 
 const int const_int_zero=0;
-const int const_int_nega=-1234;
+const int const_int_nega=1234;
 const int const_int_posi=1234;
 
 const char const_char_decl='a';
@@ -22,8 +21,8 @@ char char_2, char_array_2[3];
 
 int int_function(int int_arg_1)
 {
-  int local_int_1=1;
-  char local_char_1='a';
+  int local_int_1;
+  char local_char_1;
 
   local_int_1=2;
   local_char_1='b';
@@ -38,7 +37,7 @@ int int_function_noargs()
   local_sum=0;
   for (local_int_2=1; local_int_2 < 100;
       local_int_2 = local_int_2 + 1)
-    local_sum+=local_int_2;
+    local_sum=local_int_2+1;
   return (local_sum);
 }
 
@@ -48,12 +47,12 @@ void void_function(char char_arg_1, int int_arg_2, char char_arg_3)
     printf("zero equals to zero");
   }
   switch (char_arg_1) {
-  case 'a':
-    printf("A: prints int_arg_2", int_arg_2);
-  case 'b':
-    printf("B: prints char_arg_3", char_arg_3);
-  default:
-    printf("Nothing to do");
+    case 'a':
+      printf("A: prints int_arg_2", int_arg_2);
+    case 'b':
+      printf("B: prints char_arg_3", char_arg_3);
+    default:
+      printf("Nothing to do");
   }
 }
 
@@ -65,17 +64,18 @@ void void_function_noargs()
 void void_function_noargs_2()
 {
   int local_int_1;
+  int local_int_2;
+
   scanf(local_int_1);
   if (local_int_1 == 1) {
     void_function('a', local_int_1, 'b');
   } else if (local_int_1 == 2) {
-    int local_int_2=int_function_noargs();
+    local_int_2=int_function_noargs();
     printf("Calls int_function_noargs returns ");
-    printf(local_int_2, "");
+    printf(local_int_2);
   } else {
-    int local_int_2;
     for (local_int_2=2; local_int_2 < 3;
-       local_int_2=local_int_2+1) {
+        local_int_2=local_int_2+1) {
       printf("void_function_noargs_2 does loop ", local_int_2);
     }
   }
@@ -84,49 +84,47 @@ void void_function_noargs_2()
 int recursive_function_1(int int_arg_1)
 {
   if (int_arg_1 < 2)
-    return 1;
-  return (int_arg_1 * recursive_function_1(int_arg_1-1))
+    return ( 1 );
+  return (int_arg_1 * recursive_function_1(int_arg_1-1));
 }
 
 void recursive_function_2(char A, char B,char C,int n)
 {
-    if(n==1) {
-      printf("Move disk ", n);
-      printf(" from ", A);
-      printf(" to ",C);
-    } else {
-      recursive_function_2(A,C,B, n-1);
-      printf("Move disk ", n);
-      printf("from ", A,);
-      printf("to ", C);
-      recursive_function_2(B,A,C,n-1);
-    }
+  if(n==1) {
+    printf("Move disk ", n);
+    printf(" from ", A);
+    printf(" to ",C);
+  } else {
+    recursive_function_2(A,C,B, n-1);
+    printf("Move disk ", n);
+    printf("from ", A);
+    printf("to ", C);
+    recursive_function_2(B,A,C,n-1);
+  }
 }
 
 void recursive_function_3(int int_arg_1)
 {
   const int cnt=4;
+  int i,j,k;
 
   if (int_arg_1 == 0) {
     printf("End of recursive_function_3");
     return;
   }
   if (int_arg_1 == 1) {
-    int i;
     for (i=0; i<cnt; i= i+1) {
       recursive_function_3(i);
     }
     return;
   }
   if (int_arg_1 == 2) {
-    int i,j;
     for (i=0; i<cnt; i=i+1)
       for (j=0; j<cnt; j=j+1)
         recursive_function_3(i);
     return ;
   }
   if (int_arg_1 == 3) {
-    int i,j, k;
     for (i=0; i<cnt; i=i+1)
       for (j=0; j<cnt; j=j+1)
         for (k=0; k<cnt; k= k+1)
@@ -150,7 +148,7 @@ void print_usage()
   printf("  `7': recursive_function_2: scanfs an int and plays HANOI game with you.");
   printf("  `8': int_array_do_sth: swaps the int_array_1 and int_array_2, element-wise");
   printf("  `9': swap_sth: swaps int_1 and int_2");
-  printf("  `h': shows this menu argain.")
+  printf("  `h': shows this menu argain.");
   printf("  `q': quits");
 }
 
@@ -169,9 +167,6 @@ void swap_sth()
 {
   int tmp;
   printf("Swaps int_1 and int_2");
-  tmp=int_1;
-  int_1=int_2;
-  int_2=tmp;
 }
 
 
@@ -191,46 +186,55 @@ void main()
     printf("(^_^)");
     scanf(select);
     switch (select) {
-    case 0:
-      printf("int_function takes one int. please input that:");
-      scanf(int_1);
-      printf("int_function returns ", int_function(int_1));
-    case 1:
-      printf("int_function_noargs returns ", int_function_noargs());
-    case 2:
-      printf("void_function takes one char. please input that:");
-      scanf(char_1);
-      void_function(char_1, const_int_zero, const_char_add);
-    case 3:
-      printf("void_function_noargs does nothing.");
-      void_function_noargs();
-    case 4:
-      printf("void_function_noargs_2 takes one int. please input that:");
-      scanf(int_1);
-      void_function_noargs_2(int_1);
-    case 5:
-      printf("recursive_function_1 takes one int. please input that:");
-      scanf(int_1);
-      recursive_function_1(int_1);
-    case 6:
-      printf("recursive_function_3 takes one int. please input that:");
-      scanf(int_1);
-      recursive_function_3(int_1);
-    case 7:
-      printf("recursive_function_2 takes one int. please input that:");
-      scanf(int_1);
-      recursive_function_2(const_char_add, const_char_div, const_char_mul, int_1);
-    case 8:
-      int_array_do_sth();
-    case 9:
-      swap_sth();
-    case 'q':
-      return (0);
-    case 'h':
-      print_usage();
-    default:
-      printf("Not understood. type `h'.");
+      case 0: {
+                printf("int_function takes one int. please input that:");
+                scanf(int_1);
+                printf("int_function returns ");
+                printf(int_1);
+              }
+      case 1:
+              printf("int_function_noargs returns ", int_function_noargs());
+      case 2: {
+                printf("void_function takes one char. please input that:");
+                scanf(char_1);
+                void_function(char_1, const_int_zero, const_char_add);
+              }
+      case 3: {
+                printf("void_function_noargs does nothing.");
+                void_function_noargs();
+              }
+      case 4: {
+                printf("void_function_noargs_2 takes one int. please input that:");
+                scanf(int_1);
+                void_function_noargs_2();
+              }
+      case 5: {
+                printf("recursive_function_1 takes one int. please input that:");
+                scanf(int_1);
+                recursive_function_1(int_1);
+              }
+      case 6:
+              {
+                printf("recursive_function_3 takes one int. please input that:");
+                scanf(int_1);
+                recursive_function_3(int_1);
+              }
+      case 7:
+              {
+                printf("recursive_function_2 takes one int. please input that:");
+                scanf(int_1);
+                recursive_function_2(const_char_add, const_char_div, const_char_mul, int_1);
+              }
+      case 8:
+              int_array_do_sth();
+      case 9:
+              swap_sth();
+      case 'q':
+              return ;
+      case 'h':
+              print_usage();
+      default:
+              printf("Not understood. type `h'.");
     }
   }
 }
-

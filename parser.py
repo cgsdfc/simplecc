@@ -10,7 +10,6 @@ how this parsing engine works.
 
 """
 
-import token
 import logging
 
 logger = logging.getLogger()
@@ -98,11 +97,12 @@ class Parser(object):
 
     def classify(self, type, value, context):
         """Turn a token into a label.  (Internal)"""
-        if type == token.NAME or type == token.OP:
+        if value in self.grammar.keywords:
             # Check for reserved words
             ilabel = self.grammar.keywords.get(value)
             if ilabel is not None:
                 return ilabel
+        type = self.grammar.token2id[type]
         ilabel = self.grammar.tokens.get(type)
         if ilabel is None:
             raise ParseError("bad token", type, value, context)

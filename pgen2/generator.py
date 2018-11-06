@@ -37,6 +37,7 @@ class Generator(object):
             c.dfas[c.symbol2number[name]] = (states, self.make_first(c, name))
         c.start = c.symbol2number[self.startsymbol]
         c.token2id = self.tokens
+        c.tok_name = {val:key for key, val in self.tokens.items()}
         return c
 
     def make_first(self, c, name):

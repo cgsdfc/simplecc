@@ -1,11 +1,6 @@
 """Tokenize a program"""
 import re
-from token import *
 from tokenize import TokenInfo
-
-CHAR = N_TOKENS
-N_TOKENS += 1
-tok_name[CHAR] = 'CHAR'
 
 def group(*args): return '({})'.format('|'.join(args))
 
@@ -15,7 +10,7 @@ def make_string():
 String = r'"{}*"'.format(make_string())
 Char = r"'[+\-*/_a-zA-Z0-9]'"
 Name = r'[_a-zA-Z][_a-zA-Z0-9]*'
-Number = group('0', r'[1-9]+')
+Number = group(r'0', r'[1-9][0-9]*')
 Operators = group(r'[+\-*/]', r'[=!]?=', r'[<>]=?')
 Bracket = '[][(){}]'
 Special = group(r'[;:,]', r'\r?\n')
@@ -54,21 +49,21 @@ def tokenize(readline):
                     continue
                 token, initial = line[start : end], line[start]
                 if initial in numchars:
-                    yield TokenInfo(NUMBER, token, spos, epos, line)
+                    yield TokenInfo('NUMBER', token, spos, epos, line)
                 elif initial in '\r\n':
                     continue
                 elif initial in ("\"", "'"):
-                    yield TokenInfo(CHAR if initial == "'" else STRING,
+                    yield TokenInfo('CHAR' if initial == "'" else 'STRING',
                             token, spos, epos, line)
                 elif initial.isidentifier():
-                    yield TokenInfo(NAME, token, spos, epos, line)
+                    yield TokenInfo('NAME', token, spos, epos, line)
                 else:
-                    yield TokenInfo(OP, token, spos, epos, line)
+                    yield TokenInfo('OP', token, spos, epos, line)
             else:
-                yield TokenInfo(ERRORTOKEN, line[pos],
+                yield TokenInfo('ERRORTOKEN', line[pos],
                            (lnum, pos), (lnum, pos+1), line)
                 pos += 1
-    yield TokenInfo(ENDMARKER, '', (lnum, 0), (lnum, 0), '')
+    yield TokenInfo('ENDMARKER', '', (lnum, 0), (lnum, 0), '')
 
 
 def main():
@@ -84,7 +79,7 @@ def main():
     for token in tokens:
         token_range = "%d,%d-%d,%d:" % (token.start + token.end)
         print("%-20s%-15s%-15r" %
-              (token_range, tok_name[token.type], token.string))
+              (token_range, token.type, token.string))
 
 if __name__ == '__main__':
     main()
