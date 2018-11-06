@@ -11,9 +11,10 @@ how this parsing engine works.
 """
 
 import logging
+from tokenizer import tokenize
 
 logger = logging.getLogger()
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class ParseError(Exception):
@@ -28,17 +29,17 @@ class ParseError(Exception):
         self.context = context
 
 
-class Parser(object):
+class BaseParser:
     """Parser engine."""
 
-    def __init__(self, grammar, start):
+    def __init__(self, grammar, start=None):
         # Each stack entry is a tuple: (dfa, state, node).
         # A node is a tuple: (type, value, context, children),
         # where children is a list of nodes or None, and context may be None.
 
         self.grammar = grammar
         if start is None:
-            start = self.grammar.start
+            start = grammar.start
         self.start = start
         newnode = (start, None, None, [])
         stackentry = (self.grammar.dfas[start], 0, newnode)
@@ -133,3 +134,34 @@ class Parser(object):
             node[-1].append(newnode)
         else:
             self.rootnode = newnode
+
+
+class Parser(BaseParser):
+
+    def __init__(self, grammar, start=None):
+        super().__init__(grammar, start)
+
+    def parse_tokens(self, tokens, debug=False):
+        """Parse a series of tokens and return the syntax tree."""
+        for quintuple in tokens:
+            type, value, start, *_ = quintuple
+            if self.addtoken(type, value, start):
+                break
+        else:
+            raise ParseError("incomplete input", type, value, start)
+        return self.rootnode
+
+    def parse_stream(self, stream, debug=False):
+        """Parse a stream and return the syntax tree."""
+        tokens = tokenize(stream.__next__)
+        return self.parse_tokens(tokens, debug)
+
+    def parse_file(self, filename, debug=False):
+        """Parse a file and return the syntax tree."""
+        with open(filename) as stream:
+            return self.parse_stream(stream, debug)
+
+    def parse_string(self, text, debug=False):
+        """Parse a string and return the syntax tree."""
+        tokens = tokenize(io.StringIO(text).readline)
+        return self.parse_tokens(tokens, debug)

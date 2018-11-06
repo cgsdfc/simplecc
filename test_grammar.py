@@ -4,7 +4,7 @@ import tokenize as token
 import symbol
 
 from pgen2 import generate_grammar
-from driver import Driver
+from parser import Parser
 
 
 def main():
@@ -24,8 +24,8 @@ def main():
         return
 
     assert args.input is not None
-    driver = Driver(gr, gr.start)
-    rootnode = driver.parse_file(args.input, "utf-8")
+    parser = Parser(gr)
+    rootnode = parser.parse_file(args.input, "utf-8")
     pprint(rootnode)
 
 if __name__ == '__main__':
