@@ -10,17 +10,18 @@ tok_name[CHAR] = 'CHAR'
 def group(*args): return '({})'.format('|'.join(args))
 
 def make_string():
-    return b'[{}-{}]'.format(bytes([32, 33, 35]), bytes([126])).decode()
+    return '[{}-{}]'.format(bytes([32, 33, 35]).decode(), bytes([126]).decode())
 
 String = r'"{}*"'.format(make_string())
-Char = r"'[+*_a-zA-Z0-9]'"
+Char = r"'[+\-*/_a-zA-Z0-9]'"
 Name = r'[_a-zA-Z][_a-zA-Z0-9]*'
-Operators = group(r'[+-*/]', r'[=!]?=', r'[<>]=?')
+Number = group('0', r'[1-9]+')
+Operators = group(r'[+\-*/]', r'[=!]?=', r'[<>]=?')
 Bracket = '[][(){}]'
 Special = group(r'[;:,]', r'\r?\n')
 Whitespace = r'[ \f\t]*'
 PseudoToken = re.compile(
-        Whitespace + group(String, Char, Name, Operators, Special))
+        Whitespace + group(String, Number, Char, Name, Operators, Bracket, Special))
 Blank = re.compile(r'[ \t\f]*(?:[\r\n]|$)')
 
 
@@ -37,9 +38,10 @@ def tokenize(readline):
     while True:
         try:
             line = readline()
+            lnum += 1
         except StopIteration:
-            line = ''
-        lnum += 1
+            break
+
         pos, max = 0, len(line)
         if Blank.match(line):
             continue
@@ -50,7 +52,7 @@ def tokenize(readline):
                 spos, epos, pos = (lnum, start), (lnum, end), end
                 if start == end:
                     continue
-                token, initial = line[start, end], line[start]
+                token, initial = line[start : end], line[start]
                 if initial in numchars:
                     yield TokenInfo(NUMBER, token, spos, epos, line)
                 elif initial in '\r\n':
@@ -74,14 +76,15 @@ def main():
     import sys
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', type=argparse.FileType(), default=sys.stdin)
+    parser.add_argument('-f', '--file', dest='file',
+            type=argparse.FileType(), default=sys.stdin)
     args = parser.parse_args()
     with args.file:
         tokens = list(tokenize(args.file.__next__))
     for token in tokens:
         token_range = "%d,%d-%d,%d:" % (token.start + token.end)
         print("%-20s%-15s%-15r" %
-              (token_range, tok_name[token_type], token.string))
+              (token_range, tok_name[token.type], token.string))
 
 if __name__ == '__main__':
     main()
