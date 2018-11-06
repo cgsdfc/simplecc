@@ -1,0 +1,53 @@
+-- ASDL's 7 builtin types are:
+-- identifier, int, string, bytes, object, singleton, constant
+--
+
+module Compiler
+{
+    program = Program(decl* decls, funcdef* functions)
+
+    decl = ConstDecl(identifier name, type decl_type, int value)
+         | VarDecl(identifier name type decl_type)
+          attributes (int lineno, int col_offset)
+
+    funcdef = FunctionDef(identifier name, arg* args, type return_type,
+                          decl* declaratoin, stmt* body)
+          attributes (int lineno, int col_offset)
+
+    arg = (type type, identifier name)
+          attributes (int lineno, int col_offset)
+
+    stmt = Read(identifier *names)
+         | Write(string? str, expr? value)
+         | Assign(expr target, expr value)
+         | For(identifier counter, int initial, expr condition, int step,
+               stmt* body)
+         | While(expr condition, stmt* body)
+
+         -- labels[-1] is None and branches[-1] is default
+         | Switch(expr value, expr* labels, stmt* branches)
+         | Return(expr? value)
+         | If(expr test, stmt* body, stmt* orelse)
+         | Call(identifier func, expr* args)
+          attributes (int lineno, int col_offset)
+
+    expr = BinOp(expr left, operator op, expr right)
+         | UnaryOp(unaryop op, expr operand)
+         | Call(identifier func, expr* args)
+         | Num(object n)
+         | Str(string s)
+         | Char(int c)
+
+         -- the following expression can appear in assignment context
+         | Subscript(identifier value, expr slice, expr_context ctx)
+         | Name(identifier id, expr_context ctx)
+          attributes (int lineno, int col_offset)
+
+    operator = Add | Sub | Mult | Div | Eq | NotEq | Lt | LtE | Gt | GtE
+
+    unaryop = UAdd | USub
+
+    expr_context = Load | Store
+
+    type = Int | Char | Void | Array
+}
