@@ -35,6 +35,7 @@ class Generator(object):
             c.states.append(states)
             c.dfas[c.symbol2number[name]] = (states, self.make_first(c, name))
         c.start = c.symbol2number[self.startsymbol]
+        self.make_token(c, 'OP')
         c.tok_name = {val:key for key, val in c.token2id.items()}
         return c
 

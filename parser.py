@@ -103,7 +103,6 @@ class BaseParser:
             ilabel = self.grammar.keywords.get(value)
             if ilabel is not None:
                 return ilabel
-        type = self.grammar.token2id[type]
         ilabel = self.grammar.tokens.get(type)
         if ilabel is None:
             raise ParseError("bad token", type, value, context)
@@ -167,6 +166,22 @@ class Parser(BaseParser):
         return self.parse_tokens(tokens)
 
 
+def lispify(root, grammar):
+    out = []
+    type, *rest, children = root
+    if type < 256:
+        type = grammar.tok_name[type]
+    else:
+        # nonterminal
+        type = grammar.number2symbol[type]
+    out.append(type)
+    out.extend(filter(None, rest))
+    if children is not None:
+        children = tuple( lispify(child, grammar) for child in children )
+        out.append(children)
+    return tuple(out)
+
+
 
 def main():
     import argparse
@@ -184,7 +199,7 @@ def main():
         grammar = pickle.load(args.grammar)
     parser = Parser(grammar)
     rootnode = parser.parse_file(args.input)
-    pprint(rootnode)
+    pprint(lispify(rootnode, grammar))
 
 if __name__ == '__main__':
     main()

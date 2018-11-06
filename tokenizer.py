@@ -1,6 +1,7 @@
 """Tokenize a program"""
 import re
 from tokenize import TokenInfo
+from tokens import *
 
 def group(*args): return '({})'.format('|'.join(args))
 
@@ -50,21 +51,21 @@ def tokenize(readline):
                     continue
                 token, initial = line[start : end], line[start]
                 if initial in numchars:
-                    yield TokenInfo('NUMBER', token, spos, epos, line)
+                    yield TokenInfo(NUMBER, token, spos, epos, line)
                 elif initial in '\r\n':
                     continue
                 elif initial in ("\"", "'"):
-                    yield TokenInfo('CHAR' if initial == "'" else 'STRING',
+                    yield TokenInfo(CHAR if initial == "'" else STRING,
                             token, spos, epos, line)
                 elif initial.isidentifier():
-                    yield TokenInfo('NAME', token, spos, epos, line)
+                    yield TokenInfo(NAME, token, spos, epos, line)
                 else:
-                    yield TokenInfo('OP', token, spos, epos, line)
+                    yield TokenInfo(OP, token, spos, epos, line)
             else:
-                yield TokenInfo('ERRORTOKEN', line[pos],
+                yield TokenInfo(ERRORTOKEN, line[pos],
                            (lnum, pos), (lnum, pos+1), line)
                 pos += 1
-    yield TokenInfo('ENDMARKER', '', (lnum, 0), (lnum, 0), '')
+    yield TokenInfo(ENDMARKER, '', (lnum, 0), (lnum, 0), '')
 
 
 def main():
