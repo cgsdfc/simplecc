@@ -69,7 +69,7 @@ class Grammar(object):
         self.tokens = {}
         self.symbol2label = {}
         self.token2id = {}
-        self.start = 256
+        self.start = None
 
 
     def report(self):

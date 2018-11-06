@@ -165,3 +165,26 @@ class Parser(BaseParser):
         """Parse a string and return the syntax tree."""
         tokens = tokenize(io.StringIO(text).readline)
         return self.parse_tokens(tokens)
+
+
+
+def main():
+    import argparse
+    import os
+    import pickle
+    from pprint import pprint
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input', help='Input file to parse')
+    parser.add_argument('--grammar', type=argparse.FileType('rb'),
+            help='Pickled grammar to use', required=True)
+    args = parser.parse_args()
+
+    with args.grammar:
+        grammar = pickle.load(args.grammar)
+    parser = Parser(grammar)
+    rootnode = parser.parse_file(args.input)
+    pprint(rootnode)
+
+if __name__ == '__main__':
+    main()

@@ -12,7 +12,6 @@ class Generator(object):
         self.startsymbol = startsymbol
         self.first = {} # map from symbol name to set of tokens
         self.addfirstsets()
-        self.tokens = {} # map from token to itoken
 
     def make_grammar(self):
         c = grammar.Grammar()
@@ -36,8 +35,7 @@ class Generator(object):
             c.states.append(states)
             c.dfas[c.symbol2number[name]] = (states, self.make_first(c, name))
         c.start = c.symbol2number[self.startsymbol]
-        c.token2id = self.tokens
-        c.tok_name = {val:key for key, val in self.tokens.items()}
+        c.tok_name = {val:key for key, val in c.token2id.items()}
         return c
 
     def make_first(self, c, name):
@@ -48,12 +46,12 @@ class Generator(object):
             first.add(ilabel)
         return first
 
-    def make_token(self, label):
-        if label in self.tokens:
-            itoken = self.tokens[label]
+    def make_token(self, c, label):
+        if label in c.token2id:
+            itoken = c.token2id[label]
         else:
-            itoken = len(self.tokens)
-            self.tokens[label] = itoken
+            itoken = len(c.token2id)
+            c.token2id[label] = itoken
         return itoken
 
     def make_label(self, c, label):
@@ -70,7 +68,7 @@ class Generator(object):
                     return ilabel
             else:
                 # A named token (NAME, NUMBER, STRING)
-                itoken = self.make_token(label)
+                itoken = self.make_token(c, label)
                 if itoken in c.tokens:
                     return c.tokens[itoken]
                 else:
@@ -84,7 +82,7 @@ class Generator(object):
             if value in c.keywords:
                 return c.keywords[value]
             else:
-                c.labels.append((self.make_token(label), value))
+                c.labels.append((self.make_token(c, label), value))
                 c.keywords[value] = ilabel
                 return ilabel
 
