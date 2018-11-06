@@ -15,6 +15,10 @@ class Generator(object):
 
     def make_grammar(self):
         c = grammar.Grammar()
+        # These 2 token are builtin
+        self.make_token(c, 'NAME')
+        self.make_token(c, 'OP')
+
         names = sorted(self.dfas.keys())
         names.remove(self.startsymbol)
         names.insert(0, self.startsymbol)
@@ -35,7 +39,6 @@ class Generator(object):
             c.states.append(states)
             c.dfas[c.symbol2number[name]] = (states, self.make_first(c, name))
         c.start = c.symbol2number[self.startsymbol]
-        self.make_token(c, 'OP')
         c.tok_name = {val:key for key, val in c.token2id.items()}
         return c
 
@@ -83,7 +86,7 @@ class Generator(object):
             if value in c.keywords:
                 return c.keywords[value]
             else:
-                c.labels.append((self.make_token(c, label), value))
+                c.labels.append((c.token2id['NAME'], value))
                 c.keywords[value] = ilabel
                 return ilabel
 
