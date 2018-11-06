@@ -1,0 +1,65 @@
+# version 0.0.0
+# top nonterminal
+program: const_decl* var_decl* funcdef*
+
+# statement
+stmt: if_stmt | for_stmt | switch_stmt | '{' stmt* '}' | func_stmt ';' |
+     read_stmt ';' | write_stmt ';' | ';' | switch_stmt |
+     return_stmt ';' | assign_stmt ';'
+
+assign_stmt: NAME [subscript] '=' expr
+
+if_stmt: 'if' '(' condition ')' stmt ['else' stmt]
+
+condition: expr relation_op expr | expr
+
+relation_op: '<'|'<='|'>'|'>='|'!='|'=='
+
+for_stmt: 'for' '(' NAME '=' expr ';' condition ';'
+    NAME '=' NAME ('+'|'-') NUMBER ')' stmt
+
+switch_stmt: 'switch' '(' expr ')' '{' case+ default '}'
+
+case: 'case' constant ':' stmt
+
+default: 'default' ':' stmt
+
+func_stmt: NAME '(' [arglist] ')'
+
+arglist: expr (',' expr)*
+
+read_stmt: 'scanf' '(' NAME (',' NAME)* ')'
+
+write_stmt: 'printf' '(' (expr|STRING [',' expr]) ')'
+
+read_stmt: 'return' ['(' expr ')']
+
+compound_stmt: const_decl* var_decl* stmt*
+
+# expression
+expr: ['+'|'-'] term (('+'|'-') term)*
+
+term: factor (('*'|'/') factor)*
+
+factor: NAME [ subscript ] | integer | CHARACTER | func_stmt | '(' expr ')'
+
+subscript: '[' expr ']'
+
+paralist: type NAME (',' type NAME)*
+
+# declaration
+var_decl: type var_item (',' var_item)* ';'
+
+var_item: NAME [ '[' NUMBER ']' ]
+
+const_decl: 'const' type const_item (',' const_item)* ';'
+
+const_item: NAME '=' constant
+
+constant: integer | CHARACTER
+
+type: 'int' | 'char' | 'void'
+
+funcdef: type NAME '(' [paralist] ')' '{' compound_stmt '}'
+
+integer: ['+'|'-'] NUMBER
