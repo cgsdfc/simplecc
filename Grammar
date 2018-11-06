@@ -1,13 +1,14 @@
-# version 0.0.0
+# version 0.0.1
 # top nonterminal
 program: const_decl* declaration*
 
 # statement
 stmt: (if_stmt | for_stmt | switch_stmt | '{' stmt* '}' | NAME stmt_trailer ';'
-     | read_stmt ';' | write_stmt ';' | ';' | switch_stmt
-     | return_stmt ';' | assign_stmt ';')
+     | read_stmt ';' | write_stmt ';' | ';' | switch_stmt | return_stmt ';')
 
 stmt_trailer: [subscript] '=' expr | '(' [arglist] ')'
+
+return_stmt: 'return' ['(' expr ')']
 
 if_stmt: 'if' '(' condition ')' stmt ['else' stmt]
 
@@ -30,8 +31,6 @@ read_stmt: 'scanf' '(' NAME (',' NAME)* ')'
 
 write_stmt: 'printf' '(' (expr|STRING [',' expr]) ')'
 
-read_stmt: 'return' ['(' expr ')']
-
 compound_stmt: const_decl* var_decl* stmt*
 
 # expression
@@ -39,7 +38,7 @@ expr: ['+'|'-'] term (('+'|'-') term)*
 
 term: factor (('*'|'/') factor)*
 
-factor: NAME [ trailer ] | NUMBER | CHARACTER | '(' expr ')'
+factor: NAME [ trailer ] | NUMBER | STRING | '(' expr ')'
 
 trailer: subscript | '(' [paralist] ')'
 
@@ -56,7 +55,7 @@ const_decl: 'const' type const_item (',' const_item)* ';'
 
 const_item: NAME '=' constant
 
-constant: integer | CHARACTER
+constant: integer | STRING
 
 type: 'int' | 'char' | 'void'
 
