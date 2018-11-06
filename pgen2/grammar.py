@@ -54,6 +54,9 @@ class Grammar(object):
 
     tokens        -- a dict mapping token numbers to arc labels.
 
+    token2id      -- a dict mapping token strings to number so that we don't
+                     make use of external token module. Instead, they are discovered
+                     from Grammar automatically.
     """
 
     def __init__(self):
@@ -65,6 +68,7 @@ class Grammar(object):
         self.keywords = {}
         self.tokens = {}
         self.symbol2label = {}
+        self.token2id = {}
         self.start = 256
 
 
@@ -81,6 +85,8 @@ class Grammar(object):
         pprint(self.dfas)
         print("labels")
         pprint(self.labels)
+        print("token2id")
+        pprint(self.token2id)
         print("start", self.start)
 
 # These classes are used by Generator

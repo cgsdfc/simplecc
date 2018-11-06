@@ -38,7 +38,7 @@ expr: ['+'|'-'] term (('+'|'-') term)*
 
 term: factor (('*'|'/') factor)*
 
-factor: NAME [ trailer ] | NUMBER | STRING | '(' expr ')'
+factor: NAME [ trailer ] | NUMBER | CHAR | '(' expr ')'
 
 trailer: subscript | '(' [paralist] ')'
 
@@ -55,7 +55,7 @@ const_decl: 'const' type const_item (',' const_item)* ';'
 
 const_item: NAME '=' constant
 
-constant: integer | STRING
+constant: integer | CHAR
 
 type: 'int' | 'char' | 'void'
 

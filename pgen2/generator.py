@@ -1,7 +1,6 @@
 # Copyright 2004-2005 Elemental Security, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 from ast import literal_eval
-import token, tokenize
 # Pgen imports
 from . import grammar
 
@@ -13,6 +12,7 @@ class Generator(object):
         self.startsymbol = startsymbol
         self.first = {} # map from symbol name to set of tokens
         self.addfirstsets()
+        self.tokens = {} # map from token to itoken
 
     def make_grammar(self):
         c = grammar.Grammar()
@@ -36,6 +36,7 @@ class Generator(object):
             c.states.append(states)
             c.dfas[c.symbol2number[name]] = (states, self.make_first(c, name))
         c.start = c.symbol2number[self.startsymbol]
+        c.token2id = self.tokens
         return c
 
     def make_first(self, c, name):
@@ -45,6 +46,14 @@ class Generator(object):
             ilabel = self.make_label(c, label)
             first.add(ilabel)
         return first
+
+    def make_token(self, label):
+        if label in self.tokens:
+            itoken = self.tokens[label]
+        else:
+            itoken = len(self.tokens)
+            self.tokens[label] = itoken
+        return itoken
 
     def make_label(self, c, label):
         ilabel = len(c.labels)
@@ -60,9 +69,7 @@ class Generator(object):
                     return ilabel
             else:
                 # A named token (NAME, NUMBER, STRING)
-                itoken = getattr(token, label, None)
-                assert isinstance(itoken, int), label
-                assert itoken in token.tok_name, label
+                itoken = self.make_token(label)
                 if itoken in c.tokens:
                     return c.tokens[itoken]
                 else:
@@ -76,8 +83,7 @@ class Generator(object):
             if value in c.keywords:
                 return c.keywords[value]
             else:
-                c.labels.append(
-                        (token.NAME if value.isalpha() else token.OP, value))
+                c.labels.append((self.make_token(label), value))
                 c.keywords[value] = ilabel
                 return ilabel
 
