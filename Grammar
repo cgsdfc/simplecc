@@ -1,13 +1,13 @@
 # version 0.0.0
 # top nonterminal
-program: const_decl* var_decl* funcdef*
+program: const_decl* declaration*
 
 # statement
-stmt: if_stmt | for_stmt | switch_stmt | '{' stmt* '}' | func_stmt ';' |
-     read_stmt ';' | write_stmt ';' | ';' | switch_stmt |
-     return_stmt ';' | assign_stmt ';'
+stmt: (if_stmt | for_stmt | switch_stmt | '{' stmt* '}' | NAME stmt_trailer ';'
+     | read_stmt ';' | write_stmt ';' | ';' | switch_stmt
+     | return_stmt ';' | assign_stmt ';')
 
-assign_stmt: NAME [subscript] '=' expr
+stmt_trailer: [subscript] '=' expr | '(' [arglist] ')'
 
 if_stmt: 'if' '(' condition ')' stmt ['else' stmt]
 
@@ -15,16 +15,14 @@ condition: expr relation_op expr | expr
 
 relation_op: '<'|'<='|'>'|'>='|'!='|'=='
 
-for_stmt: 'for' '(' NAME '=' expr ';' condition ';'
-    NAME '=' NAME ('+'|'-') NUMBER ')' stmt
+for_stmt: ('for' '(' NAME '=' expr ';' condition ';'
+    NAME '=' NAME ('+'|'-') NUMBER ')' stmt)
 
 switch_stmt: 'switch' '(' expr ')' '{' case+ default '}'
 
 case: 'case' constant ':' stmt
 
 default: 'default' ':' stmt
-
-func_stmt: NAME '(' [arglist] ')'
 
 arglist: expr (',' expr)*
 
@@ -41,7 +39,9 @@ expr: ['+'|'-'] term (('+'|'-') term)*
 
 term: factor (('*'|'/') factor)*
 
-factor: NAME [ subscript ] | integer | CHARACTER | func_stmt | '(' expr ')'
+factor: NAME [ trailer ] | NUMBER | CHARACTER | '(' expr ')'
+
+trailer: subscript | '(' [paralist] ')'
 
 subscript: '[' expr ']'
 
@@ -50,7 +50,7 @@ paralist: type NAME (',' type NAME)*
 # declaration
 var_decl: type var_item (',' var_item)* ';'
 
-var_item: NAME [ '[' NUMBER ']' ]
+var_item: NAME [subscript2]
 
 const_decl: 'const' type const_item (',' const_item)* ';'
 
@@ -60,6 +60,10 @@ constant: integer | CHARACTER
 
 type: 'int' | 'char' | 'void'
 
-funcdef: type NAME '(' [paralist] ')' '{' compound_stmt '}'
+declaration: type NAME decl_trailer
+
+decl_trailer: '(' [paralist] ')' '{' compound_stmt '}' | [subscript2] (',' var_item)* ';'
+
+subscript2: '[' NUMBER ']'
 
 integer: ['+'|'-'] NUMBER
