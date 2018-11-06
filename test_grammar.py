@@ -25,7 +25,7 @@ def main():
 
     assert args.input is not None
     parser = Parser(gr)
-    rootnode = parser.parse_file(args.input, "utf-8")
+    rootnode = parser.parse_file(args.input)
     pprint(rootnode)
 
 if __name__ == '__main__':

@@ -141,7 +141,7 @@ class Parser(BaseParser):
     def __init__(self, grammar, start=None):
         super().__init__(grammar, start)
 
-    def parse_tokens(self, tokens, debug=False):
+    def parse_tokens(self, tokens):
         """Parse a series of tokens and return the syntax tree."""
         for quintuple in tokens:
             type, value, start, *_ = quintuple
@@ -151,17 +151,17 @@ class Parser(BaseParser):
             raise ParseError("incomplete input", type, value, start)
         return self.rootnode
 
-    def parse_stream(self, stream, debug=False):
+    def parse_stream(self, stream):
         """Parse a stream and return the syntax tree."""
         tokens = tokenize(stream.__next__)
-        return self.parse_tokens(tokens, debug)
+        return self.parse_tokens(tokens)
 
-    def parse_file(self, filename, debug=False):
+    def parse_file(self, filename):
         """Parse a file and return the syntax tree."""
         with open(filename) as stream:
-            return self.parse_stream(stream, debug)
+            return self.parse_stream(stream)
 
-    def parse_string(self, text, debug=False):
+    def parse_string(self, text):
         """Parse a string and return the syntax tree."""
         tokens = tokenize(io.StringIO(text).readline)
-        return self.parse_tokens(tokens, debug)
+        return self.parse_tokens(tokens)
