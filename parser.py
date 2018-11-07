@@ -162,7 +162,7 @@ class Parser(BaseParser):
 
     def parse_string(self, text):
         """Parse a string and return the syntax tree."""
-        tokens = tokenize(io.StringIO(text).readline)
+        tokens = tokenize(io.StringIO(text).__next__)
         return self.parse_tokens(tokens)
 
 
