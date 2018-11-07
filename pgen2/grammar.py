@@ -77,16 +77,28 @@ class Grammar(object):
         from pprint import pprint
         print("symbol2number")
         pprint(self.symbol2number)
+        print()
+
         print("number2symbol")
         pprint(self.number2symbol)
+        print()
+
         print("states")
         pprint(self.states)
+        print()
+
         print("dfas")
         pprint(self.dfas)
+        print()
+
         print("labels")
         pprint(self.labels)
+        print()
+
         print("token2id")
         pprint(self.token2id)
+        print()
+
         print("start", self.start)
 
 # These classes are used by Generator

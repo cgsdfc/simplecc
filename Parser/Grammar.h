@@ -40,5 +40,6 @@
 #define NUMBER 5
 #define STRING 6
 
+#define NT_OFFSET 256
 extern Grammar CompilerGrammar;
 extern const char *TokenNames[], *SymbolNames[];

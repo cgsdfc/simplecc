@@ -82,7 +82,7 @@ public:
   start(grammar->start) {
     Node *newnode = new Node(grammar->start, "", Location());
     rootnode = nullptr;
-    stack.push(StackEntry(grammar->dfas[start], 0, newnode));
+    stack.push(StackEntry(grammar->dfas[start - NT_OFFSET], 0, newnode));
   }
 
   int Classify(const TokenInfo &token) {
@@ -162,8 +162,8 @@ public:
           return false;
         }
 
-        else if (IsNonterminal(type)) {
-          DFA *itsdfa = grammar->dfas[type];
+        else if (type >= 256) {
+          DFA *itsdfa = grammar->dfas[type - NT_OFFSET];
           if (itsdfa->InFirst(label)) {
             Push(type, itsdfa, newstate, token.start);
             flag = false;
@@ -207,6 +207,36 @@ public:
   }
 };
 
+void DumpGrammar(const Grammar &gr)  {
+  for (int k = 0; k < gr.n_dfas; k++) {
+    auto symbol = k + NT_OFFSET;
+    auto dfa = gr.dfas[k];
+
+    printf("DFA(symbol=%d)\n", symbol);
+
+    for (int i = 0; i < dfa->n_states; i++) {
+      auto &state = dfa->states[i];
+      printf("State(%d, is_final=%d):", i, state.is_final);
+
+      for (int j = 0; j < state.n_arcs; j++) {
+        auto &arc = state.arcs[j];
+        printf("(%d, %d)", arc.label, arc.state);
+      }
+      printf("\n");
+    }
+    printf("First(");
+    for (int i = 0; i < dfa->n_first; i++) {
+      printf("%d,", dfa->first[i]);
+    }
+    printf(")\n\n");
+  }
+}
+
+int main() {
+  DumpGrammar(CompilerGrammar);
+}
+
+#if 0
 int main(int argc, char **argv) {
   TokenBuffer tokens;
   if (argc == 1) {
@@ -223,6 +253,7 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+
   Parser parser;
   try {
     Node *root = parser.Parse(tokens);
@@ -236,3 +267,4 @@ int main(int argc, char **argv) {
   }
   return 0;
 }
+#endif

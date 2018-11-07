@@ -643,18 +643,11 @@ static DFAState states_30[7] = { { 1, arcs_30_0, 0 }, { 1, arcs_30_1, 0 }, { 2,
 
 static DFA dfa_30 = { 7, states_30, first_30, 1 };
 
-static Nonterminal2DFA dfas[31] = { { 256, &dfa_0 }, { 257, &dfa_1 }, { 258,
-                                    &dfa_2 }, { 259, &dfa_3 }, { 260, &dfa_4 },
-                                    { 261, &dfa_5 }, { 262, &dfa_6 }, { 263,
-                                    &dfa_7 }, { 264, &dfa_8 }, { 265, &dfa_9 },
-                                    { 266, &dfa_10 }, { 267, &dfa_11 }, { 268,
-                                    &dfa_12 }, { 269, &dfa_13 }, { 270, &dfa_14
-                                    }, { 271, &dfa_15 }, { 272, &dfa_16 }, {
-                                    273, &dfa_17 }, { 274, &dfa_18 }, { 275,
-                                    &dfa_19 }, { 276, &dfa_20 }, { 277, &dfa_21
-                                    }, { 278, &dfa_22 }, { 279, &dfa_23 }, {
-                                    280, &dfa_24 }, { 281, &dfa_25 }, { 282,
-                                    &dfa_26 }, { 283, &dfa_27 }, { 284, &dfa_28
-                                    }, { 285, &dfa_29 }, { 286, &dfa_30 } };
+static DFA *dfas[31] = { &dfa_0, &dfa_1, &dfa_2, &dfa_3, &dfa_4, &dfa_5,
+                         &dfa_6, &dfa_7, &dfa_8, &dfa_9, &dfa_10, &dfa_11,
+                         &dfa_12, &dfa_13, &dfa_14, &dfa_15, &dfa_16, &dfa_17,
+                         &dfa_18, &dfa_19, &dfa_20, &dfa_21, &dfa_22, &dfa_23,
+                         &dfa_24, &dfa_25, &dfa_26, &dfa_27, &dfa_28, &dfa_29,
+                         &dfa_30 };
 
-Grammar CompilerGrammar(256, 31, 69, labels, dfas);
+Grammar CompilerGrammar = { 256, 31, 69, labels, dfas };

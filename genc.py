@@ -20,6 +20,7 @@ def emit_header(config, gr):
             e.emit("#define {} {}".format(sym, val))
         e.emit("")
 
+        e.emit("#define NT_OFFSET 256")
         e.emit("extern Grammar CompilerGrammar;")
         e.emit("extern const char *TokenNames[], *SymbolNames[];")
 
@@ -78,16 +79,15 @@ def emit_cpp(config, gr):
             dfa_name = "dfa_{}".format(i) # name of this dfa
             e.emit("static DFA {} = {{ {}, {}, {}, {} }};".format(
                 dfa_name, len(states), states_name, first_name, len(first)))
-            type_dfas.append("{{ {}, &{} }}".format(type, dfa_name)) # type2dfa collected
+            type_dfas.append("&{}".format(dfa_name)) # type2dfa collected
             e.emit("")
 
         # type_dfas
-        e.emit("static Nonterminal2DFA dfas[{}] = {{ {} }};".format(len(type_dfas),
-            ", ".join(type_dfas)))
+        e.emit("static DFA *dfas[{}] = {{ {} }};".format(len(type_dfas), ", ".join(type_dfas)))
         e.emit("")
 
         # grammar
-        e.emit("""Grammar CompilerGrammar({start}, {n_dfas}, {n_labels}, labels, dfas);""".format(
+        e.emit("Grammar CompilerGrammar = {{ {start}, {n_dfas}, {n_labels}, labels, dfas }};".format(
             start=gr.start,
             n_dfas=len(type_dfas),
             n_labels=len(gr.labels)))
