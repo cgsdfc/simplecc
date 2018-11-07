@@ -1,0 +1,5 @@
+{
+  "cpp": "./Parser/Grammar.cpp",
+  "header": "./Parser/Token.h",
+  "grammar": "./Grammar"
+}

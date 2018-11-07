@@ -10,13 +10,10 @@
 #include <array>
 #include <stack>
 
-struct Grammar;
-struct DFA;
-
 class Node {
 public:
   int type;
-  std::string value;
+  String value;
   std::vector<Node*> children;
   Location location;
 
@@ -57,7 +54,7 @@ public:
   Parser(Grammar *grammar): stack(), grammar(grammar), start(grammar->start) {
     Node *newnode = new Node(grammar->start, "", Location());
     rootnode = nullptr;
-    stack.push(StackEntry(&grammar->dfas[start], 0, newnode));
+    stack.push(StackEntry(grammar->dfas[start], 0, newnode));
   }
 
   int Classify(const TokenInfo &token) {
@@ -131,9 +128,9 @@ public:
         }
 
         else if (type >= 256) {
-          DFA &itsdfa = grammar->dfas[type];
-          if (itsdfa.InFirst(type)) {
-            Push(token, &itsdfa, newstate);
+          DFA *itsdfa = grammar->dfas[type];
+          if (itsdfa->InFirst(type)) {
+            Push(token, itsdfa, newstate);
             flag = false;
             break;
           }

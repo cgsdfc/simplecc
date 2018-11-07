@@ -1,3 +1,4 @@
+#include <map>
 
 struct Arc {
     int label;
@@ -30,11 +31,22 @@ struct Label {
   const char *string;
 };
 
+struct Nonterminal2DFA {
+  int nonterminal;
+  DFA *dfa;
+};
+
 struct Grammar {
   int start;
-  int n_dfas;
-  DFA *dfas;
+  std::map<int, DFA*> dfas;
   int n_labels;
   Label *labels;
-  int n_keywords;
+
+  Grammar(int start, int n_dfas, int n_labels, Label *labels,
+      Nonterminal2DFA *dfas): start(start), dfas(), n_labels(n_labels),
+  labels(labels) {
+    for (int i = 0; i < n_dfas; i++) {
+      this->dfas[dfas[i].nonterminal] = dfas[i].dfa;
+    }
+  }
 };
