@@ -24,12 +24,14 @@ public:
   }
 
   void Format(std::FILE *file) {
-    const char *type_str = type <= 256 ? TokenNames[type] : "";
+    const char *type_str = GetSymName(type);
+
     fprintf(file, "(%s", type_str);
     if (value.size()) {
       fprintf(file, ", %s", value.c_str());
     }
-    fprintf(file, ", (");
+    fprintf(file, ", (\n");
+
     if (children.size()) {
       for (auto child: children) {
         child->Format(file);
@@ -183,15 +185,7 @@ class Parser: public BaseParser {
 public:
   Parser(): BaseParser(&CompilerGrammar) {}
 
-  Node *ParseFile(const char *filename) {
-    std::ifstream ifs(filename);
-    if (ifs.fail()) {
-      std::fprintf(stderr, "cannot open %s\n", filename);
-      return nullptr;
-    }
-
-    TokenBuffer tokens;
-    Tokenize(ifs, tokens);
+  Node *Parse(const TokenBuffer &tokens) {
     for (auto token: tokens) {
       if (token->type == ERRORTOKEN) {
         std::fprintf(stderr, "error token %s at %s\n",
@@ -206,6 +200,32 @@ public:
   }
 };
 
-int main() {
+int main(int argc, char **argv) {
+  TokenBuffer tokens;
+  if (argc == 1) {
+    Tokenize(std::cin, tokens);
+  } else if (argc == 2) {
+    std::ifstream ifs(argv[1]);
+    if (ifs.fail()) {
+      fprintf(stderr, "file %s not exist\n", argv[1]);
+      exit(1);
+    }
+    Tokenize(ifs, tokens);
+  } else {
+    fputs("Usage: parser [file]\n", stderr);
+    exit(1);
+  }
+
+  Parser parser;
+  try {
+    Node *root = parser.Parse(tokens);
+    root->Format(stdout);
+  } catch (ParseError &e) {
+    fprintf(stderr, "%s\n", e.what());
+  }
+
+  for (auto token: tokens) {
+    delete token;
+  }
   return 0;
 }

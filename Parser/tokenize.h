@@ -13,6 +13,8 @@
 
 typedef std::string String;
 using std::fprintf;
+using std::fputs;
+using std::exit;
 
 class Location {
 public:
@@ -62,6 +64,10 @@ inline bool IsTerminal(int type) {
 
 inline bool IsNonterminal(int type) {
   return !IsTerminal(type);
+}
+
+inline const char *GetSymName(int sym) {
+  return IsTerminal(sym) ? TokenNames[sym] : SymbolNames[sym - 256];
 }
 
 #endif
