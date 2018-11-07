@@ -71,6 +71,13 @@ public:
   }
 };
 
+bool InFirst(DFA *dfa, int label) {
+  for (int i = 0; i < dfa->n_first; i++)
+    if (label == dfa->first[i])
+      return true;
+  return false;
+}
+
 class BaseParser {
 public:
   std::stack<StackEntry> stack;
@@ -164,7 +171,7 @@ public:
 
         else if (type >= 256) {
           DFA *itsdfa = grammar->dfas[type - NT_OFFSET];
-          if (itsdfa->InFirst(label)) {
+          if (InFirst(itsdfa, label)) {
             Push(type, itsdfa, newstate, token.start);
             flag = false;
             break;

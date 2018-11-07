@@ -18,7 +18,6 @@ const char *SymbolNames[31] = {
     "condition",
     "const_decl",
     "const_item",
-    "constant",
     "decl_trailer",
     "declaration",
     "default_stmt",
@@ -27,6 +26,7 @@ const char *SymbolNames[31] = {
     "for_stmt",
     "if_stmt",
     "integer",
+    "konstant",
     "paralist",
     "read_stmt",
     "relation_op",
@@ -48,12 +48,12 @@ static Label labels[69] = {
     {0, "EMPTY"},
     {3, 0},
     {261, 0},
-    {265, 0},
+    {264, 0},
     {0, "char"},
     {0, "const"},
     {0, "int"},
     {0, "void"},
-    {267, 0},
+    {266, 0},
     {0, ","},
     {0, "("},
     {0, "+"},
@@ -62,7 +62,7 @@ static Label labels[69] = {
     {0, 0},
     {5, 0},
     {0, "case"},
-    {263, 0},
+    {271, 0},
     {0, ":"},
     {276, 0},
     {284, 0},
@@ -78,7 +78,6 @@ static Label labels[69] = {
     {283, 0},
     {262, 0},
     {0, "="},
-    {271, 0},
     {279, 0},
     {0, ")"},
     {272, 0},
@@ -86,20 +85,21 @@ static Label labels[69] = {
     {259, 0},
     {0, "}"},
     {0, "["},
-    {264, 0},
+    {263, 0},
     {0, "default"},
     {281, 0},
     {282, 0},
     {260, 0},
     {0, "else"},
+    {270, 0},
     {0, "!="},
     {0, "<"},
     {0, "<="},
     {0, "=="},
     {0, ">"},
     {0, ">="},
+    {268, 0},
     {269, 0},
-    {270, 0},
     {273, 0},
     {275, 0},
     {280, 0},
@@ -109,8 +109,8 @@ static Label labels[69] = {
     {257, 0},
     {0, "]"},
     {258, 0},
-    {266, 0},
-    {268, 0},
+    {265, 0},
+    {267, 0},
     {0, "*"},
     {0, "/"},
     {6, 0},
@@ -218,187 +218,187 @@ static DFAState states_6[4] = { { 1, arcs_6_0, 0 }, { 1, arcs_6_1, 0 }, { 1,
 
 static DFA dfa_6 = { 4, states_6, first_6, 1 };
 
-static Arc arcs_7_0[2] = { { 13, 1 }, { 33, 1 } };
+static Arc arcs_7_0[4] = { { 10, 1 }, { 9, 2 }, { 21, 3 }, { 33, 4 } };
 
-static Arc arcs_7_1[1] = { { 0, 1 } };
+static Arc arcs_7_1[2] = { { 34, 5 }, { 35, 6 } };
 
-static int first_7[4] = { 11, 12, 13, 15 };
+static Arc arcs_7_2[1] = { { 36, 4 } };
 
-static DFAState states_7[2] = { { 2, arcs_7_0, 0 }, { 1, arcs_7_1, 1 } };
+static Arc arcs_7_3[1] = { { 0, 3 } };
 
-static DFA dfa_7 = { 2, states_7, first_7, 4 };
+static Arc arcs_7_4[2] = { { 9, 2 }, { 21, 3 } };
 
-static Arc arcs_8_0[4] = { { 10, 1 }, { 9, 2 }, { 21, 3 }, { 34, 4 } };
+static Arc arcs_7_5[1] = { { 28, 7 } };
 
-static Arc arcs_8_1[2] = { { 35, 5 }, { 36, 6 } };
+static Arc arcs_7_6[1] = { { 34, 5 } };
 
-static Arc arcs_8_2[1] = { { 37, 4 } };
+static Arc arcs_7_7[1] = { { 37, 8 } };
+
+static Arc arcs_7_8[1] = { { 38, 3 } };
+
+static int first_7[4] = { 9, 10, 21, 39 };
+
+static DFAState states_7[9] = { { 4, arcs_7_0, 0 }, { 2, arcs_7_1, 0 }, { 1,
+                                arcs_7_2, 0 }, { 1, arcs_7_3, 1 }, { 2,
+                                arcs_7_4, 0 }, { 1, arcs_7_5, 0 }, { 1,
+                                arcs_7_6, 0 }, { 1, arcs_7_7, 0 }, { 1,
+                                arcs_7_8, 0 } };
+
+static DFA dfa_7 = { 9, states_7, first_7, 4 };
+
+static Arc arcs_8_0[1] = { { 30, 1 } };
+
+static Arc arcs_8_1[1] = { { 14, 2 } };
+
+static Arc arcs_8_2[1] = { { 40, 3 } };
 
 static Arc arcs_8_3[1] = { { 0, 3 } };
 
-static Arc arcs_8_4[2] = { { 9, 2 }, { 21, 3 } };
+static int first_8[3] = { 4, 6, 7 };
 
-static Arc arcs_8_5[1] = { { 28, 7 } };
+static DFAState states_8[4] = { { 1, arcs_8_0, 0 }, { 1, arcs_8_1, 0 }, { 1,
+                                arcs_8_2, 0 }, { 1, arcs_8_3, 1 } };
 
-static Arc arcs_8_6[1] = { { 35, 5 } };
+static DFA dfa_8 = { 4, states_8, first_8, 3 };
 
-static Arc arcs_8_7[1] = { { 38, 8 } };
+static Arc arcs_9_0[1] = { { 41, 1 } };
 
-static Arc arcs_8_8[1] = { { 39, 3 } };
+static Arc arcs_9_1[1] = { { 18, 2 } };
 
-static int first_8[4] = { 40, 9, 10, 21 };
-
-static DFAState states_8[9] = { { 4, arcs_8_0, 0 }, { 2, arcs_8_1, 0 }, { 1,
-                                arcs_8_2, 0 }, { 1, arcs_8_3, 1 }, { 2,
-                                arcs_8_4, 0 }, { 1, arcs_8_5, 0 }, { 1,
-                                arcs_8_6, 0 }, { 1, arcs_8_7, 0 }, { 1,
-                                arcs_8_8, 0 } };
-
-static DFA dfa_8 = { 9, states_8, first_8, 4 };
-
-static Arc arcs_9_0[1] = { { 30, 1 } };
-
-static Arc arcs_9_1[1] = { { 14, 2 } };
-
-static Arc arcs_9_2[1] = { { 41, 3 } };
+static Arc arcs_9_2[1] = { { 19, 3 } };
 
 static Arc arcs_9_3[1] = { { 0, 3 } };
 
-static int first_9[3] = { 4, 6, 7 };
+static int first_9[1] = { 41 };
 
 static DFAState states_9[4] = { { 1, arcs_9_0, 0 }, { 1, arcs_9_1, 0 }, { 1,
                                 arcs_9_2, 0 }, { 1, arcs_9_3, 1 } };
 
-static DFA dfa_9 = { 4, states_9, first_9, 3 };
+static DFA dfa_9 = { 4, states_9, first_9, 1 };
 
-static Arc arcs_10_0[1] = { { 42, 1 } };
+static Arc arcs_10_0[3] = { { 11, 1 }, { 12, 1 }, { 42, 2 } };
 
-static Arc arcs_10_1[1] = { { 18, 2 } };
+static Arc arcs_10_1[1] = { { 42, 2 } };
 
-static Arc arcs_10_2[1] = { { 19, 3 } };
+static Arc arcs_10_2[3] = { { 11, 1 }, { 12, 1 }, { 0, 2 } };
 
-static Arc arcs_10_3[1] = { { 0, 3 } };
+static int first_10[6] = { 10, 11, 12, 13, 14, 15 };
 
-static int first_10[1] = { 42 };
+static DFAState states_10[3] = { { 3, arcs_10_0, 0 }, { 1, arcs_10_1, 0 }, { 3,
+                                 arcs_10_2, 1 } };
 
-static DFAState states_10[4] = { { 1, arcs_10_0, 0 }, { 1, arcs_10_1, 0 }, { 1,
-                                 arcs_10_2, 0 }, { 1, arcs_10_3, 1 } };
+static DFA dfa_10 = { 3, states_10, first_10, 6 };
 
-static DFA dfa_10 = { 4, states_10, first_10, 1 };
+static Arc arcs_11_0[4] = { { 10, 1 }, { 13, 2 }, { 14, 3 }, { 15, 2 } };
 
-static Arc arcs_11_0[3] = { { 11, 1 }, { 12, 1 }, { 43, 2 } };
+static Arc arcs_11_1[1] = { { 8, 4 } };
 
-static Arc arcs_11_1[1] = { { 43, 2 } };
+static Arc arcs_11_2[1] = { { 0, 2 } };
 
-static Arc arcs_11_2[3] = { { 11, 1 }, { 12, 1 }, { 0, 2 } };
+static Arc arcs_11_3[2] = { { 43, 2 }, { 0, 3 } };
 
-static int first_11[6] = { 10, 11, 12, 13, 14, 15 };
+static Arc arcs_11_4[1] = { { 34, 2 } };
 
-static DFAState states_11[3] = { { 3, arcs_11_0, 0 }, { 1, arcs_11_1, 0 }, { 3,
-                                 arcs_11_2, 1 } };
+static int first_11[4] = { 10, 13, 14, 15 };
 
-static DFA dfa_11 = { 3, states_11, first_11, 6 };
+static DFAState states_11[5] = { { 4, arcs_11_0, 0 }, { 1, arcs_11_1, 0 }, { 1,
+                                 arcs_11_2, 1 }, { 2, arcs_11_3, 1 }, { 1,
+                                 arcs_11_4, 0 } };
 
-static Arc arcs_12_0[4] = { { 10, 1 }, { 13, 2 }, { 14, 3 }, { 15, 2 } };
+static DFA dfa_11 = { 5, states_11, first_11, 4 };
 
-static Arc arcs_12_1[1] = { { 8, 4 } };
+static Arc arcs_12_0[1] = { { 22, 1 } };
 
-static Arc arcs_12_2[1] = { { 0, 2 } };
+static Arc arcs_12_1[1] = { { 10, 2 } };
 
-static Arc arcs_12_3[2] = { { 44, 2 }, { 0, 3 } };
+static Arc arcs_12_2[1] = { { 14, 3 } };
 
-static Arc arcs_12_4[1] = { { 35, 2 } };
+static Arc arcs_12_3[1] = { { 32, 4 } };
 
-static int first_12[4] = { 10, 13, 14, 15 };
+static Arc arcs_12_4[1] = { { 8, 5 } };
 
-static DFAState states_12[5] = { { 4, arcs_12_0, 0 }, { 1, arcs_12_1, 0 }, { 1,
-                                 arcs_12_2, 1 }, { 2, arcs_12_3, 1 }, { 1,
-                                 arcs_12_4, 0 } };
+static Arc arcs_12_5[1] = { { 21, 6 } };
 
-static DFA dfa_12 = { 5, states_12, first_12, 4 };
+static Arc arcs_12_6[1] = { { 44, 7 } };
 
-static Arc arcs_13_0[1] = { { 22, 1 } };
+static Arc arcs_12_7[1] = { { 21, 8 } };
+
+static Arc arcs_12_8[1] = { { 14, 9 } };
+
+static Arc arcs_12_9[1] = { { 32, 10 } };
+
+static Arc arcs_12_10[1] = { { 14, 11 } };
+
+static Arc arcs_12_11[2] = { { 11, 12 }, { 12, 12 } };
+
+static Arc arcs_12_12[1] = { { 15, 13 } };
+
+static Arc arcs_12_13[1] = { { 34, 14 } };
+
+static Arc arcs_12_14[1] = { { 19, 15 } };
+
+static Arc arcs_12_15[1] = { { 0, 15 } };
+
+static int first_12[1] = { 22 };
+
+static DFAState states_12[16] = { { 1, arcs_12_0, 0 }, { 1, arcs_12_1, 0 }, {
+                                  1, arcs_12_2, 0 }, { 1, arcs_12_3, 0 }, { 1,
+                                  arcs_12_4, 0 }, { 1, arcs_12_5, 0 }, { 1,
+                                  arcs_12_6, 0 }, { 1, arcs_12_7, 0 }, { 1,
+                                  arcs_12_8, 0 }, { 1, arcs_12_9, 0 }, { 1,
+                                  arcs_12_10, 0 }, { 2, arcs_12_11, 0 }, { 1,
+                                  arcs_12_12, 0 }, { 1, arcs_12_13, 0 }, { 1,
+                                  arcs_12_14, 0 }, { 1, arcs_12_15, 1 } };
+
+static DFA dfa_12 = { 16, states_12, first_12, 1 };
+
+static Arc arcs_13_0[1] = { { 23, 1 } };
 
 static Arc arcs_13_1[1] = { { 10, 2 } };
 
-static Arc arcs_13_2[1] = { { 14, 3 } };
+static Arc arcs_13_2[1] = { { 44, 3 } };
 
-static Arc arcs_13_3[1] = { { 32, 4 } };
+static Arc arcs_13_3[1] = { { 34, 4 } };
 
-static Arc arcs_13_4[1] = { { 8, 5 } };
+static Arc arcs_13_4[1] = { { 19, 5 } };
 
-static Arc arcs_13_5[1] = { { 21, 6 } };
+static Arc arcs_13_5[2] = { { 45, 6 }, { 0, 5 } };
 
-static Arc arcs_13_6[1] = { { 45, 7 } };
+static Arc arcs_13_6[1] = { { 19, 7 } };
 
-static Arc arcs_13_7[1] = { { 21, 8 } };
+static Arc arcs_13_7[1] = { { 0, 7 } };
 
-static Arc arcs_13_8[1] = { { 14, 9 } };
+static int first_13[1] = { 23 };
 
-static Arc arcs_13_9[1] = { { 32, 10 } };
+static DFAState states_13[8] = { { 1, arcs_13_0, 0 }, { 1, arcs_13_1, 0 }, { 1,
+                                 arcs_13_2, 0 }, { 1, arcs_13_3, 0 }, { 1,
+                                 arcs_13_4, 0 }, { 2, arcs_13_5, 1 }, { 1,
+                                 arcs_13_6, 0 }, { 1, arcs_13_7, 1 } };
 
-static Arc arcs_13_10[1] = { { 14, 11 } };
+static DFA dfa_13 = { 8, states_13, first_13, 1 };
 
-static Arc arcs_13_11[2] = { { 11, 12 }, { 12, 12 } };
+static Arc arcs_14_0[3] = { { 11, 1 }, { 12, 1 }, { 15, 2 } };
 
-static Arc arcs_13_12[1] = { { 15, 13 } };
+static Arc arcs_14_1[1] = { { 15, 2 } };
 
-static Arc arcs_13_13[1] = { { 35, 14 } };
+static Arc arcs_14_2[1] = { { 0, 2 } };
 
-static Arc arcs_13_14[1] = { { 19, 15 } };
+static int first_14[3] = { 11, 12, 15 };
 
-static Arc arcs_13_15[1] = { { 0, 15 } };
+static DFAState states_14[3] = { { 3, arcs_14_0, 0 }, { 1, arcs_14_1, 0 }, { 1,
+                                 arcs_14_2, 1 } };
 
-static int first_13[1] = { 22 };
+static DFA dfa_14 = { 3, states_14, first_14, 3 };
 
-static DFAState states_13[16] = { { 1, arcs_13_0, 0 }, { 1, arcs_13_1, 0 }, {
-                                  1, arcs_13_2, 0 }, { 1, arcs_13_3, 0 }, { 1,
-                                  arcs_13_4, 0 }, { 1, arcs_13_5, 0 }, { 1,
-                                  arcs_13_6, 0 }, { 1, arcs_13_7, 0 }, { 1,
-                                  arcs_13_8, 0 }, { 1, arcs_13_9, 0 }, { 1,
-                                  arcs_13_10, 0 }, { 2, arcs_13_11, 0 }, { 1,
-                                  arcs_13_12, 0 }, { 1, arcs_13_13, 0 }, { 1,
-                                  arcs_13_14, 0 }, { 1, arcs_13_15, 1 } };
+static Arc arcs_15_0[2] = { { 13, 1 }, { 46, 1 } };
 
-static DFA dfa_13 = { 16, states_13, first_13, 1 };
+static Arc arcs_15_1[1] = { { 0, 1 } };
 
-static Arc arcs_14_0[1] = { { 23, 1 } };
+static int first_15[4] = { 11, 12, 13, 15 };
 
-static Arc arcs_14_1[1] = { { 10, 2 } };
+static DFAState states_15[2] = { { 2, arcs_15_0, 0 }, { 1, arcs_15_1, 1 } };
 
-static Arc arcs_14_2[1] = { { 45, 3 } };
-
-static Arc arcs_14_3[1] = { { 35, 4 } };
-
-static Arc arcs_14_4[1] = { { 19, 5 } };
-
-static Arc arcs_14_5[2] = { { 46, 6 }, { 0, 5 } };
-
-static Arc arcs_14_6[1] = { { 19, 7 } };
-
-static Arc arcs_14_7[1] = { { 0, 7 } };
-
-static int first_14[1] = { 23 };
-
-static DFAState states_14[8] = { { 1, arcs_14_0, 0 }, { 1, arcs_14_1, 0 }, { 1,
-                                 arcs_14_2, 0 }, { 1, arcs_14_3, 0 }, { 1,
-                                 arcs_14_4, 0 }, { 2, arcs_14_5, 1 }, { 1,
-                                 arcs_14_6, 0 }, { 1, arcs_14_7, 1 } };
-
-static DFA dfa_14 = { 8, states_14, first_14, 1 };
-
-static Arc arcs_15_0[3] = { { 11, 1 }, { 12, 1 }, { 15, 2 } };
-
-static Arc arcs_15_1[1] = { { 15, 2 } };
-
-static Arc arcs_15_2[1] = { { 0, 2 } };
-
-static int first_15[3] = { 11, 12, 15 };
-
-static DFAState states_15[3] = { { 3, arcs_15_0, 0 }, { 1, arcs_15_1, 0 }, { 1,
-                                 arcs_15_2, 1 } };
-
-static DFA dfa_15 = { 3, states_15, first_15, 3 };
+static DFA dfa_15 = { 2, states_15, first_15, 4 };
 
 static Arc arcs_16_0[1] = { { 30, 1 } };
 
@@ -419,7 +419,7 @@ static Arc arcs_17_1[1] = { { 10, 2 } };
 
 static Arc arcs_17_2[1] = { { 14, 3 } };
 
-static Arc arcs_17_3[2] = { { 35, 4 }, { 9, 2 } };
+static Arc arcs_17_3[2] = { { 34, 4 }, { 9, 2 } };
 
 static Arc arcs_17_4[1] = { { 0, 4 } };
 
@@ -448,7 +448,7 @@ static Arc arcs_19_1[2] = { { 10, 2 }, { 0, 1 } };
 
 static Arc arcs_19_2[1] = { { 8, 3 } };
 
-static Arc arcs_19_3[1] = { { 35, 4 } };
+static Arc arcs_19_3[1] = { { 34, 4 } };
 
 static Arc arcs_19_4[1] = { { 0, 4 } };
 
@@ -465,7 +465,7 @@ static Arc arcs_20_0[9] = { { 21, 1 }, { 28, 2 }, { 14, 3 }, { 53, 1 }, { 54, 1
 
 static Arc arcs_20_1[1] = { { 0, 1 } };
 
-static Arc arcs_20_2[2] = { { 39, 1 }, { 19, 2 } };
+static Arc arcs_20_2[2] = { { 38, 1 }, { 19, 2 } };
 
 static Arc arcs_20_3[1] = { { 59, 4 } };
 
@@ -481,7 +481,7 @@ static DFA dfa_20 = { 5, states_20, first_20, 9 };
 
 static Arc arcs_21_0[3] = { { 10, 1 }, { 32, 2 }, { 60, 3 } };
 
-static Arc arcs_21_1[2] = { { 35, 4 }, { 61, 5 } };
+static Arc arcs_21_1[2] = { { 34, 4 }, { 61, 5 } };
 
 static Arc arcs_21_2[1] = { { 8, 4 } };
 
@@ -489,9 +489,9 @@ static Arc arcs_21_3[1] = { { 32, 2 } };
 
 static Arc arcs_21_4[1] = { { 0, 4 } };
 
-static Arc arcs_21_5[1] = { { 35, 4 } };
+static Arc arcs_21_5[1] = { { 34, 4 } };
 
-static int first_21[3] = { 32, 10, 40 };
+static int first_21[3] = { 32, 10, 39 };
 
 static DFAState states_21[6] = { { 3, arcs_21_0, 0 }, { 2, arcs_21_1, 0 }, { 1,
                                  arcs_21_2, 0 }, { 1, arcs_21_3, 0 }, { 1,
@@ -499,7 +499,7 @@ static DFAState states_21[6] = { { 3, arcs_21_0, 0 }, { 2, arcs_21_1, 0 }, { 1,
 
 static DFA dfa_21 = { 6, states_21, first_21, 3 };
 
-static Arc arcs_22_0[1] = { { 40, 1 } };
+static Arc arcs_22_0[1] = { { 39, 1 } };
 
 static Arc arcs_22_1[1] = { { 8, 2 } };
 
@@ -507,14 +507,14 @@ static Arc arcs_22_2[1] = { { 62, 3 } };
 
 static Arc arcs_22_3[1] = { { 0, 3 } };
 
-static int first_22[1] = { 40 };
+static int first_22[1] = { 39 };
 
 static DFAState states_22[4] = { { 1, arcs_22_0, 0 }, { 1, arcs_22_1, 0 }, { 1,
                                  arcs_22_2, 0 }, { 1, arcs_22_3, 1 } };
 
 static DFA dfa_22 = { 4, states_22, first_22, 1 };
 
-static Arc arcs_23_0[1] = { { 40, 1 } };
+static Arc arcs_23_0[1] = { { 39, 1 } };
 
 static Arc arcs_23_1[1] = { { 15, 2 } };
 
@@ -522,7 +522,7 @@ static Arc arcs_23_2[1] = { { 62, 3 } };
 
 static Arc arcs_23_3[1] = { { 0, 3 } };
 
-static int first_23[1] = { 40 };
+static int first_23[1] = { 39 };
 
 static DFAState states_23[4] = { { 1, arcs_23_0, 0 }, { 1, arcs_23_1, 0 }, { 1,
                                  arcs_23_2, 0 }, { 1, arcs_23_3, 1 } };
@@ -535,7 +535,7 @@ static Arc arcs_24_1[1] = { { 10, 2 } };
 
 static Arc arcs_24_2[1] = { { 8, 3 } };
 
-static Arc arcs_24_3[1] = { { 35, 4 } };
+static Arc arcs_24_3[1] = { { 34, 4 } };
 
 static Arc arcs_24_4[1] = { { 28, 5 } };
 
@@ -543,7 +543,7 @@ static Arc arcs_24_5[1] = { { 63, 6 } };
 
 static Arc arcs_24_6[2] = { { 63, 6 }, { 64, 7 } };
 
-static Arc arcs_24_7[1] = { { 39, 8 } };
+static Arc arcs_24_7[1] = { { 38, 8 } };
 
 static Arc arcs_24_8[1] = { { 0, 8 } };
 
@@ -569,13 +569,13 @@ static DFA dfa_25 = { 2, states_25, first_25, 4 };
 
 static Arc arcs_26_0[2] = { { 10, 1 }, { 60, 2 } };
 
-static Arc arcs_26_1[2] = { { 35, 2 }, { 61, 3 } };
+static Arc arcs_26_1[2] = { { 34, 2 }, { 61, 3 } };
 
 static Arc arcs_26_2[1] = { { 0, 2 } };
 
-static Arc arcs_26_3[1] = { { 35, 2 } };
+static Arc arcs_26_3[1] = { { 34, 2 } };
 
-static int first_26[2] = { 40, 10 };
+static int first_26[2] = { 10, 39 };
 
 static DFAState states_26[4] = { { 2, arcs_26_0, 0 }, { 2, arcs_26_1, 0 }, { 1,
                                  arcs_26_2, 1 }, { 1, arcs_26_3, 0 } };
@@ -594,7 +594,7 @@ static DFA dfa_27 = { 2, states_27, first_27, 3 };
 
 static Arc arcs_28_0[1] = { { 30, 1 } };
 
-static Arc arcs_28_1[1] = { { 37, 2 } };
+static Arc arcs_28_1[1] = { { 36, 2 } };
 
 static Arc arcs_28_2[2] = { { 9, 1 }, { 21, 3 } };
 
@@ -609,7 +609,7 @@ static DFA dfa_28 = { 4, states_28, first_28, 3 };
 
 static Arc arcs_29_0[1] = { { 14, 1 } };
 
-static Arc arcs_29_1[2] = { { 34, 2 }, { 0, 1 } };
+static Arc arcs_29_1[2] = { { 33, 2 }, { 0, 1 } };
 
 static Arc arcs_29_2[1] = { { 0, 2 } };
 
@@ -626,9 +626,9 @@ static Arc arcs_30_1[1] = { { 10, 2 } };
 
 static Arc arcs_30_2[2] = { { 68, 3 }, { 8, 4 } };
 
-static Arc arcs_30_3[2] = { { 35, 5 }, { 9, 6 } };
+static Arc arcs_30_3[2] = { { 34, 5 }, { 9, 6 } };
 
-static Arc arcs_30_4[1] = { { 35, 5 } };
+static Arc arcs_30_4[1] = { { 34, 5 } };
 
 static Arc arcs_30_5[1] = { { 0, 5 } };
 

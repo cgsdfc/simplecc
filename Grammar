@@ -21,7 +21,7 @@ for_stmt: ('for' '(' NAME '=' expr ';' condition ';'
 
 switch_stmt: 'switch' '(' expr ')' '{' case_stmt+ default_stmt '}'
 
-case_stmt: 'case' constant ':' stmt
+case_stmt: 'case' konstant ':' stmt
 
 default_stmt: 'default' ':' stmt
 
@@ -51,9 +51,9 @@ var_item: NAME [subscript2]
 
 const_decl: 'const' type_name const_item (',' const_item)* ';'
 
-const_item: NAME '=' constant
+const_item: NAME '=' konstant
 
-constant: integer | CHAR
+konstant: integer | CHAR
 
 type_name: 'int' | 'char' | 'void'
 

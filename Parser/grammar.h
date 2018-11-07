@@ -1,6 +1,5 @@
 #ifndef GRAMMAR_H
 #define GRAMMAR_H
-#include <map>
 
 struct Arc {
     int label;
@@ -18,14 +17,6 @@ struct DFA {
   DFAState *states;
   int *first;
   int n_first;
-
-  bool InFirst(int label) {
-    for (int i = 0; i < n_first; i++)
-      if (label == first[i])
-        return true;
-    return false;
-  }
-
 };
 
 struct Label {
@@ -40,4 +31,5 @@ struct Grammar {
   Label *labels;
   DFA **dfas;
 };
+
 #endif
