@@ -1,5 +1,4 @@
 #include "tokenize.h"
-#include "grammar.h"
 
 #include <cstring>
 #include <sstream>
@@ -23,6 +22,23 @@ public:
   void AddChild(Node *child) {
     children.push_back(child);
   }
+
+  void Format(std::FILE *file) {
+    const char *type_str = type <= 256 ? TokenNames[type] : "";
+    fprintf(file, "(%s", type_str);
+    if (value.size()) {
+      fprintf(file, ", %s", value.c_str());
+    }
+    fprintf(file, ", (");
+    if (children.size()) {
+      for (auto child: children) {
+        child->Format(file);
+        fprintf(file, ", ");
+      }
+    }
+    fprintf(file, ")");
+  }
+
 };
 
 class StackEntry {
@@ -35,6 +51,15 @@ public:
     dfa(dfa), state(state), node(node) {}
 };
 
+class Exception: public std::exception {
+public:
+  const char *msg;
+  explicit Exception(const char *msg): msg(msg) {}
+  const char *what() const noexcept override {
+    return msg;
+  }
+};
+
 class ParseError: public std::exception {
 public:
   const char *msg;
@@ -44,14 +69,15 @@ public:
   }
 };
 
-class Parser {
+class BaseParser {
 public:
   std::stack<StackEntry> stack;
   Grammar *grammar;
   int start;
   Node *rootnode;
 
-  Parser(Grammar *grammar): stack(), grammar(grammar), start(grammar->start) {
+  explicit BaseParser(Grammar *grammar): stack(), grammar(grammar),
+  start(grammar->start) {
     Node *newnode = new Node(grammar->start, "", Location());
     rootnode = nullptr;
     stack.push(StackEntry(grammar->dfas[start], 0, newnode));
@@ -151,6 +177,33 @@ public:
     }
   }
 
+};
+
+class Parser: public BaseParser {
+public:
+  Parser(): BaseParser(&CompilerGrammar) {}
+
+  Node *ParseFile(const char *filename) {
+    std::ifstream ifs(filename);
+    if (ifs.fail()) {
+      std::fprintf(stderr, "cannot open %s\n", filename);
+      return nullptr;
+    }
+
+    TokenBuffer tokens;
+    Tokenize(ifs, tokens);
+    for (auto token: tokens) {
+      if (token->type == ERRORTOKEN) {
+        std::fprintf(stderr, "error token %s at %s\n",
+            token->string.c_str(), token->start.ToString().c_str());
+        return nullptr;
+      }
+      if (AddToken(*token)) {
+        return rootnode;
+      }
+    }
+    throw ParseError("incomplete input");
+  }
 };
 
 int main() {

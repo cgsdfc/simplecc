@@ -21,7 +21,7 @@ def emit_header(config, gr):
         e.emit("")
 
         e.emit("extern Grammar CompilerGrammar;")
-        e.emit("extern const char *TokenNames[];")
+        e.emit("extern const char *TokenNames[], *SymbolNames[];")
 
 
 def emit_cpp(config, gr):
@@ -34,7 +34,14 @@ def emit_cpp(config, gr):
 
         # TokenNames
         e.emit("const char *TokenNames[{}] = {{".format(len(gr.token2id)))
-        for sym, val in gr.token2id.items():
+        for sym  in gr.token2id.keys():
+            e.emit("\"{}\",".format(sym), 1)
+        e.emit("};")
+        e.emit("")
+
+        # SymbolNames
+        e.emit("const char *SymbolNames[{}] = {{".format(len(gr.symbol2number)))
+        for sym in gr.symbol2number.keys():
             e.emit("\"{}\",".format(sym), 1)
         e.emit("};")
         e.emit("")

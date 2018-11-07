@@ -41,4 +41,4 @@
 #define STRING 6
 
 extern Grammar CompilerGrammar;
-extern const char *TokenNames[];
+extern const char *TokenNames[], *SymbolNames[];

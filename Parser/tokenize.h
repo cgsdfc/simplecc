@@ -1,6 +1,8 @@
 #ifndef TOKENIZE_H
 #define TOKENIZE_H
 
+#include "Grammar.h"
+
 #include <fstream>
 #include <sstream>
 #include <cassert>
@@ -9,9 +11,8 @@
 #include <vector>
 #include <cstdio>
 
-#include "Grammar.h"
-
 typedef std::string String;
+using std::fprintf;
 
 class Location {
 public:
@@ -54,5 +55,13 @@ public:
 typedef std::vector<TokenInfo*> TokenBuffer;
 
 void Tokenize(std::istream &Input, TokenBuffer &Output);
+
+inline bool IsTerminal(int type) {
+  return type < 256;
+}
+
+inline bool IsNonterminal(int type) {
+  return !IsTerminal(type);
+}
 
 #endif
