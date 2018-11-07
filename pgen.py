@@ -3,6 +3,50 @@ import os
 
 from pgen2 import generate_grammar
 from ast import literal_eval
+from util import Emittor
+
+GrammarDef = """
+struct Arc {
+    int label;
+    int dfa;
+};
+
+struct DFA {
+    int n_arcs;
+    Arc *arcs;
+    bool is_final;
+};
+
+struct Label {
+    int symbol;
+    const char *string;
+};
+
+struct Grammar {
+    int start;
+    int n_dfas;
+    DFA *states;
+    int n_labels;
+    Label *labels;
+    int n_keywords;
+
+    
+
+"""
+
+class HeaderEmittor(Emittor):
+    def emit_all(self, gr):
+        self.emit("#ifndef GRAMMAR_H")
+        self.emit("#define GRAMMAR_H")
+        self.emit("")
+        self.emit("extern const char *TokenNames[];")
+        self.emit("extern const Grammar CompilerGrammar;")
+        self.emit("")
+
+        for tok, val in gr.token2id.items():
+            self.emit(f"#define {tok} {val}")
+
+        self.emit("#endif // GRAMMAR_H")
 
 def main():
     import argparse
@@ -15,6 +59,8 @@ def main():
     parser.add_argument('--pickle', action='store_true', default=False,
             help='Pickle the grammar for further usage')
     parser.add_argument('--tokens', help='Generate tokens.py')
+    parser.add_argument('--cpp', help='path/to/grammar.cpp', type=argparse.FileType('w'))
+    parser.add_argument('--header', help='path/to/grammar.h', type=argparse.FileType('w'))
     args = parser.parse_args()
 
     gr = generate_grammar(args.grammar)
@@ -29,13 +75,10 @@ def main():
     if args.tokens:
         with open(args.tokens, 'w') as f:
             for tok, val in gr.token2id.items():
-                if tok[0] not in ("'", '"'):
-                    f.write(f"{tok} = {val}\n")
+                f.write(f"{tok} = {val}\n")
             f.write("\n")
             f.write("tok_name = {\n")
             for tok, val in gr.token2id.items():
-                if tok[0] in ("'", '"'):
-                    tok = literal_eval(tok)
                 f.write(f"    {val}: {tok!r},\n")
             f.write("}\n")
 
