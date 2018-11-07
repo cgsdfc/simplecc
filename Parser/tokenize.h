@@ -18,7 +18,7 @@ public:
   unsigned lineno;
   unsigned col_offset;
 
-  Location(unsigned lineno, unsigned col_offset):
+  Location(unsigned lineno = -1, unsigned col_offset = -1):
     lineno(lineno), col_offset(col_offset) {}
 
   std::string ToString() const {

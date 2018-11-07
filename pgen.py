@@ -6,31 +6,6 @@ from ast import literal_eval
 from util import Emittor
 
 GrammarDef = """
-struct Arc {
-    int label;
-    int dfa;
-};
-
-struct DFA {
-    int n_arcs;
-    Arc *arcs;
-    bool is_final;
-};
-
-struct Label {
-    int symbol;
-    const char *string;
-};
-
-struct Grammar {
-    int start;
-    int n_dfas;
-    DFA *states;
-    int n_labels;
-    Label *labels;
-    int n_keywords;
-
-    
 
 """
 
