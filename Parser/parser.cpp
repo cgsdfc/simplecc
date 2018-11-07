@@ -71,11 +71,40 @@ public:
   }
 };
 
-bool InFirst(DFA *dfa, int label) {
+bool IsInFirst(DFA *dfa, int label) {
   for (int i = 0; i < dfa->n_first; i++)
     if (label == dfa->first[i])
       return true;
   return false;
+}
+
+bool IsAcceptOnlyState(DFAState *state) {
+  return state->is_final && state->n_arcs == 1;
+}
+
+void DumpDFA(DFA *dfa) {
+  printf("DFA(%s)\n", dfa->symbol);
+  for (int i = 0; i < dfa->n_states; i++) {
+    auto &state = dfa->states[i];
+    printf("State(%d, is_final=%d)\n", i, state.is_final);
+
+    for (int j = 0; j < state.n_arcs; j++) {
+      auto &arc = state.arcs[j];
+      printf("\t(%d, %d)\n", arc.label, arc.state);
+    }
+    printf("\n");
+  }
+  printf("First(");
+  for (int i = 0; i < dfa->n_first; i++) {
+    printf("%d,", dfa->first[i]);
+  }
+  printf(")\n");
+}
+
+void DumpStackEntry(StackEntry e) {
+  printf("state: %d\n", e.state);
+  printf("dfa: %s\n", e.dfa->symbol);
+  /* DumpDFA(e.dfa); */
 }
 
 class BaseParser {
@@ -94,37 +123,43 @@ public:
 
   int Classify(const TokenInfo &token) {
     if (token.type == NAME || token.type == OP) {
-      for (int i = 0; i < grammar->n_labels; i++) {
-        const char *string = grammar->labels[i].string;
-        if (string && token.string == string)
-          return i;
+      for (int i = 1; i < grammar->n_labels; i++) {
+        const Label &l = grammar->labels[i];
+        if (l.type != NAME || l.string == nullptr ||
+            l.string != token.string)
+          continue;
+        /* printf("It's a keyword\n"); */
+        return i;
       }
     }
-    for (int i = 0; i < grammar->n_labels; i++) {
-      if (token.type == grammar->labels[i].type)
+    for (int i = 1; i < grammar->n_labels; i++) {
+      const Label &l = grammar->labels[i];
+      if (l.type == token.type && l.string == nullptr) {
+        /* printf("It's a token we know\n"); */
         return i;
+      }
     }
     throw ParseError("bad token");
   }
 
   void Shift(const TokenInfo &token, int newstate) {
-    printf("Shift()\n");
+    /* printf("shift %s\n", GetSymName(token.type)); */
     StackEntry &tos = stack.top();
     tos.node->AddChild(new Node(token.type, token.string, token.start));
     tos.state = newstate;
   }
 
   void Push(int type, DFA *newdfa, int newstate, Location location) {
-    printf("Push()\n");
+    /* printf("push %s\n", GetSymName(type)); */
     StackEntry &tos = stack.top();
-    tos.state = newstate;
     Node *newnode = new Node(type, "", location);
+    tos.state = newstate;
     stack.push(StackEntry(newdfa, 0, newnode));
   }
 
   void Pop() {
-    printf("Pop()\n");
-    StackEntry &tos = stack.top();
+    /* printf("pop\n"); */
+    StackEntry tos = stack.top();
     stack.pop();
     Node *newnode = tos.node;
 
@@ -138,40 +173,43 @@ public:
 
   bool AddToken(const TokenInfo &token) {
     int label = Classify(token);
-    token.Format(stdout);
+    /* token.Format(stdout); */
 
     while (true) {
       StackEntry &tos = stack.top();
       DFA *dfa = tos.dfa;
-      /* assert(0 <= tos.state && tos.state < dfa->n_states); */
-      DFAState &state = dfa->states[tos.state];
+      DFAState *states = dfa->states;
+      DFAState *state = &states[tos.state];
       bool flag = true;
 
-      for (int i = 0; i < state.n_arcs; ++i) {
-        Arc &arc = state.arcs[i];
+      /* DumpStackEntry(tos); */
+
+      for (int i = 0; i < state->n_arcs; ++i) {
+        Arc &arc = state->arcs[i];
         int type = grammar->labels[arc.label].type;
         int newstate = arc.state;
 
         if (label == arc.label) {
           Shift(token, newstate);
-          DFAState *states = dfa->states;
+          /* printf("shift %s\n", GetSymName(type)); */
 
-          while (states[newstate].is_final) {
+          while (IsAcceptOnlyState(&states[newstate])) {
             Pop();
             if (stack.empty()) {
-              printf("return true\n");
+              /* printf("return true\n"); */
               return true;
             }
             newstate = stack.top().state;
             states = stack.top().dfa->states;
           }
-          printf("return false\n");
+          /* printf("return false\n"); */
           return false;
         }
 
         else if (type >= 256) {
           DFA *itsdfa = grammar->dfas[type - NT_OFFSET];
-          if (InFirst(itsdfa, label)) {
+          if (IsInFirst(itsdfa, label)) {
+            /* printf("push %s\n", GetSymName(type)); */
             Push(type, itsdfa, newstate, token.start);
             flag = false;
             break;
@@ -180,13 +218,17 @@ public:
       }
 
       if (flag) {
-        if (state.is_final) {
+        if (state->is_final) {
           Pop();
           if (stack.empty()) {
             throw ParseError("too much input");
           }
         }
         else {
+          /* DumpDFA(dfa); */
+          /* printf("tos.state: %d\n", tos.state); */
+          /* printf("label: %d\n", label); */
+          /* printf("token: %d\n", token.type); */
           throw ParseError("bad input");
         }
       }
@@ -239,11 +281,11 @@ void DumpGrammar(const Grammar &gr)  {
   }
 }
 
-int main() {
-  DumpGrammar(CompilerGrammar);
-}
+/* int main() { */
+/*   DumpGrammar(CompilerGrammar); */
+/* } */
 
-#if 0
+/* #if 0 */
 int main(int argc, char **argv) {
   TokenBuffer tokens;
   if (argc == 1) {
@@ -274,4 +316,4 @@ int main(int argc, char **argv) {
   }
   return 0;
 }
-#endif
+/* #endif */

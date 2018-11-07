@@ -1,5 +1,6 @@
 from pgen2 import generate_grammar
 from util import Emittor
+from operator import itemgetter
 
 
 def emit_header(config, gr):
@@ -57,7 +58,7 @@ def emit_cpp(config, gr):
 
         # dfas and arcs
         type_dfas = [] # [type, dfa_name]
-        for i, (type, (states, first)) in enumerate(gr.dfas.items()):
+        for i, (type, (states, first)) in enumerate(sorted(gr.dfas.items(), key=itemgetter(0))):
             states_str = [] # content of states collected
             states_name = f"states_{i}" # the name of DFAState[] array
             for j, arcs in enumerate(states): # iterate over arcs
@@ -70,20 +71,24 @@ def emit_cpp(config, gr):
                 states_str.append(f"{{ {n_arcs}, {arcs_name}, {is_final} }}") # collect one DFAState
 
             first_name = "first_{}".format(i) # name of the first set
-            e.emit("static int {}[{}] = {{ {} }};".format(first_name,
-                 len(first), ", ".join(map(str, first)))) # first set
+            e.emit("static int {name}[{count}] = {{ {data} }};".format(name=first_name,
+                 count=len(first), data=", ".join(map(str, first)))) # first set
             e.emit("")
-            e.emit("static DFAState {}[{}] = {{ {} }};".format(states_name, len(states),
-                ", ".join(states_str))) # DFAState[] array
+            e.emit("static DFAState {name}[{count}] = {{ {data} }};"
+                    .format(name=states_name, count=len(states),
+                data=", ".join(states_str))) # DFAState[] array
             e.emit("")
             dfa_name = "dfa_{}".format(i) # name of this dfa
-            e.emit("static DFA {} = {{ {}, {}, {}, {} }};".format(
-                dfa_name, len(states), states_name, first_name, len(first)))
+            e.emit("static DFA {name} = {{ {symbol}, {n_states}, {states}, {first}, {n_first} }};"
+                    .format(symbol='"{}"'.format(gr.number2symbol[type]),
+                name=dfa_name, n_states=len(states), states=states_name,
+                first=first_name, n_first=len(first)))
             type_dfas.append("&{}".format(dfa_name)) # type2dfa collected
             e.emit("")
 
         # type_dfas
-        e.emit("static DFA *dfas[{}] = {{ {} }};".format(len(type_dfas), ", ".join(type_dfas)))
+        e.emit("static DFA *dfas[{count}] = {{ {data} }};".format(
+            count=len(type_dfas), data=", ".join(type_dfas)))
         e.emit("")
 
         # grammar

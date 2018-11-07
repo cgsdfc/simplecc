@@ -12,6 +12,7 @@ how this parsing engine works.
 
 import logging
 from tokenizer import tokenize
+from pprint import pprint
 
 logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -61,6 +62,7 @@ class BaseParser:
             for i, newstate in arcs:
                 t, v = self.grammar.labels[i]
                 if ilabel == i:
+                    print("shift", self.grammar.tok_name[t])
                     # Look it up in the list of labels
                     assert t < 256
                     # Shift a token; we're done with it
@@ -81,6 +83,7 @@ class BaseParser:
                     itsdfa = self.grammar.dfas[t]
                     itsstates, itsfirst = itsdfa
                     if ilabel in itsfirst:
+                        print("push", self.grammar.number2symbol[t])
                         # Push a symbol
                         self.push(t, self.grammar.dfas[t], newstate, context)
                         break # To continue the outer while loop
@@ -125,7 +128,7 @@ class BaseParser:
         self.stack.append((newdfa, 0, newnode))
 
     def pop(self):
-        logger.debug('pop')
+        print("pop")
         """Pop a nonterminal.  (Internal)"""
         *_, newnode = self.stack.pop()
         if self.stack:
