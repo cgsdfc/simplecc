@@ -1,5 +1,5 @@
 
-TABSIZE = 2
+TABSIZE = 4
 MAX_COL = 80
 
 def reflow_lines(s, depth):

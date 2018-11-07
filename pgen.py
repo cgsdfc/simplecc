@@ -42,7 +42,8 @@ def emit_cpp(config, gr):
         # labels
         e.emit("static Label labels[{}] = {{".format(len(gr.labels)))
         for type, string in gr.labels:
-            e.emit("{{{}, \"{}\"}},".format(type, string or 0), 1)
+            string = '"{}"'.format(string) if string else 0
+            e.emit("{{{}, {}}},".format(type, string), 1)
         e.emit("};")
         e.emit("")
 
