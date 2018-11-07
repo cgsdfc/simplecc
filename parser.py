@@ -191,12 +191,11 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='Input file to parse')
-    parser.add_argument('-g', '--grammar', dest='grammar', type=argparse.FileType('rb'),
-            help='Pickled grammar to use', required=True)
     args = parser.parse_args()
 
-    with args.grammar:
-        grammar = pickle.load(args.grammar)
+    with open('./Grammar.pickle', 'rb') as f:
+        grammar = pickle.load(f)
+
     parser = Parser(grammar)
     rootnode = parser.parse_file(args.input)
     pprint(lispify(rootnode, grammar))

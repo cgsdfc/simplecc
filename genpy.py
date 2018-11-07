@@ -97,34 +97,33 @@ def emit_cpp(config, gr):
 def main():
     import argparse
     from pprint import pprint
-    import json
+    import pickle
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dump', action='store_true', default=False,
             help='Dump grammar and exit')
-    parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
-            help='configure file', required=1)
-    parser.add_argument('-p', '--pickle', dest='pickle', type=argparse.FileType('wb'),
-            help='path/to/Grammar.pickle')
 
     args = parser.parse_args()
-    config = json.load(args.config)
-    gr = generate_grammar(config['grammar'])
+    gr = generate_grammar('./Grammar')
 
     if args.dump:
         gr.report()
         return
 
-    if args.pickle:
-        import pickle
-        with args.pickle as f:
-            pickle.dump(gr, f)
-        return
+    with open('./Grammar.pickle', 'wb') as f:
+        pickle.dump(gr, f)
 
-    if args.config:
-        emit_header(config, gr)
-        emit_cpp(config, gr)
-        return
+    with open('./tokens.py', 'w') as f:
+        for tok, val in gr.token2id.items():
+            if tok[0] not in ("'", '"'):
+                f.write(f"{tok} = {val}\n")
+        f.write("\n")
+        f.write("tok_name = {\n")
+        for tok, val in gr.token2id.items():
+            if tok[0] in ("'", '"'):
+                tok = literal_eval(tok)
+            f.write(f"    {val}: {tok!r},\n")
+        f.write("}\n")
 
 
 if __name__ == '__main__':
