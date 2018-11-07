@@ -9,7 +9,7 @@
 #include <vector>
 #include <cstdio>
 
-#include "token.h"
+#include "Grammar.h"
 
 typedef std::string String;
 

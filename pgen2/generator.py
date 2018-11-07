@@ -15,9 +15,10 @@ class Generator(object):
 
     def make_grammar(self):
         c = grammar.Grammar()
-        # These 2 token are builtin
+        # These tokens are builtin
         self.make_token(c, 'NAME')
         self.make_token(c, 'OP')
+        self.make_token(c, 'ERRORTOKEN')
 
         names = sorted(self.dfas.keys())
         names.remove(self.startsymbol)

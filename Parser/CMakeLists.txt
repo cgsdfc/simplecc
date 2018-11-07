@@ -6,6 +6,6 @@ list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
 
 # All executables added hereby
 add_executable(parser
+  ./Grammar.cpp
   ./parser.cpp
-  ./tokenize.cpp
-  ./token.cpp)
+  ./tokenize.cpp)

@@ -1,3 +1,5 @@
+#ifndef GRAMMAR_H
+#define GRAMMAR_H
 #include <map>
 
 struct Arc {
@@ -50,3 +52,4 @@ struct Grammar {
     }
   }
 };
+#endif

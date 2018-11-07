@@ -42,8 +42,7 @@ def reflow_lines(s, depth):
         cur = cur[i+1:]
     else:
         lines.append(padding + cur)
-    head, *tail = lines
-    return [head, *( "\\ " + line for line in tail )]
+    return lines
 
 
 class Emittor:

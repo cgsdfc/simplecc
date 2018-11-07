@@ -19,11 +19,11 @@ relation_op: '<'|'<='|'>'|'>='|'!='|'=='
 for_stmt: ('for' '(' NAME '=' expr ';' condition ';'
     NAME '=' NAME ('+'|'-') NUMBER ')' stmt)
 
-switch_stmt: 'switch' '(' expr ')' '{' case+ default '}'
+switch_stmt: 'switch' '(' expr ')' '{' case_stmt+ default_stmt '}'
 
-case: 'case' constant ':' stmt
+case_stmt: 'case' constant ':' stmt
 
-default: 'default' ':' stmt
+default_stmt: 'default' ':' stmt
 
 arglist: expr (',' expr)*
 
@@ -45,23 +45,23 @@ trailer: subscript | '(' [arglist] ')'
 subscript: '[' expr ']'
 
 # declaration
-var_decl: type var_item (',' var_item)* ';'
+var_decl: type_name var_item (',' var_item)* ';'
 
 var_item: NAME [subscript2]
 
-const_decl: 'const' type const_item (',' const_item)* ';'
+const_decl: 'const' type_name const_item (',' const_item)* ';'
 
 const_item: NAME '=' constant
 
 constant: integer | CHAR
 
-type: 'int' | 'char' | 'void'
+type_name: 'int' | 'char' | 'void'
 
-declaration: type NAME decl_trailer
+declaration: type_name NAME decl_trailer
 
 decl_trailer: '(' [paralist] ')' '{' compound_stmt '}' | [subscript2] (',' var_item)* ';'
 
-paralist: type NAME (',' type NAME)*
+paralist: type_name NAME (',' type_name NAME)*
 
 subscript2: '[' NUMBER ']'
 
