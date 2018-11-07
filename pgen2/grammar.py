@@ -37,7 +37,7 @@ class Grammar(object):
 
     dfas          -- a dict mapping symbol numbers to (DFA, first)
                      pairs, where DFA is an item from the states list
-                     above, and first is a set of tokens that can
+                     above, and first is a set of labels that can
                      begin this grammar rule (represented by a dict
                      whose values are always 1).
 

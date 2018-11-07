@@ -41,7 +41,7 @@ public:
   String line;
 
   TokenInfo(unsigned type, const String &string, Location start, Location end,
-      String line): type(type), string(string), start(start), end(end) {}
+      String line): type(type), string(string), start(start), end(end), line(line) {}
 
   void Format(std::FILE *out) const {
     std::ostringstream os;

@@ -191,7 +191,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='Input file to parse')
-    parser.add_argument('--grammar', type=argparse.FileType('rb'),
+    parser.add_argument('-g', '--grammar', dest='grammar', type=argparse.FileType('rb'),
             help='Pickled grammar to use', required=True)
     args = parser.parse_args()
 

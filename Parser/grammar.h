@@ -19,9 +19,9 @@ struct DFA {
   int *first;
   int n_first;
 
-  bool InFirst(int type) {
+  bool InFirst(int label) {
     for (int i = 0; i < n_first; i++)
-      if (type == first[i])
+      if (label == first[i])
         return true;
     return false;
   }

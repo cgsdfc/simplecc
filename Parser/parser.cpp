@@ -97,23 +97,26 @@ public:
       if (token.type == grammar->labels[i].type)
         return i;
     }
-    return -1;
+    throw ParseError("bad token");
   }
 
   void Shift(const TokenInfo &token, int newstate) {
+    printf("Shift()\n");
     StackEntry &tos = stack.top();
     tos.node->AddChild(new Node(token.type, token.string, token.start));
     tos.state = newstate;
   }
 
-  void Push(const TokenInfo &token, DFA *newdfa, int newstate) {
+  void Push(int type, DFA *newdfa, int newstate, Location location) {
+    printf("Push()\n");
     StackEntry &tos = stack.top();
     tos.state = newstate;
-    Node *newnode = new Node(token.type, "", token.start);
+    Node *newnode = new Node(type, "", location);
     stack.push(StackEntry(newdfa, 0, newnode));
   }
 
   void Pop() {
+    printf("Pop()\n");
     StackEntry &tos = stack.top();
     stack.pop();
     Node *newnode = tos.node;
@@ -128,10 +131,12 @@ public:
 
   bool AddToken(const TokenInfo &token) {
     int label = Classify(token);
+    token.Format(stdout);
 
     while (true) {
       StackEntry &tos = stack.top();
       DFA *dfa = tos.dfa;
+      /* assert(0 <= tos.state && tos.state < dfa->n_states); */
       DFAState &state = dfa->states[tos.state];
       bool flag = true;
 
@@ -147,18 +152,20 @@ public:
           while (states[newstate].is_final) {
             Pop();
             if (stack.empty()) {
+              printf("return true\n");
               return true;
             }
             newstate = stack.top().state;
             states = stack.top().dfa->states;
           }
+          printf("return false\n");
           return false;
         }
 
-        else if (type >= 256) {
+        else if (IsNonterminal(type)) {
           DFA *itsdfa = grammar->dfas[type];
-          if (itsdfa->InFirst(type)) {
-            Push(token, itsdfa, newstate);
+          if (itsdfa->InFirst(label)) {
+            Push(type, itsdfa, newstate, token.start);
             flag = false;
             break;
           }

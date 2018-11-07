@@ -103,7 +103,10 @@ def main():
     parser.add_argument('-d', '--dump', action='store_true', default=False,
             help='Dump grammar and exit')
     parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
-            help='configure file', required=True)
+            help='configure file', required=1)
+    parser.add_argument('-p', '--pickle', dest='pickle', type=argparse.FileType('wb'),
+            help='path/to/Grammar.pickle')
+
     args = parser.parse_args()
     config = json.load(args.config)
     gr = generate_grammar(config['grammar'])
@@ -112,8 +115,16 @@ def main():
         gr.report()
         return
 
-    emit_header(config, gr)
-    emit_cpp(config, gr)
+    if args.pickle:
+        import pickle
+        with args.pickle as f:
+            pickle.dump(gr, f)
+        return
+
+    if args.config:
+        emit_header(config, gr)
+        emit_cpp(config, gr)
+        return
 
 
 if __name__ == '__main__':
