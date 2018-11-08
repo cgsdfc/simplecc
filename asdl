@@ -11,7 +11,7 @@ module Compiler
           attributes (int lineno, int col_offset)
 
     funcdef = FunctionDef(identifier name, arg* args, type return_type,
-                          decl* declaratoin, stmt* body)
+                          decl* declaration, stmt* body)
           attributes (int lineno, int col_offset)
 
     arg = (type type, identifier name)
@@ -28,7 +28,7 @@ module Compiler
          | Switch(expr value, expr* labels, stmt* branches)
          | Return(expr? value)
          | If(expr test, stmt* body, stmt* orelse)
-         | Call(identifier func, expr* args)
+         | Expr(expr value)
           attributes (int lineno, int col_offset)
 
     expr = BinOp(expr left, operator op, expr right)
@@ -49,5 +49,5 @@ module Compiler
 
     expr_context = Load | Store
 
-    type = Int | Char | Void | Array
+    type = Int | Character | Void | Array
 }

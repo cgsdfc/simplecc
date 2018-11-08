@@ -1,4 +1,3 @@
-
 TABSIZE = 4
 MAX_COL = 80
 
@@ -58,3 +57,12 @@ class Emittor:
             if line:
                 line = (" " * TABSIZE * depth) + line
             self.file.write(line + "\n")
+
+
+class ChainOfVisitors:
+    def __init__(self, *visitors):
+        self.visitors = visitors
+
+    def visit(self, object):
+        for v in self.visitors:
+            v.visit(object)
