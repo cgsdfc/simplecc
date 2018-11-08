@@ -4,14 +4,12 @@ import AST
 import sys
 import Symbol as sym
 
-class CSTVisitorBase:
-    def __init__(self, grammar):
-        self.grammar = grammar
+class VisitorBase:
+    def __init__(self):
         self.cache = {}
 
     def visit(self, node, *args, **kwargs):
-        type = node[0]
-        symbol = sym.tok_name[type]
+        symbol = sym.tok_name[node.type]
         meth = self.cache.get(symbol)
         if meth is None:
             methname = 'visit_' + symbol
@@ -26,7 +24,7 @@ class CSTVisitorBase:
                 raise
 
 
-class ConstructionVisitor(CSTVisitorBase):
+class TransformerVisitor(VisitorBase):
     """Visitor transforming CST to AST"""
 
     def visit_program(self, node):
@@ -63,9 +61,8 @@ class ConstructionVisitor(CSTVisitorBase):
     def visit_konstant(self, node):
         if node.type == sym.CHAR:
             return AST.Char(node.children[0].value, *node.context)
-       assert node.type == sym.integer
-       # use context of sign
-       return AST.Num(self.visit(node), *node.first_child_context)
+        assert node.type == sym.integer
+        return AST.Num(self.visit(node), *node.first_child_context)
 
 
     def visit_declaration(self, node):
@@ -91,7 +88,7 @@ class ConstructionVisitor(CSTVisitorBase):
 
 
     def visit_var_decl(self, node):
-        type_name, *var_items, *_ = node.children
+        type_name, *var_items = node.children[:-1]
         type = self.visit(type_name)
         for name, args in map(self.visit_var_item, var_items[0:-1:2]):
             var_type = AST.VarType(type, *args)
@@ -235,8 +232,5 @@ class ConstructionVisitor(CSTVisitorBase):
        return int(num)
 
 
-
-
-
-
-
+def ToAST(node):
+    return TransformerVisitor().visit(node)

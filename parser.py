@@ -75,7 +75,7 @@ class BaseParser:
             for i, newstate in arcs:
                 t, v = self.grammar.labels[i]
                 if ilabel == i:
-                    print("shift", self.grammar.tok_name[t])
+                    # print("shift", self.grammar.tok_name[t])
                     # Look it up in the list of labels
                     assert t < 256
                     # Shift a token; we're done with it
@@ -96,7 +96,7 @@ class BaseParser:
                     itsdfa = self.grammar.dfas[t]
                     itsstates, itsfirst = itsdfa
                     if ilabel in itsfirst:
-                        print("push", self.grammar.number2symbol[t])
+                        # print("push", self.grammar.number2symbol[t])
                         # Push a symbol
                         self.push(t, self.grammar.dfas[t], newstate, context)
                         break # To continue the outer while loop
@@ -141,7 +141,7 @@ class BaseParser:
         self.stack.append(StackEntry(newdfa, 0, newnode))
 
     def pop(self):
-        print("pop")
+        # print("pop")
         """Pop a nonterminal.  (Internal)"""
         *_, newnode = self.stack.pop()
         if self.stack:
@@ -204,9 +204,12 @@ def main():
     import os
     import pickle
     from pprint import pprint
+    from cst import ToAST
 
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='Input file to parse')
+    parser.add_argument('-a', '--ast',
+            dest='ast', action='store_true', default=False)
     args = parser.parse_args()
 
     with open('./Grammar.pickle', 'rb') as f:
@@ -214,7 +217,11 @@ def main():
 
     parser = Parser(grammar)
     rootnode = parser.parse_file(args.input)
-    pprint(lispify(rootnode, grammar))
+    if args.ast:
+        pprint(ToAST(rootnode))
+    else:
+        pprint(lispify(rootnode, grammar))
+
 
 if __name__ == '__main__':
     main()
