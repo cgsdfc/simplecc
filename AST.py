@@ -13,53 +13,52 @@ unaryop = Enum('unaryop', 'UAdd USub')
 
 expr_context = Enum('expr_context', 'Load Store')
 
-type = Enum('type', 'Int Character Void Array')
+basic_type = Enum('basic_type', 'Int Character Void')
 
 class Program(AST):
-    __slots__ = ('decls', 'functions')
+    __slots__ = ('decls')
 
-    def __init__(self, decls, functions):
+    def __init__(self, decls):
         self.decls = decls
-        self.functions = functions
 
 
 class ConstDecl(AST):
-    __slots__ = ('name', 'decl_type', 'value', 'lineno', 'col_offset')
+    __slots__ = ('type', 'name', 'value', 'lineno', 'col_offset')
 
-    def __init__(self, name, decl_type, value, lineno, col_offset):
+    def __init__(self, type, name, value, lineno, col_offset):
+        self.type = type
         self.name = name
-        self.decl_type = decl_type
         self.value = value
         self.lineno = lineno
         self.col_offset = col_offset
 
 
 class VarDecl(AST):
-    __slots__ = ('name', 'decl_type', 'lineno', 'col_offset')
+    __slots__ = ('type', 'name', 'lineno', 'col_offset')
 
-    def __init__(self, name, decl_type, lineno, col_offset):
+    def __init__(self, type, name, lineno, col_offset):
+        self.type = type
         self.name = name
-        self.decl_type = decl_type
         self.lineno = lineno
         self.col_offset = col_offset
 
 
 class FunctionDef(AST):
-    __slots__ = ('name', 'args', 'return_type', 'declaration', 'body',
+    __slots__ = ('return_type', 'name', 'args', 'declaration', 'body',
                  'lineno', 'col_offset')
 
-    def __init__(self, name, args, return_type, declaration, body, lineno,
+    def __init__(self, return_type, name, args, declaration, body, lineno,
                  col_offset):
+        self.return_type = return_type
         self.name = name
         self.args = args
-        self.return_type = return_type
         self.declaration = declaration
         self.body = body
         self.lineno = lineno
         self.col_offset = col_offset
 
 
-arg = namedtuple('arg', 'type name lineno col_offset')
+arg = namedtuple('arg', 'basic_type name lineno col_offset')
 
 class Read(AST):
     __slots__ = ('names', 'lineno', 'col_offset')
@@ -232,5 +231,14 @@ class Name(AST):
         self.ctx = ctx
         self.lineno = lineno
         self.col_offset = col_offset
+
+
+class VarType(AST):
+    __slots__ = ('type', 'is_array', 'size')
+
+    def __init__(self, type, is_array, size):
+        self.type = type
+        self.is_array = is_array
+        self.size = size
 
 

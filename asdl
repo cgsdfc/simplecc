@@ -4,17 +4,15 @@
 
 module Compiler
 {
-    program = Program(decl* decls, funcdef* functions)
+    program = Program(decl* decls)
 
-    decl = ConstDecl(identifier name, type decl_type, int value)
-         | VarDecl(identifier name type decl_type)
+    decl = ConstDecl(basic_type type, identifier name, expr value)
+         | VarDecl(var_type type, identifier name)
+         | FunctionDef(basic_type return_type, identifier name, arg* args,
+                       decl* declaration, stmt* body)
           attributes (int lineno, int col_offset)
 
-    funcdef = FunctionDef(identifier name, arg* args, type return_type,
-                          decl* declaration, stmt* body)
-          attributes (int lineno, int col_offset)
-
-    arg = (type type, identifier name)
+    arg = (basic_type, identifier name)
           attributes (int lineno, int col_offset)
 
     stmt = Read(identifier *names)
@@ -49,5 +47,7 @@ module Compiler
 
     expr_context = Load | Store
 
-    type = Int | Character | Void | Array
+    basic_type = Int | Character | Void
+
+    var_type = VarType(basic_type type, int is_array, int size)
 }
