@@ -4,7 +4,7 @@ program: const_decl* declaration* ENDMARKER
 
 # statement
 stmt: (if_stmt | for_stmt | switch_stmt | '{' stmt* '}' | NAME stmt_trailer ';'
-     | read_stmt ';' | write_stmt ';' | ';' | switch_stmt | return_stmt ';')
+     | read_stmt ';' | write_stmt ';' | ';' | return_stmt ';')
 
 stmt_trailer: [subscript] '=' expr | '(' [arglist] ')'
 

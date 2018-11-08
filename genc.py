@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 from pgen2 import generate_grammar
 from util import Emittor
 from operator import itemgetter
