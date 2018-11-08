@@ -44,21 +44,21 @@ class VarDecl(AST):
 
 
 class FunctionDef(AST):
-    __slots__ = ('return_type', 'name', 'args', 'declaration', 'body',
-                 'lineno', 'col_offset')
+    __slots__ = ('return_type', 'name', 'args', 'decls', 'body', 'lineno',
+                 'col_offset')
 
-    def __init__(self, return_type, name, args, declaration, body, lineno,
+    def __init__(self, return_type, name, args, decls, body, lineno,
                  col_offset):
         self.return_type = return_type
         self.name = name
         self.args = args
-        self.declaration = declaration
+        self.decls = decls
         self.body = body
         self.lineno = lineno
         self.col_offset = col_offset
 
 
-arg = namedtuple('arg', 'basic_type name lineno col_offset')
+arg = namedtuple('arg', 'type name lineno col_offset')
 
 class Read(AST):
     __slots__ = ('names', 'lineno', 'col_offset')
@@ -90,12 +90,9 @@ class Assign(AST):
 
 
 class For(AST):
-    __slots__ = ('counter', 'initial', 'condition', 'step', 'body', 'lineno',
-                 'col_offset')
+    __slots__ = ('initial', 'condition', 'step', 'body', 'lineno', 'col_offset')
 
-    def __init__(self, counter, initial, condition, step, body, lineno,
-                 col_offset):
-        self.counter = counter
+    def __init__(self, initial, condition, step, body, lineno, col_offset):
         self.initial = initial
         self.condition = condition
         self.step = step
@@ -115,12 +112,12 @@ class While(AST):
 
 
 class Switch(AST):
-    __slots__ = ('value', 'labels', 'branches', 'lineno', 'col_offset')
+    __slots__ = ('value', 'labels', 'default_', 'lineno', 'col_offset')
 
-    def __init__(self, value, labels, branches, lineno, col_offset):
+    def __init__(self, value, labels, default_, lineno, col_offset):
         self.value = value
         self.labels = labels
-        self.branches = branches
+        self.default_ = default_
         self.lineno = lineno
         self.col_offset = col_offset
 
@@ -153,6 +150,8 @@ class Expr(AST):
         self.lineno = lineno
         self.col_offset = col_offset
 
+
+label_stmt = namedtuple('label_stmt', 'value stmt lineno col_offset')
 
 class BinOp(AST):
     __slots__ = ('left', 'op', 'right', 'lineno', 'col_offset')

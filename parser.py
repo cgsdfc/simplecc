@@ -20,7 +20,14 @@ logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
 
 # For better readability
-Node = namedtuple('Node', 'type value context children')
+class Node(namedtuple('Node', 'type value context children')):
+    "A Node in the concrete syntax tree."""
+
+    @property
+    def first_child_context(self):
+        if self.children:
+            return self.children[0].context
+
 StackEntry = namedtuple('StackEntry', 'dfa state node')
 
 

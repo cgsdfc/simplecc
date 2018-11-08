@@ -9,25 +9,25 @@ module Compiler
     decl = ConstDecl(basic_type type, identifier name, expr value)
          | VarDecl(var_type type, identifier name)
          | FunctionDef(basic_type return_type, identifier name, arg* args,
-                       decl* declaration, stmt* body)
+                       decl* decls, stmt* body)
           attributes (int lineno, int col_offset)
 
-    arg = (basic_type, identifier name)
+    arg = (basic_type type, identifier name)
           attributes (int lineno, int col_offset)
 
     stmt = Read(identifier *names)
          | Write(string? str, expr? value)
          | Assign(expr target, expr value)
-         | For(identifier counter, int initial, expr condition, int step,
-               stmt* body)
+         | For(stmt initial, expr condition, stmt step, stmt* body)
          | While(expr condition, stmt* body)
-
-         -- labels[-1] is None and branches[-1] is default
-         | Switch(expr value, expr* labels, stmt* branches)
+         | Switch(expr value, label_stmt* labels, stmt default_)
          | Return(expr? value)
          | If(expr test, stmt* body, stmt* orelse)
          | Expr(expr value)
           attributes (int lineno, int col_offset)
+
+    label_stmt = (expr value, stmt stmt)
+                 attributes (int lineno, int col_offset)
 
     expr = BinOp(expr left, operator op, expr right)
          | UnaryOp(unaryop op, expr operand)
