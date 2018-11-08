@@ -1,4 +1,6 @@
 {
+  "symbol": "./Symbol.py",
+  "pickle": "./Grammar.pickle",
   "cpp": "./Parser/Grammar.cpp",
   "header": "./Parser/Grammar.h",
   "grammar": "./Grammar"

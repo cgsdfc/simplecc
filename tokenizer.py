@@ -1,7 +1,9 @@
+#! /usr/bin/env python3
+
 """Tokenize a program"""
 import re
 from tokenize import TokenInfo
-from tokens import *
+from Symbol import *
 
 def group(*args): return '({})'.format('|'.join(args))
 
@@ -73,15 +75,14 @@ def main():
     import sys
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', dest='file',
-            type=argparse.FileType(), default=sys.stdin)
+    parser.add_argument('file', type=argparse.FileType())
     args = parser.parse_args()
     with args.file:
         tokens = list(tokenize(args.file.__next__))
     for token in tokens:
         token_range = "%d,%d-%d,%d:" % (token.start + token.end)
         print("%-20s%-15s%-15r" %
-              (token_range, token.type, token.string))
+              (token_range, tok_name[token.type], token.string))
 
 if __name__ == '__main__':
     main()

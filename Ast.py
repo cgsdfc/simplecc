@@ -3,12 +3,11 @@
 import AST
 import sys
 
+
 class CSTVisitorBase:
     def __init__(self, grammar):
         self.grammar = grammar
         self.cache = {}
-        self.__dict__.extend(grammar.symbol2number)
-        self.__dict__.extend(grammar.token2id)
 
     def visit(self, node, *args, **kwargs):
         type = node[0]
