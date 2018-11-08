@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 # Copyright 2004-2005 Elemental Security, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
@@ -13,9 +14,14 @@ how this parsing engine works.
 import logging
 from tokenizer import tokenize
 from pprint import pprint
+from collections import namedtuple
 
 logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
+
+# For better readability
+Node = namedtuple('Node', 'type value context children')
+StackEntry = namedtuple('StackEntry', 'dfa state node')
 
 
 class ParseError(Exception):
@@ -42,8 +48,8 @@ class BaseParser:
         if start is None:
             start = grammar.start
         self.start = start
-        newnode = (start, None, None, [])
-        stackentry = (self.grammar.dfas[start], 0, newnode)
+        newnode = Node(start, None, None, [])
+        stackentry = StackEntry(self.grammar.dfas[start], 0, newnode)
         self.stack = [stackentry]
         self.rootnode = None
 
@@ -115,17 +121,17 @@ class BaseParser:
         """Shift a token.  (Internal)"""
         logger.debug('shift')
         dfa, state, node = self.stack[-1]
-        newnode = (type, value, context, None)
-        node[-1].append(newnode)
-        self.stack[-1] = (dfa, newstate, node)
+        newnode = Node(type, value, context, None)
+        node.children.append(newnode)
+        self.stack[-1] = StackEntry(dfa, newstate, node)
 
     def push(self, type, newdfa, newstate, context):
         logger.debug('push')
         """Push a nonterminal.  (Internal)"""
         dfa, state, node = self.stack[-1]
-        newnode = (type, None, context, [])
-        self.stack[-1] = (dfa, newstate, node)
-        self.stack.append((newdfa, 0, newnode))
+        newnode = Node(type, None, context, [])
+        self.stack[-1] = StackEntry(dfa, newstate, node)
+        self.stack.append(StackEntry(newdfa, 0, newnode))
 
     def pop(self):
         print("pop")
@@ -133,7 +139,7 @@ class BaseParser:
         *_, newnode = self.stack.pop()
         if self.stack:
             dfa, state, node = self.stack[-1]
-            node[-1].append(newnode)
+            node.children.append(newnode)
         else:
             self.rootnode = newnode
 
