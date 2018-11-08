@@ -241,3 +241,27 @@ class VarType(AST):
         self.size = size
 
 
+
+string2operator = {
+    "+": operator.Add,
+    "-": operator.Sub,
+    "*": operator.Mult,
+    "/": operator.Div,
+    "==": operator.Eq,
+    "!=": operator.NotEq,
+    "<": operator.Lt,
+    "<=": operator.LtE,
+    ">": operator.Gt,
+    ">=": operator.GtE,
+}
+
+string2unaryop = {
+    "+": unaryop.UAdd,
+    "-": unaryop.USub,
+}
+
+string2basic_type = {
+    "int": basic_type.Int,
+    "char": basic_type.Character,
+    "void": basic_type.Void,
+}

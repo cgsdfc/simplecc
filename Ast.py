@@ -87,12 +87,8 @@ class ConstructionVisitor(CSTVisitorBase):
 
     def visit_type_name(self, node):
         name = node.children[0].value
-        if name == 'int':
-            return AST.type.Int
-        if name == 'char':
-            return AST.type.Character
-        assert name == 'void'
-        return AST.type.Void
+        return AST.string2basic_type[name]
+
 
     def visit_var_decl(self, node):
         type_name, *var_items, *_ = node.children
@@ -141,7 +137,7 @@ class ConstructionVisitor(CSTVisitorBase):
         if not trailer:
             return left
         assert len(trailer) == 2, trailer
-        op = sym.string2operator[trailer[1].value]
+        op = AST.string2operator[trailer[1].value]
         right = self.visit(trailer[-1])
         return AST.BinOp(left, op, right, *node.context)
 
@@ -156,7 +152,7 @@ class ConstructionVisitor(CSTVisitorBase):
         assert name.value in ('+', '-'), name
         step = AST.Assign(target.value,
                 AST.BinOp(AST.Name(name, AST.expr_context.Load, *name.context),
-                    sym.string2operator[op.value],
+                    AST.string2operator[op.value],
                     AST.Num(int(num.value), *num.context), *name.context),
                 *target.context)
         return AST.For(initial, condition, step, stmt, *node.first_child_context)

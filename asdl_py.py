@@ -103,6 +103,33 @@ class AST:
 
 """
 
+# Hard coded mapping from string to their ASTs
+Trailer = """
+string2operator = {
+    "+": operator.Add,
+    "-": operator.Sub,
+    "*": operator.Mult,
+    "/": operator.Div,
+    "==": operator.Eq,
+    "!=": operator.NotEq,
+    "<": operator.Lt,
+    "<=": operator.LtE,
+    ">": operator.Gt,
+    ">=": operator.GtE,
+}
+
+string2unaryop = {
+    "+": unaryop.UAdd,
+    "-": unaryop.USub,
+}
+
+string2basic_type = {
+    "int": basic_type.Int,
+    "char": basic_type.Character,
+    "void": basic_type.Void,
+}
+"""
+
 
 def main():
     import argparse
@@ -125,6 +152,7 @@ def main():
         f.write(Header)
         c = util.ChainOfVisitors(EnumEmittor(f), ClassEmittor(f))
         c.visit(mod)
+        f.write(Trailer)
     return 0
 
 if __name__ == '__main__':
