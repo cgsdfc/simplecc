@@ -12,13 +12,13 @@
 #define default_stmt 265
 #define expr 266
 #define factor 267
-#define for_stmt 268
-#define if_stmt 269
-#define integer 270
-#define konstant 271
-#define paralist 272
-#define read_stmt 273
-#define relation_op 274
+#define factor_trailer 268
+#define for_stmt 269
+#define if_stmt 270
+#define integer 271
+#define konstant 272
+#define paralist 273
+#define read_stmt 274
 #define return_stmt 275
 #define stmt 276
 #define stmt_trailer 277
@@ -26,11 +26,10 @@
 #define subscript2 279
 #define switch_stmt 280
 #define term 281
-#define trailer 282
-#define type_name 283
-#define var_decl 284
-#define var_item 285
-#define write_stmt 286
+#define type_name 282
+#define var_decl 283
+#define var_item 284
+#define write_stmt 285
 
 #define NAME 0
 #define OP 1
