@@ -28,9 +28,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
             help='configure file', required=1)
+    parser.add_argument('-i', dest='input', help='Override input in config')
     args = parser.parse_args()
 
-    run_test(json.load(args.config))
+    config = json.load(args.config)
+    if args.input:
+        config['input'] = args.input
+    run_test(config)
 
 if __name__ == '__main__':
     main()
