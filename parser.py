@@ -202,8 +202,17 @@ def lispify(root, grammar):
     return tuple(out)
 
 
+def astpretty_pprint(rootnode):
+    import astpretty
+    import AST
+
+    astpretty.customize(AST.AST, AST.expr_context)
+    astpretty.pprint(rootnode)
+
 
 def main():
+    import sys
+    import json
     import argparse
     import os
     import pickle
@@ -222,7 +231,8 @@ def main():
     parser = Parser(grammar)
     rootnode = parser.parse_file(args.input)
     if args.ast:
-        pprint(ToAST(rootnode))
+        ast = ToAST(rootnode)
+        astpretty_pprint(ast)
     else:
         pprint(lispify(rootnode, grammar))
 

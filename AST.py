@@ -7,6 +7,10 @@ class AST:
             data=", ".join("{}={}".format(name, getattr(self, name))
                 for name in self.__slots__))
 
+    @property
+    def _fields(self):
+        return self.__slots__
+
 operator = Enum('operator', 'Add Sub Mult Div Eq NotEq Lt LtE Gt GtE')
 
 unaryop = Enum('unaryop', 'UAdd USub')

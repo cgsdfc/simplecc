@@ -106,6 +106,10 @@ class AST:
             data=", ".join("{}={}".format(name, getattr(self, name))
                 for name in self.__slots__))
 
+    @property
+    def _fields(self):
+        return self.__slots__
+
 """
 
 # Hard coded mapping from string to their ASTs
