@@ -10,10 +10,10 @@ module Compiler
          | VarDecl(var_type type, identifier name)
          | FunctionDef(basic_type return_type, identifier name, arg* args,
                        decl* decls, stmt* body)
-          attributes (int lineno, int col_offset)
+          attributes (location loc)
 
     arg = (basic_type type, identifier name)
-          attributes (int lineno, int col_offset)
+          attributes (location loc)
 
     stmt = Read(identifier *names)
          | Write(string? str, expr? value)
@@ -24,10 +24,10 @@ module Compiler
          | Return(expr? value)
          | If(expr test, stmt* body, stmt* orelse)
          | Expr(expr value)
-          attributes (int lineno, int col_offset)
+          attributes (location loc)
 
     label_stmt = (expr value, stmt stmt)
-                 attributes (int lineno, int col_offset)
+                 attributes (location loc)
 
     expr = BinOp(expr left, operator op, expr right)
          | UnaryOp(unaryop op, expr operand)
@@ -39,7 +39,7 @@ module Compiler
          -- the following expression can appear in assignment context
          | Subscript(identifier name, expr slice, expr_context ctx)
          | Name(identifier id, expr_context ctx)
-          attributes (int lineno, int col_offset)
+          attributes (location loc)
 
     operator = Add | Sub | Mult | Div | Eq | NotEq | Lt | LtE | Gt | GtE
 

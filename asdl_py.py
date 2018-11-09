@@ -81,9 +81,14 @@ class ClassEmittor(AstEmittor):
             self.emit("")
 
     def visitConstructor(self, cons, attrs):
+        def make_slots(args):
+            if len(args) == 1:
+                return repr(args[0]) + ","
+            return ", ".join(map(repr, args))
+
         args = get_args(cons.fields, attrs)
         self.emit("class {name}(AST):".format(name=cons.name))
-        self.emit("__slots__ = ({attrs})".format(attrs=", ".join(map(repr, args))), 1)
+        self.emit("__slots__ = ({attrs})".format(attrs=make_slots(args)), 1)
         self.emit("")
         self.emit("def __init__(self, {args}):".format(
             args=", ".join(args)), 1)
@@ -133,27 +138,30 @@ string2basic_type = {
 
 def main():
     import argparse
+    import json
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('input', type=str, help='path/to/asdl')
-    parser.add_argument('-o', '--output', dest='output',
-        type=argparse.FileType('w'), default=sys.stdout)
+    parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
+            help='configure file', required=1)
     parser.add_argument('--dump_module', action='store_true', default=False,
             help='Dump the asdl module and exit')
     args = parser.parse_args()
+    config = json.load(args.config)
 
-    mod = asdl.parse(args.input)
+    mod = asdl.parse(config['asdl'])
     if args.dump_module:
         print(mod)
         return 0
     if not asdl.check(mod):
         return 1
 
-    with args.output as f:
+    with open(config['AST.py'], 'w') as f:
         f.write(Header)
         c = util.ChainOfVisitors(EnumEmittor(f), ClassEmittor(f))
         c.visit(mod)
         f.write(Trailer)
     return 0
+
 
 if __name__ == '__main__':
     import sys

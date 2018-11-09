@@ -4,5 +4,6 @@
   "cpp": "./Parser/Grammar.cpp",
   "header": "./Parser/Grammar.h",
   "AST.py": "./AST.py",
-  "grammar": "./Grammar"
+  "grammar": "./Grammar",
+  "asdl": "./asdl"
 }
