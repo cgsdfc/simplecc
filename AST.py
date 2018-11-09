@@ -26,7 +26,9 @@ class Program(AST):
         self.decls = decls
 
 
-class ConstDecl(AST):
+class decl(AST): pass
+
+class ConstDecl(decl):
     __slots__ = ('type', 'name', 'value', 'loc')
 
     def __init__(self, type, name, value, loc):
@@ -36,7 +38,7 @@ class ConstDecl(AST):
         self.loc = loc
 
 
-class VarDecl(AST):
+class VarDecl(decl):
     __slots__ = ('type', 'name', 'loc')
 
     def __init__(self, type, name, loc):
@@ -45,7 +47,7 @@ class VarDecl(AST):
         self.loc = loc
 
 
-class FuncDef(AST):
+class FuncDef(decl):
     __slots__ = ('return_type', 'name', 'args', 'decls', 'stmts', 'loc')
 
     def __init__(self, return_type, name, args, decls, stmts, loc):
@@ -59,7 +61,9 @@ class FuncDef(AST):
 
 arg = namedtuple('arg', 'type name loc')
 
-class Read(AST):
+class stmt(AST): pass
+
+class Read(stmt):
     __slots__ = ('names', 'loc')
 
     def __init__(self, names, loc):
@@ -67,7 +71,7 @@ class Read(AST):
         self.loc = loc
 
 
-class Write(AST):
+class Write(stmt):
     __slots__ = ('str', 'value', 'loc')
 
     def __init__(self, str, value, loc):
@@ -76,7 +80,7 @@ class Write(AST):
         self.loc = loc
 
 
-class Assign(AST):
+class Assign(stmt):
     __slots__ = ('target', 'value', 'loc')
 
     def __init__(self, target, value, loc):
@@ -85,7 +89,7 @@ class Assign(AST):
         self.loc = loc
 
 
-class For(AST):
+class For(stmt):
     __slots__ = ('initial', 'condition', 'step', 'body', 'loc')
 
     def __init__(self, initial, condition, step, body, loc):
@@ -96,7 +100,7 @@ class For(AST):
         self.loc = loc
 
 
-class While(AST):
+class While(stmt):
     __slots__ = ('condition', 'body', 'loc')
 
     def __init__(self, condition, body, loc):
@@ -105,7 +109,7 @@ class While(AST):
         self.loc = loc
 
 
-class Switch(AST):
+class Switch(stmt):
     __slots__ = ('value', 'labels', 'default_', 'loc')
 
     def __init__(self, value, labels, default_, loc):
@@ -115,7 +119,7 @@ class Switch(AST):
         self.loc = loc
 
 
-class Return(AST):
+class Return(stmt):
     __slots__ = ('value', 'loc')
 
     def __init__(self, value, loc):
@@ -123,7 +127,7 @@ class Return(AST):
         self.loc = loc
 
 
-class If(AST):
+class If(stmt):
     __slots__ = ('test', 'body', 'orelse', 'loc')
 
     def __init__(self, test, body, orelse, loc):
@@ -133,7 +137,7 @@ class If(AST):
         self.loc = loc
 
 
-class Expr(AST):
+class Expr(stmt):
     __slots__ = ('value', 'loc')
 
     def __init__(self, value, loc):
@@ -143,7 +147,9 @@ class Expr(AST):
 
 label_stmt = namedtuple('label_stmt', 'value stmt loc')
 
-class BinOp(AST):
+class expr(AST): pass
+
+class BinOp(expr):
     __slots__ = ('left', 'op', 'right', 'loc')
 
     def __init__(self, left, op, right, loc):
@@ -153,7 +159,7 @@ class BinOp(AST):
         self.loc = loc
 
 
-class UnaryOp(AST):
+class UnaryOp(expr):
     __slots__ = ('op', 'operand', 'loc')
 
     def __init__(self, op, operand, loc):
@@ -162,7 +168,7 @@ class UnaryOp(AST):
         self.loc = loc
 
 
-class Call(AST):
+class Call(expr):
     __slots__ = ('func', 'args', 'loc')
 
     def __init__(self, func, args, loc):
@@ -171,7 +177,7 @@ class Call(AST):
         self.loc = loc
 
 
-class Num(AST):
+class Num(expr):
     __slots__ = ('n', 'loc')
 
     def __init__(self, n, loc):
@@ -179,7 +185,7 @@ class Num(AST):
         self.loc = loc
 
 
-class Str(AST):
+class Str(expr):
     __slots__ = ('s', 'loc')
 
     def __init__(self, s, loc):
@@ -187,7 +193,7 @@ class Str(AST):
         self.loc = loc
 
 
-class Char(AST):
+class Char(expr):
     __slots__ = ('c', 'loc')
 
     def __init__(self, c, loc):
@@ -195,7 +201,7 @@ class Char(AST):
         self.loc = loc
 
 
-class Subscript(AST):
+class Subscript(expr):
     __slots__ = ('name', 'index', 'ctx', 'loc')
 
     def __init__(self, name, index, ctx, loc):
@@ -205,7 +211,7 @@ class Subscript(AST):
         self.loc = loc
 
 
-class Name(AST):
+class Name(expr):
     __slots__ = ('id', 'ctx', 'loc')
 
     def __init__(self, id, ctx, loc):

@@ -65,7 +65,7 @@ class ClassEmittor(AstEmittor):
         if isinstance(type.value, asdl.Product):
             self.visitProduct(type.value, type.name)
         elif isinstance(type.value, asdl.Sum):
-            self.visitSum(type.value)
+            self.visitSum(type.value, type.name)
 
 
     def visitProduct(self, prod, name):
@@ -73,21 +73,30 @@ class ClassEmittor(AstEmittor):
             name=name, fields=" ".join(get_args(prod.fields, prod.attributes))))
         self.emit("")
 
-    def visitSum(self, sum):
+    def visitSum(self, sum, sum_name):
         if is_simple(sum):
             return
+
+        # emit the base class
+        if len(sum.types) > 1:
+            self.emit("class {name}(AST): pass".format(name=sum_name))
+            self.emit("")
+            baseclass = sum_name
+        else:
+            baseclass = 'AST'
+
         for type in sum.types:
-            self.visitConstructor(type, sum.attributes)
+            self.visitConstructor(type, sum.attributes, baseclass)
             self.emit("")
 
-    def visitConstructor(self, cons, attrs):
+    def visitConstructor(self, cons, attrs, baseclass):
         def make_slots(args):
             if len(args) == 1:
                 return repr(args[0]) + ","
             return ", ".join(map(repr, args))
 
         args = get_args(cons.fields, attrs)
-        self.emit("class {name}(AST):".format(name=cons.name))
+        self.emit("class {name}({baseclass}):".format(name=cons.name, baseclass=baseclass))
         self.emit("__slots__ = ({attrs})".format(attrs=make_slots(args)), 1)
         self.emit("")
         self.emit("def __init__(self, {args}):".format(

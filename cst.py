@@ -1,4 +1,4 @@
-"""AST construction and validation"""
+"""Transform a CST to an AST"""
 
 import AST
 import sys
@@ -6,6 +6,8 @@ import Symbol as sym
 from pprint import pprint
 
 class VisitorBase:
+    """Base class for visiting a CST."""
+
     def __init__(self):
         self.cache = {}
 
@@ -18,12 +20,7 @@ class VisitorBase:
             meth = getattr(self, methname, None)
             self.cache[symbol] = meth
         # don't silent the absent of meth
-        try:
-            return meth(node, *args, **kwargs)
-        except Exception as e:
-            sys.stderr.write("Error visiting {symbol!r}: {error}\n".format(
-                symbol=symbol, error=e))
-            raise
+        return meth(node, *args, **kwargs)
 
 
 class TransformerVisitor(VisitorBase):
@@ -33,6 +30,7 @@ class TransformerVisitor(VisitorBase):
         assert node.type == sym.program
         decls = []
         for c in node.children[:-1]:
+            # generator
             decls.extend(self.visit(c))
         return AST.Program(decls)
 
