@@ -192,11 +192,11 @@ class Char(AST):
 
 
 class Subscript(AST):
-    __slots__ = ('name', 'slice', 'ctx', 'loc')
+    __slots__ = ('name', 'index', 'ctx', 'loc')
 
-    def __init__(self, name, slice, ctx, loc):
+    def __init__(self, name, index, ctx, loc):
         self.name = name
-        self.slice = slice
+        self.index = index
         self.ctx = ctx
         self.loc = loc
 

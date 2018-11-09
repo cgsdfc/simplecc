@@ -36,9 +36,9 @@ expr: ['+'|'-'] term (('+'|'-') term)*
 
 term: factor (('*'|'/') factor)*
 
-factor: NAME [ trailer ] | NUMBER | CHAR | '(' expr ')'
+factor: NAME [ factor_trailer ] | NUMBER | CHAR | '(' expr ')'
 
-trailer: subscript | '(' [arglist] ')'
+factor_trailer: subscript | '(' [arglist] ')'
 
 subscript: '[' expr ']'
 

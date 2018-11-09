@@ -190,13 +190,7 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_condition(self, node):
-        load = AST.expr_context.Load
-        return self.visit_expr(node, load)
-
-    def visit_relation_op(self, node):
-        first = node.first_child
-        return AST.string2operator[first.value]
-
+        return self.visit_expr(node)
 
     def visit_for_stmt(self, node):
         # initial: stmt
@@ -223,7 +217,7 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_switch_stmt(self, node):
-        expr = self.visit(node.children[2], AST.expr_context.Load)
+        expr = self.visit(node.children[2])
         *case_stmts, default = node.children[5:-1]
         default_stmt = self.visit(default)
         labels = list(map(self.visit, case_stmts))
@@ -241,7 +235,7 @@ class TransformerVisitor(VisitorBase):
         _, *trailer = node.children
         if not trailer:
             return AST.Return(None, node.context)
-        expr = self.visit(trailer[1], AST.expr_context.Load)
+        expr = self.visit(trailer[1])
         return AST.Return(expr, node.first_child_context)
 
 
@@ -256,13 +250,13 @@ class TransformerVisitor(VisitorBase):
 
         for val in values:
             if val.type == sym.expr:
-                expr = self.visit(val, AST.expr_context.Load)
+                expr = self.visit(val)
             elif val.type == sym.STRING:
                 string = val.value
         return AST.Write(string, expr, node.first_child_context)
 
 
-    def visit_expr(self, node, context):
+    def visit_expr(self, node, context=AST.expr_context.Load):
         # handle all range of expression.
         unaryop = None
         # optional unaryop in expr
@@ -315,14 +309,15 @@ class TransformerVisitor(VisitorBase):
             # visit_expr
             return self.visit(node.children[1])
 
-    def visit_trailer(self, node, name, context):
+    def visit_factor_trailer(self, node, name, context):
         first = node.first_child
-        if first == '[':
-            index = self.visit(node.children[1])
+        if first.value == '(':
+            args = [] if len(node.children) == 2 else self.visit(node.children[1])
+            return AST.Call(name, args, node.context)
+        else:
+            assert first.type == sym.subscript, first
+            index = self.visit(first)
             return AST.Subscript(name, index, context, node.context)
-        assert first == '(', first
-        args = [] if len(node.children) == 2 else self.visit(node.children[1])
-        return AST.Call(name, args)
 
     def visit_arglist(self, node):
         return [self.visit(c) for c in node.children[::2]]

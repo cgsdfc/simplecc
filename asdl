@@ -37,7 +37,7 @@ module Compiler
          | Char(int c)
 
          -- the following expression can appear in assignment context
-         | Subscript(identifier name, expr slice, expr_context ctx)
+         | Subscript(identifier name, expr index, expr_context ctx)
          | Name(identifier id, expr_context ctx)
           attributes (location loc)
 

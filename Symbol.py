@@ -17,20 +17,20 @@ declaration = 264
 default_stmt = 265
 expr = 266
 factor = 267
-for_stmt = 268
-if_stmt = 269
-integer = 270
-konstant = 271
-paralist = 272
-read_stmt = 273
-return_stmt = 274
-stmt = 275
-stmt_trailer = 276
-subscript = 277
-subscript2 = 278
-switch_stmt = 279
-term = 280
-trailer = 281
+factor_trailer = 268
+for_stmt = 269
+if_stmt = 270
+integer = 271
+konstant = 272
+paralist = 273
+read_stmt = 274
+return_stmt = 275
+stmt = 276
+stmt_trailer = 277
+subscript = 278
+subscript2 = 279
+switch_stmt = 280
+term = 281
 type_name = 282
 var_decl = 283
 var_item = 284
@@ -56,20 +56,20 @@ tok_name = {
     265: 'default_stmt',
     266: 'expr',
     267: 'factor',
-    268: 'for_stmt',
-    269: 'if_stmt',
-    270: 'integer',
-    271: 'konstant',
-    272: 'paralist',
-    273: 'read_stmt',
-    274: 'return_stmt',
-    275: 'stmt',
-    276: 'stmt_trailer',
-    277: 'subscript',
-    278: 'subscript2',
-    279: 'switch_stmt',
-    280: 'term',
-    281: 'trailer',
+    268: 'factor_trailer',
+    269: 'for_stmt',
+    270: 'if_stmt',
+    271: 'integer',
+    272: 'konstant',
+    273: 'paralist',
+    274: 'read_stmt',
+    275: 'return_stmt',
+    276: 'stmt',
+    277: 'stmt_trailer',
+    278: 'subscript',
+    279: 'subscript2',
+    280: 'switch_stmt',
+    281: 'term',
     282: 'type_name',
     283: 'var_decl',
     284: 'var_item',
