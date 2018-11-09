@@ -6,8 +6,6 @@ program: const_decl* declaration* ENDMARKER
 stmt: (if_stmt | for_stmt | while_stmt | '{' stmt* '}' | expr ['=' expr] ';'
      | read_stmt ';' | write_stmt ';' | ';' | return_stmt ';')
 
-# stmt_trailer: [subscript] '=' expr | [ arglist ]
-
 return_stmt: 'return' ['(' expr ')']
 
 if_stmt: 'if' '(' condition ')' stmt ['else' stmt]
@@ -25,7 +23,7 @@ read_stmt: 'scanf' '(' NAME (',' NAME)* ')'
 
 write_stmt: 'printf' '(' (expr|STRING [',' expr]) ')'
 
-compound_stmt: const_decl* var_decl* stmt*
+compound_stmt: '{' const_decl* var_decl* stmt* '}'
 
 # expression
 expr: ['+'|'-'] term (('+'|'-') term)*
@@ -52,9 +50,9 @@ konstant: integer | CHAR
 type_name: 'int' | 'char' | 'void'
 
 # main is the only one that has an empty ()
-declaration: type_name (NAME decl_trailer | 'main' '(' ')' '{' compound_stmt '}')
+declaration: type_name (NAME decl_trailer | 'main' '(' ')' compound_stmt )
 
-decl_trailer: [ paralist ] '{' compound_stmt '}' | [subscript2] (',' var_item)* ';'
+decl_trailer: [ paralist ] compound_stmt | [subscript2] (',' var_item)* ';'
 
 paralist: '(' type_name NAME (',' type_name NAME)* ')'
 
