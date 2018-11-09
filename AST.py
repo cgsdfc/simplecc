@@ -212,10 +212,10 @@ class Char(AST):
 
 
 class Subscript(AST):
-    __slots__ = ('value', 'slice', 'ctx', 'lineno', 'col_offset')
+    __slots__ = ('name', 'slice', 'ctx', 'lineno', 'col_offset')
 
-    def __init__(self, value, slice, ctx, lineno, col_offset):
-        self.value = value
+    def __init__(self, name, slice, ctx, lineno, col_offset):
+        self.name = name
         self.slice = slice
         self.ctx = ctx
         self.lineno = lineno
