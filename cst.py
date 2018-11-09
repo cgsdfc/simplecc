@@ -17,13 +17,13 @@ class VisitorBase:
             methname = 'visit_' + symbol
             meth = getattr(self, methname, None)
             self.cache[symbol] = meth
-        if meth:
-            try:
-                return meth(node, *args, **kwargs)
-            except Exception as e:
-                sys.stderr.write("Error visiting {symbol!r}: {error}\n".format(
-                    symbol=symbol, error=e))
-                raise
+        # don't silent the absent of meth
+        try:
+            return meth(node, *args, **kwargs)
+        except Exception as e:
+            sys.stderr.write("Error visiting {symbol!r}: {error}\n".format(
+                symbol=symbol, error=e))
+            raise
 
 
 class TransformerVisitor(VisitorBase):
@@ -31,7 +31,9 @@ class TransformerVisitor(VisitorBase):
 
     def visit_program(self, node):
         assert node.type == sym.program
-        decls = list(map(self.visit, node.children[:-1])) # tailing ENDMARKER
+        decls = []
+        for c in node.children[:-1]:
+            decls.extend(self.visit(c))
         return AST.Program(decls)
 
     def visit_const_decl(self, node):
@@ -160,10 +162,11 @@ class TransformerVisitor(VisitorBase):
         return None
 
     def visit_stmt_trailer(self, node, name):
-        if node.first_child.value == '(':
+        if node.first_child.value == '(': # Call expr
             args = [] if len(node.children) == 2 else self.visit(node.children[1])
             call = AST.Call(name, args, node.context)
             return AST.Expr(call, node.context)
+        # assign stmt
         return self.visit_assign(node, name)
 
 
@@ -174,7 +177,9 @@ class TransformerVisitor(VisitorBase):
             target = AST.Subscript(name, self.visit(node.children[0]), store, node.context)
         else:
             target = AST.Name(name, store, node.context)
-        return AST.Assign(target, self.visit(node.children[-1]), node.context)
+        value = self.visit(node.children[-1])
+        assert value
+        return AST.Assign(target, value, node.context)
 
 
     def visit_if_stmt(self, node):
@@ -260,17 +265,19 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_expr(self, node, context=None):
-        unaryop = None
         # handle all range of expression.
+        unaryop = None
+        # optional unaryop in expr
         if node.type == sym.expr:
             if node.first_child.value in ('-', '+'):
-                # optional unaryop in expr
                 unaryop = AST.string2unaryop[node.first_child.value]
                 node.children = node.children[1:]
 
         if node.type in (sym.term, sym.expr):
+            # expr and term can be parsed as binop
             result = self.visit_binop(node, context)
         else:
+            # basic case: factor
             assert node.type == sym.factor
             result = self.visit(node, context)
         if unaryop:
@@ -279,32 +286,37 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_binop(self, node, context):
-        result = self.visit(node.first_child, context)
+        # this function must call visit_expr() instead of visit()!
+        result = self.visit_expr(node.first_child, context)
         nops = (len(node.children) - 1) // 2
+
         for i in range(nops):
             next_oper = node.children[i * 2 + 1]
-            newoperator = AST.string2operator[next_oper.value]
+            op = AST.string2operator[next_oper.value]
             tmp = self.visit_expr(node.children[i * 2 + 2], context)
-            tmp_result = AST.BinOp(result, newoperator, tmp, next_oper.context)
+            tmp_result = AST.BinOp(result, op, tmp, next_oper.context)
             result = tmp_result
         return result
 
 
     def visit_factor(self, node, context):
+        # STRING is not a kind of factor
         first = node.first_child
         if first.type == sym.NAME:
             if len(node.children) == 1:
+                # single name
                 return AST.Name(first.value, context, first.context)
+            # name with trailer: visit_trailer
             trailer = node.children[1]
             return self.visit(trailer, first.value, context)
-        if first.value == '(':
-            return self.visit(node.children[1])
-        if first.type == sym.STRING:
-            return AST.Str(eval(first.value), first.context)
         if first.type == sym.NUMBER:
             return AST.Num(int(first.value), first.context)
         if first.type == sym.CHAR:
             return AST.Char(eval(first.value), first.context)
+        else:
+            assert first.value == '('
+            # visit_expr
+            return self.visit(node.children[1])
 
     def visit_trailer(self, node, name, context):
         first = node.first_child
