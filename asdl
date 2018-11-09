@@ -8,8 +8,8 @@ module Compiler
 
     decl = ConstDecl(basic_type type, identifier name, expr value)
          | VarDecl(var_type type, identifier name)
-         | FunctionDef(basic_type return_type, identifier name, arg* args,
-                       decl* decls, stmt* body)
+         | FuncDef(basic_type return_type, identifier name, arg* args,
+                       decl* decls, stmt* stmts)
           attributes (location loc)
 
     arg = (basic_type type, identifier name)

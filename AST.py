@@ -41,15 +41,15 @@ class VarDecl(AST):
         self.loc = loc
 
 
-class FunctionDef(AST):
-    __slots__ = ('return_type', 'name', 'args', 'decls', 'body', 'loc')
+class FuncDef(AST):
+    __slots__ = ('return_type', 'name', 'args', 'decls', 'stmts', 'loc')
 
-    def __init__(self, return_type, name, args, decls, body, loc):
+    def __init__(self, return_type, name, args, decls, stmts, loc):
         self.return_type = return_type
         self.name = name
         self.args = args
         self.decls = decls
-        self.body = body
+        self.stmts = stmts
         self.loc = loc
 
 

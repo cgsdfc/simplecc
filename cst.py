@@ -99,8 +99,7 @@ class TransformerVisitor(VisitorBase):
         args = [] if paralist is None else list(self.visit(paralist))
         compound_stmt = children[-2]
         decls, stmts = self.visit(compound_stmt)
-        return AST.FunctionDef(return_type, name, args, decls, stmts,
-                type_name.context)
+        return AST.FuncDef(return_type, name, args, decls, stmts, type_name.context)
 
     def visit_paralist(self, node):
         child = iter(node.children)
@@ -214,11 +213,14 @@ class TransformerVisitor(VisitorBase):
 
         # step: stmt
         target, _, name, op, num = node.children[8:13]
-        name_ = AST.Name(name, AST.expr_context.Load, name.context)
+        name_ = AST.Name(name.value, AST.expr_context.Load, name.context)
         op = AST.string2operator[op.value]
+        # this is a NUMBER
+        assert num.type == sym.NUMBER
         num = AST.Num(int(num.value), num.context)
-        expr = AST.BinOp(name_, op, num, name.context)
-        step = AST.Assign(target.value, expr, target.context)
+
+        next = AST.BinOp(name_, op, num, name.context)
+        step = AST.Assign(target.value, next, target.context)
 
         stmt = self.visit(node.children[-1])
         return AST.For(initial, condition, step, stmt, node.first_child_context)
