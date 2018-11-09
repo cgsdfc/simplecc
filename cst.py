@@ -31,28 +31,16 @@ class TransformerVisitor(VisitorBase):
 
     def visit_program(self, node):
         assert node.type == sym.program
-        const_decl = []
-        declaration = []
-
-        for child in node.children:
-            if child.type == sym.const_decl:
-                const_decl.extend(self.visit(child))
-            elif child.type == sym.declaration:
-                vis = self.visit(child)
-                declaration.extend(vis)
-            else:
-                assert child.type == sym.ENDMARKER
-
-        decls = const_decl + declaration
+        decls = list(map(self.visit, node.children[:-1])) # tailing ENDMARKER
         return AST.Program(decls)
 
     def visit_const_decl(self, node):
-        _, type_name, *const_items = node.children[:-1]
+        _, type_name, *const_items = node.children[:-1] # strip tailing semicolon
         type = self.visit(type_name)
-        # skip comma
-        name_vals = map(self.visit, const_items[::2])
+        # visit_const_item
+        name_vals = map(self.visit, const_items[::2]) # skip comma
         for name, val in name_vals:
-            yield AST.ConstDecl(type, name, val, node.context)
+            yield AST.ConstDecl(type, name, val, node.context) # type all the same
 
 
     def visit_const_item(self, node):
@@ -61,15 +49,15 @@ class TransformerVisitor(VisitorBase):
 
     def visit_konstant(self, node):
         first = node.first_child
-        if first.type == sym.CHAR:
+        if first.type == sym.CHAR: # Character
             return AST.Char(eval(first.value), node.context)
-        assert first.type == sym.integer
+        assert first.type == sym.integer # integer
         return AST.Num(self.visit(first), node.first_child_context)
 
     def visit_integer(self, node):
-       # extract sign and digits, both tokens
-       num = ''.join(map(lambda c: c.value, node.children))
-       return int(num)
+        # extract optional sign and digits
+        num = ''.join(map(lambda c: c.value, node.children))
+        return int(num)
 
 
     def visit_declaration(self, node):
@@ -77,21 +65,28 @@ class TransformerVisitor(VisitorBase):
         return list(self.visit(trailer, type_name, name))
 
     def visit_decl_trailer(self, node, type_name, name):
+        # generator: need to be list()
         first = node.first_child
         type = self.visit(type_name)
-        if first.value == ';':
+        if first.value == ';': # a single non-array var_decl
             var_type = AST.VarType(type, False, 0)
             yield AST.VarDecl(var_type, name.value, type_name.context)
-        elif first.value == '(':
+        elif first.value == '(': # a funcdef
             yield self.visit_funcdef(type_name, name.value, node.children)
-        else:
-            if first.type == sym.subscript2:
-                var_items = node.children[1:-1]
-                var_type = AST.VarType(type, True, self.visit(first))
+        else: # complex var_decl
+            if first.type == sym.subscript2: # first item is an array
+                var_items = node.children[1:-1] # strip subscript2 and semicolon
+                # visit_subscript2
+                var_type = AST.VarType(type, True, self.visit(first)) # type all the same
                 yield AST.VarDecl(var_type, name.value, node.context)
-            else:
-                var_items = node.children[:-1]
-            for name, is_array, size in map(self.visit, var_items[1::2]):
+            else: # first item is a basic_type
+                var_items = node.children[:-1] # strip semicolon
+                var_type = AST.VarType(type, False, 0)
+                yield AST.VarDecl(var_type, name.value, node.context)
+
+            # handle (',', var_items)*
+            for name, is_array, size in map(self.visit, var_items[1::2]): # possibly leading comma
+                # visit_var_item
                 var_type = AST.VarType(type, is_array, size)
                 yield AST.VarDecl(var_type, name, type_name.context)
 

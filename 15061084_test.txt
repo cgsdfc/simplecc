@@ -1,10 +1,10 @@
 const int const_int_decl=1;
-const int const_int_1=1, const_int_2=2,
-      const_int_3=3, const_int_4=4;
+const int const_int_1=-1, const_int_2=2,
+      const_int_3=3, const_int_4=+4;
 
 const int const_int_zero=0;
-const int const_int_nega=1234;
-const int const_int_posi=1234;
+const int const_int_nega=-1234;
+const int const_int_posi=+1234;
 
 const char const_char_decl='a';
 const char const_char_add='+', const_char_minus='-',
