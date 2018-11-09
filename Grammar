@@ -1,12 +1,12 @@
-# version 0.0.2
+# version 0.1.0
 # top nonterminal
 program: const_decl* declaration* ENDMARKER
 
 # statement
-stmt: (if_stmt | for_stmt | switch_stmt | '{' stmt* '}' | NAME stmt_trailer ';'
+stmt: (if_stmt | for_stmt | while_stmt | '{' stmt* '}' | NAME stmt_trailer ';'
      | read_stmt ';' | write_stmt ';' | ';' | return_stmt ';')
 
-stmt_trailer: [subscript] '=' expr | '(' [arglist] ')'
+stmt_trailer: [subscript] '=' expr | ['(' arglist ')']
 
 return_stmt: 'return' ['(' expr ')']
 
@@ -17,11 +17,7 @@ condition: expr ('<'|'<='|'>'|'>='|'!='|'==') expr | expr
 for_stmt: ('for' '(' NAME '=' expr ';' condition ';'
     NAME '=' NAME ('+'|'-') NUMBER ')' stmt)
 
-switch_stmt: 'switch' '(' expr ')' '{' case_stmt+ default_stmt '}'
-
-case_stmt: 'case' konstant ':' stmt
-
-default_stmt: 'default' ':' stmt
+while_stmt: 'while' '(' condition ')' stmt
 
 arglist: expr (',' expr)*
 
@@ -55,9 +51,10 @@ konstant: integer | CHAR
 
 type_name: 'int' | 'char' | 'void'
 
-declaration: type_name NAME decl_trailer
+# main is the only one that has an empty ()
+declaration: type_name (NAME decl_trailer | 'main' '(' ')' '{' compound_stmt '}')
 
-decl_trailer: '(' [paralist] ')' '{' compound_stmt '}' | [subscript2] (',' var_item)* ';'
+decl_trailer: ['(' paralist ')'] '{' compound_stmt '}' | [subscript2] (',' var_item)* ';'
 
 paralist: type_name NAME (',' type_name NAME)*
 

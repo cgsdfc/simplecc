@@ -63,13 +63,23 @@ void print_heap(int heap_size) {
   }
 }
 
+void reset_heap {
+  int i;
+
+  for (i = 0; i < max_heap_size; i = i + 1) {
+    heap[i] = 0;
+  }
+}
+
 void main() {
   int N;
   int temp;
   int i, j;
   int array_size;
 
+  reset_heap;
   scanf(N);
+
   for (i = 0; i < N; i = i + 1) {
     scanf(array_size);
     if (array_size > max_heap_size) {
