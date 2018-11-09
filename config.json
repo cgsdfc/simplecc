@@ -5,5 +5,8 @@
   "header": "./Parser/Grammar.h",
   "AST.py": "./AST.py",
   "grammar": "./Grammar",
-  "asdl": "./asdl"
+  "asdl": "./asdl",
+  "cparser": "./Parser/build/parser",
+  "pyparser": "./parser.py",
+  "input": "./15061084_test.txt"
 }
