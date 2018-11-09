@@ -32,9 +32,7 @@ term: factor (('*'|'/') factor)*
 
 factor: NAME [ factor_trailer ] | NUMBER | CHAR | '(' expr ')'
 
-factor_trailer: subscript | arglist
-
-subscript: '[' expr ']'
+factor_trailer: '[' expr ']' | arglist
 
 # declaration
 var_decl: type_name var_item (',' var_item)* ';'
@@ -43,9 +41,7 @@ var_item: NAME [subscript2]
 
 const_decl: 'const' type_name const_item (',' const_item)* ';'
 
-const_item: NAME '=' konstant
-
-konstant: integer | CHAR
+const_item: NAME '=' (integer | CHAR)
 
 type_name: 'int' | 'char' | 'void'
 

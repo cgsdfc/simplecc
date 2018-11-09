@@ -19,19 +19,17 @@ factor_trailer = 266
 for_stmt = 267
 if_stmt = 268
 integer = 269
-konstant = 270
-paralist = 271
-read_stmt = 272
-return_stmt = 273
-stmt = 274
-subscript = 275
-subscript2 = 276
-term = 277
-type_name = 278
-var_decl = 279
-var_item = 280
-while_stmt = 281
-write_stmt = 282
+paralist = 270
+read_stmt = 271
+return_stmt = 272
+stmt = 273
+subscript2 = 274
+term = 275
+type_name = 276
+var_decl = 277
+var_item = 278
+while_stmt = 279
+write_stmt = 280
 
 tok_name = {
     0: 'NAME',
@@ -55,17 +53,15 @@ tok_name = {
     267: 'for_stmt',
     268: 'if_stmt',
     269: 'integer',
-    270: 'konstant',
-    271: 'paralist',
-    272: 'read_stmt',
-    273: 'return_stmt',
-    274: 'stmt',
-    275: 'subscript',
-    276: 'subscript2',
-    277: 'term',
-    278: 'type_name',
-    279: 'var_decl',
-    280: 'var_item',
-    281: 'while_stmt',
-    282: 'write_stmt',
+    270: 'paralist',
+    271: 'read_stmt',
+    272: 'return_stmt',
+    273: 'stmt',
+    274: 'subscript2',
+    275: 'term',
+    276: 'type_name',
+    277: 'var_decl',
+    278: 'var_item',
+    279: 'while_stmt',
+    280: 'write_stmt',
 }
