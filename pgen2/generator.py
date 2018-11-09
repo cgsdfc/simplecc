@@ -87,7 +87,9 @@ class Generator(object):
             if value in c.keywords:
                 return c.keywords[value]
             else:
-                c.labels.append((c.token2id['NAME'], value))
+                # differentiate OP and NAME
+                tok = c.token2id['NAME' if value.isalpha() else 'OP']
+                c.labels.append((tok, value))
                 c.keywords[value] = ilabel
                 return ilabel
 

@@ -19,15 +19,14 @@
 #define read_stmt 272
 #define return_stmt 273
 #define stmt 274
-#define stmt_trailer 275
-#define subscript 276
-#define subscript2 277
-#define term 278
-#define type_name 279
-#define var_decl 280
-#define var_item 281
-#define while_stmt 282
-#define write_stmt 283
+#define subscript 275
+#define subscript2 276
+#define term 277
+#define type_name 278
+#define var_decl 279
+#define var_item 280
+#define while_stmt 281
+#define write_stmt 282
 
 #define NAME 0
 #define OP 1

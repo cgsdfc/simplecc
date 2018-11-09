@@ -24,15 +24,14 @@ paralist = 271
 read_stmt = 272
 return_stmt = 273
 stmt = 274
-stmt_trailer = 275
-subscript = 276
-subscript2 = 277
-term = 278
-type_name = 279
-var_decl = 280
-var_item = 281
-while_stmt = 282
-write_stmt = 283
+subscript = 275
+subscript2 = 276
+term = 277
+type_name = 278
+var_decl = 279
+var_item = 280
+while_stmt = 281
+write_stmt = 282
 
 tok_name = {
     0: 'NAME',
@@ -61,13 +60,12 @@ tok_name = {
     272: 'read_stmt',
     273: 'return_stmt',
     274: 'stmt',
-    275: 'stmt_trailer',
-    276: 'subscript',
-    277: 'subscript2',
-    278: 'term',
-    279: 'type_name',
-    280: 'var_decl',
-    281: 'var_item',
-    282: 'while_stmt',
-    283: 'write_stmt',
+    275: 'subscript',
+    276: 'subscript2',
+    277: 'term',
+    278: 'type_name',
+    279: 'var_decl',
+    280: 'var_item',
+    281: 'while_stmt',
+    282: 'write_stmt',
 }

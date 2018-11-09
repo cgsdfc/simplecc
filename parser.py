@@ -79,7 +79,7 @@ class BaseParser:
             for i, newstate in arcs:
                 t, v = self.grammar.labels[i]
                 if ilabel == i:
-                    # print("shift", self.grammar.tok_name[t])
+                    # print("shift", self.grammar.tok_name[t], value)
                     # Look it up in the list of labels
                     assert t < 256
                     # Shift a token; we're done with it
@@ -202,6 +202,10 @@ def lispify(root, grammar):
     return tuple(out)
 
 
+def parse_file(grammar, input):
+    return Parser(grammar).parse_file(input)
+
+
 def astpretty_pprint(rootnode):
     import astpretty
     import AST
@@ -223,18 +227,28 @@ def main():
     parser.add_argument('input', help='Input file to parse')
     parser.add_argument('-a', '--ast',
             dest='ast', action='store_true', default=False)
+    parser.add_argument('-c', '--cst',
+            dest='cst', action='store_true', default=True)
+    parser.add_argument('-r', '--raw',
+            dest='raw', action='store_true', default=False)
     args = parser.parse_args()
 
     with open('./Grammar.pickle', 'rb') as f:
         grammar = pickle.load(f)
 
-    parser = Parser(grammar)
-    rootnode = parser.parse_file(args.input)
+    rootnode = parse_file(grammar, args.input)
     if args.ast:
         ast = ToAST(rootnode)
-        astpretty_pprint(ast)
+        if args.raw:
+            print(ast)
+        else:
+            astpretty_pprint(ast)
     else:
-        pprint(lispify(rootnode, grammar))
+        if args.raw:
+            print(rootnode)
+        else:
+            pprint(lispify(rootnode, grammar))
+
 
 
 if __name__ == '__main__':

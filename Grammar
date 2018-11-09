@@ -3,10 +3,10 @@
 program: const_decl* declaration* ENDMARKER
 
 # statement
-stmt: (if_stmt | for_stmt | while_stmt | '{' stmt* '}' | NAME stmt_trailer ';'
+stmt: (if_stmt | for_stmt | while_stmt | '{' stmt* '}' | expr ['=' expr] ';'
      | read_stmt ';' | write_stmt ';' | ';' | return_stmt ';')
 
-stmt_trailer: [subscript] '=' expr | ['(' arglist ')']
+# stmt_trailer: [subscript] '=' expr | [ arglist ]
 
 return_stmt: 'return' ['(' expr ')']
 
@@ -19,7 +19,7 @@ for_stmt: ('for' '(' NAME '=' expr ';' condition ';'
 
 while_stmt: 'while' '(' condition ')' stmt
 
-arglist: expr (',' expr)*
+arglist: '(' expr (',' expr)* ')'
 
 read_stmt: 'scanf' '(' NAME (',' NAME)* ')'
 
@@ -34,7 +34,7 @@ term: factor (('*'|'/') factor)*
 
 factor: NAME [ factor_trailer ] | NUMBER | CHAR | '(' expr ')'
 
-factor_trailer: subscript | '(' [arglist] ')'
+factor_trailer: subscript | arglist
 
 subscript: '[' expr ']'
 
@@ -54,9 +54,9 @@ type_name: 'int' | 'char' | 'void'
 # main is the only one that has an empty ()
 declaration: type_name (NAME decl_trailer | 'main' '(' ')' '{' compound_stmt '}')
 
-decl_trailer: ['(' paralist ')'] '{' compound_stmt '}' | [subscript2] (',' var_item)* ';'
+decl_trailer: [ paralist ] '{' compound_stmt '}' | [subscript2] (',' var_item)* ';'
 
-paralist: type_name NAME (',' type_name NAME)*
+paralist: '(' type_name NAME (',' type_name NAME)* ')'
 
 subscript2: '[' NUMBER ']'
 

@@ -3,6 +3,10 @@
 
 #include "tokenize.h"
 
+inline String Quote(const String &string) {
+  return '\'' + string + '\'';
+}
+
 class Node {
 public:
   int type;
@@ -17,22 +21,28 @@ public:
     children.push_back(child);
   }
 
-  void Format(std::FILE *file) {
+  String FormatValue() const {
+    return type != ENDMARKER && value.empty() ? "None" : Quote(value);
+  }
+
+  void Format(std::ostream &os) {
     const char *type_str = GetSymName(type);
-
-    fprintf(file, "(%s", type_str);
-    if (value.size()) {
-      fprintf(file, ", %s", value.c_str());
-    }
-    fprintf(file, ", (\n");
-
-    if (children.size()) {
-      for (auto child: children) {
-        child->Format(file);
-        fprintf(file, ", ");
+    os << "Node(";
+    os << "type=" << type << ", ";
+    os << "value=" << FormatValue() << ", ";
+    os << "context=" << location << ", ";
+    os << "children=";
+    if (children.empty()) {
+      os << "None)";
+    } else {
+      os << "[";
+      for (int i = 0; i < children.size(); i++) {
+        children[i]->Format(os);
+        if (i != children.size() - 1)
+          os << ", ";
       }
+      os << "])";
     }
-    fprintf(file, ")");
   }
 
 };

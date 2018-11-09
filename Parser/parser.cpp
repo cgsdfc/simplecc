@@ -88,17 +88,13 @@ public:
     if (token.type == NAME || token.type == OP) {
       for (int i = 1; i < grammar->n_labels; i++) {
         const Label &l = grammar->labels[i];
-        if (l.type != NAME || l.string == nullptr ||
-            l.string != token.string)
-          continue;
-        /* printf("It's a keyword\n"); */
-        return i;
+        if (l.string && l.string == token.string)
+          return i;
       }
     }
     for (int i = 1; i < grammar->n_labels; i++) {
       const Label &l = grammar->labels[i];
       if (l.type == token.type && l.string == nullptr) {
-        /* printf("It's a token we know\n"); */
         return i;
       }
     }
@@ -157,15 +153,14 @@ public:
           /* printf("shift %s\n", GetSymName(type)); */
 
           while (IsAcceptOnlyState(&states[newstate])) {
+            /* printf("pop\n"); */
             Pop();
             if (stack.empty()) {
-              /* printf("return true\n"); */
               return true;
             }
             newstate = stack.top().state;
             states = stack.top().dfa->states;
           }
-          /* printf("return false\n"); */
           return false;
         }
 
@@ -269,7 +264,8 @@ int main(int argc, char **argv) {
   Parser parser;
   try {
     Node *root = parser.Parse(tokens);
-    root->Format(stdout);
+    root->Format(std::cout);
+    std::cout << "\n";
   } catch (ParseError &e) {
     fprintf(stderr, "%s\n", e.what());
   }
