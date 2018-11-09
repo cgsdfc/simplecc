@@ -52,7 +52,7 @@ class TransformerVisitor(VisitorBase):
     def visit_konstant(self, node):
         first = node.first_child
         if first.type == sym.CHAR: # Character
-            return AST.Char(eval(first.value), node.context)
+            return AST.Char(first.value, node.context)
         assert first.type == sym.integer # integer
         return AST.Num(self.visit(first), node.first_child_context)
 
@@ -190,12 +190,8 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_condition(self, node):
-        if len(node.children) == 1:
-            return self.visit(node.first_child)
-        assert len(node.children) == 3
-        return AST.BinOp(self.visit(node.first_child),
-                self.visit(node.children[1]), self.visit(node.children[-1]),
-                node.context)
+        load = AST.expr_context.Load
+        return self.visit_expr(node, load)
 
     def visit_relation_op(self, node):
         first = node.first_child
@@ -227,7 +223,7 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_switch_stmt(self, node):
-        expr = node.children[2]
+        expr = self.visit(node.children[2], AST.expr_context.Load)
         *case_stmts, default = node.children[5:-1]
         default_stmt = self.visit(default)
         labels = list(map(self.visit, case_stmts))
@@ -260,13 +256,13 @@ class TransformerVisitor(VisitorBase):
 
         for val in values:
             if val.type == sym.expr:
-                expr = self.visit(val)
+                expr = self.visit(val, AST.expr_context.Load)
             elif val.type == sym.STRING:
-                string = eval(val.value)
+                string = val.value
         return AST.Write(string, expr, node.first_child_context)
 
 
-    def visit_expr(self, node, context=None):
+    def visit_expr(self, node, context):
         # handle all range of expression.
         unaryop = None
         # optional unaryop in expr
@@ -275,8 +271,7 @@ class TransformerVisitor(VisitorBase):
                 unaryop = AST.string2unaryop[node.first_child.value]
                 node.children = node.children[1:]
 
-        if node.type in (sym.term, sym.expr):
-            # expr and term can be parsed as binop
+        if node.type in (sym.term, sym.expr, sym.condition):
             result = self.visit_binop(node, context)
         else:
             # basic case: factor
@@ -314,7 +309,7 @@ class TransformerVisitor(VisitorBase):
         if first.type == sym.NUMBER:
             return AST.Num(int(first.value), first.context)
         if first.type == sym.CHAR:
-            return AST.Char(eval(first.value), first.context)
+            return AST.Char(first.value, first.context)
         else:
             assert first.value == '('
             # visit_expr

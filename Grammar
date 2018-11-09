@@ -12,9 +12,7 @@ return_stmt: 'return' ['(' expr ')']
 
 if_stmt: 'if' '(' condition ')' stmt ['else' stmt]
 
-condition: expr relation_op expr | expr
-
-relation_op: '<'|'<='|'>'|'>='|'!='|'=='
+condition: expr ('<'|'<='|'>'|'>='|'!='|'==') expr | expr
 
 for_stmt: ('for' '(' NAME '=' expr ';' condition ';'
     NAME '=' NAME ('+'|'-') NUMBER ')' stmt)

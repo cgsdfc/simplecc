@@ -23,19 +23,18 @@ integer = 270
 konstant = 271
 paralist = 272
 read_stmt = 273
-relation_op = 274
-return_stmt = 275
-stmt = 276
-stmt_trailer = 277
-subscript = 278
-subscript2 = 279
-switch_stmt = 280
-term = 281
-trailer = 282
-type_name = 283
-var_decl = 284
-var_item = 285
-write_stmt = 286
+return_stmt = 274
+stmt = 275
+stmt_trailer = 276
+subscript = 277
+subscript2 = 278
+switch_stmt = 279
+term = 280
+trailer = 281
+type_name = 282
+var_decl = 283
+var_item = 284
+write_stmt = 285
 
 tok_name = {
     0: 'NAME',
@@ -63,17 +62,16 @@ tok_name = {
     271: 'konstant',
     272: 'paralist',
     273: 'read_stmt',
-    274: 'relation_op',
-    275: 'return_stmt',
-    276: 'stmt',
-    277: 'stmt_trailer',
-    278: 'subscript',
-    279: 'subscript2',
-    280: 'switch_stmt',
-    281: 'term',
-    282: 'trailer',
-    283: 'type_name',
-    284: 'var_decl',
-    285: 'var_item',
-    286: 'write_stmt',
+    274: 'return_stmt',
+    275: 'stmt',
+    276: 'stmt_trailer',
+    277: 'subscript',
+    278: 'subscript2',
+    279: 'switch_stmt',
+    280: 'term',
+    281: 'trailer',
+    282: 'type_name',
+    283: 'var_decl',
+    284: 'var_item',
+    285: 'write_stmt',
 }
