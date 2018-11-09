@@ -60,7 +60,7 @@ class TransformerVisitor(VisitorBase):
 
     def visit_konstant(self, node):
         if node.type == sym.CHAR:
-            return AST.Char(node.children[0].value, *node.context)
+            return AST.Char(node.first_child.value, *node.context)
         assert node.type == sym.integer
         return AST.Num(self.visit(node), *node.first_child_context)
 
@@ -83,7 +83,7 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_type_name(self, node):
-        name = node.children[0].value
+        name = node.first_child.value
         return AST.string2basic_type[name]
 
 
@@ -96,7 +96,7 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_var_item(self, node):
-        name = node.children[0].value
+        name = node.first_child.value
         if len(node.children) == 1:
             # name, is_array, size
             return name, None, None
@@ -105,13 +105,13 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_stmt(self, node):
-        prefix = node.children[0].type
+        prefix = node.first_child.type
         if prefix >= 256: # if_stmt or so
             assert len(node.children) == 1
-            return self.visit(node.children[0])
+            return self.visit(node.first_child)
         if prefix == sym.NAME: # expr_stmt
             pass
-        value = node.children[0].value
+        value = node.first_child.value
         if value == '{':
             # skip { and }
             # filter pure ';'
@@ -215,10 +215,12 @@ class TransformerVisitor(VisitorBase):
         return self.visit(node.children[-1])
 
     def visit_paralist(self, node):
-        for type_name, name in node.children[0:-1:2]:
-            type = self.visit(type_name)
-            name = name.value
+        node_iter = iter(node)
+        while True:
+            type = self.visit(next(node_iter))
+            name = next(node_iter).value
             yield AST.arg(type, name)
+            next(node_iter) # skip ','
 
     def visit_subscript2(self, node):
         return int(node.children[1].value)
@@ -230,6 +232,61 @@ class TransformerVisitor(VisitorBase):
        # extract sign and digits, both tokens
        num = ''.join(map(lambda c: c[0].value, node.children))
        return int(num)
+
+    def visit_expr(self, node):
+        if node.type == sym.expr and node.first_child.value in '-+':
+            unaryop = AST.string2unaryop[node.first_child.value]
+            node.children = node.children[1:]
+        else:
+            unaryop = None
+
+        if node.first_child.type in (sym.term, sym.expr):
+            result = self.visit_binop(node)
+        else:
+            assert node.first_child.type == sym.factor
+            result = self.visit(node.first_child)
+        if unaryop:
+            return AST.UnaryOp(unaryop, result, *node.context)
+        return result
+
+
+    def visit_binop(self, node):
+        result = self.visit(node.first_child)
+        nops = (len(node.children) - 1) / 2
+        for i in range(nops):
+            next_oper = node.children[i * 2 + 1]
+            newoperator = AST.string2operator[next_oper.value]
+            tmp = self.visit(node.children[i * 2 + 2])
+            tmp_result = AST.BinOp(result, newoperator, tmp, *next_oper.context)
+            result = tmp_result
+        return result
+
+
+    def visit_factor(self, node):
+        first = node.first_child
+        if first.type == sym.NAME:
+            if len(node.children) == 1:
+                return AST.Name(first.value, self.expr_context, *first.context)
+            trailer = node.children[1]
+            return self.visit(trailer, first.value)
+        if first.value == '(':
+            return self.visit(node.children[1])
+        if first.type == sym.STRING:
+            return AST.Str(eval(first.value), *first.context)
+        if first.type == sym.NUMBER:
+            return AST.Num(int(first.value), *first.context)
+        if first.type == sym.CHAR:
+            return AST.Char(eval(first.value), *first.context)
+
+    def visit_trailer(self, node, name):
+        first = node.first_child
+        if first == '[':
+            index = self.visit(node.children[1])
+            return AST.Subscript(name, index, *node.context)
+        assert first == '(', first
+        arglist = [] if len(node.children) == 2 else self.visit(node.children[1])
+        return AST.Call(name, arglist)
+
 
 
 def ToAST(node):
