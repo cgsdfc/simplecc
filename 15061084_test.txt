@@ -1,240 +1,86 @@
-const int const_int_decl=1;
-const int const_int_1=-1, const_int_2=2,
-      const_int_3=3, const_int_4=+4;
+const int max_heap_size = 100;
 
-const int const_int_zero=0;
-const int const_int_nega=-1234;
-const int const_int_posi=+1234;
+int heap[100];
 
-const char const_char_decl='a';
-const char const_char_add='+', const_char_minus='-',
-      const_char_mul='*', const_char_div='/';
-
-const char const_char_number='1';
-
-int int_1;
-char char_1;
-int int_array_1[10];
-char char_array_1[20];
-int int_2, int_array_2[2];
-char char_2, char_array_2[3];
-
-int int_function(int int_arg_1)
-{
-  int local_int_1;
-  char local_char_1;
-
-  local_int_1=2;
-  local_char_1='b';
-  return (local_int_1 + 1);
+void swap(int index1, int index2) {
+  int temp;
+  temp = heap[index1];
+  heap[index1] = heap[index2];
+  heap[index2] = temp;
 }
 
-int int_function_noargs()
-{
-  int local_int_2;
-  int local_sum;
+void heapify(int index, int heap_size) {
+  int largest;
+  int left;
+  int right;
 
-  local_sum=0;
-  for (local_int_2=1; local_int_2 < 100;
-      local_int_2 = local_int_2 + 1)
-    local_sum=local_int_2+1;
-  return (local_sum);
-}
+  largest = index;
+  left = 2 * index + 1;
+  right = 2 * index + 2;
 
-void void_function(char char_arg_1, int int_arg_2, char char_arg_3)
-{
-  if (const_int_zero == const_int_zero) {
-    printf("zero equals to zero");
+  if (left < heap_size) {
+    if (heap[left] > heap[largest]) {
+      largest = left;
+    }
   }
-  switch (char_arg_1) {
-    case 'a':
-      printf("A: prints int_arg_2", int_arg_2);
-    case 'b':
-      printf("B: prints char_arg_3", char_arg_3);
-    default:
-      printf("Nothing to do");
+
+  if (right < heap_size) {
+    if (heap[right] > heap[largest]) {
+      largest = right;
+    }
+  }
+
+  if (largest != index) {
+    swap(index, largest);
+    heapify(largest, heap_size);
+  }
+
+}
+
+void heap_sort(int heap_size) {
+  int i;
+
+  i = heap_size / 2 - 1;
+  while (i >= 0) {
+    heapify(i, heap_size);
+    i = i - 1;
+  }
+
+  for (i = heap_size - 1; i >= 0; i = i - 1) {
+    swap(0, i);
+    heapify(0, i);
   }
 }
 
-void void_function_noargs()
-{
-  return;
-}
+void print_heap(int heap_size) {
+  int i;
 
-void void_function_noargs_2()
-{
-  int local_int_1;
-  int local_int_2;
-
-  scanf(local_int_1);
-  if (local_int_1 == 1) {
-    void_function('a', local_int_1, 'b');
-  } else if (local_int_1 == 2) {
-    local_int_2=int_function_noargs();
-    printf("Calls int_function_noargs returns ");
-    printf(local_int_2);
-  } else {
-    for (local_int_2=2; local_int_2 < 3;
-        local_int_2=local_int_2+1) {
-      printf("void_function_noargs_2 does loop ", local_int_2);
+  for (i = 0; i < heap_size; i = i + 1) {
+    printf(heap[i]);
+    if (i != heap_size - 1) {
+      printf(" ");
     }
   }
 }
 
-int recursive_function_1(int int_arg_1)
-{
-  if (int_arg_1 < 2)
-    return ( 1 );
-  return (int_arg_1 * recursive_function_1(int_arg_1-1));
-}
+void main() {
+  int N;
+  int temp;
+  int i, j;
+  int array_size;
 
-void recursive_function_2(char A, char B,char C,int n)
-{
-  if(n==1) {
-    printf("Move disk ", n);
-    printf(" from ", A);
-    printf(" to ",C);
-  } else {
-    recursive_function_2(A,C,B, n-1);
-    printf("Move disk ", n);
-    printf("from ", A);
-    printf("to ", C);
-    recursive_function_2(B,A,C,n-1);
-  }
-}
-
-void recursive_function_3(int int_arg_1)
-{
-  const int cnt=4;
-  int i,j,k;
-
-  if (int_arg_1 == 0) {
-    printf("End of recursive_function_3");
-    return;
-  }
-  if (int_arg_1 == 1) {
-    for (i=0; i<cnt; i= i+1) {
-      recursive_function_3(i);
-    }
-    return;
-  }
-  if (int_arg_1 == 2) {
-    for (i=0; i<cnt; i=i+1)
-      for (j=0; j<cnt; j=j+1)
-        recursive_function_3(i);
-    return ;
-  }
-  if (int_arg_1 == 3) {
-    for (i=0; i<cnt; i=i+1)
-      for (j=0; j<cnt; j=j+1)
-        for (k=0; k<cnt; k= k+1)
-          recursive_function_3(i);
-    return ;
-  }
-}
-
-
-void print_usage()
-{
-  printf("Enter a number to select one function to run:");
-  printf("  `0': int_function: takes one int arg and returns a local int variable");
-  printf("  `1': int_function_noargs: takes no args and returns a somehow sum of something");
-  printf("  `2': void_function: take in a char as command and displays the other args according to that command char");
-  printf("                      if that char is 'a', it displays the second arg. if the char is 'b', it displays the third arg");
-  printf("  `3': void_function_noargs: takes and returns nothing. the most boring function.");
-  printf("  `4': void_function_noargs_2: scanfs an int and does different things according to the inputted int.");
-  printf("  `5': recursive_function_1: scanfs an int and recursively computes the factual of it");
-  printf("  `6': recursive_function_3: scanfs an int and does different recursions according to the input");
-  printf("  `7': recursive_function_2: scanfs an int and plays HANOI game with you.");
-  printf("  `8': int_array_do_sth: swaps the int_array_1 and int_array_2, element-wise");
-  printf("  `9': swap_sth: swaps int_1 and int_2");
-  printf("  `h': shows this menu argain.");
-  printf("  `q': quits");
-}
-
-void int_array_do_sth()
-{
-  int tmp;
-  printf("Swaps int_array_1 and int_array_2");
-  for (int_1=0; int_1 < const_int_1; int_1 = int_1 + 1) {
-    tmp=int_array_1[int_1];
-    int_array_1[int_1]=int_array_2[int_1];
-    int_array_2[int_1]=tmp;
-  }
-}
-
-void swap_sth()
-{
-  int tmp;
-  printf("Swaps int_1 and int_2");
-}
-
-
-
-void main()
-{
-  int select;
-
-  printf("const_int_decl=", const_int_decl);
-  printf("const_int_1=", const_int_1);
-
-  printf("const_char_add=", const_char_add);
-  printf("const_char_number=", const_char_number);
-  print_usage();
-
-  for (int_1=0; int_1 < 1; int_1 = int_1 - 1 ) {
-    printf("(^_^)");
-    scanf(select);
-    switch (select) {
-      case 0: {
-                printf("int_function takes one int. please input that:");
-                scanf(int_1);
-                printf("int_function returns ");
-                printf(int_1);
-              }
-      case 1:
-              printf("int_function_noargs returns ", int_function_noargs());
-      case 2: {
-                printf("void_function takes one char. please input that:");
-                scanf(char_1);
-                void_function(char_1, const_int_zero, const_char_add);
-              }
-      case 3: {
-                printf("void_function_noargs does nothing.");
-                void_function_noargs();
-              }
-      case 4: {
-                printf("void_function_noargs_2 takes one int. please input that:");
-                scanf(int_1);
-                void_function_noargs_2();
-              }
-      case 5: {
-                printf("recursive_function_1 takes one int. please input that:");
-                scanf(int_1);
-                recursive_function_1(int_1);
-              }
-      case 6:
-              {
-                printf("recursive_function_3 takes one int. please input that:");
-                scanf(int_1);
-                recursive_function_3(int_1);
-              }
-      case 7:
-              {
-                printf("recursive_function_2 takes one int. please input that:");
-                scanf(int_1);
-                recursive_function_2(const_char_add, const_char_div, const_char_mul, int_1);
-              }
-      case 8:
-              int_array_do_sth();
-      case 9:
-              swap_sth();
-      case 'q':
-              return ;
-      case 'h':
-              print_usage();
-      default:
-              printf("Not understood. type `h'.");
+  scanf(N);
+  for (i = 0; i < N; i = i + 1) {
+    scanf(array_size);
+    if (array_size > max_heap_size) {
+      printf("array_size exceeds max_heap_size");
+    } else {
+      for (j = 0; j < array_size; j = j + 1) {
+        scanf(temp);
+        heap[j] = temp;
+      }
+      heap_sort(array_size);
+      print_heap(array_size);
     }
   }
 }
