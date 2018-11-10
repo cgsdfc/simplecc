@@ -13,7 +13,7 @@ def make_string():
 String = r'"{}*"'.format(make_string())
 Char = r"'[+\-*/_a-zA-Z0-9]'"
 Name = r'[_a-zA-Z][_a-zA-Z0-9]*'
-Number = group(r'0', r'[1-9][0-9]*')
+Number = r'\d+'
 Operators = group(r'[+\-*/]', r'[=!]?=', r'[<>]=?')
 Bracket = '[][(){}]'
 Special = group(r'[;:,]', r'\r?\n')
@@ -60,7 +60,7 @@ def tokenize(readline):
                     yield TokenInfo(CHAR if initial == "'" else STRING,
                             token, spos, epos, line)
                 elif initial.isidentifier():
-                    yield TokenInfo(NAME, token, spos, epos, line)
+                    yield TokenInfo(NAME, token.lower(), spos, epos, line)
                 else:
                     yield TokenInfo(OP, token, spos, epos, line)
             else:

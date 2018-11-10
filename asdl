@@ -20,7 +20,6 @@ module Compiler
          | Assign(expr target, expr value)
          | For(stmt initial, expr condition, stmt step, stmt* body)
          | While(expr condition, stmt* body)
-         | Switch(expr value, label_stmt* labels, stmt default_)
          | Return(expr? value)
          | If(expr test, stmt* body, stmt* orelse)
          | Expr(expr value)

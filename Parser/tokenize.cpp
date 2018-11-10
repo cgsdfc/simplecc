@@ -1,5 +1,7 @@
 #include "tokenize.h"
 
+#include <algorithm>
+
 bool IsBlank(const String &line) {
   for (auto ch: line)
     if (!std::isspace(ch))
@@ -115,6 +117,9 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
       }
       Location end(lnum, pos);
       String token(line.begin() + start.col_offset, line.begin() + end.col_offset);
+      if (type == NAME) {
+        std::transform(token.begin(), token.end(), token.begin(), ::tolower);
+      }
       Output.push_back(new TokenInfo(type, token, start, end, line));
     }
   }

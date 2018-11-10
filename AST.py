@@ -109,16 +109,6 @@ class While(stmt):
         self.loc = loc
 
 
-class Switch(stmt):
-    __slots__ = ('value', 'labels', 'default_', 'loc')
-
-    def __init__(self, value, labels, default_, loc):
-        self.value = value
-        self.labels = labels
-        self.default_ = default_
-        self.loc = loc
-
-
 class Return(stmt):
     __slots__ = ('value', 'loc')
 
