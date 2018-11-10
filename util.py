@@ -44,6 +44,24 @@ def reflow_lines(s, depth):
     return lines
 
 
+def indented_lines(lines, depth=0):
+    """Use it in a template.
+
+    template = Template('''
+    enum {
+        $constants
+    };
+    ''')
+
+    template.substitute(constants=indented_lines(iterable, 1))
+    """
+
+    first, *tail = lines
+    from itertools import chain
+    indented = map(lambda l: (" " * TABSIZE * depth) + l, tail)
+    return "\n".join(chain(first, indented))
+
+
 class Emittor:
     "Base class to do emission with reflow."
 
@@ -57,6 +75,11 @@ class Emittor:
             if line:
                 line = (" " * TABSIZE * depth) + line
             self.file.write(line + "\n")
+
+    def emit_raw(self, string):
+        lines = string.split("\n")
+        for l in lines:
+            self.emit(l)
 
 
 class ChainOfVisitors:

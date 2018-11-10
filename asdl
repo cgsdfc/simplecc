@@ -25,13 +25,10 @@ module Compiler
          | Expr(expr value)
           attributes (location loc)
 
-    label_stmt = (expr value, stmt stmt)
-                 attributes (location loc)
-
     expr = BinOp(expr left, operator op, expr right)
          | UnaryOp(unaryop op, expr operand)
          | Call(identifier func, expr* args)
-         | Num(object n)
+         | Num(int n)
          | Str(string s)
          | Char(int c)
 
