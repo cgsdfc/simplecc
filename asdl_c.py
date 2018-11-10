@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 """Ast generation"""
+import sys
 import asdl
 import util
 from operator import attrgetter
@@ -192,21 +193,6 @@ class ForwardEmittor(AstEmittor):
 class EnumEmittor(AstEmittor):
     """Emit ``enum class`` for sums"""
 
-    template = Template("""
-enum class $name {
-    $constants
-};
-
-inline std::ostream &operator<<(std::ostream &os, $name val) {
-    switch (val) {
-    $cases
-    }
-    return os;
-}
-""")
-
-    case_template = Template("""case $name: os << "$name";""")
-
     def visitType(self, node):
         if isinstance(node.value, asdl.Sum):
             self.visit(node.value, node.name)
@@ -215,15 +201,24 @@ inline std::ostream &operator<<(std::ostream &os, $name val) {
         if len(sum.types) == 1:
             return
         # field_names are all int constant, no need get_args()
-        field_names = [self.get_cpp_type(f).name for f in sum.fields]
-        constants = [ n + ',' for n in field_names ]
+        field_names = [c.name for c in sum.types]
         enum_name = self.get_cpp_type(name).name
-        cases = map(lambda n: self.case_template.substitute(name=n), field_names)
-        self.emit_raw(self.template.substitute(
-            name=enum_name,
-            constants=util.indented_lines(constants, 2),
-            cases=util.indented_lines(cases, 2)))
 
+        self.emit("enum class {name} {{ {constants} }};".format(
+            name=enum_name,
+            constants=", ".join(field_names)))
+        self.emit("")
+
+        self.emit(
+        "inline std::ostream &operator<<(std::ostream &os, {name} val) {{".format(
+            name=enum_name))
+        self.emit("switch (val) {", 1)
+        for n in field_names:
+            self.emit("case {enum}::{name}: os << \"{name}\";".format(enum=enum_name,
+                name=n), 1)
+        self.emit("}", 1)
+        self.emit("return os;", 1)
+        self.emit("}\n")
 
 
 class ClassEmittor(AstEmittor):
@@ -329,6 +324,7 @@ inline std::ostream &operator<<(std::ostream &os, const AST *ast) {
 inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
     return os << &ast;
 }
+
 """
 
 class String2enumEmittor(AstEmittor):
@@ -391,22 +387,21 @@ def main():
         return 1
 
     typemap = get_typemap(mod)
-    pprint(typemap)
-    return
-    with open(config['AST.h'], 'w') as f:
+    # pprint(typemap)
+    # return
+    # with open(config['AST.h'], 'w') as f:
+    with sys.stdout as f:
         f.write(Header)
         c = util.ChainOfVisitors(
-            ForwardEmittor(f, typemap),
+            # ForwardEmittor(f, typemap),
             EnumEmittor(f, typemap),
-            ClassEmittor(f, typemap),
-            StructEmittor(f, typemap),
-            String2enumEmittor(f, typemap)
+            # ClassEmittor(f, typemap),
+            # StructEmittor(f, typemap),
+            # String2enumEmittor(f, typemap)
         )
         c.visit(mod)
-        f.write(Trailer)
     return 0
 
 
 if __name__ == '__main__':
-    import sys
     sys.exit(main())

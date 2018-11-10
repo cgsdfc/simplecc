@@ -56,10 +56,8 @@ def indented_lines(lines, depth=0):
     template.substitute(constants=indented_lines(iterable, 1))
     """
 
-    first, *tail = lines
-    from itertools import chain
-    indented = map(lambda l: (" " * TABSIZE * depth) + l, tail)
-    return "\n".join(chain(first, indented))
+    indented = map(lambda l: (" " * TABSIZE * depth) + l, lines)
+    return "\n".join(indented)
 
 
 class Emittor:
