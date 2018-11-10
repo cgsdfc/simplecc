@@ -91,7 +91,15 @@ class TypeVisitor(asdl.VisitorBase):
     def visitSum(self, sum, name):
         n_branches = len(sum.types)
         if n_branches > 1:
-            self.typemap[name] = EnumClass(name)
+            if is_simple(sum): # enum class
+                self.typemap[name] = EnumClass(name)
+            else: # class enum
+                self.typemap[name] = AstNode(name)
+        else:
+            # if it has only one constructor,
+            # map it to its solo constructor.
+            # pure enum is not likely to be solo.
+            self.typemap[name] = AstNode(sum.types[0].name)
 
         for t in sum.types:
             self.visit(t)
@@ -132,41 +140,6 @@ class AstEmittor(util.Emittor, asdl.VisitorBase):
     def get_cpp_type(self, name):
         return self.typemap[name]
 
-    def get_args(self, fields, attributes):
-        """Return (names, args, members) from ``fields`` and ``attributes``
-
-        names is a list of names without type.
-        args is a list of typed_name used as function arguments.
-        members is a list of type_name used in member declaration.
-        """
-
-        names = []
-        args = []
-        members = []
-        unnamed = {}
-
-        for f in chain(fields, attributes):
-            # prepare various types
-            cpp_type = self.get_cpp_type(f.type)
-            arg = cpp_type.seq_arg if f.is_seq else cpp_type.arg
-            member = cpp_type.seq_member if f.is_seq else cpp_type.member
-
-            # prepare the name
-            if f.name is None:
-                # field name is optional
-                name = f.type
-                c = unnamed[name] = unnamed.get(name, 0) + 1
-                if c > 1:
-                    name = "name{}".format(c - 1)
-            else:
-                name = f.name
-
-            names.append(name)
-            args.append("{type} {name}".format(arg, name))
-            members.append("{type} {name}".format(member, name))
-
-        return names, args, members
-
 
 class ForwardEmittor(AstEmittor):
     """Forward declaration for all class (Constructor and Product)"""
@@ -191,59 +164,129 @@ class ForwardEmittor(AstEmittor):
 
 
 class EnumEmittor(AstEmittor):
-    """Emit ``enum class`` for sums"""
+    """Emit enum for sum
+
+    for simple sum, emit ``enum class``; for sum of constructors, emit
+    ``class enum`` -- an empty class except an enum member, serve both as a base type
+    for subclasses and a scope for enum.
+
+    >>> unaryop = UAdd | USub
+
+    enum class UnaryOpKind { UAdd, USub };
+
+    >>> stmt = Write | Read | ...
+
+    class Stmt: public AST {
+    public:
+        enum { Write, Read, ... };
+    };
+    """
+
+    output_header = "inline std::ostream &operator<<(std::ostream &os, {name} val) {{"
+    output_case = "case {enum}::{name}: os << \"{name}\";"
 
     def visitType(self, node):
         if isinstance(node.value, asdl.Sum):
             self.visit(node.value, node.name)
 
-    def visitSum(self, sum, name):
-        if len(sum.types) == 1:
-            return
-        # field_names are all int constant, no need get_args()
-        field_names = [c.name for c in sum.types]
-        enum_name = self.get_cpp_type(name).name
+    def get_field_names(self, sum):
+        # extract names from sum
+        return [c.name for c in sum.types]
 
-        self.emit("enum class {name} {{ {constants} }};".format(
-            name=enum_name,
-            constants=", ".join(field_names)))
+    def get_enum_data(self, fields):
+        return "{{ {data} }};".format(data=", ".join(fields))
+
+    def get_enum_name(self, name):
+        return self.get_cpp_type(name).name
+
+
+    def emit_class_enum(self, name, fields):
+        self.emit("class {name}: public AST {{".format(name=name))
+        self.emit("public:")
+        self.emit("enum {}".format(self.get_enum_data(fields)), 1)
+        self.emit("};\n")
+
+    def emit_enum_class(self, name, fields):
+        self.emit("enum class {name} {data}".format(name=name, data=self.get_enum_data(fields)))
         self.emit("")
-
-        self.emit(
-        "inline std::ostream &operator<<(std::ostream &os, {name} val) {{".format(
-            name=enum_name))
+        self.emit(self.output_header.format(name=name))
         self.emit("switch (val) {", 1)
-        for n in field_names:
-            self.emit("case {enum}::{name}: os << \"{name}\";".format(enum=enum_name,
-                name=n), 1)
+        for n in fields:
+            self.emit(self.output_case.format(enum=name, name=n), 1)
         self.emit("}", 1)
         self.emit("return os;", 1)
         self.emit("}\n")
 
 
-class ClassEmittor(AstEmittor):
+    def visitSum(self, sum, name):
+        if len(sum.types) == 1:
+            # if it has a solo constructor, it should have been mapped to that,
+            # no enum will be generated.
+            return
+        cpp_name = self.get_enum_name(name)
+        fields = self.get_field_names(sum)
+        if is_simple(sum):
+            self.emit_enum_class(cpp_name, fields)
+        else:
+            self.emit_class_enum(cpp_name, fields)
+        self.emit("")
+
+
+class ClassEmittorBase(AstEmittor):
+
+    def get_args(self, fields, attributes):
+        """Return (names, args, members) from ``fields`` and ``attributes``
+
+        names is a list of names without type.
+        args is a list of typed_name used as function arguments.
+        members is a list of type_name used in member declaration.
+        """
+
+        names = []
+        args = []
+        members = []
+        unnamed = {}
+
+        for f in chain(fields, attributes):
+            # prepare various types
+            cpp_type = self.get_cpp_type(f.type)
+            arg = cpp_type.seq_arg if f.seq else cpp_type.arg
+            member = cpp_type.seq_member if f.seq else cpp_type.member
+
+            # prepare the name
+            if f.name is None:
+                # field name is optional
+                name = f.type
+                c = unnamed[name] = unnamed.get(name, 0) + 1
+                if c > 1:
+                    name = "name{}".format(c - 1)
+            else:
+                name = f.name
+
+            names.append(name)
+            args.append("{type} {name}".format(arg, name))
+            members.append("{type} {name}".format(member, name))
+
+        return names, args, members
+
+    def get_initlist(self, names):
+        return ", ".join("{0}({0})".format(arg) for arg in names)
+
+    def get_output(self, names):
+        return ["\"{0}=\" << {0}".format(arg) for arg in names]
+
+    def get_parameters(self, args):
+        return ", ".join(args)
+
+
+class ClassEmittor(ClassEmittorBase):
     """Emit class for Constructor"""
 
-    template = Template("""
-class $name: public AST {
-public:
-    $members
-
-    $name($parameters): $init {}
-
-    int SubclassKind() const override {
-        return $enum::$name;
-    }
-
-    void Format(std::ostream &os) const override {
-        os << "$name(";
-        $format_fields
-    }
-};
-""")
+    format_header = "void Format(std::ostream &os) const override {"
+    subclass_kind_header = "int SubclassKind() const override {"
 
     def visitType(self, type):
-        if not isinstance(type, asdl.Sum):
+        if not isinstance(type.value, asdl.Sum):
             return
         for cons in type.value.types:
             self.visit(cons, type.name, type.value.attributes)
@@ -252,20 +295,31 @@ public:
         if not cons.fields:
             return
         class_name = self.get_cpp_type(cons.name).name
-        typed_args, args = self.get_args(cons.fields, attributes);
-        members = [arg + ";" for arg in typed_args]
-        parameters = ", ".join(typed_args)
-        init = ", ".join("{0}({0})".format(arg) for arg in args)
-        format_fields = ["os << \"{0}=\" << {0};".format(arg) in args]
+        names, args, members = self.get_args(cons.fields, attributes);
 
-        self.emit_raw(self.template.substitute(
-            name=class_name,
-            enum=self.get_cpp_type(sum_name).name,
-            members=members,
-            parameters=parameters,
-            init=init,
-            format_fields=util.indented_lines(format_fields, 2),
-        ))
+        self.emit("class {name}: public AST {{".format(class_name))
+        self.emit("public:")
+
+        # data members
+        for m in members:
+            self.emit(m + ';', 1)
+        self.emit("")
+
+        # constructor
+        self.emit("{name}({parameters}): {init} {{}}".format(name=class_name,
+            parameters=self.get_parameters(args), init=self.get_initlist(names)),1)
+
+        # SubclassKind()
+        self.emit(self.subclass_kind_header)
+        self.emit("return {enum}::{val};".format(enum=self.get_cpp_type(sum_name).name, val=cons.name), 1)
+        self.emit("}\n")
+
+        # Format()
+        self.emit(self.format_header)
+        self.emit("os << \"{name}\"(".format(class_name), 1)
+        self.emit("<< \", \" <<".join(sef.get_output(names)), 1)
+        self.emit("<< \")\";", 1)
+        self.emit("}\n")
 
 
 class StructEmittor(AstEmittor):
