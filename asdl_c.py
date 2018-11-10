@@ -29,7 +29,7 @@ class AstNode(CppType):
 
     @property
     def seq_arg(self):
-        return 'const std::vector<{}> &'.format(self.arg)
+        return 'const std::vector<{}>&'.format(self.arg)
 
     @property
     def seq_member(self):
@@ -60,7 +60,7 @@ class Primitive(CppType):
 
     @property
     def seq_arg(self):
-        return 'const std::vector<{}> &'.format(self.name)
+        return 'const std::vector<{}>&'.format(self.name)
 
     @property
     def seq_member(self):
@@ -215,6 +215,8 @@ class EnumEmittor(AstEmittor):
         self.emit("class {name}: public AST {{".format(name=name))
         self.emit("public:")
         self.emit("enum {}".format(self.get_enum_data(fields)), 1)
+        self.emit("")
+        self.emit("virtual int SubclassKind() const = 0;", 1)
         self.emit("};\n")
         # No output operation for it
 
@@ -349,9 +351,10 @@ class ClassEmittor(AstEmittor):
         self.emit_constructor(name, names, arguments)
 
         # SubclassKind()
-        self.emit(self.subclass_kind_header, 1)
-        self.emit("return {enum}::{val};".format(enum=base, val=name), 2)
-        self.emit("}\n", 1)
+        if base != 'AST':
+            self.emit(self.subclass_kind_header, 1)
+            self.emit("return {enum}::{val};".format(enum=base, val=name), 2)
+            self.emit("}\n", 1)
 
         # Format()
         self.emit_format(self.class_format_header, 1, name, names)
@@ -403,7 +406,6 @@ Header = """#include "tokenize.h"
 
 class AST {
 public:
-    virtual int SubclassKind() const = 0;
     virtual void Format(std::ostream &os) const = 0;
 };
 
