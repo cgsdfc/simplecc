@@ -16,20 +16,21 @@ declaration = 263
 expr = 264
 factor = 265
 factor_trailer = 266
-for_stmt = 267
-if_stmt = 268
-integer = 269
-paralist = 270
-read_stmt = 271
-return_stmt = 272
-stmt = 273
-subscript2 = 274
-term = 275
-type_name = 276
-var_decl = 277
-var_item = 278
-while_stmt = 279
-write_stmt = 280
+flow_stmt = 267
+for_stmt = 268
+if_stmt = 269
+integer = 270
+paralist = 271
+read_stmt = 272
+return_stmt = 273
+stmt = 274
+subscript2 = 275
+term = 276
+type_name = 277
+var_decl = 278
+var_item = 279
+while_stmt = 280
+write_stmt = 281
 
 tok_name = {
     0: 'NAME',
@@ -50,18 +51,19 @@ tok_name = {
     264: 'expr',
     265: 'factor',
     266: 'factor_trailer',
-    267: 'for_stmt',
-    268: 'if_stmt',
-    269: 'integer',
-    270: 'paralist',
-    271: 'read_stmt',
-    272: 'return_stmt',
-    273: 'stmt',
-    274: 'subscript2',
-    275: 'term',
-    276: 'type_name',
-    277: 'var_decl',
-    278: 'var_item',
-    279: 'while_stmt',
-    280: 'write_stmt',
+    267: 'flow_stmt',
+    268: 'for_stmt',
+    269: 'if_stmt',
+    270: 'integer',
+    271: 'paralist',
+    272: 'read_stmt',
+    273: 'return_stmt',
+    274: 'stmt',
+    275: 'subscript2',
+    276: 'term',
+    277: 'type_name',
+    278: 'var_decl',
+    279: 'var_item',
+    280: 'while_stmt',
+    281: 'write_stmt',
 }

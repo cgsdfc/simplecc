@@ -3,8 +3,9 @@
 program: const_decl* declaration* ENDMARKER
 
 # statement
-stmt: (if_stmt | for_stmt | while_stmt | '{' stmt* '}' | expr ['=' expr] ';'
-     | read_stmt ';' | write_stmt ';' | ';' | return_stmt ';')
+stmt: flow_stmt | '{' stmt* '}' | expr ['=' expr] ';' | ';'
+
+flow_stmt: if_stmt | for_stmt | while_stmt | read_stmt ';' | write_stmt ';' | return_stmt ';'
 
 return_stmt: 'return' ['(' expr ')']
 

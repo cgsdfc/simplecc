@@ -17,9 +17,9 @@ class VisitorBase:
         meth = self.cache.get(symbol)
         if meth is None:
             methname = 'visit_' + symbol
-            meth = getattr(self, methname, None)
+            # don't silent the absent of meth
+            meth = getattr(self, methname)
             self.cache[symbol] = meth
-        # don't silent the absent of meth
         return meth(node, *args, **kwargs)
 
 
@@ -45,14 +45,12 @@ class TransformerVisitor(VisitorBase):
 
     def visit_const_item(self, node):
         name, _, konstant = node.children
-        return name.value, self.visit(konstant)
-
-    def visit_konstant(self, node):
-        first = node.first_child
-        if first.type == sym.CHAR: # Character
-            return AST.Char(first.value, node.context)
-        assert first.type == sym.integer # integer
-        return AST.Num(self.visit(first), node.first_child_context)
+        if konstant.type == sym.CHAR:
+            val = AST.Char(node.value, node.context)
+        else:
+            assert konstant.type == sym.integer
+            val = AST.Num(self.visit(konstant), konstant.context)
+        return name.value, val
 
     def visit_integer(self, node):
         # extract optional sign and digits
@@ -61,8 +59,17 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_declaration(self, node):
-        type_name, name, trailer = node.children
-        return list(self.visit(trailer, type_name, name))
+        type_name, *trailer = node.children
+        name = trailer[0]
+        if name.value == 'main':
+            # main() {}
+            compound_stmt = self.visit(trailer[-1])
+            type = self.visit(type_name)
+            return [AST.FuncDef(type, 'main', [], *compound_stmt, type_name.context)]
+        else:
+            assert trailer[-1].type == sym.decl_trailer
+            decl_trailer = trailer[-1]
+            return list(self.visit(decl_trailer, type_name, name))
 
     def visit_decl_trailer(self, node, type_name, name):
         # generator: need to be list()
@@ -71,8 +78,8 @@ class TransformerVisitor(VisitorBase):
         if first.value == ';': # a single non-array var_decl
             var_type = AST.VarType(type, False, 0)
             yield AST.VarDecl(var_type, name.value, type_name.context)
-        elif first.value == '(': # a funcdef
-            yield self.visit_funcdef(type_name, name.value, node.children)
+        elif first.type in (sym.paralist, sym.compound_stmt):
+            yield self.visit_funcdef(type, name.value, node.children, type_name.context)
         else: # complex var_decl
             if first.type == sym.subscript2: # first item is an array
                 var_items = node.children[1:-1] # strip subscript2 and semicolon
@@ -91,16 +98,18 @@ class TransformerVisitor(VisitorBase):
                 yield AST.VarDecl(var_type, name, type_name.context)
 
 
-    def visit_funcdef(self, type_name, name, children):
-        return_type = self.visit(type_name)
-        paralist = None if len(children) == 5 else children[1]
-        args = [] if paralist is None else list(self.visit(paralist))
-        compound_stmt = children[-2]
+    def visit_funcdef(self, return_type, name, children, context):
+        # children is the children of decl_trailer
+        # name is already an identifier
+        paralist = [] if len(children) == 1 else list(self.visit(children[0]))
+        compound_stmt = children[-1] # always the last one
         decls, stmts = self.visit(compound_stmt)
-        return AST.FuncDef(return_type, name, args, decls, stmts, type_name.context)
+        return AST.FuncDef(return_type, name, paralist, decls, stmts, context)
 
     def visit_paralist(self, node):
-        child = iter(node.children)
+        # strip leading ( and tailing )
+        child = iter(node.children[1:-1])
+
         while True:
             type_name = next(child)
             type = self.visit(type_name)
@@ -116,7 +125,7 @@ class TransformerVisitor(VisitorBase):
     def visit_compound_stmt(self, node):
         decls = []
         stmts = []
-        for c in node.children:
+        for c in node.children[1:-1]:
             visited = self.visit(c)
             if c.type in (sym.const_decl, sym.var_decl):
                 decls.extend(list(visited))
@@ -146,38 +155,22 @@ class TransformerVisitor(VisitorBase):
 
     def visit_stmt(self, node):
         first = node.first_child
-        if first.type >= 256: # if_stmt
-            # strip trailing semicolon
-            return self.visit(node.first_child)
-        if first.type == sym.NAME: # expr_stmt
-            trailer = node.children[1]
-            return self.visit(trailer, first.value)
+        if first.type == sym.flow_stmt:
+            return self.visit(node.first_child.first_child)
+        if first.type == sym.expr:
+            if len(node.children) == 2: # non Assign
+                expr1 = self.visit(first) # Load by default
+                return AST.Expr(expr1, node.context)
+            else: # assign
+                assert node.children[1].value == '='
+                expr1 = self.visit(first, AST.expr_context.Store)
+                expr2 = self.visit(node.children[-2])
+                return AST.Assign(expr1, expr2, node.context)
         if first.value == '{':
             return list(filter(None, map(self.visit, node.children[1:-1])))
         # make sure we handle all cases.
         assert first.value == ';' and len(node.children) == 1, node
         return None
-
-    def visit_stmt_trailer(self, node, name):
-        if node.first_child.value == '(': # Call expr
-            args = [] if len(node.children) == 2 else self.visit(node.children[1])
-            call = AST.Call(name, args, node.context)
-            return AST.Expr(call, node.context)
-        # assign stmt
-        return self.visit_assign(node, name)
-
-
-    def visit_assign(self, node, name):
-        store = AST.expr_context.Store
-        if len(node.children) == 3:
-            # subsript
-            target = AST.Subscript(name, self.visit(node.children[0]), store, node.context)
-        else:
-            target = AST.Name(name, store, node.context)
-        value = self.visit(node.children[-1])
-        assert value
-        return AST.Assign(target, value, node.context)
-
 
     def visit_if_stmt(self, node):
         condition, _, stmt, *trailer = node.children[2:]
@@ -213,21 +206,10 @@ class TransformerVisitor(VisitorBase):
         stmt = self.visit(node.children[-1])
         return AST.For(initial, condition, step, stmt, node.first_child_context)
 
-
-    def visit_switch_stmt(self, node):
-        expr = self.visit(node.children[2])
-        *case_stmts, default = node.children[5:-1]
-        default_stmt = self.visit(default)
-        labels = list(map(self.visit, case_stmts))
-        return AST.Switch(expr, labels, default_stmt, node.context)
-
-    def visit_case_stmt(self, node):
-        _, konstant, _, stmt = node.children
-        return AST.label_stmt(self.visit(konstant), self.visit(stmt), node.context)
-
-    def visit_default_stmt(self, node):
-        return self.visit(node.children[-1])
-
+    def visit_while_stmt(self, node):
+        condition = self.visit(node.children[2])
+        stmt = self.visit(node.children[-1])
+        return AST.While(condition, stmt, node.context)
 
     def visit_return_stmt(self, node):
         _, *trailer = node.children
@@ -309,22 +291,20 @@ class TransformerVisitor(VisitorBase):
 
     def visit_factor_trailer(self, node, name, context):
         first = node.first_child
-        if first.value == '(':
-            args = [] if len(node.children) == 2 else self.visit(node.children[1])
+        if first.type == sym.arglist:
+            args = self.visit(first) # no empty arglist
             return AST.Call(name, args, node.context)
         else:
-            assert first.type == sym.subscript, first
-            index = self.visit(first)
+            assert first.value == '[', first
+            index = self.visit(node.children[1])
             return AST.Subscript(name, index, context, node.context)
 
     def visit_arglist(self, node):
-        return [self.visit(c) for c in node.children[::2]]
+        # strip () and skip ,
+        return [self.visit(c) for c in node.children[1:-1:2]]
 
     def visit_subscript2(self, node):
         return int(node.children[1].value)
-
-    def visit_subscript(self, node):
-        return self.visit(node.children[1])
 
 
 def ToAST(node):
