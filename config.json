@@ -6,7 +6,6 @@
   "AST.py": "./AST.py",
   "grammar": "./Grammar",
   "asdl": "./asdl",
-  "cparser": "./Parser/build/parser",
-  "pyparser": "./parser.py",
-  "input": "./15061084_test.txt"
+  "cparser": "./build/parser",
+  "pyparser": "./parser.py"
 }
