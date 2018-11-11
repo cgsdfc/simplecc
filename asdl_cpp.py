@@ -420,6 +420,19 @@ inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
     return os << &ast;
 }
 
+template<class T>
+inline std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
+    os << "[";
+    for (auto b = v.begin(), e = v.end(); b != e; ++b) {
+        os << *b;
+        if (b != e - 1) {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
+}
+
 """
 
 class String2enumEmittor:
