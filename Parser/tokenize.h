@@ -16,6 +16,19 @@ using std::fprintf;
 using std::fputs;
 using std::exit;
 
+inline bool IsTerminal(int type) {
+  return type < NT_OFFSET;
+}
+
+inline bool IsNonterminal(int type) {
+  return !IsTerminal(type);
+}
+
+inline const char *GetSymName(Symbol s) {
+  auto sym = static_cast<int>(s);
+  return IsTerminal(sym) ? TokenNames[sym] : SymbolNames[sym - NT_OFFSET];
+}
+
 class Location {
 public:
   unsigned lineno;
@@ -54,13 +67,13 @@ inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
 
 class TokenInfo {
 public:
-  unsigned type;
+  Symbol type;
   String string;
   Location start;
   Location end;
   String line;
 
-  TokenInfo(unsigned type, const String &string, Location start, Location end,
+  TokenInfo(Symbol type, const String &string, Location start, Location end,
       String line): type(type), string(string), start(start), end(end), line(line) {}
 
   void Format(std::FILE *out) const {
@@ -69,7 +82,7 @@ public:
 
     std::fprintf(out, "%-20s%-15s%-15s\n",
         os.str().c_str(),
-        TokenNames[type],
+        GetSymName(type),
         string.c_str());
   }
 };
@@ -77,17 +90,5 @@ public:
 typedef std::vector<TokenInfo*> TokenBuffer;
 
 void Tokenize(std::istream &Input, TokenBuffer &Output);
-
-inline bool IsTerminal(int type) {
-  return type < 256;
-}
-
-inline bool IsNonterminal(int type) {
-  return !IsTerminal(type);
-}
-
-inline const char *GetSymName(int sym) {
-  return IsTerminal(sym) ? TokenNames[sym] : SymbolNames[sym - 256];
-}
 
 #endif

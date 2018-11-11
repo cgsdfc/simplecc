@@ -52,13 +52,13 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
 
     while (pos < max) {
       Location start(lnum, pos);
-      unsigned type = ERRORTOKEN;
+      Symbol type = Symbol::ERRORTOKEN;
 
       if (std::isdigit(line[pos])) {
         while (std::isdigit(line[pos])) {
           ++pos;
         }
-        type = NUMBER;
+        type = Symbol::NUMBER;
       }
       else if (line[pos] == '\'') {
         ++pos;
@@ -66,7 +66,7 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
           ++pos;
           if (line[pos] == '\'') {
             ++pos;
-            type = CHAR;
+            type = Symbol::CHAR;
           }
         }
       }
@@ -77,34 +77,34 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
         }
         if (line[pos] == '\"') {
             ++pos;
-            type = STRING;
+            type = Symbol::STRING;
           }
       }
       else if (IsNameBegin(line[pos])) {
         ++pos;
         while (IsNameMiddle(line[pos]))
           ++pos;
-        type = NAME;
+        type = Symbol::NAME;
       }
       else if (IsSpecial(line[pos])) {
         ++pos;
-        type = OP;
+        type = Symbol::OP;
       }
       else if (IsOperator(line[pos])) {
         char chr = line[pos];
         ++pos;
         if (chr == '>' || chr == '<' || chr == '=') {
-          type = OP;
+          type = Symbol::OP;
           if (line[pos] == '=') {
             ++pos;
           }
         } else if (chr == '!') {
           if (line[pos] == '=') {
             ++pos;
-            type = OP;
+            type = Symbol::OP;
           }
         } else {
-          type = OP;
+          type = Symbol::OP;
         }
       }
       else if (std::isspace(line[pos])) {
@@ -117,11 +117,11 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
       }
       Location end(lnum, pos);
       String token(line.begin() + start.col_offset, line.begin() + end.col_offset);
-      if (type == NAME) {
+      if (type == Symbol::NAME) {
         std::transform(token.begin(), token.end(), token.begin(), ::tolower);
       }
       Output.push_back(new TokenInfo(type, token, start, end, line));
     }
   }
-  Output.push_back(new TokenInfo(ENDMARKER, "", Location(lnum, 0), Location(lnum, 0), ""));
+  Output.push_back(new TokenInfo(Symbol::ENDMARKER, "", Location(lnum, 0), Location(lnum, 0), ""));
 }

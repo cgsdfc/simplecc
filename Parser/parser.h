@@ -9,12 +9,12 @@ inline String Quote(const String &string) {
 
 class Node {
 public:
-  int type;
+  Symbol type;
   String value;
   std::vector<Node*> children;
   Location location;
 
-  Node(int type, const String &value, Location location):
+  Node(Symbol type, const String &value, Location location):
     type(type), value(value), children(), location(location) {}
 
   void AddChild(Node *child) {
@@ -22,13 +22,13 @@ public:
   }
 
   String FormatValue() const {
-    return type != ENDMARKER && value.empty() ? "None" : Quote(value);
+    return type != Symbol::ENDMARKER && value.empty() ? "None" : Quote(value);
   }
 
   void Format(std::ostream &os) {
     const char *type_str = GetSymName(type);
     os << "Node(";
-    os << "type=" << type << ", ";
+    os << "type=" << type_str << ", ";
     os << "value=" << FormatValue() << ", ";
     os << "context=" << location << ", ";
     os << "children=";

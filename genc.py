@@ -2,6 +2,7 @@
 from pgen2 import generate_grammar
 from util import Emittor
 from operator import itemgetter
+from itertools import chain
 
 
 def emit_header(config, gr):
@@ -12,14 +13,13 @@ def emit_header(config, gr):
         e.emit("#include \"grammar.h\"")
         e.emit("")
 
-        # nonterminals
-        for sym, val in gr.symbol2number.items():
-            e.emit("#define {} {}".format(sym, val))
-        e.emit("")
+        # enum of symbols
+        e.emit("enum class Symbol {")
+        symbols = chain(gr.symbol2number.items(), gr.token2id.items())
 
-        # terminals
-        for sym, val in gr.token2id.items():
-            e.emit("#define {} {}".format(sym, val))
+        for sym, val in symbols:
+            e.emit("{} = {},".format(sym, val), 1)
+        e.emit("};")
         e.emit("")
 
         e.emit("#define NT_OFFSET 256")

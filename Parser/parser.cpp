@@ -79,13 +79,13 @@ public:
 
   explicit BaseParser(Grammar *grammar): stack(), grammar(grammar),
   start(grammar->start) {
-    Node *newnode = new Node(grammar->start, "", Location());
+    Node *newnode = new Node(static_cast<Symbol>(grammar->start), "", Location());
     rootnode = nullptr;
     stack.push(StackEntry(grammar->dfas[start - NT_OFFSET], 0, newnode));
   }
 
   int Classify(const TokenInfo &token) {
-    if (token.type == NAME || token.type == OP) {
+    if (token.type == Symbol::NAME || token.type == Symbol::OP) {
       for (int i = 1; i < grammar->n_labels; i++) {
         const Label &l = grammar->labels[i];
         if (l.string && l.string == token.string)
@@ -94,7 +94,7 @@ public:
     }
     for (int i = 1; i < grammar->n_labels; i++) {
       const Label &l = grammar->labels[i];
-      if (l.type == token.type && l.string == nullptr) {
+      if (l.type == static_cast<int>(token.type) && l.string == nullptr) {
         return i;
       }
     }
@@ -111,7 +111,7 @@ public:
   void Push(int type, DFA *newdfa, int newstate, Location location) {
     /* printf("push %s\n", GetSymName(type)); */
     StackEntry &tos = stack.top();
-    Node *newnode = new Node(type, "", location);
+    Node *newnode = new Node(static_cast<Symbol>(type), "", location);
     tos.state = newstate;
     stack.push(StackEntry(newdfa, 0, newnode));
   }
@@ -201,7 +201,7 @@ public:
 
   Node *Parse(const TokenBuffer &tokens) {
     for (auto token: tokens) {
-      if (token->type == ERRORTOKEN) {
+      if (token->type == Symbol::ERRORTOKEN) {
         std::fprintf(stderr, "error token %s at %s\n",
             token->string.c_str(), token->start.ToString().c_str());
         return nullptr;
