@@ -1,10 +1,6 @@
 #include "parser.h"
+#include "cst.h"
 
-/* int main() { */
-/*   DumpGrammar(CompilerGrammar); */
-/* } */
-
-/* #if 0 */
 int main(int argc, char **argv) {
   TokenBuffer tokens;
   if (argc == 1) {
@@ -22,12 +18,12 @@ int main(int argc, char **argv) {
   }
 
   Node *root = ParseTokens(tokens);
-  root->Format(std::cout);
-  std::cout << "\n";
+  AST *node = NodeToAst(root);
+  std::cout << node << "\n";
+  /* root->Format(std::cout); */
 
   for (auto token: tokens) {
     delete token;
   }
   return 0;
 }
-/* #endif */

@@ -1,5 +1,4 @@
-#include "parser.h"
-#include "AST.h"
+#include "cst.h"
 
 #include <algorithm>
 #include <tuple>
@@ -32,7 +31,7 @@ public:
   }
 
   void visit_const_decl(Node *node, std::vector<Decl*> &decls) {
-    auto type_name = node->children[0];
+    auto type_name = node->children[1];
     auto type = visit_type_name(type_name);
 
     for (int i = 2, len = node->children.size() - 1; i < len; i += 2) {
@@ -104,18 +103,17 @@ public:
       visit_funcdef(type, name->value, node, type_name->location, decls);
     }
     else {
-      auto var_items_begin = node->children.end();
-      auto var_items_end = node->children.end() - 1;
+      auto var_items_begin = node->children.begin();
+      auto var_items_end = node->children.end();
 
       if (first->type == Symbol::subscript2) {
         auto var_type = new VarType(type, true, visit_subscript2(first));
         decls.push_back(new VarDecl(var_type, name->value, node->location));
-        var_items_begin = node->children.begin() + 1;
+        var_items_begin++;
       }
       else {
         auto var_type = new VarType(type, false, 0);
         decls.push_back(new VarDecl(var_type, name->value, node->location));
-        var_items_begin = node->children.begin();
       }
 
       for (++var_items_begin; // strip possible leading comma
@@ -123,7 +121,8 @@ public:
         String name;
         bool is_array;
         int size;
-        std::tie(name, is_array, size) = visit_var_item(*var_items_begin);
+        auto child = *var_items_begin;
+        std::tie(name, is_array, size) = visit_var_item(child);
         auto var_type = new VarType(type, is_array, size);
         decls.push_back(new VarDecl(var_type, name, type_name->location));
       }
@@ -148,7 +147,7 @@ public:
 
   void visit_paralist(Node *node, std::vector<Arg*> &paralist) {
     auto para_begin = node->children.begin() + 1;
-    auto para_end = node->children.end() - 1;
+    auto para_end = node->children.end();
 
     for (; para_begin != para_end; para_begin += 3) {
       auto type_name = *para_begin;
@@ -190,7 +189,7 @@ public:
     auto type = visit_type_name(type_name);
 
     auto var_items_begin = node->children.begin() + 1;
-    auto var_items_end = node->children.end() - 1;
+    auto var_items_end = node->children.end();
 
     for (; var_items_begin != var_items_end; var_items_begin += 2) {
       String name;
@@ -217,7 +216,7 @@ public:
       stmts.push_back(visit_flow_stmt(first));
     }
     else if (first->type == Symbol::expr) {
-      if (node->children.size() == 1) {
+      if (node->children.size() == 2) {
         auto expr1 = visit_expr(first);
         stmts.push_back(new ExprStmt(expr1, node->location));
       } else {
@@ -324,7 +323,7 @@ public:
   Stmt *visit_read_stmt(Node *node) {
     std::vector<String> names;
     auto name_begin = node->children.begin() + 2;
-    auto name_end = node->children.end() - 1;
+    auto name_end = node->children.end();
 
     for (; name_begin != name_end; name_begin += 2) {
       names.push_back((*name_begin)->value);
@@ -435,7 +434,7 @@ public:
     std::vector<Expr*> visit_arglist(Node *node) {
       std::vector<Expr*> args;
       auto args_begin = node->children.begin() + 1;
-      auto args_end = node->children.end() - 1;
+      auto args_end = node->children.end();
 
       for (; args_begin != args_end; args_begin += 2) {
         args.push_back(visit_expr(*args_begin));
@@ -444,7 +443,7 @@ public:
     }
 
     int visit_subscript2(Node *node) {
-      return std::stoi(node->FirstChild()->value);
+      return std::stoi(node->children[1]->value);
     }
 
 };
