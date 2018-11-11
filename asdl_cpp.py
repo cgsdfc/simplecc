@@ -11,7 +11,8 @@ from itertools import chain
 import abc
 
 def camal_case(name):
-    return ''.join(c.capitalize() for c in name.lower().split('_'))
+    # uppercase the first letter, keep the rest unchanged
+    return ''.join(c[0].upper() + c[1:] for c in name.split('_'))
 
 def is_simple(sum):
     """Return True if a sum is a simple.
@@ -145,7 +146,6 @@ class AstNodeEmittor:
 
     def emit_constructor(self, e, depth=1):
         """Emit a constructor definition"""
-        pprint(self.members)
         e.emit("{name}({parameters}): {init} {{}}".format(
             name=self.name,
             parameters=", ".join("{} {}".format(type.as_argument, name)
@@ -157,10 +157,10 @@ class AstNodeEmittor:
     def emit_formatter(self, e, depth):
         """Emit body and end } of the formatter"""
         e.emit("os << \"{}(\" <<".format(self.name), depth)
-        e.emit(" << \", \" << ".join("\"{0}\" << {0}".format(name)
+        e.emit(" << \", \" << ".join("\"{0}=\" << {0}".format(name)
             for _, name in self.members), depth)
         e.emit("<< \")\";", depth)
-        e.emit("}\n", depth-1)
+        e.emit("}", depth-1)
 
     def emit_forward(self, class_or_struct, e):
         e.emit("{} {};".format(class_or_struct, self.name))
@@ -179,7 +179,7 @@ class ProductStructEmittor(AstNodeEmittor):
 
     def emit_formatter(self, e):
         e.emit(self.format_header.format(self.name))
-        super().emit_formatter(e, depth=0)
+        super().emit_formatter(e, 1)
         
     def emit(self, e):
         self.emit_struct(e)
@@ -217,7 +217,7 @@ class ConcreteNodeEmittor(AstNodeEmittor):
     def emit_subclass_kind(self, e):
         e.emit(self.subclass_kind_header, 1)
         e.emit("return {enum}::{val};".format(enum=self.base, val=self.name), 2)
-        e.emit("}\n", 1)
+        e.emit("}", 1)
 
     def emit_forward(self, e):
         super().emit_forward('class', e)
@@ -275,7 +275,7 @@ class SimpleEnumEmittor(EnumEmittor):
         e.emit("switch (val) {", 1)
         super().emit_formatter(e, 1)
         e.emit("return os;", 1)
-        e.emit("}\n")
+        e.emit("}")
 
     def emit(self, e):
         e.emit("enum class {} {}".format(self.name, self.formatted_members))
@@ -335,10 +335,12 @@ class EmittorVisitor(asdl.VisitorBase):
         super().__init__()
         self.typemap = typemap
         self.cpptypes = []
+        self.string2enum = String2enumEmittor()
 
     def visitModule(self, mod):
         for dfn in mod.dfns:
             yield from self.visit(dfn)
+        yield self.string2enum
 
     def visitType(self, type):
         yield from self.visit(type.value, str(type.name))
@@ -349,6 +351,7 @@ class EmittorVisitor(asdl.VisitorBase):
             cpp_name = self.typemap[name].name
             members = [cons.name for cons in sum.types]
             if is_simple(sum): # enum class
+                self.string2enum.enums.append((name, cpp_name))
                 yield SimpleEnumEmittor(cpp_name, members)
             else:
                 yield AbstractNodeEmittor(cpp_name, members)
@@ -385,6 +388,7 @@ def generate_code(mod, output):
     v.visit(mod)
     cpp_types = list(EmittorVisitor(v.typemap).visit(mod))
     with open(output, 'w') as f:
+        f.write(Header)
         e = util.Emittor(f)
         for c in cpp_types:
             try:
@@ -396,11 +400,85 @@ def generate_code(mod, output):
             c.emit(e)
             e.emit("")
 
+Header = """#include "tokenize.h"
+
+#include <vector>
+#include <iostream>
+#include <optional>
+
+class AST {
+public:
+    virtual void Format(std::ostream &os) const = 0;
+};
+
+inline std::ostream &operator<<(std::ostream &os, const AST *ast) {
+    ast->Format(os);
+    return os;
+}
+
+inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
+    return os << &ast;
+}
+
+"""
+
+class String2enumEmittor:
+
+    # make sure these names match those in asdl!
+    operator = {
+        "+": "Add",
+        "-": "Sub",
+        "*": "Mult",
+        "/": "Div",
+        "==": "Eq",
+        "!=": "NotEq",
+        "<": "Lt",
+        "<=": "LtE",
+        ">": "Gt",
+        ">=": "GtE",
+    }
+
+    unaryop = {
+        "+": "UAdd",
+        "-": "USub",
+    }
+
+    basic_type = {
+        "int": "Int",
+        "char": "Character",
+        "void": "Void",
+    }
+
+    def __init__(self):
+        # to be filled by EmittorVisitor
+        self.enums = []
+
+    def emit_func(self, table, enum, e):
+        e.emit("inline {enum} {funcname}(const String &s) {{".format(
+            enum=enum,
+            funcname='String2' + enum,
+        ))
+
+        for op, val in table.items():
+            e.emit("if (s == \"{op}\") return {enum}::{val};".format(
+                op=op, enum=enum, val=val), 1)
+            e.emit("")
+        e.emit("assert(false && \"not a member of {}\");".format(enum), 1)
+        e.emit("}")
+
+    def emit(self, e):
+        for attr, enum in self.enums:
+            try:
+                table = getattr(self, attr)
+                self.emit_func(table, enum, e)
+                e.emit("")
+            except AttributeError:
+                pass
+
 
 def main():
     import argparse
     import json
-    from pprint import pprint
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
