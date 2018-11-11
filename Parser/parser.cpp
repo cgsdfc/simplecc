@@ -195,25 +195,6 @@ public:
 
 };
 
-class Parser: public BaseParser {
-public:
-  Parser(): BaseParser(&CompilerGrammar) {}
-
-  Node *Parse(const TokenBuffer &tokens) {
-    for (auto token: tokens) {
-      if (token->type == Symbol::ERRORTOKEN) {
-        std::fprintf(stderr, "error token %s at %s\n",
-            token->string.c_str(), token->start.ToString().c_str());
-        return nullptr;
-      }
-      if (AddToken(*token)) {
-        return rootnode;
-      }
-    }
-    throw ParseError("incomplete input");
-  }
-};
-
 void DumpGrammar(const Grammar &gr)  {
   for (int k = 0; k < gr.n_dfas; k++) {
     auto symbol = k + NT_OFFSET;
@@ -239,40 +220,19 @@ void DumpGrammar(const Grammar &gr)  {
   }
 }
 
-/* int main() { */
-/*   DumpGrammar(CompilerGrammar); */
-/* } */
 
-/* #if 0 */
-int main(int argc, char **argv) {
-  TokenBuffer tokens;
-  if (argc == 1) {
-    Tokenize(std::cin, tokens);
-  } else if (argc == 2) {
-    std::ifstream ifs(argv[1]);
-    if (ifs.fail()) {
-      fprintf(stderr, "file %s not exist\n", argv[1]);
-      exit(1);
-    }
-    Tokenize(ifs, tokens);
-  } else {
-    fputs("Usage: parser [file]\n", stderr);
-    exit(1);
-  }
-
-
-  Parser parser;
-  try {
-    Node *root = parser.Parse(tokens);
-    root->Format(std::cout);
-    std::cout << "\n";
-  } catch (ParseError &e) {
-    fprintf(stderr, "%s\n", e.what());
-  }
+Node *ParseTokens(const TokenBuffer &tokens) {
+  BaseParser parser(&CompilerGrammar);
 
   for (auto token: tokens) {
-    delete token;
+    if (token->type == Symbol::ERRORTOKEN) {
+      std::fprintf(stderr, "error token %s at %s\n",
+          token->string.c_str(), token->start.ToString().c_str());
+      return nullptr;
+    }
+    if (parser.AddToken(*token)) {
+      return parser.rootnode;
+    }
   }
-  return 0;
+  throw ParseError("incomplete input");
 }
-/* #endif */

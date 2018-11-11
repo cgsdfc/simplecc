@@ -449,4 +449,6 @@ public:
 
 };
 
-
+Program *NodeToAst(Node *node) {
+  return TransformerVisitor().visit_program(node);
+}

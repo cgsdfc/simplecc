@@ -6,6 +6,7 @@ list(APPEND CMAKE_CXX_FLAGS "-std=c++17")
 
 # All executables added hereby
 add_executable(parser
+  ./main.cpp
   ./cst.cpp
   ./Grammar.cpp
   ./parser.cpp

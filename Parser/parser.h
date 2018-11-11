@@ -55,4 +55,6 @@ public:
 
 };
 
+Node *ParseTokens(const TokenBuffer &tokens);
+
 #endif
