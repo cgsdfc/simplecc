@@ -52,6 +52,48 @@ class CppType(metaclass=abc.ABCMeta):
         return "{}({!r})".format(self.__class__.__name__, self.name)
 
 
+class Primitive(CppType):
+    """Primitive types in both asdl and cpp"""
+
+    strimpl = 'std::string'
+    asdl2cpp = {
+        'identifier': strimpl,
+        'string': strimpl,
+        'location': 'Location',
+        'int': 'int',
+    }
+
+    def __init__(self, name):
+        self.name = self.asdl2cpp[name]
+
+    @property
+    def as_member(self):
+        return self.name
+
+    @property
+    def as_argument(self):
+        if self.name == 'int':
+            # too verbose to say "const int&"
+            return self.as_member
+        else:
+            # larger types
+            return self.const_ref(self.name)
+
+
+class Enum(CppType):
+    """Representing ``enum class`` of cpp"""
+
+    def __init__(self, name):
+        self.name = camal_case(name) + 'Kind'
+
+    @property
+    def as_member(self):
+        # enums are just ints
+        return self.name
+
+    as_argument = as_member
+
+
 class AstNode(CppType):
     """AstNode represents subclasses of AST"""
 
@@ -104,48 +146,6 @@ class Optional(CppType):
     name = as_member
 
 
-class Primitive(CppType):
-    """Primitive types in both asdl and cpp"""
-
-    strimpl = 'std::string'
-    asdl2cpp = {
-        'identifier': strimpl,
-        'string': strimpl,
-        'location': 'Location',
-        'int': 'int',
-    }
-
-    def __init__(self, name):
-        self.name = self.asdl2cpp[name]
-
-    @property
-    def as_member(self):
-        return self.name
-
-    @property
-    def as_argument(self):
-        if self.name == 'int':
-            # too verbose to say "const int&"
-            return self.as_member
-        else:
-            # larger types
-            return self.const_ref(self.name)
-
-
-class Enum(CppType):
-    """Representing ``enum class`` of cpp"""
-
-    def __init__(self, name):
-        self.name = camal_case(name) + 'Kind'
-
-    @property
-    def as_member(self):
-        # enums are just ints
-        return self.name
-
-    as_argument = as_member
-
-
 class Emittor:
     """Base class for all other emittor"""
 
@@ -177,6 +177,26 @@ class AstNodeEmittor(Emittor):
         for type, name in self.members:
             e.emit("{} {};".format(type.as_member, name), depth)
 
+    def emit_implementaion(self, e):
+        self.emit_destructor_impl(e)
+
+    def emit_destructor_impl(self, e):
+        """Emit an out-of-class destructor definition"""
+        e.emit("{0}::~{0}() {{".format(self.name))
+        for type, name in self.members:
+            if isinstance(type, AstNode):
+                e.emit("delete {};".format(name), 1)
+            if isinstance(type, Sequence):
+                if isinstance(type.elemtype, AstNode):
+                    e.emit("for (auto v: {}) delete v;".format(name), 1)
+            if isinstance(type, Optional):
+                if isinstance(type.elemtype, AstNode):
+                    e.emit("if ({0}) delete {0};".format(name), 1)
+        e.emit("}")
+
+    def emit_destructor_decl(self, e):
+        e.emit("~{}() override;".format(self.name), 1)
+
     def emit_constructor(self, e, depth=1):
         """Emit a constructor definition"""
         e.emit("{name}({parameters}): {init} {{}}".format(
@@ -196,31 +216,29 @@ class AstNodeEmittor(Emittor):
         e.emit("<< \")\";", 2)
         e.emit("}", 1)
 
-    def emit_forward(self, class_or_struct, e):
-        e.emit("{} {};".format(class_or_struct, self.name))
+    def emit_forward(self, e):
+        e.emit("{} {};".format(self.class_or_struct, self.name))
 
 
 class ProductStructEmittor(AstNodeEmittor):
     """A ``struct`` representing ``asdl.Product``"""
-
-    def emit_struct(self, e):
-        e.emit("struct {}: public {} {{".format(self.name, 'AST'))
-        self.emit_members(e)
-        self.emit_constructor(e)
-        self.emit_formatter(e)
-        e.emit("};")
+    base = 'AST'
+    class_or_struct = 'struct'
 
     def emit_definition(self, e):
-        self.emit_struct(e)
-
-    def emit_forward(self, e):
-        super().emit_forward('struct', e)
+        e.emit("{} {}: public {} {{".format(self.class_or_struct, self.name, self.base))
+        self.emit_members(e)
+        self.emit_constructor(e)
+        self.emit_destructor_decl(e)
+        self.emit_formatter(e)
+        e.emit("};")
 
 
 class ConcreteNodeEmittor(AstNodeEmittor):
     """A ``class`` representing a concrete AstNode"""
 
     subclass_kind_header = "int SubclassKind() const override {"
+    class_or_struct = 'class'
 
     def __init__(self, name, members, base):
         super().__init__(name, members)
@@ -232,6 +250,7 @@ class ConcreteNodeEmittor(AstNodeEmittor):
         e.emit("public:")
         self.emit_members(e)
         self.emit_constructor(e)
+        self.emit_destructor_decl(e)
         if self.base != 'AST':
             self.emit_subclass_kind(e)
         self.emit_formatter(e)
@@ -241,9 +260,6 @@ class ConcreteNodeEmittor(AstNodeEmittor):
         e.emit(self.subclass_kind_header, 1)
         e.emit("return {enum}::{val};".format(enum=self.base, val=self.name), 2)
         e.emit("}", 1)
-
-    def emit_forward(self, e):
-        super().emit_forward('class', e)
 
 
 class EnumEmittor(Emittor):
@@ -352,7 +368,6 @@ class TypeVisitor(asdl.VisitorBase):
         self.typemap[name] = AstNode(name)
 
 
-
 class EmittorVisitor(asdl.VisitorBase):
     """A visitor that build emittors for various asdl constructs"""
 
@@ -395,7 +410,6 @@ class EmittorVisitor(asdl.VisitorBase):
         (as opposed to enum-based). asdl.opt becomes Optional, asdl.seq
         becomes Sequence.
         """
-
         def field_type(f):
             type = self.typemap[f.type]
             if f.seq: return Sequence(type)
@@ -416,27 +430,6 @@ class EmittorVisitor(asdl.VisitorBase):
         yield ProductStructEmittor(self.typemap[name].name, members)
 
 
-def generate_code(mod, output):
-    """Emit cpp code from ``mod`` to ``output``"""
-    # currently all written to a header
-    v = TypeVisitor()
-    v.visit(mod)
-    # collect all Emittors
-    cpp_types = list(EmittorVisitor(v.typemap).visit(mod))
-
-    with open(output, 'w') as f:
-        f.write(Header)
-        e = util.Emittor(f)
-        for c in cpp_types:
-            c.emit_forward(e)
-            e.emit("")
-        e.emit("")
-
-        for c in cpp_types:
-            c.emit_definition(e)
-            e.emit("")
-        f.write(Tailer)
-
 
 Header = """#ifndef AST_H
 #define AST_H
@@ -450,7 +443,10 @@ Header = """#ifndef AST_H
 class AST {
 public:
     virtual void Format(std::ostream &os) const = 0;
+    virtual ~AST() = 0;
 };
+
+inline AST::~AST() {}
 
 inline std::ostream &operator<<(std::ostream &os, const AST *ast) {
     ast->Format(os);
@@ -543,6 +539,43 @@ class String2enumEmittor(Emittor):
                 self.emit_func(table, enum, e)
                 e.emit("")
 
+Impl_Header = """#include "AST.h"
+
+"""
+
+def generate_code(config):
+    """Emit cpp code from ``mod`` to ``output``"""
+
+    mod = asdl.parse(config['asdl'])
+    if not asdl.check(mod):
+        return 1
+
+    v = TypeVisitor()
+    v.visit(mod)
+    # collect all Emittors
+    cpp_types = list(EmittorVisitor(v.typemap).visit(mod))
+
+    with open(config['AST.h'], 'w') as f:
+        f.write(Header)
+        e = util.Emittor(f)
+        for c in cpp_types:
+            c.emit_forward(e)
+            e.emit("")
+        e.emit("")
+
+        for c in cpp_types:
+            c.emit_definition(e)
+            e.emit("")
+        f.write(Tailer)
+
+    with open(config['AST.cpp'], 'w') as f:
+        f.write(Impl_Header)
+        e = util.Emittor(f)
+        for c in cpp_types:
+            c.emit_implementaion(e)
+            e.emit("")
+
+
 
 def main():
     import argparse
@@ -554,12 +587,7 @@ def main():
     args = parser.parse_args()
     config = json.load(args.config)
 
-    mod = asdl.parse(config['asdl'])
-    if not asdl.check(mod):
-        return 1
-
-    generate_code(mod, config['AST.h'])
-    return 0
+    return generate_code(config)
 
 
 if __name__ == '__main__':
