@@ -22,7 +22,8 @@ module Compiler
          | While(expr condition, stmt* body)
          | Return(expr? value)
          | If(expr test, stmt* body, stmt* orelse)
-         | Expr(expr value)
+         -- not to conflict with Expr.
+         | ExprStmt(expr value)
           attributes (location loc)
 
     expr = BinOp(expr left, operator op, expr right)

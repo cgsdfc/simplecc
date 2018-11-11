@@ -126,7 +126,8 @@ class VisitorBase(object):
             self.cache[klass] = meth
         if meth:
             try:
-                meth(obj, *args)
+                # why swallow return value!
+                return meth(obj, *args)
             except Exception as e:
                 print("Error visiting %r: %s" % (obj, e))
                 raise
