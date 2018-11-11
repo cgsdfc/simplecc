@@ -296,9 +296,8 @@ class SimpleEnumEmittor(EnumEmittor):
         e.emit(self.format_header.format(name=self.name))
         e.emit("switch (val) {", 1)
         for member in self.members:
-            e.emit(f"case {self.name}::{member}: os << \"{self.name}::{member}\";", 1)
+            e.emit(f"case {self.name}::{member}: return os << \"{self.name}::{member}\";", 1)
         e.emit("}", 1)
-        e.emit("return os;", 1)
         e.emit("}")
 
     def emit_forward(self, e):

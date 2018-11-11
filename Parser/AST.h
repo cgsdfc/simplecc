@@ -90,49 +90,45 @@ class Name;
 enum class OperatorKind {Add, Sub, Mult, Div, Eq, NotEq, Lt, LtE, Gt, GtE};
 inline std::ostream &operator<<(std::ostream &os, OperatorKind val) {
     switch (val) {
-    case OperatorKind::Add: os << "OperatorKind::Add";
-    case OperatorKind::Sub: os << "OperatorKind::Sub";
-    case OperatorKind::Mult: os << "OperatorKind::Mult";
-    case OperatorKind::Div: os << "OperatorKind::Div";
-    case OperatorKind::Eq: os << "OperatorKind::Eq";
-    case OperatorKind::NotEq: os << "OperatorKind::NotEq";
-    case OperatorKind::Lt: os << "OperatorKind::Lt";
-    case OperatorKind::LtE: os << "OperatorKind::LtE";
-    case OperatorKind::Gt: os << "OperatorKind::Gt";
-    case OperatorKind::GtE: os << "OperatorKind::GtE";
+    case OperatorKind::Add: return os << "OperatorKind::Add";
+    case OperatorKind::Sub: return os << "OperatorKind::Sub";
+    case OperatorKind::Mult: return os << "OperatorKind::Mult";
+    case OperatorKind::Div: return os << "OperatorKind::Div";
+    case OperatorKind::Eq: return os << "OperatorKind::Eq";
+    case OperatorKind::NotEq: return os << "OperatorKind::NotEq";
+    case OperatorKind::Lt: return os << "OperatorKind::Lt";
+    case OperatorKind::LtE: return os << "OperatorKind::LtE";
+    case OperatorKind::Gt: return os << "OperatorKind::Gt";
+    case OperatorKind::GtE: return os << "OperatorKind::GtE";
     }
-    return os;
 }
 
 
 enum class UnaryopKind {UAdd, USub};
 inline std::ostream &operator<<(std::ostream &os, UnaryopKind val) {
     switch (val) {
-    case UnaryopKind::UAdd: os << "UnaryopKind::UAdd";
-    case UnaryopKind::USub: os << "UnaryopKind::USub";
+    case UnaryopKind::UAdd: return os << "UnaryopKind::UAdd";
+    case UnaryopKind::USub: return os << "UnaryopKind::USub";
     }
-    return os;
 }
 
 
 enum class ExprContextKind {Load, Store};
 inline std::ostream &operator<<(std::ostream &os, ExprContextKind val) {
     switch (val) {
-    case ExprContextKind::Load: os << "ExprContextKind::Load";
-    case ExprContextKind::Store: os << "ExprContextKind::Store";
+    case ExprContextKind::Load: return os << "ExprContextKind::Load";
+    case ExprContextKind::Store: return os << "ExprContextKind::Store";
     }
-    return os;
 }
 
 
 enum class BasicTypeKind {Int, Character, Void};
 inline std::ostream &operator<<(std::ostream &os, BasicTypeKind val) {
     switch (val) {
-    case BasicTypeKind::Int: os << "BasicTypeKind::Int";
-    case BasicTypeKind::Character: os << "BasicTypeKind::Character";
-    case BasicTypeKind::Void: os << "BasicTypeKind::Void";
+    case BasicTypeKind::Int: return os << "BasicTypeKind::Int";
+    case BasicTypeKind::Character: return os << "BasicTypeKind::Character";
+    case BasicTypeKind::Void: return os << "BasicTypeKind::Void";
     }
-    return os;
 }
 
 
