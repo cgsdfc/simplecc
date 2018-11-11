@@ -149,21 +149,12 @@ class Optional(CppType):
 class Emittor:
     """Base class for all other emittor"""
 
-    def emit_forward(self, e):
-        """Emit a forward declaration which comes first in the header"""
-
-    def emit_definition(self, e):
-        """Emit a definition of struct or class (goes into header)"""
-
-    def emit_implementaion(self, e):
-        """Emit an implementation (goes into .cpp)"""
-        # for future use
-
 
 class AstNodeEmittor(Emittor):
     """An AstNode is part of the Ast tree."""
 
-    format_header = "void Format(std::ostream &os) const override {"
+    format_decl_header = "void Format(std::ostream &os) const override;"
+    format_impl_header = "void {}::Format(std::ostream &os) const {{"
 
     def __init__(self, name, members):
         """``name`` cpp name
@@ -179,6 +170,7 @@ class AstNodeEmittor(Emittor):
 
     def emit_implementaion(self, e):
         self.emit_destructor_impl(e)
+        self.emit_formatter_impl(e)
 
     def emit_destructor_impl(self, e):
         """Emit an out-of-class destructor definition"""
@@ -197,6 +189,9 @@ class AstNodeEmittor(Emittor):
     def emit_destructor_decl(self, e):
         e.emit("~{}() override;".format(self.name), 1)
 
+    def emit_formatter_decl(self, e):
+        e.emit(self.format_decl_header, 1)
+
     def emit_constructor(self, e, depth=1):
         """Emit a constructor definition"""
         e.emit("{name}({parameters}): {init} {{}}".format(
@@ -207,14 +202,28 @@ class AstNodeEmittor(Emittor):
                 for _, name in self.members),
         ), depth)
 
-    def emit_formatter(self, e):
+    def emit_formatter_impl(self, e):
         """Emit Format() method"""
-        e.emit(self.format_header, 1)
-        e.emit("os << \"{}(\" <<".format(self.name), 2)
-        e.emit(" << \", \" << ".join("\"{0}=\" << {0}".format(name)
-            for _, name in self.members), 2)
-        e.emit("<< \")\";", 2)
-        e.emit("}", 1)
+        e.emit(self.format_impl_header.format(self.name))
+        e.emit("os << \"{}(\";".format(self.name), 1)
+
+        for i, (type, name) in enumerate(self.members):
+            e.emit("os << \"{0}=\";".format(name), 1)
+            if isinstance(type, AstNode):
+                e.emit("os << *{};".format(name), 1)
+            elif isinstance(type, Optional):
+                # nullable ptr or std::optional
+                # both can be tested in a boolean context
+                if isinstance(type.elemtype, AstNode):
+                    e.emit("if ({0}) os << {0}; else os << \"None\";".format(name), 1)
+                else: # std::optional
+                    e.emit("if ({0}) os << {0}.value(); else os << \"None\";".format(name), 1)
+            else:
+                e.emit("os << {};".format(name), 1)
+            if i != len(self.members) - 1:
+                e.emit("os << \", \";", 1)
+        e.emit("os << \")\";", 1)
+        e.emit("}")
 
     def emit_forward(self, e):
         e.emit("{} {};".format(self.class_or_struct, self.name))
@@ -230,7 +239,7 @@ class ProductStructEmittor(AstNodeEmittor):
         self.emit_members(e)
         self.emit_constructor(e)
         self.emit_destructor_decl(e)
-        self.emit_formatter(e)
+        self.emit_formatter_decl(e)
         e.emit("};")
 
 
@@ -251,9 +260,9 @@ class ConcreteNodeEmittor(AstNodeEmittor):
         self.emit_members(e)
         self.emit_constructor(e)
         self.emit_destructor_decl(e)
+        self.emit_formatter_decl(e)
         if self.base != 'AST':
             self.emit_subclass_kind(e)
-        self.emit_formatter(e)
         e.emit("};")
 
     def emit_subclass_kind(self, e):
@@ -457,11 +466,6 @@ inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
     return os << &ast;
 }
 
-inline std::ostream &operator<<(std::ostream &os, const std::optional<std::string> &s) {
-    os << s.value_or("None");
-    return os;
-}
-
 template<class T>
 inline std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
     os << "[";
@@ -559,21 +563,24 @@ def generate_code(config):
         f.write(Header)
         e = util.Emittor(f)
         for c in cpp_types:
-            c.emit_forward(e)
-            e.emit("")
+            if hasattr(c, 'emit_forward'):
+                c.emit_forward(e)
+                e.emit("")
         e.emit("")
 
         for c in cpp_types:
-            c.emit_definition(e)
-            e.emit("")
+            if hasattr(c, 'emit_definition'):
+                c.emit_definition(e)
+                e.emit("")
         f.write(Tailer)
 
     with open(config['AST.cpp'], 'w') as f:
         f.write(Impl_Header)
         e = util.Emittor(f)
         for c in cpp_types:
-            c.emit_implementaion(e)
-            e.emit("")
+            if hasattr(c, 'emit_implementaion'):
+                c.emit_implementaion(e)
+                e.emit("")
 
 
 

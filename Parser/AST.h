@@ -24,11 +24,6 @@ inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
     return os << &ast;
 }
 
-inline std::ostream &operator<<(std::ostream &os, const std::optional<std::string> &s) {
-    os << s.value_or("None");
-    return os;
-}
-
 template<class T>
 inline std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
     os << "[";
@@ -138,17 +133,12 @@ inline std::ostream &operator<<(std::ostream &os, BasicTypeKind val) {
 class VarType;
 
 
-
 class Program: public AST {
 public:
     std::vector<Decl*> decls;
     Program(const std::vector<Decl*>& decls): decls(decls) {}
     ~Program() override;
-    void Format(std::ostream &os) const override {
-        os << "Program(" <<
-        "decls=" << decls
-        << ")";
-    }
+    void Format(std::ostream &os) const override;
 };
 
 class Decl: public AST {
@@ -166,14 +156,9 @@ public:
     ConstDecl(BasicTypeKind type, const std::string& name, Expr* value, const
               Location& loc): type(type), name(name), value(value), loc(loc) {}
     ~ConstDecl() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Decl::ConstDecl;
-    }
-    void Format(std::ostream &os) const override {
-        os << "ConstDecl(" <<
-        "type=" << type << ", " << "name=" << name << ", " << "value=" << value
-        << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -185,13 +170,9 @@ public:
     VarDecl(VarType* type, const std::string& name, const Location& loc):
             type(type), name(name), loc(loc) {}
     ~VarDecl() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Decl::VarDecl;
-    }
-    void Format(std::ostream &os) const override {
-        os << "VarDecl(" <<
-        "type=" << type << ", " << "name=" << name << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -209,15 +190,9 @@ public:
             return_type(return_type), name(name), args(args), decls(decls),
             stmts(stmts), loc(loc) {}
     ~FuncDef() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Decl::FuncDef;
-    }
-    void Format(std::ostream &os) const override {
-        os << "FuncDef(" <<
-        "return_type=" << return_type << ", " << "name=" << name << ", " <<
-        "args=" << args << ", " << "decls=" << decls << ", " << "stmts=" <<
-        stmts << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -228,11 +203,7 @@ struct Arg: public AST {
     Arg(BasicTypeKind type, const std::string& name, const Location& loc):
         type(type), name(name), loc(loc) {}
     ~Arg() override;
-    void Format(std::ostream &os) const override {
-        os << "Arg(" <<
-        "type=" << type << ", " << "name=" << name << ", " << "loc=" << loc
-        << ")";
-    }
+    void Format(std::ostream &os) const override;
 };
 
 class Stmt: public AST {
@@ -248,13 +219,9 @@ public:
     Read(const std::vector<std::string>& names, const Location& loc):
          names(names), loc(loc) {}
     ~Read() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Read;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Read(" <<
-        "names=" << names << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -266,13 +233,9 @@ public:
     Write(std::optional<std::string> str, Expr* value, const Location& loc):
           str(str), value(value), loc(loc) {}
     ~Write() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Write;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Write(" <<
-        "str=" << str << ", " << "value=" << value << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -284,14 +247,9 @@ public:
     Assign(Expr* target, Expr* value, const Location& loc): target(target),
            value(value), loc(loc) {}
     ~Assign() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Assign;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Assign(" <<
-        "target=" << target << ", " << "value=" << value << ", " << "loc=" <<
-        loc
-        << ")";
     }
 };
 
@@ -306,14 +264,9 @@ public:
         body, const Location& loc): initial(initial), condition(condition),
         step(step), body(body), loc(loc) {}
     ~For() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::For;
-    }
-    void Format(std::ostream &os) const override {
-        os << "For(" <<
-        "initial=" << initial << ", " << "condition=" << condition << ", " <<
-        "step=" << step << ", " << "body=" << body << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -325,14 +278,9 @@ public:
     While(Expr* condition, const std::vector<Stmt*>& body, const Location&
           loc): condition(condition), body(body), loc(loc) {}
     ~While() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::While;
-    }
-    void Format(std::ostream &os) const override {
-        os << "While(" <<
-        "condition=" << condition << ", " << "body=" << body << ", " << "loc="
-        << loc
-        << ")";
     }
 };
 
@@ -342,13 +290,9 @@ public:
     Location loc;
     Return(Expr* value, const Location& loc): value(value), loc(loc) {}
     ~Return() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Return;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Return(" <<
-        "value=" << value << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -362,14 +306,9 @@ public:
        orelse, const Location& loc): test(test), body(body), orelse(orelse),
        loc(loc) {}
     ~If() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::If;
-    }
-    void Format(std::ostream &os) const override {
-        os << "If(" <<
-        "test=" << test << ", " << "body=" << body << ", " << "orelse=" <<
-        orelse << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -379,13 +318,9 @@ public:
     Location loc;
     ExprStmt(Expr* value, const Location& loc): value(value), loc(loc) {}
     ~ExprStmt() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::ExprStmt;
-    }
-    void Format(std::ostream &os) const override {
-        os << "ExprStmt(" <<
-        "value=" << value << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -404,14 +339,9 @@ public:
     BinOp(Expr* left, OperatorKind op, Expr* right, const Location& loc):
           left(left), op(op), right(right), loc(loc) {}
     ~BinOp() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::BinOp;
-    }
-    void Format(std::ostream &os) const override {
-        os << "BinOp(" <<
-        "left=" << left << ", " << "op=" << op << ", " << "right=" << right <<
-        ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -423,13 +353,9 @@ public:
     UnaryOp(UnaryopKind op, Expr* operand, const Location& loc): op(op),
             operand(operand), loc(loc) {}
     ~UnaryOp() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::UnaryOp;
-    }
-    void Format(std::ostream &os) const override {
-        os << "UnaryOp(" <<
-        "op=" << op << ", " << "operand=" << operand << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -441,13 +367,9 @@ public:
     Call(const std::string& func, const std::vector<Expr*>& args, const
          Location& loc): func(func), args(args), loc(loc) {}
     ~Call() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Call;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Call(" <<
-        "func=" << func << ", " << "args=" << args << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -457,13 +379,9 @@ public:
     Location loc;
     Num(int n, const Location& loc): n(n), loc(loc) {}
     ~Num() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Num;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Num(" <<
-        "n=" << n << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -473,13 +391,9 @@ public:
     Location loc;
     Str(const std::string& s, const Location& loc): s(s), loc(loc) {}
     ~Str() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Str;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Str(" <<
-        "s=" << s << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -489,13 +403,9 @@ public:
     Location loc;
     Char(int c, const Location& loc): c(c), loc(loc) {}
     ~Char() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Char;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Char(" <<
-        "c=" << c << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -508,14 +418,9 @@ public:
     Subscript(const std::string& name, Expr* index, ExprContextKind ctx, const
               Location& loc): name(name), index(index), ctx(ctx), loc(loc) {}
     ~Subscript() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Subscript;
-    }
-    void Format(std::ostream &os) const override {
-        os << "Subscript(" <<
-        "name=" << name << ", " << "index=" << index << ", " << "ctx=" << ctx
-        << ", " << "loc=" << loc
-        << ")";
     }
 };
 
@@ -527,19 +432,11 @@ public:
     Name(const std::string& id, ExprContextKind ctx, const Location& loc):
          id(id), ctx(ctx), loc(loc) {}
     ~Name() override;
+    void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Name;
     }
-    void Format(std::ostream &os) const override {
-        os << "Name(" <<
-        "id=" << id << ", " << "ctx=" << ctx << ", " << "loc=" << loc
-        << ")";
-    }
 };
-
-
-
-
 
 class VarType: public AST {
 public:
@@ -549,12 +446,7 @@ public:
     VarType(BasicTypeKind type, int is_array, int size): type(type),
             is_array(is_array), size(size) {}
     ~VarType() override;
-    void Format(std::ostream &os) const override {
-        os << "VarType(" <<
-        "type=" << type << ", " << "is_array=" << is_array << ", " << "size="
-        << size
-        << ")";
-    }
+    void Format(std::ostream &os) const override;
 };
 
 inline OperatorKind String2OperatorKind(const String &s) {

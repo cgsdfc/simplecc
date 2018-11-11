@@ -6,11 +6,6 @@
 class TransformerVisitor {
 public:
 
-  auto trim_children(Node *node) {
-    auto c = node->children;
-    return std::make_pair(c.begin() + 1, c.end() - 1);
-  }
-
   Program *visit_program(Node *node) {
     assert(node->type == Symbol::program);
     std::vector<Decl*> decls;
@@ -166,36 +161,30 @@ public:
     std::vector<Decl*> &fn_decls,
     std::vector<Stmt*> &fn_stmts) {
 
-    auto child_begin = node->children.begin() + 1;
-    auto child_end = node->children.end() - 1;
-
-    for (; child_begin != child_end; child_begin++) {
-      auto c = *child_begin;
+    for (auto c: node->children) {
       if (c->type == Symbol::const_decl) {
         visit_const_decl(c, fn_decls);
       }
       else if (c->type == Symbol::var_decl) {
         visit_var_decl(c, fn_decls);
       }
-      else {
-        assert(c->type == Symbol::stmt);
+      else if (c->type == Symbol::stmt) {
         visit_stmt(c, fn_stmts);
       }
     }
   }
 
-  void visit_var_decl(Node *node, std::vector<Decl*> decls) {
+  void visit_var_decl(Node *node, std::vector<Decl*> &decls) {
     auto type_name = node->FirstChild();
     auto type = visit_type_name(type_name);
 
-    auto var_items_begin = node->children.begin() + 1;
-    auto var_items_end = node->children.end();
-
-    for (; var_items_begin != var_items_end; var_items_begin += 2) {
+    for (auto c: node->children) {
+      if (c->type != Symbol::var_item)
+        continue;
       String name;
       bool is_array;
       int size;
-      std::tie(name, is_array, size) = visit_var_item(*var_items_begin);
+      std::tie(name, is_array, size) = visit_var_item(c);
       auto var_type = new VarType(type, is_array, size);
       decls.push_back(new VarDecl(var_type, name, type_name->location));
     }
@@ -227,10 +216,10 @@ public:
       }
     }
     else if (first->value == "{") {
-      auto stmts_begin = node->children.begin() + 1;
-      auto stmts_end = node->children.end() - 1;
-      for (; stmts_begin != stmts_end; stmts_begin++) {
-        visit_stmt(*stmts_begin, stmts);
+      for (auto c: node->children) {
+        if (c->type == Symbol::stmt) {
+          visit_stmt(c, stmts);
+        }
       }
     }
     else {
@@ -336,7 +325,7 @@ public:
     Expr *expr = nullptr;
 
     auto values_begin = node->children.begin() + 2;
-    auto values_end = node->children.end() - 1;
+    auto values_end = node->children.end();
 
     for (; values_begin != values_end; values_begin++) {
       auto val = *values_begin;
