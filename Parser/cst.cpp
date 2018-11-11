@@ -73,15 +73,14 @@ public:
 
       auto type = visit_type_name(type_name);
       visit_compound_stmt(node->LastChild(), fn_decls, fn_stmts);
-      decls.push_back(new FuncDef(type, "main", {}, fn_decls, fn_stmts,
-            type_name->location));
+      decls.push_back(
+          new FuncDef(type, "main", {}, fn_decls, fn_stmts, type_name->location));
     }
     else {
       auto decl_trailer = node->LastChild();
       assert(decl_trailer->type == Symbol::decl_trailer);
       visit_decl_trailer(decl_trailer, type_name, name, decls);
     }
-
   }
 
   void visit_decl_trailer(Node *node, Node *type_name, Node *name,
@@ -98,26 +97,22 @@ public:
       visit_funcdef(type, name->value, node, type_name->location, decls);
     }
     else {
-      auto var_items_begin = node->children.begin();
-      auto var_items_end = node->children.end();
-
       if (first->type == Symbol::subscript2) {
         auto var_type = new VarType(type, true, visit_subscript2(first));
         decls.push_back(new VarDecl(var_type, name->value, node->location));
-        var_items_begin++;
       }
       else {
         auto var_type = new VarType(type, false, 0);
         decls.push_back(new VarDecl(var_type, name->value, node->location));
       }
 
-      for (++var_items_begin; // strip possible leading comma
-          var_items_begin != var_items_end; var_items_begin += 2) {
+      for (auto c: node->children) {
+        if (c->type != Symbol::var_item)
+          continue;
         String name;
         bool is_array;
         int size;
-        auto child = *var_items_begin;
-        std::tie(name, is_array, size) = visit_var_item(child);
+        std::tie(name, is_array, size) = visit_var_item(c);
         auto var_type = new VarType(type, is_array, size);
         decls.push_back(new VarDecl(var_type, name, type_name->location));
       }
@@ -141,12 +136,11 @@ public:
   }
 
   void visit_paralist(Node *node, std::vector<Arg*> &paralist) {
-    auto para_begin = node->children.begin() + 1;
-    auto para_end = node->children.end();
+    int n_items = (node->children.size() - 1) / 3;
 
-    for (; para_begin != para_end; para_begin += 3) {
-      auto type_name = *para_begin;
-      auto name = *(para_begin + 1);
+    for (int i = 0; i < n_items; i++) {
+      auto type_name = node->children[1 + i * 3];
+      auto name = node->children[2 + i * 3];
 
       paralist.push_back(new Arg(visit_type_name(type_name),
             name->value, type_name->location));
@@ -311,11 +305,12 @@ public:
 
   Stmt *visit_read_stmt(Node *node) {
     std::vector<String> names;
-    auto name_begin = node->children.begin() + 2;
-    auto name_end = node->children.end();
-
-    for (; name_begin != name_end; name_begin += 2) {
-      names.push_back((*name_begin)->value);
+    for (auto b = node->children.begin() + 1, e = node->children.end();
+        b != e; b++) {
+      auto child = *b;
+      if (child->type == Symbol::NAME) {
+        names.push_back(child->value);
+      }
     }
     return new Read(names, node->location);
   }
@@ -324,15 +319,11 @@ public:
     std::optional<String> string;
     Expr *expr = nullptr;
 
-    auto values_begin = node->children.begin() + 2;
-    auto values_end = node->children.end();
-
-    for (; values_begin != values_end; values_begin++) {
-      auto val = *values_begin;
-      if (val->type == Symbol::expr)
-        expr = visit_expr(val);
-      else if (val->type == Symbol::STRING)
-        string = val->value;
+    for (auto c: node->children) {
+      if (c->type == Symbol::expr)
+        expr = visit_expr(c);
+      else if (c->type == Symbol::STRING)
+        string = c->value;
       // ignore other things
     }
     return new Write(string, expr, node->location);
@@ -343,9 +334,10 @@ public:
      std::optional<UnaryopKind> unaryop;
 
      if (node->type == Symbol::expr) {
-       const auto &first_value = node->FirstChild()->value;
-       if (first_value == "-" || first_value == "+") {
-         unaryop = String2UnaryopKind(first_value);
+       auto first = node->FirstChild();
+       if (first->type == Symbol::OP &&
+           (first->value == "-" || first->value == "+")) {
+         unaryop = String2UnaryopKind(first->value);
        }
      }
 
@@ -377,11 +369,9 @@ public:
        result = tmp_result;
      }
      return result;
-
    }
 
     Expr *visit_factor(Node *node, ExprContextKind context) {
-        // STRING is not a kind of factor
         auto first = node->FirstChild();
         if (first->type == Symbol::NAME) {
             if (node->children.size() == 1) {
@@ -400,7 +390,6 @@ public:
         }
         else {
             assert(first->value == "(");
-            // visit_expr
             return visit_expr(node->children[1]);
         }
     }
@@ -410,8 +399,8 @@ public:
         auto first = node->FirstChild();
         if (first->type == Symbol::arglist) {
           // no empty arglist
-            auto args = visit_arglist(first);
-            return new Call(name, args, node->location);
+          auto args = visit_arglist(first);
+          return new Call(name, args, node->location);
         }
         else {
             assert(first->value == "[");
@@ -422,11 +411,10 @@ public:
 
     std::vector<Expr*> visit_arglist(Node *node) {
       std::vector<Expr*> args;
-      auto args_begin = node->children.begin() + 1;
-      auto args_end = node->children.end();
-
-      for (; args_begin != args_end; args_begin += 2) {
-        args.push_back(visit_expr(*args_begin));
+      for (auto c: node->children) {
+        if (c->type == Symbol::expr) {
+          args.push_back(visit_expr(c));
+        }
       }
       return args;
     }
