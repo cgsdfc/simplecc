@@ -1,3 +1,6 @@
+#ifndef AST_H
+#define AST_H
+
 #include "tokenize.h"
 
 #include <vector>
@@ -87,16 +90,16 @@ class Name;
 enum class OperatorKind {Add, Sub, Mult, Div, Eq, NotEq, Lt, LtE, Gt, GtE};
 inline std::ostream &operator<<(std::ostream &os, OperatorKind val) {
     switch (val) {
-    case OperatorKind::Add: os << "Add";
-    case OperatorKind::Sub: os << "Sub";
-    case OperatorKind::Mult: os << "Mult";
-    case OperatorKind::Div: os << "Div";
-    case OperatorKind::Eq: os << "Eq";
-    case OperatorKind::NotEq: os << "NotEq";
-    case OperatorKind::Lt: os << "Lt";
-    case OperatorKind::LtE: os << "LtE";
-    case OperatorKind::Gt: os << "Gt";
-    case OperatorKind::GtE: os << "GtE";
+    case OperatorKind::Add: os << "OperatorKind::Add";
+    case OperatorKind::Sub: os << "OperatorKind::Sub";
+    case OperatorKind::Mult: os << "OperatorKind::Mult";
+    case OperatorKind::Div: os << "OperatorKind::Div";
+    case OperatorKind::Eq: os << "OperatorKind::Eq";
+    case OperatorKind::NotEq: os << "OperatorKind::NotEq";
+    case OperatorKind::Lt: os << "OperatorKind::Lt";
+    case OperatorKind::LtE: os << "OperatorKind::LtE";
+    case OperatorKind::Gt: os << "OperatorKind::Gt";
+    case OperatorKind::GtE: os << "OperatorKind::GtE";
     }
     return os;
 }
@@ -105,8 +108,8 @@ inline std::ostream &operator<<(std::ostream &os, OperatorKind val) {
 enum class UnaryopKind {UAdd, USub};
 inline std::ostream &operator<<(std::ostream &os, UnaryopKind val) {
     switch (val) {
-    case UnaryopKind::UAdd: os << "UAdd";
-    case UnaryopKind::USub: os << "USub";
+    case UnaryopKind::UAdd: os << "UnaryopKind::UAdd";
+    case UnaryopKind::USub: os << "UnaryopKind::USub";
     }
     return os;
 }
@@ -115,8 +118,8 @@ inline std::ostream &operator<<(std::ostream &os, UnaryopKind val) {
 enum class ExprContextKind {Load, Store};
 inline std::ostream &operator<<(std::ostream &os, ExprContextKind val) {
     switch (val) {
-    case ExprContextKind::Load: os << "Load";
-    case ExprContextKind::Store: os << "Store";
+    case ExprContextKind::Load: os << "ExprContextKind::Load";
+    case ExprContextKind::Store: os << "ExprContextKind::Store";
     }
     return os;
 }
@@ -125,15 +128,17 @@ inline std::ostream &operator<<(std::ostream &os, ExprContextKind val) {
 enum class BasicTypeKind {Int, Character, Void};
 inline std::ostream &operator<<(std::ostream &os, BasicTypeKind val) {
     switch (val) {
-    case BasicTypeKind::Int: os << "Int";
-    case BasicTypeKind::Character: os << "Character";
-    case BasicTypeKind::Void: os << "Void";
+    case BasicTypeKind::Int: os << "BasicTypeKind::Int";
+    case BasicTypeKind::Character: os << "BasicTypeKind::Character";
+    case BasicTypeKind::Void: os << "BasicTypeKind::Void";
     }
     return os;
 }
 
 
 class VarType;
+
+
 
 class Program: public AST {
 public:
@@ -574,3 +579,5 @@ inline BasicTypeKind String2BasicTypeKind(const String &s) {
 }
 
 
+
+#endif

@@ -1,18 +1,23 @@
 #! /usr/bin/env python3
 
 """Ast generation"""
+
 import sys
-from pprint import pprint
 import asdl
 import util
-from operator import attrgetter
-from string import Template
-from itertools import chain
 import abc
 
+from pprint import pprint
+from itertools import chain
+
+
 def camal_case(name):
+    """Convert snake_case to camal_case, respecting the original
+    camals in ``name``
+    """
     # uppercase the first letter, keep the rest unchanged
     return ''.join(c[0].upper() + c[1:] for c in name.split('_'))
+
 
 def is_simple(sum):
     """Return True if a sum is a simple.
@@ -23,9 +28,10 @@ def is_simple(sum):
     return not any(t.fields for t in sum.types)
 
 
-# Partially represented the cpp types we are dealing with.
+# Represented the cpp types we are dealing with.
 
 class CppType(metaclass=abc.ABCMeta):
+    """Base type for a cpp type that goes into output"""
 
     def const_ref(self, name):
         return 'const {}&'.format(name)
@@ -42,10 +48,12 @@ class CppType(metaclass=abc.ABCMeta):
         """Form in arguments type"""
 
     def __repr__(self):
+        # taking subclass's name
         return "{}({!r})".format(self.__class__.__name__, self.name)
 
 
 class AstNode(CppType):
+    """AstNode represents subclasses of AST"""
 
     def __init__(self, name):
         self.name = camal_case(name)
@@ -58,7 +66,7 @@ class AstNode(CppType):
 
 
 class Sequence(CppType):
-    """A list of item"""
+    """A list of item dealing with * in asdl"""
 
     impl = 'std::vector<{}>'
 
@@ -77,7 +85,7 @@ class Sequence(CppType):
 
 
 class Optional(CppType):
-    """A optional item"""
+    """A optional item dealing with ? in asdl"""
 
     impl = 'std::optional<{}>'
 
@@ -87,6 +95,7 @@ class Optional(CppType):
     @property
     def as_member(self):
         if isinstance(self.elemtype, AstNode):
+            # nullptr serves a great optional
             return self.elemtype.as_member
         else:
             return self.impl.format(self.elemtype.as_member)
@@ -96,6 +105,7 @@ class Optional(CppType):
 
 
 class Primitive(CppType):
+    """Primitive types in both asdl and cpp"""
 
     strimpl = 'std::string'
     asdl2cpp = {
@@ -115,29 +125,50 @@ class Primitive(CppType):
     @property
     def as_argument(self):
         if self.name == 'int':
+            # too verbose to say "const int&"
             return self.as_member
         else:
+            # larger types
             return self.const_ref(self.name)
 
 
 class Enum(CppType):
+    """Representing ``enum class`` of cpp"""
 
     def __init__(self, name):
         self.name = camal_case(name) + 'Kind'
 
     @property
     def as_member(self):
+        # enums are just ints
         return self.name
 
     as_argument = as_member
 
 
-class AstNodeEmittor:
+class Emittor:
+    """Base class for all other emittor"""
+
+    def emit_forward(self, e):
+        """Emit a forward declaration which comes first in the header"""
+
+    def emit_definition(self, e):
+        """Emit a definition of struct or class (goes into header)"""
+
+    def emit_implementaion(self, e):
+        """Emit an implementation (goes into .cpp)"""
+        # for future use
+
+
+class AstNodeEmittor(Emittor):
     """An AstNode is part of the Ast tree."""
 
     format_header = "void Format(std::ostream &os) const override {"
 
     def __init__(self, name, members):
+        """``name`` cpp name
+        ``members`` a list of (CppType, name)
+        """
         self.name = name
         self.members = members
 
@@ -157,7 +188,7 @@ class AstNodeEmittor:
         ), depth)
 
     def emit_formatter(self, e):
-        """Emit body and end } of the formatter"""
+        """Emit Format() method"""
         e.emit(self.format_header, 1)
         e.emit("os << \"{}(\" <<".format(self.name), 2)
         e.emit(" << \", \" << ".join("\"{0}=\" << {0}".format(name)
@@ -179,7 +210,7 @@ class ProductStructEmittor(AstNodeEmittor):
         self.emit_formatter(e)
         e.emit("};")
 
-    def emit(self, e):
+    def emit_definition(self, e):
         self.emit_struct(e)
 
     def emit_forward(self, e):
@@ -195,7 +226,7 @@ class ConcreteNodeEmittor(AstNodeEmittor):
         super().__init__(name, members)
         self.base = base
 
-    def emit(self, e):
+    def emit_definition(self, e):
         """Emit the class definition for this ConcreteNode"""
         e.emit("class {}: public {} {{".format(self.name, self.base))
         e.emit("public:")
@@ -215,7 +246,7 @@ class ConcreteNodeEmittor(AstNodeEmittor):
         super().emit_forward('class', e)
 
 
-class EnumEmittor:
+class EnumEmittor(Emittor):
     """Enum provides common base for types that have an enum or is an enum."""
 
     def __init__(self, name, members):
@@ -226,14 +257,9 @@ class EnumEmittor:
     def formatted_members(self):
         return "{" + ", ".join(self.members) + "};"
 
-    def emit_formatter(self, e, depth):
-        """Emit a formatter body as part of a ``switch`` stmt -- their cases"""
-        for member in self.members:
-            e.emit(f"case {self.name}::{member}: os << \"{member}\";", depth)
-
 
 class AbstractNodeEmittor(EnumEmittor):
-    """AbstractNode cannot be instantiated, but rather provides a base for all its
+    """Emit an AbstractNode, which cannot be instantiated, but rather provides a base for all its
     children and scope for the enum to tell its children apart.
 
     Expr, Stmt and Decl are examples of AbstractNode.
@@ -249,7 +275,7 @@ class AbstractNodeEmittor(EnumEmittor):
     subclass_kind_header = "virtual int SubclassKind() const = 0;"
     class_header = "class {}: public {} {{"
 
-    def emit(self, e):
+    def emit_definition(self, e):
         e.emit(self.class_header.format(self.name, self.base_class))
         e.emit("public:")
         e.emit("enum " + self.formatted_members, 1)
@@ -261,14 +287,16 @@ class AbstractNodeEmittor(EnumEmittor):
 
 
 class SimpleEnumEmittor(EnumEmittor):
-    """Enum representing simple sum"""
+    """Enum representing enum class"""
 
+    # enum_value to string
     format_header = "inline std::ostream &operator<<(std::ostream &os, {name} val) {{"
 
     def emit_formatter(self, e):
         e.emit(self.format_header.format(name=self.name))
         e.emit("switch (val) {", 1)
-        super().emit_formatter(e, 1)
+        for member in self.members:
+            e.emit(f"case {self.name}::{member}: os << \"{self.name}::{member}\";", 1)
         e.emit("}", 1)
         e.emit("return os;", 1)
         e.emit("}")
@@ -277,9 +305,6 @@ class SimpleEnumEmittor(EnumEmittor):
         e.emit("enum class {} {}".format(self.name, self.formatted_members))
         self.emit_formatter(e)
         e.emit("")
-
-    def emit(self, e):
-        pass
 
 
 class TypeVisitor(asdl.VisitorBase):
@@ -305,9 +330,9 @@ class TypeVisitor(asdl.VisitorBase):
     def visitSum(self, sum, name):
         n_branches = len(sum.types)
         if n_branches > 1:
-            if is_simple(sum):
+            if is_simple(sum): # simple sum becomes enum class
                 self.typemap[name] = Enum(name)
-            else:
+            else: # complex sum becomes AbstractNode
                 self.typemap[name] = AstNode(name)
         else:
             # if it has only one constructor,
@@ -320,9 +345,11 @@ class TypeVisitor(asdl.VisitorBase):
 
     def visitConstructor(self, cons):
         if cons.fields:
+            # constructor with fields becomes ConcreteNode
             self.typemap[cons.name] = AstNode(cons.name)
 
     def visitProduct(self, prod, name):
+        # Product becomes ProductStruct
         self.typemap[name] = AstNode(name)
 
 
@@ -333,7 +360,8 @@ class EmittorVisitor(asdl.VisitorBase):
     def __init__(self, typemap):
         super().__init__()
         self.typemap = typemap
-        self.cpptypes = []
+        # emit string2enum functions: some enums represent strings, like operator
+        # some are not, like expr_context
         self.string2enum = String2enumEmittor()
 
     def visitModule(self, mod):
@@ -348,7 +376,7 @@ class EmittorVisitor(asdl.VisitorBase):
         n_branches = len(sum.types)
         if n_branches > 1:
             cpp_name = self.typemap[name].name
-            members = [cons.name for cons in sum.types]
+            members = self.make_enum_members(sum)
             if is_simple(sum): # enum class
                 self.string2enum.enums.append((name, cpp_name))
                 yield SimpleEnumEmittor(cpp_name, members)
@@ -358,12 +386,16 @@ class EmittorVisitor(asdl.VisitorBase):
         for type in sum.types:
             yield from self.visit(type, name, n_branches, sum.attributes)
 
-    
-    def visitProduct(self, prod, name):
-        members = self.make_members(prod.fields, prod.attributes)
-        yield ProductStructEmittor(self.typemap[name].name, members)
 
-    def make_members(self, fields, attributes):
+    def make_enum_members(self, sum):
+        """Make enum members from ``sum``."""
+        return [cons.name for cons in sum.types]
+
+    def make_class_members(self, fields, attributes):
+        """Core function for making members for all class-based AstNode
+        (as opposed to enum-based). asdl.opt becomes Optional, asdl.seq
+        becomes Sequence.
+        """
 
         def field_type(f):
             type = self.typemap[f.type]
@@ -377,29 +409,40 @@ class EmittorVisitor(asdl.VisitorBase):
         if cons.fields:
             base = self.typemap[name].name if n_branches > 1 else 'AST'
             name = self.typemap[cons.name].name
-
-            members = self.make_members(cons.fields, attributes)
+            members = self.make_class_members(cons.fields, attributes)
             yield ConcreteNodeEmittor(name, members, base)
+
+    def visitProduct(self, prod, name):
+        members = self.make_class_members(prod.fields, prod.attributes)
+        yield ProductStructEmittor(self.typemap[name].name, members)
 
 
 def generate_code(mod, output):
+    """Emit cpp code from ``mod`` to ``output``"""
+    # currently all written to a header
     v = TypeVisitor()
     v.visit(mod)
+    # collect all Emittors
     cpp_types = list(EmittorVisitor(v.typemap).visit(mod))
+
     with open(output, 'w') as f:
         f.write(Header)
         e = util.Emittor(f)
         for c in cpp_types:
-            try:
-                c.emit_forward(e)
-                e.emit("")
-            except AttributeError:
-                pass
-        for c in cpp_types:
-            c.emit(e)
+            c.emit_forward(e)
             e.emit("")
+        e.emit("")
 
-Header = """#include "tokenize.h"
+        for c in cpp_types:
+            c.emit_definition(e)
+            e.emit("")
+        f.write(Tailer)
+
+
+Header = """#ifndef AST_H
+#define AST_H
+
+#include "tokenize.h"
 
 #include <vector>
 #include <iostream>
@@ -439,7 +482,14 @@ inline std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
 
 """
 
-class String2enumEmittor:
+Tailer = """
+#endif"""
+
+
+class String2enumEmittor(Emittor):
+    """Emit functions that convert a c-string to enum value"""
+
+    func_header = "inline {enum} {funcname}(const String &s) {{"
 
     # make sure these names match those in asdl!
     operator = {
@@ -471,7 +521,7 @@ class String2enumEmittor:
         self.enums = []
 
     def emit_func(self, table, enum, e):
-        e.emit("inline {enum} {funcname}(const String &s) {{".format(
+        e.emit(self.func_header.format(
             enum=enum,
             funcname='String2' + enum,
         ))
@@ -480,17 +530,19 @@ class String2enumEmittor:
             e.emit("if (s == \"{op}\") return {enum}::{val};".format(
                 op=op, enum=enum, val=val), 1)
             e.emit("")
+        # fail with an assert
         e.emit("assert(false && \"not a member of {}\");".format(enum), 1)
         e.emit("}")
 
-    def emit(self, e):
+    def emit_definition(self, e):
         for attr, enum in self.enums:
             try:
                 table = getattr(self, attr)
-                self.emit_func(table, enum, e)
-                e.emit("")
             except AttributeError:
                 pass
+            else:
+                self.emit_func(table, enum, e)
+                e.emit("")
 
 
 def main():
