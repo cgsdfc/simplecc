@@ -135,6 +135,8 @@ class Enum(CppType):
 class AstNodeEmittor:
     """An AstNode is part of the Ast tree."""
 
+    format_header = "void Format(std::ostream &os) const override {"
+
     def __init__(self, name, members):
         self.name = name
         self.members = members
@@ -154,13 +156,14 @@ class AstNodeEmittor:
                 for _, name in self.members),
         ), depth)
 
-    def emit_formatter(self, e, depth):
+    def emit_formatter(self, e):
         """Emit body and end } of the formatter"""
-        e.emit("os << \"{}(\" <<".format(self.name), depth)
+        e.emit(self.format_header, 1)
+        e.emit("os << \"{}(\" <<".format(self.name), 2)
         e.emit(" << \", \" << ".join("\"{0}=\" << {0}".format(name)
-            for _, name in self.members), depth)
-        e.emit("<< \")\";", depth)
-        e.emit("}", depth-1)
+            for _, name in self.members), 2)
+        e.emit("<< \")\";", 2)
+        e.emit("}", 1)
 
     def emit_forward(self, class_or_struct, e):
         e.emit("{} {};".format(class_or_struct, self.name))
@@ -169,21 +172,15 @@ class AstNodeEmittor:
 class ProductStructEmittor(AstNodeEmittor):
     """A ``struct`` representing ``asdl.Product``"""
 
-    format_header = "inline std::ostream &operator<<(std::ostream &os, const {} *ast) {{"
-
     def emit_struct(self, e):
-        e.emit("struct {} {{".format(self.name))
+        e.emit("struct {}: public {} {{".format(self.name, 'AST'))
         self.emit_members(e)
         self.emit_constructor(e)
+        self.emit_formatter(e)
         e.emit("};")
 
-    def emit_formatter(self, e):
-        e.emit(self.format_header.format(self.name))
-        super().emit_formatter(e, 1)
-        
     def emit(self, e):
         self.emit_struct(e)
-        self.emit_formatter(e)
 
     def emit_forward(self, e):
         super().emit_forward('struct', e)
@@ -193,7 +190,6 @@ class ConcreteNodeEmittor(AstNodeEmittor):
     """A ``class`` representing a concrete AstNode"""
 
     subclass_kind_header = "int SubclassKind() const override {"
-    format_header = "void Format(std::ostream &os) const override {"
 
     def __init__(self, name, members, base):
         super().__init__(name, members)
@@ -209,10 +205,6 @@ class ConcreteNodeEmittor(AstNodeEmittor):
             self.emit_subclass_kind(e)
         self.emit_formatter(e)
         e.emit("};")
-
-    def emit_formatter(self, e):
-        e.emit(self.format_header, 1)
-        super().emit_formatter(e, 2)
 
     def emit_subclass_kind(self, e):
         e.emit(self.subclass_kind_header, 1)
@@ -264,6 +256,9 @@ class AbstractNodeEmittor(EnumEmittor):
         e.emit(self.subclass_kind_header, 1)
         e.emit("};")
 
+    def emit_forward(self, e):
+        e.emit("class {};".format(self.name))
+
 
 class SimpleEnumEmittor(EnumEmittor):
     """Enum representing simple sum"""
@@ -274,13 +269,17 @@ class SimpleEnumEmittor(EnumEmittor):
         e.emit(self.format_header.format(name=self.name))
         e.emit("switch (val) {", 1)
         super().emit_formatter(e, 1)
+        e.emit("}", 1)
         e.emit("return os;", 1)
         e.emit("}")
 
-    def emit(self, e):
+    def emit_forward(self, e):
         e.emit("enum class {} {}".format(self.name, self.formatted_members))
         self.emit_formatter(e)
         e.emit("")
+
+    def emit(self, e):
+        pass
 
 
 class TypeVisitor(asdl.VisitorBase):
@@ -418,6 +417,11 @@ inline std::ostream &operator<<(std::ostream &os, const AST *ast) {
 
 inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
     return os << &ast;
+}
+
+inline std::ostream &operator<<(std::ostream &os, const std::optional<std::string> &s) {
+    os << s.value_or("None");
+    return os;
 }
 
 template<class T>
