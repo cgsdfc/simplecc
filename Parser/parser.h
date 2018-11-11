@@ -25,6 +25,14 @@ public:
     return type != Symbol::ENDMARKER && value.empty() ? "None" : Quote(value);
   }
 
+  Node *FirstChild() {
+    return children[0];
+  }
+
+  Node *LastChild() {
+    return *(children.end() - 1);
+  }
+
   void Format(std::ostream &os) {
     const char *type_str = GetSymName(type);
     os << "Node(";

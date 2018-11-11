@@ -186,7 +186,9 @@ class TransformerVisitor(VisitorBase):
     def visit_for_stmt(self, node):
         # initial: stmt
         name, _, expr = node.children[2:5]
-        initial = AST.Assign(name.value, self.visit(expr, AST.expr_context.Store),
+        initial = AST.Assign(
+                AST.Name(name.value, AST.expr_context.Store, name.context),
+                self.visit(expr),
                 name.context)
 
         # condition: expr
@@ -201,7 +203,9 @@ class TransformerVisitor(VisitorBase):
         num = AST.Num(int(num.value), num.context)
 
         next = AST.BinOp(name_, op, num, name.context)
-        step = AST.Assign(target.value, next, target.context)
+        step = AST.Assign(
+                AST.Name(target.value, AST.expr_context.Store, target.context),
+                next, target.context)
 
         stmt = self.visit(node.children[-1])
         return AST.For(initial, condition, step, stmt, node.first_child_context)
