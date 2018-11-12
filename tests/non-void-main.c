@@ -1,0 +1,2 @@
+char main() {}
+int main() {}

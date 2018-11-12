@@ -113,18 +113,21 @@ class SyntaxValidator(VisitorBase):
             return False
         return True
 
-    def visitarg(self, node):
+    def visitarg(self, node, funcname):
         assert isinstance(node, arg)
         if node.type == basic_type.Void:
-            error("cannot declare void argument", node.loc)
+            msg ="cannot declare void argument {!r} of function {!r}".format(node.name, funcname)
+            error(msg, node.loc)
             return False
         return True
 
     def visitFuncDef(self, node):
-        # check children
         # check void arg
-        children = chain(node.args, node.decls, node.stmts)
-        child_ok = self.visit_list(list(children))
+        args_ok = all([self.visit(arg, node.name) for arg in node.args])
+
+        # check children
+        children = chain(node.decls, node.stmts)
+        child_ok = self.visit_list(children)
 
         # check main
         if node.name == 'main':
@@ -132,7 +135,7 @@ class SyntaxValidator(VisitorBase):
                 error("main() must return void", node.loc)
                 return False
 
-        return child_ok
+        return args_ok and child_ok
 
     # for stmts, assign is the major subject
     def visitAssign(self, node):
