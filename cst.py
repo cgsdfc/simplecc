@@ -131,7 +131,7 @@ class TransformerVisitor(VisitorBase):
                 decls.extend(list(visited))
             else:
                 assert c.type == sym.stmt
-                stmts.append(visited)
+                stmts.extend(list(visited))
         return decls, stmts
 
 
@@ -156,29 +156,30 @@ class TransformerVisitor(VisitorBase):
     def visit_stmt(self, node):
         first = node.first_child
         if first.type == sym.flow_stmt:
-            return self.visit(node.first_child.first_child)
-        if first.type == sym.expr:
+            # flow_stmt is always one stmt
+            yield self.visit(node.first_child.first_child)
+        elif first.type == sym.expr:
             if len(node.children) == 2: # non Assign
                 expr1 = self.visit(first) # Load by default
-                return AST.Expr(expr1, node.context)
+                yield AST.ExprStmt(expr1, node.context)
             else: # assign
                 assert node.children[1].value == '='
                 expr1 = self.visit(first, AST.expr_context.Store)
                 expr2 = self.visit(node.children[-2])
-                return AST.Assign(expr1, expr2, node.context)
-        if first.value == '{':
-            return list(filter(None, map(self.visit, node.children[1:-1])))
-        # make sure we handle all cases.
-        assert first.value == ';' and len(node.children) == 1, node
-        return None
+                yield AST.Assign(expr1, expr2, node.context)
+        elif first.value == '{':
+            for child in node.children[1:-1]:
+                yield from self.visit(child)
+        else:
+            # make sure we handle all cases.
+            assert first.value == ';' and len(node.children) == 1, node
 
     def visit_if_stmt(self, node):
         condition, _, stmt, *trailer = node.children[2:]
         test = self.visit(condition)
-        body = self.visit(stmt)
-        orelse = self.visit(trailer[-1]) if trailer else None
+        body = list(self.visit(stmt))
+        orelse = list(self.visit(trailer[-1])) if trailer else []
         return AST.If(test, body, orelse, node.context)
-
 
     def visit_condition(self, node):
         return self.visit_expr(node)
@@ -207,12 +208,12 @@ class TransformerVisitor(VisitorBase):
                 AST.Name(target.value, AST.expr_context.Store, target.context),
                 next, target.context)
 
-        stmt = self.visit(node.children[-1])
+        stmt = list(self.visit(node.children[-1]))
         return AST.For(initial, condition, step, stmt, node.first_child_context)
 
     def visit_while_stmt(self, node):
         condition = self.visit(node.children[2])
-        stmt = self.visit(node.children[-1])
+        stmt = list(self.visit(node.children[-1]))
         return AST.While(condition, stmt, node.context)
 
     def visit_return_stmt(self, node):
