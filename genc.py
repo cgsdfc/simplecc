@@ -4,36 +4,48 @@ from util import Emittor
 from operator import itemgetter
 from itertools import chain
 
+Header_Header = """#ifndef GRAMMAR_H
+#define GRAMMAR_H
+#include "gramdef.h"
+
+"""
+
+Header_Trailer = """
+#define NT_OFFSET 256
+extern Grammar CompilerGrammar;
+extern const char *TokenNames[], *SymbolNames[];
+
+#endif
+"""
+
+Impl_Header = """#include "Grammar.h"
+
+"""
 
 def emit_header(config, gr):
-    with open(config['header'], 'w') as f:
+    with open(config['Grammar']['header'], 'w') as f:
         e = Emittor(f)
 
         #includes
-        e.emit("#include \"grammar.h\"")
-        e.emit("")
+        f.write(Header_Header)
 
         # enum of symbols
         e.emit("enum class Symbol {")
         symbols = chain(gr.symbol2number.items(), gr.token2id.items())
-
         for sym, val in symbols:
             e.emit("{} = {},".format(sym, val), 1)
         e.emit("};")
         e.emit("")
 
-        e.emit("#define NT_OFFSET 256")
-        e.emit("extern Grammar CompilerGrammar;")
-        e.emit("extern const char *TokenNames[], *SymbolNames[];")
+        f.write(Header_Trailer)
 
 
 def emit_cpp(config, gr):
-    with open(config['cpp'], 'w') as f:
+    with open(config['Grammar']['cpp'], 'w') as f:
         e = Emittor(f)
 
         #includes
-        e.emit("#include \"grammar.h\"")
-        e.emit("")
+        f.write(Impl_Header)
 
         # TokenNames
         e.emit("const char *TokenNames[{}] = {{".format(len(gr.token2id)))
@@ -113,7 +125,7 @@ def main():
 
     args = parser.parse_args()
     config = json.load(args.config)
-    gr = generate_grammar(config['grammar'])
+    gr = generate_grammar(config['Grammar']['grammar'])
 
     if args.dump:
         gr.report()
@@ -127,4 +139,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

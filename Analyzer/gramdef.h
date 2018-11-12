@@ -1,5 +1,5 @@
-#ifndef GRAMMAR_H
-#define GRAMMAR_H
+#ifndef GRAMDEF_H
+#define GRAMDEF_H
 
 struct Arc {
     int label;

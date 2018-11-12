@@ -1,4 +1,4 @@
-#include "grammar.h"
+#include "Grammar.h"
 
 const char *TokenNames[7] = {
     "NAME",

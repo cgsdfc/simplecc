@@ -1,4 +1,6 @@
-#include "grammar.h"
+#ifndef GRAMMAR_H
+#define GRAMMAR_H
+#include "gramdef.h"
 
 enum class Symbol {
     program = 256,
@@ -36,6 +38,9 @@ enum class Symbol {
     STRING = 6,
 };
 
+
 #define NT_OFFSET 256
 extern Grammar CompilerGrammar;
 extern const char *TokenNames[], *SymbolNames[];
+
+#endif

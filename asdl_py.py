@@ -111,7 +111,8 @@ class ClassEmittor(AstEmittor):
         self.emit("")
 
 
-Header = """from enum import Enum
+Header = """# Automatic Generative File
+from enum import Enum
 from collections import namedtuple
 
 class AST:
@@ -125,6 +126,7 @@ class AST:
         return self.__slots__
 
 """
+
 
 # Hard coded mapping from string to their ASTs
 Trailer = """
@@ -166,14 +168,14 @@ def main():
     args = parser.parse_args()
     config = json.load(args.config)
 
-    mod = asdl.parse(config['asdl'])
+    mod = asdl.parse(config['AST']['asdl'])
     if args.dump_module:
         print(mod)
         return 0
     if not asdl.check(mod):
         return 1
 
-    with open(config['AST.py'], 'w') as f:
+    with open(config['AST']['AST.py'], 'w') as f:
         f.write(Header)
         c = util.ChainOfVisitors(EnumEmittor(f), ClassEmittor(f))
         c.visit(mod)

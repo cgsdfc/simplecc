@@ -1,13 +1,19 @@
 {
-  "symbol": "./Symbol.py",
-  "pickle": "./Grammar.pickle",
-  "cpp": "./Parser/Grammar.cpp",
-  "header": "./Parser/Grammar.h",
-  "AST.py": "./AST.py",
-  "AST.h": "./Parser/AST.h",
-  "AST.cpp": "./Parser/AST.cpp",
-  "grammar": "./Grammar",
-  "asdl": "./asdl",
-  "cparser": "./build/parser",
-  "pyparser": "./parser.py"
+  "Grammar": {
+    "grammar": "./Grammar",
+    "symbol": "./Symbol.py",
+    "pickle": "./Grammar.pickle",
+    "cpp": "./Analyzer/Grammar.cpp",
+    "header": "./Analyzer/Grammar.h"
+  },
+  "AST": {
+    "AST.py": "./AST.py",
+    "AST.h": "./Analyzer/AST.h",
+    "AST.cpp": "./Analyzer/AST.cpp",
+    "asdl": "./asdl"
+  },
+  "executable": {
+    "cparser": "./build/analyzer",
+    "pyparser": "./parser.py"
+  }
 }

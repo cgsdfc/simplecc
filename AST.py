@@ -1,3 +1,4 @@
+# Automatic Generative File
 from enum import Enum
 from collections import namedtuple
 
