@@ -34,28 +34,17 @@ public:
   unsigned lineno;
   unsigned col_offset;
 
-  Location(unsigned lineno = -1, unsigned col_offset = -1):
+  Location(unsigned lineno, unsigned col_offset):
     lineno(lineno), col_offset(col_offset) {}
 
-  bool IsInvalid() const {
-    return lineno == -1 || col_offset == -1;
-  }
-
   std::string ToString() const {
-    if (IsInvalid())
-      return "None";
-
     std::ostringstream os;
     os << lineno << ',' << col_offset;
     return os.str();
   }
 
   void Format(std::ostream &os) const {
-    if (IsInvalid()) {
-      os << "None";
-    } else {
-      os << "(" << lineno << ", " << col_offset << ")";
-    }
+    os << "(" << lineno << ", " << col_offset << ")";
   }
 
 };

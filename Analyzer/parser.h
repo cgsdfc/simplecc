@@ -59,4 +59,7 @@ public:
 
 Node *ParseTokens(const TokenBuffer &tokens);
 
+template <typename... Arg>
+void Error(const Location &loc, Arg&&... args);
+
 #endif

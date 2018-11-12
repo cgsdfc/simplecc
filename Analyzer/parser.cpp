@@ -63,12 +63,11 @@ class Parser {
 public:
   std::stack<StackEntry> stack;
   Grammar *grammar;
-  int start;
   Node *rootnode;
 
-  explicit Parser(Grammar *grammar): stack(), grammar(grammar),
-  start(grammar->start) {
-    Node *newnode = new Node(static_cast<Symbol>(grammar->start), "", Location());
+  explicit Parser(Grammar *grammar): stack(), grammar(grammar) {
+    auto start = grammar->start;
+    Node *newnode = new Node(static_cast<Symbol>(start), "", Location(0, 0));
     rootnode = nullptr;
     stack.push(StackEntry(grammar->dfas[start - NT_OFFSET], 0, newnode));
   }
