@@ -14,13 +14,18 @@ class VisitorBase(object):
         meth = self.cache.get(klass)
         if meth is None:
             methname = "visit" + klass.__name__
-            meth = getattr(self, methname)
-            self.cache[klass] = meth
-        return meth(obj, *args)
+            try:
+                meth = getattr(self, methname)
+            except AttributeError:
+                return True
+            else:
+                self.cache[klass] = meth
+                return meth(obj, *args)
 
 
 def error(msg, loc):
-    print("{}:{}:error: {}".format(loc[0], loc[1], msg), file=sys.stderr)
+    print("Error in line {} column {}: {}".format(
+        loc[0], loc[1], msg), file=sys.stderr)
 
 
 class SyntaxValidator(VisitorBase):
@@ -31,13 +36,6 @@ class SyntaxValidator(VisitorBase):
 
     def __init__(self):
         super().__init__()
-
-    def visit(self, node, *args):
-        """Return True for absent visitor meth"""
-        try:
-            return super().visit(node, *args)
-        except AttributeError:
-            return True
 
     def visit_list(self, list_of_nodes):
         # check a list of node, nested list is not allowed
@@ -55,21 +53,25 @@ class SyntaxValidator(VisitorBase):
         # [ConstDecl] [VarDecl] [FuncDef]
         decl_iter = iter(node.decls)
         decl = next(decl_iter)
-        while isinstance(decl, ConstDecl):
-            decl = next(decl_iter)
-        while isinstance(decl, VarDecl):
-            decl = next(decl_iter)
-        while isinstance(decl, FuncDef):
-            decl = next(decl_iter)
         try:
-            decl = next(decl_iter)
+            while isinstance(decl, ConstDecl):
+                decl = next(decl_iter)
+            while isinstance(decl, VarDecl):
+                decl = next(decl_iter)
+            while isinstance(decl, FuncDef):
+                decl = next(decl_iter)
+        except StopIteration:
+            pass
+        try:
+            next(decl_iter)
         except StopIteration:
             ok = True
         else:
+            msg = "unexpected {} {!r}".format(decl.__class__.__name__, decl.name)
+            error(msg, decl.loc)
             ok = False
-            error("unexpected {}".format(decl.__class__.__name__))
 
-        last = self.node[-1]
+        last = node.decls[-1]
         if not (isinstance(last, FuncDef) and last.name == 'main'):
             error("expected main()", last.loc)
             return False
@@ -80,13 +82,13 @@ class SyntaxValidator(VisitorBase):
     def visitConstDecl(self, node):
         # check that type and value match.
         assert isinstance(node, ConstDecl)
-        if isinstance(node.type, basic_type.Int):
+        if node.type == basic_type.Int:
             if isinstance(node.value, Num):
                 return True
             error("const int expects integer", node.value.loc)
             return False
         else:
-            assert isinstance(node.type, basic_type.Character)
+            assert node.type == basic_type.Character
             if isinstance(node.value, Char):
                 return True
             error("const char expects character", node.value.loc)
@@ -127,8 +129,9 @@ class SyntaxValidator(VisitorBase):
 
     # for stmts, assign is the major subject
     def visitAssign(self, node):
+        assert isinstance(node, Assign)
         # check that target is either name or subscript
-        if not isinstance(left, (Name, Subscript)):
+        if not isinstance(node.left, (Name, Subscript)):
             error("only name or subscript can be assigned to")
             return False
         return True

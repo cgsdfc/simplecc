@@ -314,3 +314,11 @@ class TransformerVisitor(VisitorBase):
 
 def ToAST(node):
     return TransformerVisitor().visit(node)
+
+
+def astpretty_pprint(rootnode):
+    import astpretty
+    import AST
+
+    astpretty.customize(AST.AST, AST.expr_context)
+    astpretty.pprint(rootnode)

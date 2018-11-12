@@ -191,11 +191,3 @@ def lispify(root, grammar):
         children = tuple( lispify(child, grammar) for child in children )
         out.append(children)
     return tuple(out)
-
-
-def astpretty_pprint(rootnode):
-    import astpretty
-    import AST
-
-    astpretty.customize(AST.AST, AST.expr_context)
-    astpretty.pprint(rootnode)

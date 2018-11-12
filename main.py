@@ -8,7 +8,7 @@ import os
 from pprint import pprint
 
 from parser import parse_file
-from cst import ToAST
+from cst import ToAST, astpretty_pprint
 from validate import validate
 
 
