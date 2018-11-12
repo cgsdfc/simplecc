@@ -20,7 +20,7 @@ class VisitorBase(object):
                 return True
             else:
                 self.cache[klass] = meth
-                return meth(obj, *args)
+        return meth(obj, *args)
 
 
 def error(msg, loc):
@@ -39,16 +39,19 @@ class SyntaxValidator(VisitorBase):
 
     def visit_list(self, list_of_nodes):
         # check a list of node, nested list is not allowed
-        return all(map(self.visit, list_of_nodes))
+        # force construction of a list
+        return all(list(map(self.visit, list_of_nodes)))
 
     def visitProgram(self, node):
         assert isinstance(node, Program)
-        if len(node.decls) == 0:
-            return True
+        if len(node.decls) == 0: # empty input has no main()
+            error("expected main() at the end of input", (0, 0))
+            return False
 
         # visit children first
-        child_ok = all(map(self.visit, node.decls))
+        child_ok = self.visit_list(node.decls)
 
+        # program order
         # check the order of declaration. it should be
         # [ConstDecl] [VarDecl] [FuncDef]
         decl_iter = iter(node.decls)
@@ -71,9 +74,10 @@ class SyntaxValidator(VisitorBase):
             error(msg, decl.loc)
             ok = False
 
+        # check the last declaration is the main function
         last = node.decls[-1]
         if not (isinstance(last, FuncDef) and last.name == 'main'):
-            error("expected main()", last.loc)
+            error("expected main() at the end of input", last.loc)
             return False
 
         return child_ok and ok
@@ -85,13 +89,15 @@ class SyntaxValidator(VisitorBase):
         if node.type == basic_type.Int:
             if isinstance(node.value, Num):
                 return True
-            error("const int expects integer", node.value.loc)
+            error("const int {!r} expects an integer".format(node.name),
+                    node.value.loc)
             return False
         else:
             assert node.type == basic_type.Character
             if isinstance(node.value, Char):
                 return True
-            error("const char expects character", node.value.loc)
+            error("const char {!r} expects a character".format(node.name),
+                    node.value.loc)
             return False
 
 
