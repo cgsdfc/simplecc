@@ -141,3 +141,8 @@ class SyntaxValidator(VisitorBase):
 
     def visitIf(self, node):
         return (self.visit_list(node.body) and self.visit_list(node.orelse))
+
+
+def validate(node):
+    assert isinstance(node, AST)
+    return SyntaxValidator().visit(node)
