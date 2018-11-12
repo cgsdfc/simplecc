@@ -12,10 +12,13 @@ how this parsing engine works.
 """
 
 import logging
-from tokenizer import tokenize
+import pickle
 from pprint import pprint
 from collections import namedtuple
-import pickle
+
+from tokenizer import tokenize
+from Symbol import ERRORTOKEN
+
 
 logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -118,7 +121,7 @@ class BaseParser:
                 return ilabel
         ilabel = self.grammar.tokens.get(type)
         if ilabel is None:
-            raise SystemError("unexpected {!r}".format(value))
+            raise SyntaxError("unexpected {!r}".format(value))
             # raise ParseError("bad token", type, value, context)
         return ilabel
 
@@ -151,6 +154,8 @@ class BaseParser:
     def parse_tokens(self, tokens):
         """Parse a series of tokens and return the syntax tree."""
         for token in tokens:
+            if token.type == ERRORTOKEN:
+                self.raise_error("bad token", token)
             if self.addtoken(token):
                 break
         else:

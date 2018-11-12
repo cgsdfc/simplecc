@@ -33,4 +33,7 @@ struct Grammar {
   DFA **dfas;
 };
 
+void DumpDFA(DFA *dfa);
+void DumpGrammar(const Grammar &gr);
+
 #endif

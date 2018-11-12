@@ -4,7 +4,27 @@
 #include <vector>
 #include <cstdio>
 #include <stack>
-#include <exception>
+
+template <typename... Arg>
+void error(Arg&&... args);
+
+template <typename First, typename... Rest>
+void error(First&& first, Rest&&... rest) {
+  std::cerr << first << " ";
+  error(rest...);
+}
+
+template<>
+void error() {
+  std::cerr << "\n";
+}
+
+template <typename... Arg>
+void Error(const Location &loc, Arg&&... args) {
+  fprintf(stderr, "Error in line %d column %d: ", loc.lineno, loc.col_offset);
+  error(args...);
+}
+
 
 Node::~Node() {
   for (auto child: children)
@@ -21,23 +41,6 @@ public:
     dfa(dfa), state(state), node(node) {}
 };
 
-class Exception: public std::exception {
-public:
-  const char *msg;
-  explicit Exception(const char *msg): msg(msg) {}
-  const char *what() const noexcept override {
-    return msg;
-  }
-};
-
-class ParseError: public std::exception {
-public:
-  const char *msg;
-  explicit ParseError(const char *msg): msg(msg) {}
-  const char *what() const noexcept override {
-    return msg;
-  }
-};
 
 bool IsInFirst(DFA *dfa, int label) {
   for (int i = 0; i < dfa->n_first; i++)
@@ -50,39 +53,20 @@ bool IsAcceptOnlyState(DFAState *state) {
   return state->is_final && state->n_arcs == 1;
 }
 
-void DumpDFA(DFA *dfa) {
-  printf("DFA(%s)\n", dfa->symbol);
-  for (int i = 0; i < dfa->n_states; i++) {
-    auto &state = dfa->states[i];
-    printf("State(%d, is_final=%d)\n", i, state.is_final);
-
-    for (int j = 0; j < state.n_arcs; j++) {
-      auto &arc = state.arcs[j];
-      printf("\t(%d, %d)\n", arc.label, arc.state);
-    }
-    printf("\n");
-  }
-  printf("First(");
-  for (int i = 0; i < dfa->n_first; i++) {
-    printf("%d,", dfa->first[i]);
-  }
-  printf(")\n");
-}
-
 void DumpStackEntry(StackEntry e) {
   printf("state: %d\n", e.state);
   printf("dfa: %s\n", e.dfa->symbol);
   /* DumpDFA(e.dfa); */
 }
 
-class BaseParser {
+class Parser {
 public:
   std::stack<StackEntry> stack;
   Grammar *grammar;
   int start;
   Node *rootnode;
 
-  explicit BaseParser(Grammar *grammar): stack(), grammar(grammar),
+  explicit Parser(Grammar *grammar): stack(), grammar(grammar),
   start(grammar->start) {
     Node *newnode = new Node(static_cast<Symbol>(grammar->start), "", Location());
     rootnode = nullptr;
@@ -103,7 +87,8 @@ public:
         return i;
       }
     }
-    throw ParseError("bad token");
+    Error(token.start, "unexpected", Quote(token.string));
+    return -1;
   }
 
   void Shift(const TokenInfo &token, int newstate) {
@@ -137,6 +122,9 @@ public:
 
   bool AddToken(const TokenInfo &token) {
     int label = Classify(token);
+    if (label < 0) {
+      return -1;
+    }
     /* token.Format(stdout); */
 
     while (true) {
@@ -184,15 +172,13 @@ public:
         if (state->is_final) {
           Pop();
           if (stack.empty()) {
-            throw ParseError("too much input");
+            Error(token.start, "too much input");
+            return -1;
           }
         }
         else {
-          /* DumpDFA(dfa); */
-          /* printf("tos.state: %d\n", tos.state); */
-          /* printf("label: %d\n", label); */
-          /* printf("token: %d\n", token.type); */
-          throw ParseError("bad input");
+          Error(token.start, "unexpected", Quote(token.line));
+          return -1;
         }
       }
     }
@@ -200,44 +186,23 @@ public:
 
 };
 
-void DumpGrammar(const Grammar &gr)  {
-  for (int k = 0; k < gr.n_dfas; k++) {
-    auto symbol = k + NT_OFFSET;
-    auto dfa = gr.dfas[k];
-
-    printf("DFA(symbol=%d)\n", symbol);
-
-    for (int i = 0; i < dfa->n_states; i++) {
-      auto &state = dfa->states[i];
-      printf("State(%d, is_final=%d):", i, state.is_final);
-
-      for (int j = 0; j < state.n_arcs; j++) {
-        auto &arc = state.arcs[j];
-        printf("(%d, %d)", arc.label, arc.state);
-      }
-      printf("\n");
-    }
-    printf("First(");
-    for (int i = 0; i < dfa->n_first; i++) {
-      printf("%d,", dfa->first[i]);
-    }
-    printf(")\n\n");
-  }
-}
-
-
 Node *ParseTokens(const TokenBuffer &tokens) {
-  BaseParser parser(&CompilerGrammar);
+  Parser parser(&CompilerGrammar);
 
   for (auto token: tokens) {
     if (token->type == Symbol::ERRORTOKEN) {
-      std::fprintf(stderr, "error token %s at %s\n",
-          token->string.c_str(), token->start.ToString().c_str());
+      Error(token->start, "error token", Quote(token->string));
       return nullptr;
     }
-    if (parser.AddToken(*token)) {
+    int ret = parser.AddToken(*token);
+    if (ret == 1) {
       return parser.rootnode;
     }
+    if (ret < 0) {
+      return nullptr;
+    }
   }
-  throw ParseError("incomplete input");
+  auto last = tokens.end() - 1;
+  Error((*last)->start, "incomplete input");
+  return nullptr;
 }

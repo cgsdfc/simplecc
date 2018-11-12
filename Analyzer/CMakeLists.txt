@@ -11,4 +11,5 @@ add_executable(analyzer
   ./cst.cpp
   ./Grammar.cpp
   ./parser.cpp
+  ./gramdef.cpp
   ./tokenize.cpp)

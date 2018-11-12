@@ -18,7 +18,12 @@ int main(int argc, char **argv) {
   }
 
   Node *root = ParseTokens(tokens);
+  if (!root)
+    return 1;
   AST *node = NodeToAst(root);
+  if (!node)
+    return 1;
+
   std::cout << *node << "\n";
 
   delete root;
