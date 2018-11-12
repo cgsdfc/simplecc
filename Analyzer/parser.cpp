@@ -6,6 +6,11 @@
 #include <stack>
 #include <exception>
 
+Node::~Node() {
+  for (auto child: children)
+    delete child;
+}
+
 class StackEntry {
 public:
   DFA *dfa;

@@ -20,9 +20,9 @@ int main(int argc, char **argv) {
   Node *root = ParseTokens(tokens);
   AST *node = NodeToAst(root);
   std::cout << *node << "\n";
-  delete node;
-  /* root->Format(std::cout); */
 
+  delete root;
+  delete node;
   for (auto token: tokens) {
     delete token;
   }

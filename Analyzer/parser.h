@@ -17,6 +17,8 @@ public:
   Node(Symbol type, const String &value, Location location):
     type(type), value(value), children(), location(location) {}
 
+  ~Node();
+
   void AddChild(Node *child) {
     children.push_back(child);
   }
