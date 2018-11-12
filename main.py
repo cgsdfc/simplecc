@@ -7,7 +7,7 @@ import argparse
 import os
 from pprint import pprint
 
-from parser import parse_file
+from parser import parse_file, lispify
 from cst import ToAST, astpretty_pprint
 from validate import validate
 
@@ -18,15 +18,24 @@ def main():
     parser.add_argument('-r', '--raw',
             dest='raw', help='print raw ast dump',
             action='store_true', default=False)
+    parser.add_argument('-t', dest='dump_type',
+            choices=('cst', 'ast'), default='cst')
     args = parser.parse_args()
 
-    ast = ToAST(parse_file(args.input))
-    if not validate(ast):
-        return 1
-    if args.raw:
-        print(ast)
+    cst = parse_file(args.input)
+    if args.dump_type == 'ast':
+        ast = ToAST(cst)
+        if not validate(ast):
+            return 1
+        if args.raw:
+            print(ast)
+        else:
+            astpretty_pprint(ast)
     else:
-        astpretty_pprint(ast)
+        if args.raw:
+            print(cst)
+        else:
+            pprint(lispify(cst))
     return 0
 
 

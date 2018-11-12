@@ -3,7 +3,9 @@
 program: const_decl* declaration* ENDMARKER
 
 # statement
-stmt: flow_stmt | '{' stmt* '}' | expr ['=' expr] ';' | ';'
+stmt: flow_stmt | '{' stmt* '}' | NAME [stmt_trailer] ';' | ';'
+
+stmt_trailer: arglist | ['[' expr ']'] '=' expr
 
 flow_stmt: if_stmt | for_stmt | while_stmt | read_stmt ';' | write_stmt ';' | return_stmt ';'
 

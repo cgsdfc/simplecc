@@ -20,6 +20,9 @@ from tokenizer import tokenize
 from Symbol import ERRORTOKEN
 
 
+with open('./Grammar.pickle', 'rb') as f:
+    grammar = pickle.load(f)
+
 logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
 
@@ -39,7 +42,7 @@ class Node(namedtuple('Node', 'type value context children')):
 StackEntry = namedtuple('StackEntry', 'dfa state node')
 
 
-class BaseParser:
+class Parser:
     """Parser engine."""
 
     def raise_error(self, msg, token):
@@ -163,26 +166,15 @@ class BaseParser:
         return self.rootnode
 
 
-class Parser(BaseParser):
-
-    with open('./Grammar.pickle', 'rb') as f:
-        grammar = pickle.load(f)
-
-    def __init__(self, filename):
-        super().__init__(self.grammar, filename)
-
-    def parse(self):
-        """Parse a stream and return the syntax tree."""
-        with open(self.filename) as f:
-            tokens = tokenize(f.__next__)
-            return self.parse_tokens(tokens)
-
 
 def parse_file(filename):
-    return Parser(filename).parse()
+    parser = Parser(grammar, filename)
+    with open(filename) as f:
+        tokens = tokenize(f.__next__)
+        return parser.parse_tokens(tokens)
 
 
-def lispify(root, grammar):
+def lispify(root):
     out = []
     type, *rest, children = root
     if type < 256:
@@ -193,6 +185,6 @@ def lispify(root, grammar):
     out.append(type)
     out.extend(filter(None, rest))
     if children is not None:
-        children = tuple( lispify(child, grammar) for child in children )
+        children = tuple( lispify(child) for child in children )
         out.append(children)
     return tuple(out)

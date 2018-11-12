@@ -9,7 +9,7 @@ def emit_symbol(config, gr):
     tok_plus_sym = sorted(chain(((tok, val) for tok, val in gr.token2id.items()
             if tok[0] not in ("'", '"')), gr.symbol2number.items()), key=itemgetter(1))
 
-    with open(config['symbol'], 'w') as f:
+    with open(config['Grammar']['symbol'], 'w') as f:
         for tok, val in tok_plus_sym:
             f.write("{} = {}\n".format(tok, val))
         f.write("\n")
@@ -21,7 +21,7 @@ def emit_symbol(config, gr):
 
 def emit_pickle(config, gr):
     import pickle
-    with open(config['pickle'], 'wb') as f:
+    with open(config['Grammar']['pickle'], 'wb') as f:
         pickle.dump(gr, f)
 
 
@@ -38,7 +38,7 @@ def main():
 
     args = parser.parse_args()
     config = json.load(args.config)
-    gr = generate_grammar(config['grammar'])
+    gr = generate_grammar(config['Grammar']['grammar'])
 
     if args.dump:
         gr.report()
