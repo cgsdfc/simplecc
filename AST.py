@@ -25,6 +25,9 @@ class Program(AST):
     def __init__(self, decls):
         self.decls = decls
 
+    def __iter__(self):
+        yield self.decls
+
 
 class decl(AST): pass
 
@@ -37,6 +40,11 @@ class ConstDecl(decl):
         self.value = value
         self.loc = loc
 
+    def __iter__(self):
+        yield self.type
+        yield self.name
+        yield self.value
+
 
 class VarDecl(decl):
     __slots__ = ('type', 'name', 'loc')
@@ -45,6 +53,10 @@ class VarDecl(decl):
         self.type = type
         self.name = name
         self.loc = loc
+
+    def __iter__(self):
+        yield self.type
+        yield self.name
 
 
 class FuncDef(decl):
@@ -58,6 +70,13 @@ class FuncDef(decl):
         self.stmts = stmts
         self.loc = loc
 
+    def __iter__(self):
+        yield self.return_type
+        yield self.name
+        yield self.args
+        yield self.decls
+        yield self.stmts
+
 
 arg = namedtuple('arg', 'type name loc')
 
@@ -70,6 +89,9 @@ class Read(stmt):
         self.names = names
         self.loc = loc
 
+    def __iter__(self):
+        yield self.names
+
 
 class Write(stmt):
     __slots__ = ('str', 'value', 'loc')
@@ -79,6 +101,10 @@ class Write(stmt):
         self.value = value
         self.loc = loc
 
+    def __iter__(self):
+        yield self.str
+        yield self.value
+
 
 class Assign(stmt):
     __slots__ = ('target', 'value', 'loc')
@@ -87,6 +113,10 @@ class Assign(stmt):
         self.target = target
         self.value = value
         self.loc = loc
+
+    def __iter__(self):
+        yield self.target
+        yield self.value
 
 
 class For(stmt):
@@ -99,6 +129,12 @@ class For(stmt):
         self.body = body
         self.loc = loc
 
+    def __iter__(self):
+        yield self.initial
+        yield self.condition
+        yield self.step
+        yield self.body
+
 
 class While(stmt):
     __slots__ = ('condition', 'body', 'loc')
@@ -108,6 +144,10 @@ class While(stmt):
         self.body = body
         self.loc = loc
 
+    def __iter__(self):
+        yield self.condition
+        yield self.body
+
 
 class Return(stmt):
     __slots__ = ('value', 'loc')
@@ -115,6 +155,9 @@ class Return(stmt):
     def __init__(self, value, loc):
         self.value = value
         self.loc = loc
+
+    def __iter__(self):
+        yield self.value
 
 
 class If(stmt):
@@ -126,16 +169,22 @@ class If(stmt):
         self.orelse = orelse
         self.loc = loc
 
+    def __iter__(self):
+        yield self.test
+        yield self.body
+        yield self.orelse
 
-class Expr(stmt):
+
+class ExprStmt(stmt):
     __slots__ = ('value', 'loc')
 
     def __init__(self, value, loc):
         self.value = value
         self.loc = loc
 
+    def __iter__(self):
+        yield self.value
 
-label_stmt = namedtuple('label_stmt', 'value stmt loc')
 
 class expr(AST): pass
 
@@ -148,6 +197,11 @@ class BinOp(expr):
         self.right = right
         self.loc = loc
 
+    def __iter__(self):
+        yield self.left
+        yield self.op
+        yield self.right
+
 
 class UnaryOp(expr):
     __slots__ = ('op', 'operand', 'loc')
@@ -156,6 +210,10 @@ class UnaryOp(expr):
         self.op = op
         self.operand = operand
         self.loc = loc
+
+    def __iter__(self):
+        yield self.op
+        yield self.operand
 
 
 class Call(expr):
@@ -166,6 +224,10 @@ class Call(expr):
         self.args = args
         self.loc = loc
 
+    def __iter__(self):
+        yield self.func
+        yield self.args
+
 
 class Num(expr):
     __slots__ = ('n', 'loc')
@@ -173,6 +235,9 @@ class Num(expr):
     def __init__(self, n, loc):
         self.n = n
         self.loc = loc
+
+    def __iter__(self):
+        yield self.n
 
 
 class Str(expr):
@@ -182,6 +247,9 @@ class Str(expr):
         self.s = s
         self.loc = loc
 
+    def __iter__(self):
+        yield self.s
+
 
 class Char(expr):
     __slots__ = ('c', 'loc')
@@ -189,6 +257,9 @@ class Char(expr):
     def __init__(self, c, loc):
         self.c = c
         self.loc = loc
+
+    def __iter__(self):
+        yield self.c
 
 
 class Subscript(expr):
@@ -200,6 +271,11 @@ class Subscript(expr):
         self.ctx = ctx
         self.loc = loc
 
+    def __iter__(self):
+        yield self.name
+        yield self.index
+        yield self.ctx
+
 
 class Name(expr):
     __slots__ = ('id', 'ctx', 'loc')
@@ -209,6 +285,10 @@ class Name(expr):
         self.ctx = ctx
         self.loc = loc
 
+    def __iter__(self):
+        yield self.id
+        yield self.ctx
+
 
 class VarType(AST):
     __slots__ = ('type', 'is_array', 'size')
@@ -217,6 +297,11 @@ class VarType(AST):
         self.type = type
         self.is_array = is_array
         self.size = size
+
+    def __iter__(self):
+        yield self.type
+        yield self.is_array
+        yield self.size
 
 
 

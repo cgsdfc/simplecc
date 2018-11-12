@@ -105,6 +105,11 @@ class ClassEmittor(AstEmittor):
             self.emit("self.{attr} = {attr}".format(attr=arg), 2)
         self.emit("")
 
+        self.emit("def __iter__(self):", 1)
+        for f in cons.fields:
+            self.emit("yield self.{}".format(f.name), 2)
+        self.emit("")
+
 
 Header = """from enum import Enum
 from collections import namedtuple
