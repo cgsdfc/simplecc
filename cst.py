@@ -160,7 +160,7 @@ class TransformerVisitor(VisitorBase):
         if first.type == sym.expr:
             if len(node.children) == 2: # non Assign
                 expr1 = self.visit(first) # Load by default
-                return AST.Expr(expr1, node.context)
+                return AST.ExprStmt(expr1, node.context)
             else: # assign
                 assert node.children[1].value == '='
                 expr1 = self.visit(first, AST.expr_context.Store)
