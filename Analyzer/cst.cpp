@@ -198,15 +198,14 @@ public:
     if (first->type == Symbol::flow_stmt) {
       stmts.push_back(visit_flow_stmt(first));
     }
-    else if (first->type == Symbol::expr) {
+    else if (first->type == Symbol::NAME) {
       if (node->children.size() == 2) {
-        auto expr1 = visit_expr(first);
+        auto expr1 = new Name(
+            first->value, ExprContextKind::Load, node->location);
         stmts.push_back(new ExprStmt(expr1, node->location));
-      } else {
-        assert(node->children[1]->value == "=");
-        auto expr1 = visit_expr(first, ExprContextKind::Store);
-        auto expr2 = visit_expr(*(node->children.end() - 2));
-        stmts.push_back(new Assign(expr1, expr2, node->location));
+      }
+      else {
+        stmts.push_back(visit_stmt_trailer(node->children[1], first));
       }
     }
     else if (first->value == "{") {
@@ -219,6 +218,29 @@ public:
     else {
       // discard the empty stmt -- ';'
       assert(first->value == ";" && node->children.size() == 1);
+    }
+  }
+
+  Stmt *visit_stmt_trailer(Node *node, Node *name) {
+    auto first = node->FirstChild();
+    if (first->type == Symbol::arglist) {
+      auto args = visit_arglist(first);
+      auto call = new Call(name->value, args, name->location);
+      return new ExprStmt(call, name->location);
+    }
+    else if (first->value == "[") {
+      auto index = visit_expr(node->children[1]);
+      auto value = visit_expr(node->LastChild());
+      auto subscript = new Subscript(
+          name->value, index, ExprContextKind::Store, node->location);
+      return new Assign(subscript, value, name->location);
+    }
+    else {
+      assert(first->value == "=");
+      auto value = visit_expr(node->LastChild());
+      auto target = new Name(
+          name->value, ExprContextKind::Store, name->location);
+      return new Assign(target, value, name->location);
     }
   }
 
