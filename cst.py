@@ -242,6 +242,7 @@ class TransformerVisitor(VisitorBase):
 
 
     def visit_expr(self, node, context=AST.expr_context.Load):
+        # be careful for the default Load!
         # handle all range of expression.
         unaryop = None
         # optional unaryop in expr
@@ -292,7 +293,7 @@ class TransformerVisitor(VisitorBase):
         else:
             assert first.value == '('
             # visit_expr
-            return self.visit(node.children[1])
+            return self.visit(node.children[1], context)
 
     def visit_factor_trailer(self, node, name, context):
         first = node.first_child
@@ -301,12 +302,12 @@ class TransformerVisitor(VisitorBase):
             return AST.Call(name, args, node.context)
         else:
             assert first.value == '[', first
-            index = self.visit(node.children[1])
+            index = self.visit(node.children[1], context)
             return AST.Subscript(name, index, context, node.context)
 
     def visit_arglist(self, node):
         # strip () and skip ,
-        return [self.visit(c) for c in node.children[1:-1:2]]
+        return [self.visit(c, AST.expr_context.Load) for c in node.children[1:-1:2]]
 
     def visit_subscript2(self, node):
         return int(node.children[1].value)

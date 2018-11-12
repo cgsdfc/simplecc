@@ -141,13 +141,16 @@ class SyntaxValidator(VisitorBase):
     def visitAssign(self, node):
         assert isinstance(node, Assign)
         # check that target is either name or subscript
-        if not isinstance(node.left, (Name, Subscript)):
-            error("only name or subscript can be assigned to")
+        if not isinstance(node.target, (Name, Subscript)):
+            error("only name or subscript can be assigned to", node.loc)
+            return False
+        if node.target.ctx != expr_context.Store:
+            error("not in an assignment context", node.loc)
             return False
         return True
 
     def visitFor(self, node):
-        return self.visit_list(node.stmt)
+        return self.visit_list(node.body)
 
     def visitWhile(self, node):
         return self.visit_list(node.body)
