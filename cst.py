@@ -1,6 +1,7 @@
 """Transform a CST to an AST"""
 
 import AST
+from AST import expr_context
 import sys
 import Symbol as sym
 from pprint import pprint
@@ -158,21 +159,36 @@ class TransformerVisitor(VisitorBase):
         if first.type == sym.flow_stmt:
             # flow_stmt is always one stmt
             yield self.visit(node.first_child.first_child)
-        elif first.type == sym.expr:
-            if len(node.children) == 2: # non Assign
-                expr1 = self.visit(first) # Load by default
+        elif first.type == sym.NAME:
+            if len(node.children) == 2:
+                expr1 = AST.Name(first.value, expr_context.Load, node.context)
                 yield AST.ExprStmt(expr1, node.context)
-            else: # assign
-                assert node.children[1].value == '='
-                expr1 = self.visit(first, AST.expr_context.Store)
-                expr2 = self.visit(node.children[-2])
-                yield AST.Assign(expr1, expr2, node.context)
+            else: # stmt_trailer
+                yield self.visit(node.children[1], first)
         elif first.value == '{':
             for child in node.children[1:-1]:
                 yield from self.visit(child)
         else:
             # make sure we handle all cases.
             assert first.value == ';' and len(node.children) == 1, node
+
+    def visit_stmt_trailer(self, node, name):
+        first = node.first_child
+        store = expr_context.Store
+        if first.type == sym.arglist:
+            args = self.visit(first)
+            call = AST.Call(name.value, args, name.context)
+            return AST.ExprStmt(call, name.context)
+        elif first.value == '[':
+            index = self.visit(node.children[1]) # Load
+            value = self.visit(node.children[-1]) # Load
+            subscript = AST.Subscript(name.value, index, store, node.context)
+            return AST.Assign(subscript, value, name.context)
+        else:
+            assert first.value == '=', first
+            value = self.visit(node.children[-1]) # Load
+            target = AST.Name(name.value, store, name.context)
+            return AST.Assign(target, value, name.context)
 
     def visit_if_stmt(self, node):
         condition, _, stmt, *trailer = node.children[2:]
@@ -188,7 +204,7 @@ class TransformerVisitor(VisitorBase):
         # initial: stmt
         name, _, expr = node.children[2:5]
         initial = AST.Assign(
-                AST.Name(name.value, AST.expr_context.Store, name.context),
+                AST.Name(name.value, expr_context.Store, name.context),
                 self.visit(expr),
                 name.context)
 
@@ -197,7 +213,7 @@ class TransformerVisitor(VisitorBase):
 
         # step: stmt
         target, _, name, op, num = node.children[8:13]
-        name_ = AST.Name(name.value, AST.expr_context.Load, name.context)
+        name_ = AST.Name(name.value, expr_context.Load, name.context)
         op = AST.string2operator[op.value]
         # this is a NUMBER
         assert num.type == sym.NUMBER
@@ -205,7 +221,7 @@ class TransformerVisitor(VisitorBase):
 
         next = AST.BinOp(name_, op, num, name.context)
         step = AST.Assign(
-                AST.Name(target.value, AST.expr_context.Store, target.context),
+                AST.Name(target.value, expr_context.Store, target.context),
                 next, target.context)
 
         stmt = list(self.visit(node.children[-1]))
@@ -241,7 +257,7 @@ class TransformerVisitor(VisitorBase):
         return AST.Write(string, expr, node.first_child_context)
 
 
-    def visit_expr(self, node, context=AST.expr_context.Load):
+    def visit_expr(self, node, context=expr_context.Load):
         # be careful for the default Load!
         # handle all range of expression.
         unaryop = None
@@ -307,7 +323,7 @@ class TransformerVisitor(VisitorBase):
 
     def visit_arglist(self, node):
         # strip () and skip ,
-        return [self.visit(c, AST.expr_context.Load) for c in node.children[1:-1:2]]
+        return [self.visit(c, expr_context.Load) for c in node.children[1:-1:2]]
 
     def visit_subscript2(self, node):
         return int(node.children[1].value)
@@ -321,5 +337,5 @@ def astpretty_pprint(rootnode):
     import astpretty
     import AST
 
-    astpretty.customize(AST.AST, AST.expr_context)
+    astpretty.customize(AST.AST, expr_context)
     astpretty.pprint(rootnode)
