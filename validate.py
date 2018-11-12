@@ -105,10 +105,11 @@ class SyntaxValidator(VisitorBase):
         # check void variable and zero-sized array
         var_type = node.type
         if var_type.type == basic_type.Void:
-            error("cannot declare void variable", node.loc)
+            error("cannot declare {!r} as a void variable".format(node.name),
+                    node.loc)
             return False
-        if var_type.is_array and var_type == 0:
-            error("array size cannot be 0", node.loc)
+        if var_type.is_array and var_type.size == 0:
+            error("array size of {!r} cannot be 0".format(node.name), node.loc)
             return False
         return True
 
