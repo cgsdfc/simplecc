@@ -15,6 +15,7 @@ import logging
 from tokenizer import tokenize
 from pprint import pprint
 from collections import namedtuple
+import pickle
 
 logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -35,39 +36,32 @@ class Node(namedtuple('Node', 'type value context children')):
 StackEntry = namedtuple('StackEntry', 'dfa state node')
 
 
-class ParseError(Exception):
-    """Exception to signal the parser is stuck."""
-
-    def __init__(self, msg, type, value, context):
-        Exception.__init__(self, "%s: type=%r, value=%r, context=%r" %
-                           (msg, type, value, context))
-        self.msg = msg
-        self.type = type
-        self.value = value
-        self.context = context
-
-
 class BaseParser:
     """Parser engine."""
 
-    def __init__(self, grammar, start=None):
+    def raise_error(self, msg, token):
+        args = (self.filename, *token.start, token.line)
+        raise SyntaxError(msg, args)
+
+    def __init__(self, grammar, filename):
         # Each stack entry is a tuple: (dfa, state, node).
         # A node is a tuple: (type, value, context, children),
         # where children is a list of nodes or None, and context may be None.
 
         self.grammar = grammar
-        if start is None:
-            start = grammar.start
-        self.start = start
+        # for report error
+        self.filename = filename
+        start = grammar.start
         newnode = Node(start, None, None, [])
         stackentry = StackEntry(self.grammar.dfas[start], 0, newnode)
         self.stack = [stackentry]
         self.rootnode = None
 
-    def addtoken(self, type, value, context):
+    def addtoken(self, token):
         """Add a token; return True iff this is the end of the program."""
+        logger.debug('addtoken: {}'.format(token))
+        type, value, context, *_ = token
         # Map from token to label
-        logger.debug('addtoken: {}'.format(str((type, value, context))))
         ilabel = self.classify(type, value, context)
         # Loop until the token is shifted; may raise exceptions
         assert self.stack, (type, value)
@@ -110,11 +104,10 @@ class BaseParser:
                     self.pop()
                     if not self.stack:
                         # Done parsing, but another token is input
-                        raise ParseError("too much input",
-                                         type, value, context)
+                        self.raise_error("too much input", token)
                 else:
                     # No success finding a transition
-                    raise ParseError("bad input", type, value, context)
+                    self.raise_error("unexpected {!r}".format(value), token)
 
     def classify(self, type, value, context):
         """Turn a token into a label.  (Internal)"""
@@ -125,7 +118,8 @@ class BaseParser:
                 return ilabel
         ilabel = self.grammar.tokens.get(type)
         if ilabel is None:
-            raise ParseError("bad token", type, value, context)
+            raise SystemError("unexpected {!r}".format(value))
+            # raise ParseError("bad token", type, value, context)
         return ilabel
 
     def shift(self, type, value, newstate, context):
@@ -137,16 +131,16 @@ class BaseParser:
         self.stack[-1] = StackEntry(dfa, newstate, node)
 
     def push(self, type, newdfa, newstate, context):
-        logger.debug('push')
         """Push a nonterminal.  (Internal)"""
+        logger.debug('push')
         dfa, state, node = self.stack[-1]
         newnode = Node(type, None, context, [])
         self.stack[-1] = StackEntry(dfa, newstate, node)
         self.stack.append(StackEntry(newdfa, 0, newnode))
 
     def pop(self):
-        # print("pop")
         """Pop a nonterminal.  (Internal)"""
+        # print("pop")
         *_, newnode = self.stack.pop()
         if self.stack:
             dfa, state, node = self.stack[-1]
@@ -154,36 +148,33 @@ class BaseParser:
         else:
             self.rootnode = newnode
 
+    def parse_tokens(self, tokens):
+        """Parse a series of tokens and return the syntax tree."""
+        for token in tokens:
+            if self.addtoken(token):
+                break
+        else:
+            self.raise_error("incomplete input", token)
+        return self.rootnode
+
 
 class Parser(BaseParser):
 
-    def __init__(self, grammar, start=None):
-        super().__init__(grammar, start)
+    with open('./Grammar.pickle', 'rb') as f:
+        grammar = pickle.load(f)
 
-    def parse_tokens(self, tokens):
-        """Parse a series of tokens and return the syntax tree."""
-        for quintuple in tokens:
-            type, value, start, *_ = quintuple
-            if self.addtoken(type, value, start):
-                break
-        else:
-            raise ParseError("incomplete input", type, value, start)
-        return self.rootnode
+    def __init__(self, filename):
+        super().__init__(self.grammar, filename)
 
-    def parse_stream(self, stream):
+    def parse(self):
         """Parse a stream and return the syntax tree."""
-        tokens = tokenize(stream.__next__)
-        return self.parse_tokens(tokens)
+        with open(self.filename) as f:
+            tokens = tokenize(f.__next__)
+            return self.parse_tokens(tokens)
 
-    def parse_file(self, filename):
-        """Parse a file and return the syntax tree."""
-        with open(filename) as stream:
-            return self.parse_stream(stream)
 
-    def parse_string(self, text):
-        """Parse a string and return the syntax tree."""
-        tokens = tokenize(io.StringIO(text).__next__)
-        return self.parse_tokens(tokens)
+def parse_file(filename):
+    return Parser(filename).parse()
 
 
 def lispify(root, grammar):
@@ -200,10 +191,6 @@ def lispify(root, grammar):
         children = tuple( lispify(child, grammar) for child in children )
         out.append(children)
     return tuple(out)
-
-
-def parse_file(grammar, input):
-    return Parser(grammar).parse_file(input)
 
 
 def astpretty_pprint(rootnode):

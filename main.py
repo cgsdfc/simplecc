@@ -5,7 +5,6 @@ import sys
 import json
 import argparse
 import os
-import pickle
 from pprint import pprint
 
 from parser import parse_file
@@ -21,10 +20,7 @@ def main():
             action='store_true', default=False)
     args = parser.parse_args()
 
-    with open('./Grammar.pickle', 'rb') as f:
-        grammar = pickle.load(f)
-
-    ast = ToAST(parse_file(grammar, args.input))
+    ast = ToAST(parse_file(args.input))
     if not validate(ast):
         return 1
     if args.raw:
