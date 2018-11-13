@@ -37,7 +37,7 @@ public:
 
     if (decl_iter != end) {
       auto decl = *decl_iter;
-      auto loc = getLocation(decl);
+      auto loc = decl->loc;
       Error(loc, "unexpected", decl->ClassName(), Quote(getDeclName(decl)));
       return false;
     }

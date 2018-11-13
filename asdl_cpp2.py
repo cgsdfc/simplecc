@@ -49,6 +49,9 @@ class CppType:
     def __hash__(self):
         return hash(self.name)
 
+    def delete(self, name):
+        return None
+
 
 class AstNode(CppType):
     """AstNode represents subclasses of AST"""
@@ -66,7 +69,7 @@ class AstNode(CppType):
     as_argument = as_member
 
     def delete(self, name):
-        return self.delete_.substitute(name)
+        return self.delete_.substitute(name=name)
 
 class Primitive(CppType):
     """Primitive types in both asdl and cpp"""
@@ -194,7 +197,7 @@ class Sequence(CppType):
 
     def delete(self, name):
         if isinstance(self.elemtype, AstNode):
-            return self.delete_seq.substitute(name)
+            return self.delete_seq.substitute(name=name)
         return None
 
     name = as_member
@@ -204,7 +207,7 @@ class Optional(CppType):
     """A optional item dealing with ? in asdl"""
 
     impl = 'std::optional<{}>'
-    delete_opt = Template("""if ($name) delete $name""")
+    delete_opt = Template("""if ($name) delete $name;""")
 
     def __init__(self, elemtype):
         self.elemtype = elemtype
@@ -222,7 +225,7 @@ class Optional(CppType):
 
     def delete(self, name):
         if isinstance(self.elemtype, AstNode):
-            return self.delete_opt.substitute(name)
+            return self.delete_opt.substitute(name=name)
         return None
 
 
@@ -436,7 +439,8 @@ inline bool IsInstance(U *x) {
 
 template<typename T, typename U>
 inline T *subclass_cast(U *x) {
-    if (IsInstance<T>(x)) return static_cast<T*>(x);
+    if (IsInstance<T>(x))
+        return static_cast<T*>(x);
     return nullptr;
 }
 
@@ -475,7 +479,7 @@ def substitute(x, method="substitute"):
     return getattr(template, method)(x)
 
 
-class CppTemplate:
+class ImplTemplate:
     impl = Template("""
 #include "AST.h"
 
@@ -500,17 +504,27 @@ std::ostream &operator<<(std::ostream &os, const std::optional<T> &v) {
         return os << "None";
 }
 
-$concrete_impls
-
+$formatter_impls
+$destructor_impls
 $string2enum_impls
 """)
 
     @classmethod
     def substitute(cls, typemap):
         return cls.impl.substitute(
-            concrete_impls=substitute_all(
-                typemap, ConcreteNodeTemplate, 'substitute_impl'),
-            string2enum_impls=String2EnumTempalte.substitute_impls(typemap),
+            formatter_impls="\n".join(substitute_all(
+                typemap,
+                (ConcreteNode, LeafNode),
+                'make_formatter',
+            )),
+            destructor_impls="\n".join(substitute_all(
+                typemap,
+                (ConcreteNode, LeafNode),
+                'make_destructor',
+            )),
+            string2enum_impls="\n".join(
+                String2EnumTempalte.substitute_impls(typemap)
+            ),
         )
 
 
@@ -541,12 +555,12 @@ public:
         return ", ".join(c.name for c in subclasses)
 
 
-class ClassTemplate:
+class AstNodeTemplate:
     formatter_impl = Template("""
 void $class_name::Format(std::ostream &os) const {
-    os << "$class_name(";
+    os << "$class_name(" <<
     $code
-    os << ")";
+    << ")";
 }
 """)
 
@@ -556,8 +570,9 @@ $class_name::~$class_name() {
 }
 """)
 
-    format_item = Template(""" " $field_name=" << $expr " """)
-    os_joiner = """ << os << ", " << """
+    format_item = Template(""" "$field_name=" << $expr """)
+
+    os_joiner = """ << ", " << """
 
     @classmethod
     def make_formatter(cls, x):
@@ -573,8 +588,12 @@ $class_name::~$class_name() {
 
     @classmethod
     def make_destructor(cls, x):
-        delete_stmts = filter(None, [type.delete(name) for type, name in x.members])
-        return "\n".join(delete_stmts)
+        delete_stmts = list(
+                filter(None, [type.delete(name) for type, name in x.members]))
+        return cls.destructor_impl.substitute(
+            class_name=x.name,
+            code="\n".join(delete_stmts)
+        )
 
     @classmethod
     def substitute_impl(cls, x):
@@ -582,7 +601,7 @@ $class_name::~$class_name() {
         yield cls.make_destructor(x)
 
 
-class LeafNodeTemplate(ClassTemplate):
+class LeafNodeTemplate(AstNodeTemplate):
     decl = Template("""
 class $class_name: public AST {
 public:
@@ -609,7 +628,7 @@ public:
         )
 
 
-class ConcreteNodeTemplate(ClassTemplate):
+class ConcreteNodeTemplate(AstNodeTemplate):
     decl = Template("""
 class $class_name: public $base {
 public:
@@ -645,7 +664,7 @@ public:
         )
 
 
-class LeafNodeTemplate(ClassTemplate):
+class LeafNodeTemplate(AstNodeTemplate):
     decl = Template("""
 class $class_name: public AST {
 public:
@@ -856,7 +875,7 @@ def main():
         f.write(HeaderTemplate.substitute(typemap))
 
     with open(config['AST']['AST.cpp'], 'w') as f:
-        f.write(CppTemplate.substitute(typemap))
+        f.write(ImplTemplate.substitute(typemap))
 
     return 0
 
