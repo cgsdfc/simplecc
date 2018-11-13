@@ -1,6 +1,49 @@
 const int max_heap_size = 100;
+const char character = 'c';
+
+const int is_valid = 1, hasattr = 0;
+const char digit = '0', letter = 'a';
 
 int heap[100];
+int index;
+
+int flag, array[2];
+int module, class;
+int errors[10], input[20];
+
+int addi(int a, int b) {
+  return (a + b);
+}
+
+char addc(char a, char b) {
+  return (a + b);
+}
+
+void print_char(char c) {
+  printf(c);
+}
+
+void print_string {
+  printf("this is a string");
+}
+
+void print_string_ex(int expr) {
+  printf("expr is ", expr);
+}
+
+void dead_loop {
+  while (1) {
+    printf("In dead loop");
+  }
+}
+
+int prompt_int {
+  int val;
+  printf("Please input an integer:");
+  scanf(val);
+  return (val);
+}
+
 
 void swap(int index1, int index2) {
   int temp;
