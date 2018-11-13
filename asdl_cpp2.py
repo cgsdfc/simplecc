@@ -3,14 +3,11 @@
 """Ast generation"""
 
 import sys
-import asdl
-import util
-import abc
-
 from string import Template
 from pprint import pprint
 from itertools import chain
 
+import asdl
 
 def camal_case(name):
     """Convert snake_case to camal_case, respecting the original
@@ -50,6 +47,7 @@ class CppType:
         return hash(self.name)
 
     def delete(self, name):
+        """delete stmt in cpp"""
         return None
 
 
@@ -57,7 +55,6 @@ class AstNode(CppType):
     """AstNode represents subclasses of AST"""
 
     delete_ = Template("""delete $name;""")
-    forward_decl = 1
 
     def __init__(self, name):
         self.name = camal_case(name)
@@ -102,6 +99,7 @@ class Primitive(CppType):
 
 # These are simple data container about cpp types
 class AbstractNode(AstNode):
+    """Direct subclasses of AST, virtual base class for ConcreteNode"""
 
     extra_members = [ (Primitive('int', True), 'subclass_tag'), ]
 
@@ -110,52 +108,38 @@ class AbstractNode(AstNode):
 
     @property
     def members(self):
+        """All members, including subclass_tag"""
         return self.extra_members + self._members
 
     @property
     def members_notag(self):
+        """Members excluding subclass_tag"""
         return self._members
 
     @members.setter
     def members(self, val):
         self._members = val
 
-    # def __repr__(self):
-    #     return "AbstractNode(name={}, members={}, subclasses={})".format(
-    #         self.name,
-    #         self.members,
-    #         self.subclasses,
-    #     )
-
-
 
 class ConcreteNode(AstNode):
-
-    # use when base is None
-    the_ast = AstNode("AST")
+    """Direct subclass of AbstractNode, indirectly subclassing AST"""
 
     def __init__(self, name, base=None, members=None):
         super().__init__(name)
         self.base = base
         self.members = members
 
-    # def __repr__(self):
-    #     return "ConcreteNode(name={}, base={}, members={})".format(
-    #         self.name,
-    #         self.base,
-    #         self.members,
-    #     )
-
 
 class LeafNode(AstNode):
+    """Direct subclass of AST, non-virtual class"""
 
     def __init__(self, name, members=None):
         super().__init__(name)
         self.members = members
 
-class EnumClass(CppType):
 
-    methods = ('formatter', 'string2enum')
+class EnumClass(CppType):
+    """Plain enum class"""
 
     def __init__(self, name, values=None, strings=None):
         self.name = camal_case(name) + 'Kind'
@@ -168,13 +152,6 @@ class EnumClass(CppType):
         return self.name
 
     as_argument = as_member
-
-    # def __repr__(self):
-    #     return "EnumClass(name={}, values={})".format(
-    #         self.name,
-    #         " ".join(self.values),
-    #     )
-
 
 
 class Sequence(CppType):
@@ -304,7 +281,7 @@ class String2Enum:
 
 
 class TypeVisitor2(asdl.VisitorBase):
-    """The second pass TypeVisitor"""
+    """The second pass TypeVisitor, resolve members and base"""
 
     def __init__(self, typemap):
         super().__init__()
@@ -367,6 +344,7 @@ class TypeVisitor2(asdl.VisitorBase):
         return type
 
     def visitProduct(self, prod, name):
+        # LeafNode
         type = self.typemap[name]
         assert isinstance(type, LeafNode)
         type.members = [(self.field_type(f), f.name)
@@ -504,8 +482,11 @@ std::ostream &operator<<(std::ostream &os, const std::optional<T> &v) {
         return os << "None";
 }
 
+// Format()
 $formatter_impls
+// ~Destructor()
 $destructor_impls
+// String2Enum()
 $string2enum_impls
 """)
 
@@ -555,7 +536,7 @@ public:
         return ", ".join(c.name for c in subclasses)
 
 
-class AstNodeTemplate:
+class ClassImplTemplate:
     formatter_impl = Template("""
 void $class_name::Format(std::ostream &os) const {
     os << "$class_name(" <<
@@ -581,7 +562,8 @@ $class_name::~$class_name() {
             code=cls.os_joiner.join(
                 cls.format_item.substitute(
                     field_name=name,
-                    expr='*' + name if isinstance(type, AstNode) else name
+                    # expr='*' + name if isinstance(type, AstNode) else name
+                    expr=name,
                 ) for type, name in x.members
             )
         )
@@ -601,34 +583,7 @@ $class_name::~$class_name() {
         yield cls.make_destructor(x)
 
 
-class LeafNodeTemplate(AstNodeTemplate):
-    decl = Template("""
-class $class_name: public AST {
-public:
-    $member_declaration
-
-    $class_name($constructor_args): AST(), $member_init {}
-
-    ~$class_name() override;
-
-    String ClassName() const override {
-        return "$class_name";
-    }
-
-    void Format(std::ostream &os) const override;
-};
-""")
-
-    @classmethod
-    def substitute(cls, x):
-        return cls.decl.substitute(
-            class_name=x.name,
-            member_declaration=make_member_decls(x.members),
-            constructor_args=make_formal_args(x.members),
-        )
-
-
-class ConcreteNodeTemplate(AstNodeTemplate):
+class ConcreteNodeTemplate(ClassImplTemplate):
     decl = Template("""
 class $class_name: public $base {
 public:
@@ -664,7 +619,7 @@ public:
         )
 
 
-class LeafNodeTemplate(AstNodeTemplate):
+class LeafNodeTemplate(ClassImplTemplate):
     decl = Template("""
 class $class_name: public AST {
 public:
@@ -764,7 +719,8 @@ if (s == "$string")
                             item=item,
                             string=string,
                         )
-                    for string, item in x.strings.items())
+                    for string, item in x.strings.items()
+                )
             )
 
 

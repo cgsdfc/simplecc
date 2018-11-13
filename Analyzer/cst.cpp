@@ -317,8 +317,8 @@ public:
     return new While(condition, body, node->location);
   }
 
-  Stmt *visit_return_stmt(Node  *node) {
-    if (node->children.size() == 2)
+  Stmt *visit_return_stmt(Node *node) {
+    if (node->children.size() == 1)
       return new Return(nullptr, node->location);
 
     auto expr = visit_expr(node->children[2]);
