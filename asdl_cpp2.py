@@ -3,6 +3,9 @@
 """Ast generation"""
 
 import sys
+import os
+import subprocess
+import tempfile
 from string import Template
 from pprint import pprint
 from itertools import chain
@@ -514,7 +517,7 @@ class AbstractNodeTemplate:
     decl = Template("""
 class $class_name: public AST {
 public:
-    $member_declaration;
+    $member_declaration
 
     $class_name($constructor_args): AST(), $member_init {}
 
@@ -805,6 +808,21 @@ def make_enumitems(values):
     return ", ".join(values)
 
 
+def format_code(filename):
+    """Format the code in ``filename``, return as a bytes string"""
+    return subprocess.check_output(['clang-format', filename])
+
+
+def generate_code(typemap, template_class, dest):
+    fd, name = tempfile.mkstemp()
+    try:
+        with open(name, 'w') as f:
+            f.write(template_class.substitute(typemap))
+        with open(dest, 'bw') as f:
+            f.write(format_code(name))
+    finally:
+        os.remove(name)
+
 
 def main():
     import argparse
@@ -827,11 +845,8 @@ def main():
         pprint(typemap)
         return 0
 
-    with open(config['AST']['AST.h'], 'w') as f:
-        f.write(HeaderTemplate.substitute(typemap))
-
-    with open(config['AST']['AST.cpp'], 'w') as f:
-        f.write(ImplTemplate.substitute(typemap))
+    generate_code(typemap, HeaderTemplate, config['AST']['AST.h'])
+    generate_code(typemap, ImplTemplate, config['AST']['AST.cpp'])
 
     return 0
 
