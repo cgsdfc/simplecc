@@ -137,28 +137,6 @@ class SyntaxValidator(VisitorBase):
 
         return args_ok and child_ok
 
-    # for stmts, assign is the major subject
-    def visitAssign(self, node):
-        assert isinstance(node, Assign)
-        # check that target is either name or subscript
-        if not isinstance(node.target, (Name, Subscript)):
-            error("only name or subscript can be assigned to", node.loc)
-            return False
-        if node.target.ctx != expr_context.Store:
-            error("not in an assignment context", node.loc)
-            return False
-        return True
-
-    def visitFor(self, node):
-        return self.visit_list(node.body)
-
-    def visitWhile(self, node):
-        return self.visit_list(node.body)
-
-    def visitIf(self, node):
-        return (self.visit_list(node.body) and self.visit_list(node.orelse))
-
-
 def validate(node):
     assert isinstance(node, AST)
     return SyntaxValidator().visit(node)

@@ -11,6 +11,7 @@ class AST {
 public:
     virtual void Format(std::ostream &os) const = 0;
     virtual ~AST() = 0;
+    virtual String ClassName() const = 0;
 };
 
 inline AST::~AST() {}
@@ -138,6 +139,9 @@ public:
     std::vector<Decl*> decls;
     Program(const std::vector<Decl*>& decls): decls(decls) {}
     ~Program() override;
+    String ClassName() const override {
+        return "Program";
+    }
     void Format(std::ostream &os) const override;
 };
 
@@ -156,6 +160,9 @@ public:
     ConstDecl(BasicTypeKind type, const std::string& name, Expr* value, const
               Location& loc): type(type), name(name), value(value), loc(loc) {}
     ~ConstDecl() override;
+    String ClassName() const override {
+        return "ConstDecl";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Decl::ConstDecl;
@@ -173,6 +180,9 @@ public:
     VarDecl(VarType* type, const std::string& name, const Location& loc):
             type(type), name(name), loc(loc) {}
     ~VarDecl() override;
+    String ClassName() const override {
+        return "VarDecl";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Decl::VarDecl;
@@ -196,6 +206,9 @@ public:
             return_type(return_type), name(name), args(args), decls(decls),
             stmts(stmts), loc(loc) {}
     ~FuncDef() override;
+    String ClassName() const override {
+        return "FuncDef";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Decl::FuncDef;
@@ -212,6 +225,9 @@ struct Arg: public AST {
     Arg(BasicTypeKind type, const std::string& name, const Location& loc):
         type(type), name(name), loc(loc) {}
     ~Arg() override;
+    String ClassName() const override {
+        return "Arg";
+    }
     void Format(std::ostream &os) const override;
 };
 
@@ -228,6 +244,9 @@ public:
     Read(const std::vector<std::string>& names, const Location& loc):
          names(names), loc(loc) {}
     ~Read() override;
+    String ClassName() const override {
+        return "Read";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Read;
@@ -245,6 +264,9 @@ public:
     Write(std::optional<std::string> str, Expr* value, const Location& loc):
           str(str), value(value), loc(loc) {}
     ~Write() override;
+    String ClassName() const override {
+        return "Write";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Write;
@@ -262,6 +284,9 @@ public:
     Assign(Expr* target, Expr* value, const Location& loc): target(target),
            value(value), loc(loc) {}
     ~Assign() override;
+    String ClassName() const override {
+        return "Assign";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Assign;
@@ -282,6 +307,9 @@ public:
         body, const Location& loc): initial(initial), condition(condition),
         step(step), body(body), loc(loc) {}
     ~For() override;
+    String ClassName() const override {
+        return "For";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::For;
@@ -299,6 +327,9 @@ public:
     While(Expr* condition, const std::vector<Stmt*>& body, const Location&
           loc): condition(condition), body(body), loc(loc) {}
     ~While() override;
+    String ClassName() const override {
+        return "While";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::While;
@@ -314,6 +345,9 @@ public:
     Location loc;
     Return(Expr* value, const Location& loc): value(value), loc(loc) {}
     ~Return() override;
+    String ClassName() const override {
+        return "Return";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Return;
@@ -333,6 +367,9 @@ public:
        orelse, const Location& loc): test(test), body(body), orelse(orelse),
        loc(loc) {}
     ~If() override;
+    String ClassName() const override {
+        return "If";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::If;
@@ -348,6 +385,9 @@ public:
     Location loc;
     ExprStmt(Expr* value, const Location& loc): value(value), loc(loc) {}
     ~ExprStmt() override;
+    String ClassName() const override {
+        return "ExprStmt";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::ExprStmt;
@@ -372,6 +412,9 @@ public:
     BinOp(Expr* left, OperatorKind op, Expr* right, const Location& loc):
           left(left), op(op), right(right), loc(loc) {}
     ~BinOp() override;
+    String ClassName() const override {
+        return "BinOp";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::BinOp;
@@ -389,6 +432,9 @@ public:
     UnaryOp(UnaryopKind op, Expr* operand, const Location& loc): op(op),
             operand(operand), loc(loc) {}
     ~UnaryOp() override;
+    String ClassName() const override {
+        return "UnaryOp";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::UnaryOp;
@@ -406,6 +452,9 @@ public:
     Call(const std::string& func, const std::vector<Expr*>& args, const
          Location& loc): func(func), args(args), loc(loc) {}
     ~Call() override;
+    String ClassName() const override {
+        return "Call";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Call;
@@ -421,6 +470,9 @@ public:
     Location loc;
     Num(int n, const Location& loc): n(n), loc(loc) {}
     ~Num() override;
+    String ClassName() const override {
+        return "Num";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Num;
@@ -436,6 +488,9 @@ public:
     Location loc;
     Str(const std::string& s, const Location& loc): s(s), loc(loc) {}
     ~Str() override;
+    String ClassName() const override {
+        return "Str";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Str;
@@ -451,6 +506,9 @@ public:
     Location loc;
     Char(int c, const Location& loc): c(c), loc(loc) {}
     ~Char() override;
+    String ClassName() const override {
+        return "Char";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Char;
@@ -469,6 +527,9 @@ public:
     Subscript(const std::string& name, Expr* index, ExprContextKind ctx, const
               Location& loc): name(name), index(index), ctx(ctx), loc(loc) {}
     ~Subscript() override;
+    String ClassName() const override {
+        return "Subscript";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Subscript;
@@ -486,6 +547,9 @@ public:
     Name(const std::string& id, ExprContextKind ctx, const Location& loc):
          id(id), ctx(ctx), loc(loc) {}
     ~Name() override;
+    String ClassName() const override {
+        return "Name";
+    }
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Name;
@@ -503,6 +567,9 @@ public:
     VarType(BasicTypeKind type, int is_array, int size): type(type),
             is_array(is_array), size(size) {}
     ~VarType() override;
+    String ClassName() const override {
+        return "VarType";
+    }
     void Format(std::ostream &os) const override;
 };
 
@@ -537,7 +604,7 @@ inline BasicTypeKind String2BasicTypeKind(const String &s) {
 
 template<typename T, typename U>
 inline bool IsInstance(U *x) {
-    return typename T::InstanceCheck(x);
+    return T::InstanceCheck(x);
 }
 
 template<typename T, typename U>

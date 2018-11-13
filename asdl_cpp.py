@@ -187,6 +187,11 @@ class AstNodeEmittor(Emittor):
                     e.emit("if ({0}) delete {0};".format(name), 1)
         e.emit("}")
 
+    def emit_class_name(self, e):
+        e.emit("String ClassName() const override {", 1);
+        e.emit("return \"{}\";".format(self.name), 2);
+        e.emit("}", 1)
+
     def emit_destructor_decl(self, e):
         e.emit("~{}() override;".format(self.name), 1)
 
@@ -240,6 +245,7 @@ class ProductStructEmittor(AstNodeEmittor):
         self.emit_members(e)
         self.emit_constructor(e)
         self.emit_destructor_decl(e)
+        self.emit_class_name(e)
         self.emit_formatter_decl(e)
         e.emit("};")
 
@@ -267,6 +273,7 @@ class ConcreteNodeEmittor(AstNodeEmittor):
         self.emit_members(e)
         self.emit_constructor(e)
         self.emit_destructor_decl(e)
+        self.emit_class_name(e)
         self.emit_formatter_decl(e)
         if self.base != TheAST:
             self.emit_subclass_kind(e)
@@ -461,6 +468,7 @@ class AST {
 public:
     virtual void Format(std::ostream &os) const = 0;
     virtual ~AST() = 0;
+    virtual String ClassName() const = 0;
 };
 
 inline AST::~AST() {}
@@ -492,7 +500,7 @@ inline std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
 Header_Trailer = """
 template<typename T, typename U>
 inline bool IsInstance(U *x) {
-    return typename T::InstanceCheck(x);
+    return T::InstanceCheck(x);
 }
 
 template<typename T, typename U>

@@ -46,7 +46,7 @@ public:
       Expr *val;
 
       if (konstant->type == Symbol::CHAR) {
-        val = new Char(std::stoi(node->value), node->location);
+        val = new Char(static_cast<int>(konstant->value[1]), node->location);
       }
       else {
         assert(konstant->type == Symbol::integer);
@@ -408,7 +408,7 @@ public:
             return new Num(std::stoi(first->value), first->location);
         }
         if (first->type == Symbol::CHAR) {
-            return new Char(std::stoi(first->value), first->location);
+            return new Char(static_cast<int>(first->value[1]), first->location);
         }
         else {
             assert(first->value == "(");

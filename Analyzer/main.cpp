@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "cst.h"
+#include "validate.h"
 
 int main(int argc, char **argv) {
   TokenBuffer tokens;
@@ -20,8 +21,10 @@ int main(int argc, char **argv) {
   Node *root = ParseTokens(tokens);
   if (!root)
     return 1;
-  AST *node = NodeToAst(root);
+  Program *node = NodeToAst(root);
   if (!node)
+    return 1;
+  if (!ValidateSyntax(node))
     return 1;
 
   std::cout << *node << "\n";

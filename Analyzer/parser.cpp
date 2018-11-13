@@ -5,27 +5,6 @@
 #include <cstdio>
 #include <stack>
 
-template <typename... Arg>
-void error(Arg&&... args);
-
-template <typename First, typename... Rest>
-void error(First&& first, Rest&&... rest) {
-  std::cerr << first << " ";
-  error(rest...);
-}
-
-template<>
-void error() {
-  std::cerr << "\n";
-}
-
-template <typename... Arg>
-void Error(const Location &loc, Arg&&... args) {
-  fprintf(stderr, "Error in line %d column %d: ", loc.lineno, loc.col_offset);
-  error(args...);
-}
-
-
 Node::~Node() {
   for (auto child: children)
     delete child;
