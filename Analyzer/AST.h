@@ -150,6 +150,7 @@ public:
     enum {ConstDecl, VarDecl, FuncDef};
     virtual int SubclassKind() const = 0;
 };
+Location getLocation(Decl *v);
 
 class ConstDecl: public Decl {
 public:
@@ -236,6 +237,7 @@ public:
     enum {Read, Write, Assign, For, While, Return, If, ExprStmt};
     virtual int SubclassKind() const = 0;
 };
+Location getLocation(Stmt *v);
 
 class Read: public Stmt {
 public:
@@ -402,6 +404,7 @@ public:
     enum {BinOp, UnaryOp, Call, Num, Str, Char, Subscript, Name};
     virtual int SubclassKind() const = 0;
 };
+Location getLocation(Expr *v);
 
 class BinOp: public Expr {
 public:

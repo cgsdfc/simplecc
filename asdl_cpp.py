@@ -321,9 +321,21 @@ class AbstractNodeEmittor(EnumEmittor):
         e.emit("enum " + self.formatted_members, 1)
         e.emit(self.subclass_kind_header, 1)
         e.emit("};")
+        e.emit("Location getLocation({} *v);".format(self.name))
 
     def emit_forward(self, e):
         e.emit("class {};".format(self.name))
+
+    def emit_implementaion(self, e):
+        self.emit_get_location(e)
+
+    def emit_get_location(self, e):
+        e.emit("Location getLocation({} *v) {{".format(self.name))
+        for mb in self.members:
+            e.emit("if (auto x = subclass_cast<{}>(v))".format(mb), 1)
+            e.emit("return x->loc;", 2)
+        e.emit("assert(false && \"{}\");".format(self.name), 1)
+        e.emit("}")
 
 
 class SimpleEnumEmittor(EnumEmittor):

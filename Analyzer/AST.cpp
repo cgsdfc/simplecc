@@ -10,6 +10,16 @@ void Program::Format(std::ostream &os) const {
     os << ")";
 }
 
+Location getLocation(Decl *v) {
+    if (auto x = subclass_cast<ConstDecl>(v))
+        return x->loc;
+    if (auto x = subclass_cast<VarDecl>(v))
+        return x->loc;
+    if (auto x = subclass_cast<FuncDef>(v))
+        return x->loc;
+    assert(false && "Decl");
+}
+
 ConstDecl::~ConstDecl() {
     delete value;
 }
@@ -85,6 +95,26 @@ void Arg::Format(std::ostream &os) const {
     os << "loc=";
     os << loc;
     os << ")";
+}
+
+Location getLocation(Stmt *v) {
+    if (auto x = subclass_cast<Read>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Write>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Assign>(v))
+        return x->loc;
+    if (auto x = subclass_cast<For>(v))
+        return x->loc;
+    if (auto x = subclass_cast<While>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Return>(v))
+        return x->loc;
+    if (auto x = subclass_cast<If>(v))
+        return x->loc;
+    if (auto x = subclass_cast<ExprStmt>(v))
+        return x->loc;
+    assert(false && "Stmt");
 }
 
 Read::~Read() {
@@ -219,6 +249,26 @@ void ExprStmt::Format(std::ostream &os) const {
     os << "loc=";
     os << loc;
     os << ")";
+}
+
+Location getLocation(Expr *v) {
+    if (auto x = subclass_cast<BinOp>(v))
+        return x->loc;
+    if (auto x = subclass_cast<UnaryOp>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Call>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Num>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Str>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Char>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Subscript>(v))
+        return x->loc;
+    if (auto x = subclass_cast<Name>(v))
+        return x->loc;
+    assert(false && "Expr");
 }
 
 BinOp::~BinOp() {

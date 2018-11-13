@@ -1,19 +1,7 @@
 #include "validate.h"
 #include "parser.h"
 
-Location getLocation(Decl *decl) {
-  if (auto x = subclass_cast<ConstDecl>(decl)) {
-    return x->loc;
-  }
-  else if (auto x = subclass_cast<VarDecl>(decl)) {
-    return x->loc;
-  }
-  else {
-    return subclass_cast<FuncDef>(decl)->loc;
-  }
-}
-
-String getName(Decl *decl) {
+String getDeclName(Decl *decl) {
   if (auto x = subclass_cast<ConstDecl>(decl)) {
     return x->name;
   }
@@ -21,7 +9,9 @@ String getName(Decl *decl) {
     return x->name;
   }
   else {
-    return subclass_cast<FuncDef>(decl)->name;
+    auto y = subclass_cast<FuncDef>(decl);
+    assert(y);
+    return y->name;
   }
 }
 
@@ -48,7 +38,7 @@ public:
     if (decl_iter != end) {
       auto decl = *decl_iter;
       auto loc = getLocation(decl);
-      Error(loc, "unexpected", decl->ClassName(), Quote(getName(decl)));
+      Error(loc, "unexpected", decl->ClassName(), Quote(getDeclName(decl)));
       return false;
     }
 
