@@ -106,6 +106,7 @@ class AstNode(CppType):
 
     as_argument = as_member
 
+TheAST = AstNode('AST')
 
 class Sequence(CppType):
     """A list of item dealing with * in asdl"""
@@ -231,11 +232,11 @@ class AstNodeEmittor(Emittor):
 
 class ProductStructEmittor(AstNodeEmittor):
     """A ``struct`` representing ``asdl.Product``"""
-    base = 'AST'
+    base = TheAST
     class_or_struct = 'struct'
 
     def emit_definition(self, e):
-        e.emit("{} {}: public {} {{".format(self.class_or_struct, self.name, self.base))
+        e.emit("{} {}: public {} {{".format(self.class_or_struct, self.name, self.base.name))
         self.emit_members(e)
         self.emit_constructor(e)
         self.emit_destructor_decl(e)
@@ -251,23 +252,30 @@ class ConcreteNodeEmittor(AstNodeEmittor):
 
     def __init__(self, name, members, base):
         super().__init__(name, members)
+        assert isinstance(base, AstNode)
         self.base = base
+
+    def emit_instancecheck(self, e):
+        e.emit("static bool InstanceCheck({} x) {{".format(self.base.as_argument),1)
+        e.emit("return x->SubclassKind() == {}::{};".format(self.base.name, self.name), 2)
+        e.emit("}", 1)
 
     def emit_definition(self, e):
         """Emit the class definition for this ConcreteNode"""
-        e.emit("class {}: public {} {{".format(self.name, self.base))
+        e.emit("class {}: public {} {{".format(self.name, self.base.name))
         e.emit("public:")
         self.emit_members(e)
         self.emit_constructor(e)
         self.emit_destructor_decl(e)
         self.emit_formatter_decl(e)
-        if self.base != 'AST':
+        if self.base != TheAST:
             self.emit_subclass_kind(e)
+            self.emit_instancecheck(e)
         e.emit("};")
 
     def emit_subclass_kind(self, e):
         e.emit(self.subclass_kind_header, 1)
-        e.emit("return {enum}::{val};".format(enum=self.base, val=self.name), 2)
+        e.emit("return {enum}::{val};".format(enum=self.base.name, val=self.name), 2)
         e.emit("}", 1)
 
 
@@ -296,12 +304,12 @@ class AbstractNodeEmittor(EnumEmittor):
     };
     """
 
-    base_class = 'AST'
+    base = TheAST
     subclass_kind_header = "virtual int SubclassKind() const = 0;"
     class_header = "class {}: public {} {{"
 
     def emit_definition(self, e):
-        e.emit(self.class_header.format(self.name, self.base_class))
+        e.emit(self.class_header.format(self.name, self.base.name))
         e.emit("public:")
         e.emit("enum " + self.formatted_members, 1)
         e.emit(self.subclass_kind_header, 1)
@@ -429,7 +437,7 @@ class EmittorVisitor(asdl.VisitorBase):
 
     def visitConstructor(self, cons, name, n_branches, attributes):
         if cons.fields:
-            base = self.typemap[name].name if n_branches > 1 else 'AST'
+            base = self.typemap[name] if n_branches > 1 else TheAST
             name = self.typemap[cons.name].name
             members = self.make_class_members(cons.fields, attributes)
             yield ConcreteNodeEmittor(name, members, base)
@@ -481,7 +489,18 @@ inline std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
 
 """
 
-Tailer = """
+Header_Trailer = """
+template<typename T, typename U>
+inline bool IsInstance(U *x) {
+    return typename T::InstanceCheck(x);
+}
+
+template<typename T, typename U>
+inline T *subclass_cast(U *x) {
+    if (IsInstance<T>(x)) return static_cast<T*>(x);
+    return nullptr;
+}
+
 #endif"""
 
 
@@ -528,7 +547,6 @@ class String2enumEmittor(Emittor):
         for op, val in table.items():
             e.emit("if (s == \"{op}\") return {enum}::{val};".format(
                 op=op, enum=enum, val=val), 1)
-            e.emit("")
         # fail with an assert
         e.emit("assert(false && \"not a member of {}\");".format(enum), 1)
         e.emit("}")
@@ -550,7 +568,7 @@ Impl_Header = """#include "AST.h"
 def generate_code(config):
     """Emit cpp code from ``mod`` to ``output``"""
 
-    mod = asdl.parse(config['asdl'])
+    mod = asdl.parse(config['AST']['asdl'])
     if not asdl.check(mod):
         return 1
 
@@ -559,7 +577,7 @@ def generate_code(config):
     # collect all Emittors
     cpp_types = list(EmittorVisitor(v.typemap).visit(mod))
 
-    with open(config['AST.h'], 'w') as f:
+    with open(config['AST']['AST.h'], 'w') as f:
         f.write(Header)
         e = util.Emittor(f)
         for c in cpp_types:
@@ -572,9 +590,9 @@ def generate_code(config):
             if hasattr(c, 'emit_definition'):
                 c.emit_definition(e)
                 e.emit("")
-        f.write(Tailer)
+        f.write(Header_Trailer)
 
-    with open(config['AST.cpp'], 'w') as f:
+    with open(config['AST']['AST.cpp'], 'w') as f:
         f.write(Impl_Header)
         e = util.Emittor(f)
         for c in cpp_types:

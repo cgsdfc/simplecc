@@ -160,6 +160,9 @@ public:
     int SubclassKind() const override {
         return Decl::ConstDecl;
     }
+    static bool InstanceCheck(Decl* x) {
+        return x->SubclassKind() == Decl::ConstDecl;
+    }
 };
 
 class VarDecl: public Decl {
@@ -173,6 +176,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Decl::VarDecl;
+    }
+    static bool InstanceCheck(Decl* x) {
+        return x->SubclassKind() == Decl::VarDecl;
     }
 };
 
@@ -193,6 +199,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Decl::FuncDef;
+    }
+    static bool InstanceCheck(Decl* x) {
+        return x->SubclassKind() == Decl::FuncDef;
     }
 };
 
@@ -223,6 +232,9 @@ public:
     int SubclassKind() const override {
         return Stmt::Read;
     }
+    static bool InstanceCheck(Stmt* x) {
+        return x->SubclassKind() == Stmt::Read;
+    }
 };
 
 class Write: public Stmt {
@@ -237,6 +249,9 @@ public:
     int SubclassKind() const override {
         return Stmt::Write;
     }
+    static bool InstanceCheck(Stmt* x) {
+        return x->SubclassKind() == Stmt::Write;
+    }
 };
 
 class Assign: public Stmt {
@@ -250,6 +265,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Assign;
+    }
+    static bool InstanceCheck(Stmt* x) {
+        return x->SubclassKind() == Stmt::Assign;
     }
 };
 
@@ -268,6 +286,9 @@ public:
     int SubclassKind() const override {
         return Stmt::For;
     }
+    static bool InstanceCheck(Stmt* x) {
+        return x->SubclassKind() == Stmt::For;
+    }
 };
 
 class While: public Stmt {
@@ -282,6 +303,9 @@ public:
     int SubclassKind() const override {
         return Stmt::While;
     }
+    static bool InstanceCheck(Stmt* x) {
+        return x->SubclassKind() == Stmt::While;
+    }
 };
 
 class Return: public Stmt {
@@ -293,6 +317,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::Return;
+    }
+    static bool InstanceCheck(Stmt* x) {
+        return x->SubclassKind() == Stmt::Return;
     }
 };
 
@@ -310,6 +337,9 @@ public:
     int SubclassKind() const override {
         return Stmt::If;
     }
+    static bool InstanceCheck(Stmt* x) {
+        return x->SubclassKind() == Stmt::If;
+    }
 };
 
 class ExprStmt: public Stmt {
@@ -321,6 +351,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Stmt::ExprStmt;
+    }
+    static bool InstanceCheck(Stmt* x) {
+        return x->SubclassKind() == Stmt::ExprStmt;
     }
 };
 
@@ -343,6 +376,9 @@ public:
     int SubclassKind() const override {
         return Expr::BinOp;
     }
+    static bool InstanceCheck(Expr* x) {
+        return x->SubclassKind() == Expr::BinOp;
+    }
 };
 
 class UnaryOp: public Expr {
@@ -356,6 +392,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::UnaryOp;
+    }
+    static bool InstanceCheck(Expr* x) {
+        return x->SubclassKind() == Expr::UnaryOp;
     }
 };
 
@@ -371,6 +410,9 @@ public:
     int SubclassKind() const override {
         return Expr::Call;
     }
+    static bool InstanceCheck(Expr* x) {
+        return x->SubclassKind() == Expr::Call;
+    }
 };
 
 class Num: public Expr {
@@ -382,6 +424,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Num;
+    }
+    static bool InstanceCheck(Expr* x) {
+        return x->SubclassKind() == Expr::Num;
     }
 };
 
@@ -395,6 +440,9 @@ public:
     int SubclassKind() const override {
         return Expr::Str;
     }
+    static bool InstanceCheck(Expr* x) {
+        return x->SubclassKind() == Expr::Str;
+    }
 };
 
 class Char: public Expr {
@@ -406,6 +454,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Char;
+    }
+    static bool InstanceCheck(Expr* x) {
+        return x->SubclassKind() == Expr::Char;
     }
 };
 
@@ -422,6 +473,9 @@ public:
     int SubclassKind() const override {
         return Expr::Subscript;
     }
+    static bool InstanceCheck(Expr* x) {
+        return x->SubclassKind() == Expr::Subscript;
+    }
 };
 
 class Name: public Expr {
@@ -435,6 +489,9 @@ public:
     void Format(std::ostream &os) const override;
     int SubclassKind() const override {
         return Expr::Name;
+    }
+    static bool InstanceCheck(Expr* x) {
+        return x->SubclassKind() == Expr::Name;
     }
 };
 
@@ -451,46 +508,42 @@ public:
 
 inline OperatorKind String2OperatorKind(const String &s) {
     if (s == "+") return OperatorKind::Add;
-
     if (s == "-") return OperatorKind::Sub;
-
     if (s == "*") return OperatorKind::Mult;
-
     if (s == "/") return OperatorKind::Div;
-
     if (s == "==") return OperatorKind::Eq;
-
     if (s == "!=") return OperatorKind::NotEq;
-
     if (s == "<") return OperatorKind::Lt;
-
     if (s == "<=") return OperatorKind::LtE;
-
     if (s == ">") return OperatorKind::Gt;
-
     if (s == ">=") return OperatorKind::GtE;
-
     assert(false && "not a member of OperatorKind");
 }
 
 inline UnaryopKind String2UnaryopKind(const String &s) {
     if (s == "+") return UnaryopKind::UAdd;
-
     if (s == "-") return UnaryopKind::USub;
-
     assert(false && "not a member of UnaryopKind");
 }
 
 inline BasicTypeKind String2BasicTypeKind(const String &s) {
     if (s == "int") return BasicTypeKind::Int;
-
     if (s == "char") return BasicTypeKind::Character;
-
     if (s == "void") return BasicTypeKind::Void;
-
     assert(false && "not a member of BasicTypeKind");
 }
 
 
+
+template<typename T, typename U>
+inline bool IsInstance(U *x) {
+    return typename T::InstanceCheck(x);
+}
+
+template<typename T, typename U>
+inline T *subclass_cast(U *x) {
+    if (IsInstance<T>(x)) return static_cast<T*>(x);
+    return nullptr;
+}
 
 #endif
