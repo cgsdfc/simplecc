@@ -54,6 +54,7 @@ class AstNode(CppType):
     """AstNode represents subclasses of AST"""
 
     delete_ = Template("""delete $name;""")
+    forward_decl = 1
 
     def __init__(self, name):
         self.name = camal_case(name)
@@ -99,14 +100,22 @@ class Primitive(CppType):
 # These are simple data container about cpp types
 class AbstractNode(AstNode):
 
-    methods = ('constructor', 'destructor')
-    # extra_members = [(Primitive('int'), 'subclass_tag')]
-    class_or_struct = 'class'
+    extra_members = [ (Primitive('int', True), 'subclass_tag'), ]
 
-    def __init__(self, name, members=None, subclasses=None):
+    def __init__(self, name):
         super().__init__(name)
-        self.subclasses = subclasses
-        self.members = members
+
+    @property
+    def members(self):
+        return self.extra_members + self._members
+
+    @property
+    def members_notag(self):
+        return self._members
+
+    @members.setter
+    def members(self, val):
+        self._members = val
 
     # def __repr__(self):
     #     return "AbstractNode(name={}, members={}, subclasses={})".format(
@@ -119,8 +128,8 @@ class AbstractNode(AstNode):
 
 class ConcreteNode(AstNode):
 
-    methods = ('constructor', 'destructor', 'formatter')
-    class_or_struct = 'class'
+    # use when base is None
+    the_ast = AstNode("AST")
 
     def __init__(self, name, base=None, members=None):
         super().__init__(name)
@@ -135,21 +144,11 @@ class ConcreteNode(AstNode):
     #     )
 
 
-class ProductStruct(AstNode):
-
-    methods = ('constructor', 'destructor', 'formatter')
-    class_or_struct = 'struct'
+class LeafNode(AstNode):
 
     def __init__(self, name, members=None):
         super().__init__(name)
         self.members = members
-
-    # def __repr__(self):
-    #     return "ProductStruct(name={}, members={})".format(
-    #         self.name,
-    #         self.members,
-    #     )
-
 
 class EnumClass(CppType):
 
@@ -248,22 +247,29 @@ class TypeVisitor(asdl.VisitorBase):
         self.visit(type.value, type.name)
 
     def visitSum(self, sum, name):
+        # EnumClass
         if is_simple(sum):
             self.typemap[name] = EnumClass(name)
             return
 
+        # LeafNode
         if len(sum.types) == 1:
-            self.typemap[name] = ConcreteNode(name)
-        else:
-            self.typemap[name] = AbstractNode(name)
+            cons = sum.types[0]
+            self.typemap[cons.name] = self.typemap[name] = LeafNode(name)
+            return
 
+        # AbstractNode
+        self.typemap[name] = AbstractNode(name)
+
+        # ConcreteNode
         for cons in sum.types:
             assert cons.fields, "Mixture of simple and complex sum not allowed"
             self.typemap[cons.name] = ConcreteNode(cons.name)
 
 
     def visitProduct(self, prod, name):
-        self.typemap[name] = ProductStruct(name)
+        # LeafNode
+        self.typemap[name] = LeafNode(name)
 
 
 class String2Enum:
@@ -316,26 +322,30 @@ class TypeVisitor2(asdl.VisitorBase):
         self.visit(type.value, type.name)
 
     def visitSum(self, sum, name):
+        # EnumClass
         if is_simple(sum):
             type = self.typemap[name]
             assert isinstance(type, EnumClass)
             type.values = [cons.name for cons in sum.types]
-            try:
-                type.strings = getattr(String2Enum, name)
-            except AttributeError:
-                pass
+            type.strings = getattr(String2Enum, name, None)
             return
 
-        if len(sum.types) == 1:
-            # solo ConcreteNode, only used for resolution, not goes into cpp
-            self.to_remove.append(name)
+        # LeafNode
+        if len(sum.types) == 1: # direct subclass of AST -- LeafNode
+            self.to_remove.append(name) # its sum name won't be generated
+            cons = sum.types[0]
+            type = self.typemap[cons.name]
+            assert isinstance(type, LeafNode)
+            type.members = [(self.field_type(f), f.name) for f in chain(cons.fields, sum.attributes)]
             return
 
+        # AbstractNode
         type = self.typemap[name]
         assert isinstance(type, AbstractNode)
         type.subclasses = [self.typemap[cons.name] for cons in sum.types]
         type.members = [(self.field_type(f), f.name) for f in sum.attributes]
 
+        # ConcreteNode
         for cons in sum.types:
             self.visit(cons, type)
 
@@ -355,7 +365,7 @@ class TypeVisitor2(asdl.VisitorBase):
 
     def visitProduct(self, prod, name):
         type = self.typemap[name]
-        assert isinstance(type, ProductStruct)
+        assert isinstance(type, LeafNode)
         type.members = [(self.field_type(f), f.name)
                 for f in chain(prod.fields, prod.attributes)]
 
@@ -401,15 +411,22 @@ inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
     return os << &ast;
 }
 
-
+// ForwardDecl
 $forward_declarations
 
+// EnumClass
 $enum_classes
 
+// AbstractNode
 $abstract_classes
 
+// ConcreteNode
 $concrete_classes
 
+// LeafNode
+$leafnode_classes
+
+// String2Enum
 $string2enum_decls
 
 template<typename T, typename U>
@@ -426,20 +443,14 @@ inline T *subclass_cast(U *x) {
 #endif
 """)
 
-    forward_decl = Template("""{class_or_struct} {class_name};""")
+    forward_decl = Template("""class $class_name;""")
 
     @classmethod
     def make_forward_decls(cls, typemap):
         """Return an iterable of forward_decl strings"""
         for x in typemap.values():
-            try:
-                # class_or_struct needs forward_decl
-                yield cls.forward_decl.substitute(
-                    class_or_struct=x.class_or_struct,
-                    class_name=x.name
-                )
-            except AttributeError:
-                pass
+            if isinstance(x, AstNode):
+                yield cls.forward_decl.substitute(class_name=x.name)
 
 
     @classmethod
@@ -449,6 +460,7 @@ inline T *subclass_cast(U *x) {
             enum_classes="\n".join(substitute_all(typemap, EnumClass)),
             abstract_classes="\n".join(substitute_all(typemap, AbstractNode)),
             concrete_classes="\n".join(substitute_all(typemap, ConcreteNode)),
+            leafnode_classes="\n".join(substitute_all(typemap, LeafNode)),
             string2enum_decls="\n".join(String2EnumTempalte.substitute_decls(typemap)),
         )
 
@@ -528,6 +540,7 @@ public:
     def make_enumitems(cls, subclasses):
         return ", ".join(c.name for c in subclasses)
 
+
 class ClassTemplate:
     formatter_impl = Template("""
 void $class_name::Format(std::ostream &os) const {
@@ -569,48 +582,10 @@ $class_name::~$class_name() {
         yield cls.make_destructor(x)
 
 
-class ConcreteNodeTemplate(ClassTemplate):
+class LeafNodeTemplate(ClassTemplate):
     decl = Template("""
-class $class_name: public $base {
+class $class_name: public AST {
 public:
-    $member_declaration
-
-    $class_name($constructor_args): $base($base_init), $member_init {}
-
-    ~$class_name() override;
-
-    String ClassName() const override {
-        return "$class_name";
-    }
-
-    void Format(std::ostream &os) const override;
-
-    static bool InstanceCheck($base *x) {
-        return x->subclass_tag == $base::$class_name;
-    }
-};
-""")
-
-    @classmethod
-    def substitute_impls(cls, x):
-        assert isinstance(x, ConcreteNode)
-
-    @classmethod
-    def substitute(cls, x):
-        assert isinstance(x, ConcreteNode)
-        return cls.decl.substitute(
-            class_name=x.name,
-            base=x.base.name,
-            member_declaration=make_member_decls(x.members),
-            constructor_args=make_formal_args(x.members),
-            base_init=make_actual_args(x.base.members),
-            member_init=make_init(x.members),
-        )
-
-
-class ProductStructTempalte(ClassTemplate):
-    decl = Template("""
-struct $class_name: public AST {
     $member_declaration
 
     $class_name($constructor_args): AST(), $member_init {}
@@ -627,7 +602,70 @@ struct $class_name: public AST {
 
     @classmethod
     def substitute(cls, x):
-        assert isinstance(x, ProductStruct)
+        return cls.decl.substitute(
+            class_name=x.name,
+            member_declaration=make_member_decls(x.members),
+            constructor_args=make_formal_args(x.members),
+        )
+
+
+class ConcreteNodeTemplate(ClassTemplate):
+    decl = Template("""
+class $class_name: public $base {
+public:
+    $member_declaration
+
+    $class_name($constructor_args):
+        $base($base::$class_name, $base_init), $member_init {}
+
+    ~$class_name() override;
+
+    String ClassName() const override {
+        return "$class_name";
+    }
+
+    void Format(std::ostream &os) const override;
+
+    static bool InstanceCheck($base *x) {
+        return x->subclass_tag == $base::$class_name;
+    }
+};
+""")
+
+    @classmethod
+    def substitute(cls, x):
+        assert isinstance(x, ConcreteNode)
+        return cls.decl.substitute(
+            class_name=x.name,
+            base=x.base.name,
+            member_declaration=make_member_decls(x.members),
+            constructor_args=make_formal_args(x.members + x.base.members_notag),
+            base_init=make_actual_args(x.base.members_notag),
+            member_init=make_init(x.members),
+        )
+
+
+class LeafNodeTemplate(ClassTemplate):
+    decl = Template("""
+class $class_name: public AST {
+public:
+    $member_declaration
+
+    $class_name($constructor_args): AST(), $member_init {}
+
+    ~$class_name() override;
+
+    String ClassName() const override {
+        return "$class_name";
+    }
+
+    void Format(std::ostream &os) const override;
+};
+""")
+
+    @classmethod
+    def substitute(cls, x):
+        assert isinstance(x, LeafNode)
         return cls.decl.substitute(
             class_name=x.name,
             member_declaration=make_member_decls(x.members),
@@ -764,7 +802,7 @@ def make_init(members):
 
     value(value), type(type)
     """
-    return ", ".join("{0}({0})".format(name for _, name in members))
+    return ", ".join("{0}({0})".format(name) for _, name in members)
 
 def make_actual_args(members):
     """Comma-separated name list used in actual arguments
@@ -817,7 +855,7 @@ def main():
     with open(config['AST']['AST.h'], 'w') as f:
         f.write(HeaderTemplate.substitute(typemap))
 
-    with open(config['AST']['AST.h'], 'w') as f:
+    with open(config['AST']['AST.cpp'], 'w') as f:
         f.write(CppTemplate.substitute(typemap))
 
     return 0
