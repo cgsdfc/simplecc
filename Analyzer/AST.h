@@ -580,4 +580,80 @@ template <typename T, typename U> inline T *subclass_cast(U *x) {
   return nullptr;
 }
 
+// CRTP-based visitor base implementing dispatch on node type.
+template <typename Derived> class VisitorBase {
+public:
+  template <typename R, typename... Args> R visit(Decl *node, Args &&... args) {
+
+    if (auto x = subclass_cast<ConstDecl>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<VarDecl>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<FuncDef>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    assert(false && "Decl");
+  }
+
+  template <typename R, typename... Args> R visit(Stmt *node, Args &&... args) {
+
+    if (auto x = subclass_cast<Read>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Write>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Assign>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<For>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<While>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Return>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<If>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<ExprStmt>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    assert(false && "Stmt");
+  }
+
+  template <typename R, typename... Args> R visit(Expr *node, Args &&... args) {
+
+    if (auto x = subclass_cast<BinOp>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<UnaryOp>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Call>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Num>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Str>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Char>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Subscript>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    if (auto x = subclass_cast<Name>(node))
+      return static_cast<Derived *>(this)->visit(node, args...);
+
+    assert(false && "Expr");
+  }
+};
+
 #endif

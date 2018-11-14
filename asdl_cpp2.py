@@ -108,6 +108,8 @@ class AbstractNode(AstNode):
 
     def __init__(self, name):
         super().__init__(name)
+        self.subclasses = None
+        self.members = None
 
     @property
     def members(self):
@@ -425,6 +427,7 @@ inline T *subclass_cast(U *x) {
     return nullptr;
 }
 
+$visitor_base
 #endif
 """)
 
@@ -447,6 +450,7 @@ inline T *subclass_cast(U *x) {
             concrete_classes="\n".join(substitute_all(typemap, ConcreteNode)),
             leafnode_classes="\n".join(substitute_all(typemap, LeafNode)),
             string2enum_decls="\n".join(String2EnumTempalte.substitute_decls(typemap)),
+            visitor_base=VisitorBaseTemplate.substitute(typemap),
         )
 
 def substitute_all(typemap, match, method="substitute"):
@@ -485,11 +489,8 @@ std::ostream &operator<<(std::ostream &os, const std::optional<T> &v) {
         return os << "None";
 }
 
-// Format()
 $formatter_impls
-// ~Destructor()
 $destructor_impls
-// String2Enum()
 $string2enum_impls
 """)
 
@@ -730,21 +731,12 @@ if (s == "$string")
 
 class VisitorBaseTemplate:
     decl = Template("""
+// CRTP-based visitor base implementing dispatch on node type.
 template <typename Derived>
 class VisitorBase {
 public:
 $abstract_visitor
-
-$concrete_visitor
-
 };
-""")
-
-    concrete = Template("""
-template<typename R, typename... Args>
-R visit($class_name *node, Args&&... args) {
-    return static_cast<Derived*>(this)->visit(node, args...);
-}
 """)
 
     abstract = Template("""
@@ -757,12 +749,25 @@ R visit($class_name *node, Args&&... args) {
 
     dispatch = Template("""
 if (auto x = subclass_cast<$class_name>(node))
-    return visit(x, args...);
+    return static_cast<Derived*>(this)->visit(node, args...);
 """)
 
     @classmethod
+    def make_abstract_visitor(cls, x):
+        assert isinstance(x, AbstractNode)
+        return cls.abstract.substitute(
+            class_name=x.name,
+            test_and_dispatches="\n".join(
+                cls.dispatch.substitute(class_name=sub.name) for sub in x.subclasses
+            )
+        )
+
+    @classmethod
     def substitute(cls, typemap):
-        pass
+        return cls.decl.substitute(
+            abstract_visitor="\n".join(cls.make_abstract_visitor(x)
+                for x in typemap.values() if isinstance(x, AbstractNode))
+        )
 
 
 # helpers
@@ -808,20 +813,28 @@ def make_enumitems(values):
     return ", ".join(values)
 
 
-def format_code(filename):
-    """Format the code in ``filename``, return as a bytes string"""
-    return subprocess.check_output(['clang-format', filename])
+def format_code(code_string, dest, external_formatter=None):
+    """Format C++ code in ``code_string`` using ``external_formatter`` and
+    write it to ``dest``.
+    external_formatter is the program to use, default to clang-format.
+    """
+    if external_formatter is None:
+        external_formatter = "clang-format"
+
+    fd, temp = tempfile.mkstemp()
+    with open(temp, 'w') as f:
+        f.write(code_string)
+
+    try:
+        formatted = subprocess.check_output([external_formatter, temp])
+        with open(dest, 'wb') as f:
+            f.write(formatted)
+    finally:
+        os.remove(temp)
 
 
 def generate_code(typemap, template_class, dest):
-    fd, name = tempfile.mkstemp()
-    try:
-        with open(name, 'w') as f:
-            f.write(template_class.substitute(typemap))
-        with open(dest, 'bw') as f:
-            f.write(format_code(name))
-    finally:
-        os.remove(name)
+    format_code(template_class.substitute(typemap), dest)
 
 
 def main():

@@ -22,8 +22,6 @@ std::ostream &operator<<(std::ostream &os, const std::optional<T> &v) {
     return os << "None";
 }
 
-// Format()
-
 void Program::Format(std::ostream &os) const {
   os << "Program("
      << "decls=" << decls << ")";
@@ -160,8 +158,6 @@ void VarType::Format(std::ostream &os) const {
      << "size=" << size << ")";
 }
 
-// ~Destructor()
-
 Program::~Program() {
   for (auto v : decls)
     delete v;
@@ -246,8 +242,6 @@ Subscript::~Subscript() { delete index; }
 Name::~Name() {}
 
 VarType::~VarType() {}
-
-// String2Enum()
 
 OperatorKind String2OperatorKind(const String &s) {
 
