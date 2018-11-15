@@ -4,13 +4,12 @@
 
 import sys
 import os
-import subprocess
-import tempfile
 from string import Template
 from pprint import pprint
 from itertools import chain
 
 import asdl
+from util import format_code
 
 def camal_case(name):
     """Convert snake_case to camal_case, respecting the original
@@ -811,26 +810,6 @@ def make_enumitems(values):
     APPLE, BANANA
     """
     return ", ".join(values)
-
-
-def format_code(code_string, dest, external_formatter=None):
-    """Format C++ code in ``code_string`` using ``external_formatter`` and
-    write it to ``dest``.
-    external_formatter is the program to use, default to clang-format.
-    """
-    if external_formatter is None:
-        external_formatter = "clang-format"
-
-    fd, temp = tempfile.mkstemp()
-    with open(temp, 'w') as f:
-        f.write(code_string)
-
-    try:
-        formatted = subprocess.check_output([external_formatter, temp])
-        with open(dest, 'wb') as f:
-            f.write(formatted)
-    finally:
-        os.remove(temp)
 
 
 def generate_code(typemap, template_class, dest):

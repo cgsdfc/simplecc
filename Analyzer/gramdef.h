@@ -13,11 +13,11 @@ struct DFAState {
 };
 
 struct DFA {
-  const char *symbol;
+  const char *name;
   int n_states;
   DFAState *states;
-  int *first;
   int n_first;
+  int *first;
 };
 
 struct Label {

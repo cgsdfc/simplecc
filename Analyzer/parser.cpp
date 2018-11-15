@@ -34,7 +34,7 @@ bool IsAcceptOnlyState(DFAState *state) {
 
 void DumpStackEntry(StackEntry e) {
   printf("state: %d\n", e.state);
-  printf("dfa: %s\n", e.dfa->symbol);
+  printf("dfa: %s\n", e.dfa->name);
   /* DumpDFA(e.dfa); */
 }
 

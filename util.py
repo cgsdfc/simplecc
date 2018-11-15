@@ -1,3 +1,7 @@
+import os
+import subprocess
+import tempfile
+
 TABSIZE = 4
 MAX_COL = 80
 
@@ -87,3 +91,23 @@ class ChainOfVisitors:
     def visit(self, object):
         for v in self.visitors:
             v.visit(object)
+
+
+def format_code(code_string, dest, external_formatter=None):
+    """Format C++ code in ``code_string`` using ``external_formatter`` and
+    write it to ``dest``.
+    external_formatter is the program to use, default to clang-format.
+    """
+    if external_formatter is None:
+        external_formatter = "clang-format"
+
+    fd, temp = tempfile.mkstemp()
+    with open(temp, 'w') as f:
+        f.write(code_string)
+
+    try:
+        formatted = subprocess.check_output([external_formatter, temp])
+        with open(dest, 'wb') as f:
+            f.write(formatted)
+    finally:
+        os.remove(temp)

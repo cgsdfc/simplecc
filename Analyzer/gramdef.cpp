@@ -2,7 +2,7 @@
 #include <cstdio>
 
 void DumpDFA(DFA *dfa) {
-  printf("DFA(%s)\n", dfa->symbol);
+  printf("DFA(%s)\n", dfa->name);
   for (int i = 0; i < dfa->n_states; i++) {
     auto &state = dfa->states[i];
     printf("State(%d, is_final=%d)\n", i, state.is_final);
