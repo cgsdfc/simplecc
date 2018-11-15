@@ -117,3 +117,30 @@ def format_code(code_string, dest, external_formatter=None):
 def error(msg, loc):
     print("Error in line {} column {}: {}".format(
         loc[0], loc[1], msg), file=sys.stderr)
+
+
+def double_qoute(s):
+    """Add double quotes to s
+
+    >>> double_qoute('program')
+    '"program"'
+    """
+
+    return '"' + s + '"'
+
+def get_args(fields, attrs):
+    """Return a list of names from fields and attrs"""
+    # field name is optional
+    from itertools import chain
+    args = []
+    unnamed = {}
+    for f in chain(fields, attrs):
+        if f.name is None:
+            name = f.type
+            c = unnamed[name] = unnamed.get(name, 0) + 1
+            if c > 1:
+                name = "name%d" % (c - 1)
+        else:
+            name = f.name
+        args.append(name)
+    return args

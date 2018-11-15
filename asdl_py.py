@@ -1,10 +1,14 @@
 #! /usr/bin/env python3
-
 """Ast generation"""
-import asdl
-import util
-from operator import attrgetter
 
+from operator import attrgetter
+from string import Template
+from itertools import chain
+
+import asdl
+from util import double_qoute
+
+TAB = "    "
 
 def is_simple(sum):
     """Return True if a sum is a simple.
@@ -15,121 +19,150 @@ def is_simple(sum):
     return not any(t.fields for t in sum.types)
 
 
-def get_args(fields, attrs):
-    """Return a list of names from fields and attrs"""
-    # field name is optional
-    from itertools import chain
-    args = []
-    unnamed = {}
-    for f in chain(fields, attrs):
-        if f.name is None:
-            name = f.type
-            c = unnamed[name] = unnamed.get(name, 0) + 1
-            if c > 1:
-                name = "name%d" % (c - 1)
-        else:
-            name = f.name
-        args.append(name)
-    return args
+class PythonType:
+    """Base class for Python Ast types"""
+
+    def __init__(self, name):
+        self.name = name
 
 
-class AstEmittor(util.Emittor, asdl.VisitorBase):
-    """Base class for Both an Emittor and a Visitor"""
+class Enum(PythonType):
+    template = Template("""
+$name = Enum("$name", "$members")
+""")
 
-    def __init__(self, file):
-        super().__init__(file)
+    def __init__(self, name, values):
+        super().__init__(name)
+        self.values = values
+
+    def __str__(self):
+        return self.template.substitute(
+            name=self.name,
+            members=" ".join(self.values),
+        )
+
+class ConcreteNode(PythonType):
+    template = Template("""
+class $name($base):
+    __slots__ = ($slots)
+
+    def __init__(self, $args):
+        $inits
+""")
+
+    init = Template("""self.$name = $name""")
+
+    def __init__(self, name, base, members):
+        super().__init__(name)
+        self.base = base
+        self.members = members
+
+    def __str__(self):
+        return self.template.substitute(
+            name=self.name,
+            base=self.base,
+            slots=''.join(map(lambda s: double_qoute(s) + ',', self.members)),
+            args=", ".join(self.members),
+            inits=("\n" + TAB * 2).join(
+                map(lambda n: self.init.substitute(name=n), self.members)
+            )
+        )
+
+class AbstractNode(PythonType):
+    template = Template("""
+class $name(AST):
+    pass
+""")
+
+    def __str__(self):
+        return self.template.substitute(name=self.name)
+
+class LeafNode(PythonType):
+    template = Template("""
+$name = namedtuple("$name", "$members")
+""")
+
+    def __init__(self, name, members):
+        super().__init__(name)
+        self.members = members
+
+    def __str__(self):
+        return self.template.substitute(
+            name=self.name,
+            members=" ".join(self.members),
+        )
+
+
+class TypeVisitor(asdl.VisitorBase):
+
+    def __init__(self):
+        super().__init__()
 
     def visitModule(self, mod):
         for dfn in mod.dfns:
-            self.visit(dfn)
-
-
-class EnumEmittor(AstEmittor):
-    """Emit enum for simple_sum"""
+            yield from self.visit(dfn)
 
     def visitType(self, type):
-        if not isinstance(type.value, asdl.Sum):
-            return
-        sum = type.value
-        if not is_simple(sum):
-            return
-        self.emit("{name} = Enum({name!r}, {args!r})".format(
-            name=type.name, args=" ".join(map(attrgetter('name'), sum.types))))
-        self.emit("")
+        yield from self.visit(type.value, type.name)
 
+    def visitSum(self, sum, name):
+        # Enum
+        if is_simple(sum):
+            yield Enum(name, [cons.name for cons in sum.types])
 
-class ClassEmittor(AstEmittor):
-    """Emit class for Constructor"""
+        # LeafNode
+        elif len(sum.types) == 1: # direct subclass of AST -- LeafNode
+            cons = sum.types[0]
+            members = [ f.name for f in chain(cons.fields, sum.attributes)]
+            yield ConcreteNode(cons.name, 'AST', members)
+        else:
+            # AbstractNode
+            yield AbstractNode(name)
 
-    def visitType(self, type):
-        if isinstance(type.value, asdl.Product):
-            self.visitProduct(type.value, type.name)
-        elif isinstance(type.value, asdl.Sum):
-            self.visitSum(type.value, type.name)
+            # ConcreteNode
+            for cons in sum.types:
+                yield ConcreteNode(cons.name, name,
+                        [f.name for f in chain(cons.fields, sum.attributes)])
 
 
     def visitProduct(self, prod, name):
-        self.emit("{name} = namedtuple({name!r}, {fields!r})".format(
-            name=name, fields=" ".join(get_args(prod.fields, prod.attributes))))
-        self.emit("")
-
-    def visitSum(self, sum, sum_name):
-        if is_simple(sum):
-            return
-
-        # emit the base class
-        if len(sum.types) > 1:
-            self.emit("class {name}(AST): pass".format(name=sum_name))
-            self.emit("")
-            baseclass = sum_name
-        else:
-            baseclass = 'AST'
-
-        for type in sum.types:
-            self.visitConstructor(type, sum.attributes, baseclass)
-            self.emit("")
-
-    def visitConstructor(self, cons, attrs, baseclass):
-        def make_slots(args):
-            if len(args) == 1:
-                return repr(args[0]) + ","
-            return ", ".join(map(repr, args))
-
-        args = get_args(cons.fields, attrs)
-        self.emit("class {name}({baseclass}):".format(name=cons.name, baseclass=baseclass))
-        self.emit("__slots__ = ({attrs})".format(attrs=make_slots(args)), 1)
-        self.emit("")
-        self.emit("def __init__(self, {args}):".format(
-            args=", ".join(args)), 1)
-        for arg in args:
-            self.emit("self.{attr} = {attr}".format(attr=arg), 2)
-        self.emit("")
-
-        self.emit("def __iter__(self):", 1)
-        for f in cons.fields:
-            self.emit("yield self.{}".format(f.name), 2)
-        self.emit("")
+        # LeafNode
+        yield LeafNode(name,
+                [f.name for f in chain(prod.fields, prod.attributes)])
 
 
-Header = """# Automatic Generative File
+class ImplTemplate:
+    impl = Template("""# Automatically Generated File
 from enum import Enum
 from collections import namedtuple
 
 class AST:
+    '''Base class of AST'''
+
     def __repr__(self):
-        return "{name}({data})".format(name=self.__class__.__name__,
-            data=", ".join("{}={}".format(name, getattr(self, name))
-                for name in self.__slots__))
+        return "{name}({data})".format(
+            name=self.__class__.__name__,
+            data=", ".join("{}={}".format(
+                name,
+                getattr(self, name)
+            ) for name in self.__slots__)
+        )
 
     @property
     def _fields(self):
         return self.__slots__
 
-"""
+    def __iter__(self):
+        for name in self.__slots__:
+            child = getattr(self, name)
+            if isinstance(child, list):
+                yield from child
+            else:
+                yield child
 
+$definitions
 
 # Hard coded mapping from string to their ASTs
-Trailer = """
 string2operator = {
     "+": operator.Add,
     "-": operator.Sub,
@@ -153,7 +186,12 @@ string2basic_type = {
     "char": basic_type.Character,
     "void": basic_type.Void,
 }
-"""
+""")
+
+    def substitute(self, types):
+        return self.impl.substitute(
+            definitions="\n".join(map(str, types))
+        )
 
 
 def main():
@@ -176,10 +214,8 @@ def main():
         return 1
 
     with open(config['AST']['AST.py'], 'w') as f:
-        f.write(Header)
-        c = util.ChainOfVisitors(EnumEmittor(f), ClassEmittor(f))
-        c.visit(mod)
-        f.write(Trailer)
+        types = TypeVisitor().visit(mod)
+        f.write(ImplTemplate().substitute(types))
     return 0
 
 

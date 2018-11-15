@@ -7,6 +7,7 @@ from itertools import chain
 
 from pgen2 import generate_grammar
 from util import format_code
+from util import double_qoute
 
 
 def join_ints(*ints):
@@ -16,16 +17,6 @@ def join_ints(*ints):
     '1_2_3'
     """
     return '_'.join(map(str, ints))
-
-
-def double_qoute(s):
-    """Add double quotes to s
-
-    >>> double_qoute('program')
-    '"program"'
-    """
-
-    return '"' + s + '"'
 
 
 class HeaderTemplate:
