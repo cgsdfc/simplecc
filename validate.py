@@ -1,142 +1,125 @@
 """Check syntax errors the parser unable to check"""
 
-from AST import *
-from itertools import chain
 import sys
+from itertools import chain
+from functools import singledispatch
 
-class VisitorBase(object):
-    """Generic tree visitor for ASTs."""
-    def __init__(self):
-        self.cache = {}
+from AST import *
+from util import error
 
-    def visit(self, obj, *args):
-        klass = obj.__class__
-        meth = self.cache.get(klass)
-        if meth is None:
-            methname = "visit" + klass.__name__
-            try:
-                meth = getattr(self, methname)
-            except AttributeError:
-                return True
-            else:
-                self.cache[klass] = meth
-        return meth(obj, *args)
+@singledispatch
+def visit(node):
+    return True
 
 
-def error(msg, loc):
-    print("Error in line {} column {}: {}".format(
-        loc[0], loc[1], msg), file=sys.stderr)
+@visit.register(list)
+def _(list_of_nodes):
+    # check a list of node, nested list is not allowed
+    # force construction of a list
+    return all(list(map(visit, list_of_nodes)))
 
 
-class SyntaxValidator(VisitorBase):
-    """Due to the limitation of grammar, some allowed constructs are ill-formed,
-    like ``int main()``. This class discovers these constructs and accumulates
-    errors, writing directly to stderr.
-    """
+@visit.register(Program)
+def _(node):
+    assert isinstance(node, Program)
+    if len(node.decls) == 0: # empty input has no main()
+        error("expected main() at the end of input", (0, 0))
+        return False
 
-    def __init__(self):
-        super().__init__()
+    # visit children first
+    child_ok = visit(node.decls)
 
-    def visit_list(self, list_of_nodes):
-        # check a list of node, nested list is not allowed
-        # force construction of a list
-        return all(list(map(self.visit, list_of_nodes)))
+    # program order
+    # check the order of declaration. it should be
+    # [ConstDecl] [VarDecl] [FuncDef]
+    decl_iter = iter(node.decls)
+    decl = next(decl_iter)
+    try:
+        while isinstance(decl, ConstDecl):
+            decl = next(decl_iter)
+        while isinstance(decl, VarDecl):
+            decl = next(decl_iter)
+        while isinstance(decl, FuncDef):
+            decl = next(decl_iter)
+    except StopIteration:
+        pass
+    try:
+        next(decl_iter)
+    except StopIteration:
+        ok = True
+    else:
+        msg = "unexpected {} {!r}".format(decl.__class__.__name__, decl.name)
+        error(msg, decl.loc)
+        ok = False
 
-    def visitProgram(self, node):
-        assert isinstance(node, Program)
-        if len(node.decls) == 0: # empty input has no main()
-            error("expected main() at the end of input", (0, 0))
+    # check the last declaration is the main function
+    last = node.decls[-1]
+    if not (isinstance(last, FuncDef) and last.name == 'main'):
+        error("expected main() at the end of input", last.loc)
+        return False
+
+    return child_ok and ok
+
+
+@visit.register(ConstDecl)
+def _(node):
+    # check that type and value match.
+    assert isinstance(node, ConstDecl)
+    if node.type == basic_type.Int:
+        if isinstance(node.value, Num):
+            return True
+        error("const int {!r} expects an integer".format(node.name),
+                node.value.loc)
+        return False
+    else:
+        assert node.type == basic_type.Character
+        if isinstance(node.value, Char):
+            return True
+        error("const char {!r} expects a character".format(node.name),
+                node.value.loc)
+        return False
+
+
+@visit.register(VarDecl)
+def _(node):
+    # check void variable and zero-sized array
+    var_type = node.type
+    if var_type.type == basic_type.Void:
+        error("cannot declare {!r} as a void variable".format(node.name),
+                node.loc)
+        return False
+    if var_type.is_array and var_type.size == 0:
+        error("array size of {!r} cannot be 0".format(node.name), node.loc)
+        return False
+    return True
+
+@visit.register(arg)
+def _(node, funcname):
+    assert isinstance(node, arg)
+    if node.type == basic_type.Void:
+        msg ="cannot declare void argument {!r} of function {!r}".format(node.name, funcname)
+        error(msg, node.loc)
+        return False
+    return True
+
+@visit.register(FuncDef)
+def _(node):
+    # check void arg
+    args_ok = all([visit(arg, node.name) for arg in node.args])
+
+    # check children
+    children = chain(node.decls, node.stmts)
+    child_ok = visit(children)
+
+    # check main
+    if node.name == 'main':
+        if node.return_type != basic_type.Void:
+            error("main() must return void", node.loc)
             return False
 
-        # visit children first
-        child_ok = self.visit_list(node.decls)
+    return args_ok and child_ok
 
-        # program order
-        # check the order of declaration. it should be
-        # [ConstDecl] [VarDecl] [FuncDef]
-        decl_iter = iter(node.decls)
-        decl = next(decl_iter)
-        try:
-            while isinstance(decl, ConstDecl):
-                decl = next(decl_iter)
-            while isinstance(decl, VarDecl):
-                decl = next(decl_iter)
-            while isinstance(decl, FuncDef):
-                decl = next(decl_iter)
-        except StopIteration:
-            pass
-        try:
-            next(decl_iter)
-        except StopIteration:
-            ok = True
-        else:
-            msg = "unexpected {} {!r}".format(decl.__class__.__name__, decl.name)
-            error(msg, decl.loc)
-            ok = False
-
-        # check the last declaration is the main function
-        last = node.decls[-1]
-        if not (isinstance(last, FuncDef) and last.name == 'main'):
-            error("expected main() at the end of input", last.loc)
-            return False
-
-        return child_ok and ok
-
-
-    def visitConstDecl(self, node):
-        # check that type and value match.
-        assert isinstance(node, ConstDecl)
-        if node.type == basic_type.Int:
-            if isinstance(node.value, Num):
-                return True
-            error("const int {!r} expects an integer".format(node.name),
-                    node.value.loc)
-            return False
-        else:
-            assert node.type == basic_type.Character
-            if isinstance(node.value, Char):
-                return True
-            error("const char {!r} expects a character".format(node.name),
-                    node.value.loc)
-            return False
-
-
-    def visitVarDecl(self, node):
-        # check void variable and zero-sized array
-        var_type = node.type
-        if var_type.type == basic_type.Void:
-            error("cannot declare {!r} as a void variable".format(node.name),
-                    node.loc)
-            return False
-        if var_type.is_array and var_type.size == 0:
-            error("array size of {!r} cannot be 0".format(node.name), node.loc)
-            return False
-        return True
-
-    def visitarg(self, node, funcname):
-        assert isinstance(node, arg)
-        if node.type == basic_type.Void:
-            msg ="cannot declare void argument {!r} of function {!r}".format(node.name, funcname)
-            error(msg, node.loc)
-            return False
-        return True
-
-    def visitFuncDef(self, node):
-        # check void arg
-        args_ok = all([self.visit(arg, node.name) for arg in node.args])
-
-        # check children
-        children = chain(node.decls, node.stmts)
-        child_ok = self.visit_list(children)
-
-        # check main
-        if node.name == 'main':
-            if node.return_type != basic_type.Void:
-                error("main() must return void", node.loc)
-                return False
-
-        return args_ok and child_ok
 
 def validate(node):
     assert isinstance(node, AST)
-    return SyntaxValidator().visit(node)
+    return visit(node)

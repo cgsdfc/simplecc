@@ -1,6 +1,7 @@
 import os
 import subprocess
 import tempfile
+import sys
 
 TABSIZE = 4
 MAX_COL = 80
@@ -111,3 +112,8 @@ def format_code(code_string, dest, external_formatter=None):
             f.write(formatted)
     finally:
         os.remove(temp)
+
+
+def error(msg, loc):
+    print("Error in line {} column {}: {}".format(
+        loc[0], loc[1], msg), file=sys.stderr)
