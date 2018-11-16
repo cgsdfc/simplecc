@@ -3,6 +3,8 @@
 #include "validate.h"
 #include "symtable.h"
 
+void TestSymbolTable(SymbolTable &symtable);
+
 int main(int argc, char **argv) {
   TokenBuffer tokens;
   if (argc == 1) {
@@ -28,11 +30,13 @@ int main(int argc, char **argv) {
   if (!ValidateSyntax(ast_node))
     return 1;
 
-  SymbolTable symbolTable;
-  if (!BuildSymbolTable(ast_node, symbolTable))
+  SymbolTable symtable;
+  if (!BuildSymbolTable(ast_node, symtable))
     return 1;
 
-  std::cout << *ast_node << "\n";
+  /* std::cout << *ast_node << "\n"; */
+  /* std::cout << symbolTable << "\n"; */
+  TestSymbolTable(symtable);
 
   delete ast_node;
   delete cst_node;

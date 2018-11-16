@@ -238,3 +238,44 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
   }
   return e.IsOk();
 }
+
+std::ostream &operator<<(std::ostream &os, Scope s) {
+  switch (s) {
+  case Scope::Global:
+    return os << "Scope::Global";
+  case Scope::Local:
+    return os << "Scope::Local";
+  }
+}
+
+std::ostream &operator<<(std::ostream &os, const Entry& e) {
+  os << "Entry(";
+  os << "type=" << e.type->ClassName() << ", "
+    << "scope=" << e.scope << ", "
+    << "location=" << e.location << ", "
+    << "name=" << e.name;
+  return os << ")";
+}
+
+template <typename Value>
+std::ostream &operator<<(
+    std::ostream &os, const std::unordered_map<String, Value> &t) {
+  os << "{";
+  int i = 0;
+  int size = t.size();
+  for (const auto &b: t) {
+    os << Quote(b.first) << ": " << b.second;
+    if (i != size - 1) {
+      os << ", ";
+    }
+    i++;
+  }
+  return os << "}";
+}
+
+std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {
+  os << "SymbolTable(";
+  os << "global=" << t.global << ", "
+    << "locals=" << t.locals;
+  return os << ")";
+}

@@ -9,6 +9,7 @@ public:
   enum { Constant, Variable, Array, Function, };
   virtual ~Type() = 0;
   virtual Type *copy() const = 0;
+  virtual const char *ClassName() const = 0;
 };
 
 inline Type::~Type() {}
@@ -20,6 +21,10 @@ public:
   Constant(BasicTypeKind type): Type(Type::Constant), type(type) {}
   ~Constant() {}
   Type *copy() const override { return new Constant(*this); }
+  const char *ClassName() const override { return "Constant"; }
+  static bool InstanceCheck(Type *x) {
+    return x->subclass_tag == Type::Constant;
+  }
 };
 
 class Variable: public Type {
@@ -29,6 +34,10 @@ public:
   Variable(BasicTypeKind type): Type(Type::Variable), type(type) {}
   ~Variable() override {}
   Type *copy() const override { return new Variable(*this); }
+  const char *ClassName() const override { return "Variable"; }
+  static bool InstanceCheck(Type *x) {
+    return x->subclass_tag == Type::Variable;
+  }
 };
 
 class Array: public Type {
@@ -38,6 +47,10 @@ public:
   Array(BasicTypeKind elemtype, int size): Type(Type::Array), elemtype(elemtype), size(size) {}
   ~Array() override {}
   Type *copy() const override { return new Array(*this); }
+  const char *ClassName() const override { return "Array"; }
+  static bool InstanceCheck(Type *x) {
+    return x->subclass_tag == Type::Array;
+  }
 };
 
 class Function: public Type {
@@ -49,6 +62,10 @@ public:
     Type(Type::Function), return_type(return_type), args(args) {}
   ~Function() override {}
   Type *copy() const override { return new Function(*this); }
+  const char *ClassName() const override { return "Function"; }
+  static bool InstanceCheck(Type *x) {
+    return x->subclass_tag == Type::Function;
+  }
 };
 
 enum class Scope { Global, Local };
@@ -89,5 +106,7 @@ public:
 
   SymbolTable(): global(), locals() {}
 };
+
+std::ostream &operator<<(std::ostream &os, const SymbolTable &t);
 
 bool BuildSymbolTable(Program *prog, SymbolTable &table);

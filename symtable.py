@@ -7,6 +7,10 @@ from operator import itemgetter
 from operator import attrgetter
 from pprint import pprint
 
+# For generating tests
+from string import Template
+import re
+
 from AST import *
 from util import error
 
@@ -194,3 +198,82 @@ def build_symtable(prog):
     if locals_ is None:
         return None
     return SymbolTable(top, locals_)
+
+
+def pyenum2cppenum(enum):
+    # replace dot with ::
+    return re.sub(r"\.", "::", str(enum))
+
+
+class CppTestTempalte:
+    impl = Template("""
+#include "symtable.h"
+#include <cassert>
+
+void TestSymbolTable(SymbolTable& symtable) {
+    auto &global = symtable.global;
+    auto &locals = symtable.locals;
+$test_global
+$test_locals
+}
+""")
+    testEntry = Template("""
+{
+assert($table.count("$name"));
+const Entry &e = $table["$name"];
+assert(subclass_cast<$class_name>(e.type));
+assert(e.scope == $scope);
+assert(e.name == "$name");
+// assert(e.location == Location($loc));
+}
+""")
+    testGlobal = Template("""
+{
+assert(global.size() == $size);
+$test_entries
+}
+""")
+    testLocal = Template("""
+assert(locals.find("$name") != locals.end());
+{
+auto &local = locals["$name"];
+assert(local.size() == $size);
+$test_entries
+}
+""")
+
+
+    def make_testEntry(self, e, table):
+        assert isinstance(e, Entry)
+        return self.testEntry.substitute(
+            name=e.name,
+            class_name=e.type.__class__.__name__,
+            scope=pyenum2cppenum(e.scope),
+            loc=", ".join(map(str, e.loc)),
+            table=table,
+        )
+
+    def make_testLocal(self, name, local):
+        return self.testLocal.substitute(
+            name=name,
+            size=len(local),
+            test_entries="".join(self.make_testEntry(e, "local")
+                for e in local.values()),
+        )
+
+    def make_testGlobal(self, global_):
+        return self.testGlobal.substitute(
+            size=len(global_),
+            test_entries="".join(self.make_testEntry(e, "global")
+                for e in global_.values()),
+        )
+
+
+    def substitute(self, symtable):
+        return self.impl.substitute(
+            test_global=self.make_testGlobal(symtable.global_),
+            test_locals="".join(self.make_testLocal(name, local)
+                for name, local in symtable.locals_.items()),
+        )
+
+

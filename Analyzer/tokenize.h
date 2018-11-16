@@ -50,6 +50,10 @@ public:
 
 };
 
+inline bool operator==(const Location &l1, const Location &l2) {
+  return l1.lineno == l2.lineno && l1.col_offset == l2.col_offset;
+}
+
 inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
   loc.Format(os);
   return os;

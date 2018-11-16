@@ -11,7 +11,8 @@ from parser import parse_file, lispify
 from cst import ToAST, astpretty_pprint
 from validate import validate
 from symtable import build_symtable
-
+from symtable import CppTestTempalte
+from util import format_code
 
 def main():
     parser = argparse.ArgumentParser()
@@ -31,6 +32,9 @@ def main():
         symtable = build_symtable(ast)
         if symtable is None:
             return 1
+        test_code = CppTestTempalte().substitute(symtable)
+        format_code(test_code, "./Analyzer/test_symtable.cpp")
+
         # pprint(symtable.lookup('a', 'addi'))
         # symtable.report()
         # if args.raw:
