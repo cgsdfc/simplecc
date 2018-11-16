@@ -426,6 +426,8 @@ inline T *subclass_cast(U *x) {
     return nullptr;
 }
 
+String GetDeclName(Decl *decl);
+
 $visitor_base
 #endif
 """)
@@ -491,6 +493,20 @@ std::ostream &operator<<(std::ostream &os, const std::optional<T> &v) {
 $formatter_impls
 $destructor_impls
 $string2enum_impls
+
+String GetDeclName(Decl *decl) {
+  if (auto x = subclass_cast<ConstDecl>(decl)) {
+    return x->name;
+  }
+  else if (auto x = subclass_cast<VarDecl>(decl)) {
+    return x->name;
+  }
+  else {
+    auto y = subclass_cast<FuncDef>(decl);
+    assert(y);
+    return y->name;
+  }
+}
 """)
 
     @classmethod

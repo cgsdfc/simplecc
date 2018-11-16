@@ -580,6 +580,8 @@ template <typename T, typename U> inline T *subclass_cast(U *x) {
   return nullptr;
 }
 
+String GetDeclName(Decl *decl);
+
 // CRTP-based visitor base implementing dispatch on node type.
 template <typename Derived> class VisitorBase {
 public:

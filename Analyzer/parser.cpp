@@ -11,6 +11,10 @@ Node::~Node() {
     delete child;
 }
 
+String Node::FormatValue() const {
+  return type != Symbol::ENDMARKER && value.empty() ? "None" : Quote(value);
+}
+
 class StackEntry {
 public:
   DFA *dfa;

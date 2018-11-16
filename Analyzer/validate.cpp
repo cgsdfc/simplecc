@@ -2,20 +2,6 @@
 #include "error.h"
 #include "parser.h"
 
-String getDeclName(Decl *decl) {
-  if (auto x = subclass_cast<ConstDecl>(decl)) {
-    return x->name;
-  }
-  else if (auto x = subclass_cast<VarDecl>(decl)) {
-    return x->name;
-  }
-  else {
-    auto y = subclass_cast<FuncDef>(decl);
-    assert(y);
-    return y->name;
-  }
-}
-
 class SyntaxValidator {
 public:
 
@@ -39,7 +25,7 @@ public:
     if (decl_iter != end) {
       auto decl = *decl_iter;
       auto loc = decl->loc;
-      Error(loc, "unexpected", decl->ClassName(), Quote(getDeclName(decl)));
+      Error(loc, "unexpected", decl->ClassName(), Quote(GetDeclName(decl)));
       return false;
     }
 

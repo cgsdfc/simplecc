@@ -302,3 +302,15 @@ BasicTypeKind String2BasicTypeKind(const String &s) {
 
   assert(false && "not a member of BasicTypeKind");
 }
+
+String GetDeclName(Decl *decl) {
+  if (auto x = subclass_cast<ConstDecl>(decl)) {
+    return x->name;
+  } else if (auto x = subclass_cast<VarDecl>(decl)) {
+    return x->name;
+  } else {
+    auto y = subclass_cast<FuncDef>(decl);
+    assert(y);
+    return y->name;
+  }
+}

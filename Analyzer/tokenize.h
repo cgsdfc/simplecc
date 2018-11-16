@@ -34,6 +34,7 @@ public:
   unsigned lineno;
   unsigned col_offset;
 
+  Location(): lineno(0), col_offset(0) {}
   Location(unsigned lineno, unsigned col_offset):
     lineno(lineno), col_offset(col_offset) {}
 

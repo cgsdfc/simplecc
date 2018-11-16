@@ -3,10 +3,6 @@
 
 #include "tokenize.h"
 
-inline String Quote(const String &string) {
-  return '\'' + string + '\'';
-}
-
 class Node {
 public:
   Symbol type;
@@ -23,9 +19,7 @@ public:
     children.push_back(child);
   }
 
-  String FormatValue() const {
-    return type != Symbol::ENDMARKER && value.empty() ? "None" : Quote(value);
-  }
+  String FormatValue() const;
 
   Node *FirstChild() {
     return children[0];

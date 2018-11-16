@@ -31,7 +31,8 @@ def main():
         symtable = build_symtable(ast)
         if symtable is None:
             return 1
-        symtable.report()
+        # pprint(symtable.lookup('a', 'addi'))
+        # symtable.report()
         # if args.raw:
         #     print(ast)
         # else:

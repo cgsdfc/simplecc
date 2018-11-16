@@ -33,4 +33,10 @@ public:
     }
 
   int GetErrorCount() const { return error_count; }
+
+  bool IsOk() const { return 0 == GetErrorCount(); }
 };
+
+inline String Quote(const String &string) {
+  return '\'' + string + '\'';
+}

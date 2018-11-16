@@ -55,21 +55,29 @@ public:
   Location location;
   String name;
 
+  Entry(): type(nullptr) {}
   Entry(Type *type, Scope scope, const Location &location, const String &name):
     type(type), scope(scope), location(location), name(name) {}
+
+  // avoid double free
+  Entry(Entry &&entry):
+    Entry(entry.type, entry.scope, entry.location, entry.name) {
+      entry.type = nullptr;
+    }
+
   ~Entry() { delete type; }
 };
 
+using TableType = std::unordered_map<String, Entry>;
+using NestedTableType = std::unordered_map<String, TableType>;
+
 class SymbolTable {
 public:
-  using TableType = std::unordered_map<String, Entry>;
-  using NestedTableType = std::unordered_map<String, TableType>;
 
   TableType global;
   NestedTableType locals;
 
-  SymbolTable(TableType &&global, NestedTableType &&locals):
-    global(std::move(global)), locals(std::move(locals)) {}
+  SymbolTable(): global(), locals() {}
 };
 
-SymbolTable BuildSymbolTable(Program *node);
+bool BuildSymbolTable(Program *prog, SymbolTable &table);
