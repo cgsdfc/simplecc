@@ -31,16 +31,11 @@ public:
 
     for (int i = 2, len = node->children.size() - 1; i < len; i += 2) {
       auto child = node->children[i];
-      String name;
-      Expr *val;
-      std::tie(name, val) = visit_const_item(child);
-      decls.push_back(new ConstDecl(type, name, val, node->location));
+      decls.push_back(visit_const_item(child, type));
     }
-
   }
 
-  std::pair<String, Expr*>
-    visit_const_item(Node *node) {
+  Decl *visit_const_item(Node *node, BasicTypeKind type) {
       auto name = node->children[0];
       auto konstant = node->children[2];
       Expr *val;
@@ -52,8 +47,7 @@ public:
         assert(konstant->type == Symbol::integer);
         val = new Num(visit_integer(konstant), konstant->location);
       }
-
-      return {name->value, val};
+      return new ConstDecl(type, name->value, val, name->location);
     }
 
   int visit_integer(Node *node) {
@@ -109,12 +103,7 @@ public:
       for (auto c: node->children) {
         if (c->type != Symbol::var_item)
           continue;
-        String name;
-        bool is_array;
-        int size;
-        std::tie(name, is_array, size) = visit_var_item(c);
-        auto var_type = new VarType(type, is_array, size);
-        decls.push_back(new VarDecl(var_type, name, type_name->location));
+        decls.push_back(visit_var_item(c, type));
       }
     }
   }
@@ -175,23 +164,21 @@ public:
     for (auto c: node->children) {
       if (c->type != Symbol::var_item)
         continue;
-      String name;
-      bool is_array;
-      int size;
-      std::tie(name, is_array, size) = visit_var_item(c);
-      auto var_type = new VarType(type, is_array, size);
-      decls.push_back(new VarDecl(var_type, name, type_name->location));
+      decls.push_back(visit_var_item(c, type));
     }
   }
 
-  std::tuple<String, bool, int>
-    visit_var_item(Node *node) {
-      auto name = node->FirstChild()->value;
-      if (node->children.size() == 1) {
-        return {name, false, 0};
-      }
-      return {name, true, visit_subscript2(node->children[1])};
+  Decl * visit_var_item(Node *node, BasicTypeKind type) {
+    auto name = node->FirstChild();
+    VarType *var_type = nullptr;
+    if (node->children.size() == 1) {
+      var_type = new VarType(type, false, 0);
     }
+    else {
+      var_type = new VarType(type, true, visit_subscript2(node->children[1]));
+    }
+    return new VarDecl(var_type, name->value, name->location);
+  }
 
   void visit_stmt(Node *node, std::vector<Stmt*> &stmts) {
     auto first = node->FirstChild();

@@ -565,7 +565,6 @@ $class_name::~$class_name() {
             code=cls.os_joiner.join(
                 cls.format_item.substitute(
                     field_name=name,
-                    # expr='*' + name if isinstance(type, AstNode) else name
                     expr=name,
                 ) for type, name in x.members
             )
