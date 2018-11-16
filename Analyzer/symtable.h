@@ -44,6 +44,7 @@ class Array: public Type {
 public:
   BasicTypeKind elemtype;
   int size;
+
   Array(BasicTypeKind elemtype, int size): Type(Type::Array), elemtype(elemtype), size(size) {}
   ~Array() override {}
   Type *copy() const override { return new Array(*this); }
@@ -70,9 +71,10 @@ public:
 
 enum class Scope { Global, Local };
 
+// Represent a single symbol
 class Entry {
 public:
-  Type *type;
+  Type *type; // owned
   Scope scope;
   Location location;
   String name;
@@ -89,6 +91,7 @@ public:
 
   Entry(const Entry &entry):
     Entry(nullptr, entry.scope, entry.location, entry.name) {
+      // type are owned, not shared
       type = entry.type->copy();
     }
 
@@ -100,11 +103,16 @@ using NestedTableType = std::unordered_map<String, TableType>;
 
 class SymbolTable {
 public:
-
   TableType global;
   NestedTableType locals;
 
   SymbolTable(): global(), locals() {}
+  const Entry &Lookup(const String &name, const char *ns_name = 0) {
+    if (ns_name)
+      return locals[ns_name][name];
+    else
+      return global[name];
+  }
 };
 
 std::ostream &operator<<(std::ostream &os, const SymbolTable &t);

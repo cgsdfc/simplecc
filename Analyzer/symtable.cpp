@@ -33,7 +33,7 @@ Type *DeclToType(Decl *decl) {
   return FuncDefToType(subclass_cast<FuncDef>(decl));
 }
 
-// Add one declaration to decl, checking redefinition
+// Add one declaration to decl, checking redefinition errors
 void DefineDecl(Decl* decl, Scope scope,
     TableType &dict, ErrorManager &e, const String &where) {
 
@@ -80,30 +80,35 @@ bool MakeGlobal(Program *prog, TableType &dict) {
 // Visitor that resolves local names for a function
 class LocalResolver: public VisitorBase<LocalResolver> {
 public:
-    FuncDef *fun;
-    const TableType &global;
-    TableType &local;
-    ErrorManager &e;
+  // The Ast of the function
+  FuncDef *fun;
+  // Global namespace to fail back
+  const TableType &global;
+  // Local namespace with local declarations and function arguments
+  TableType &local;
+  // Report errors
+  ErrorManager &e;
 
-    LocalResolver(FuncDef *fun,
-        const TableType &global, TableType &local, ErrorManager &e):
-      fun(fun), global(global), local(local), e(e) {}
+  LocalResolver(FuncDef *fun,
+      const TableType &global, TableType &local, ErrorManager &e):
+    fun(fun), global(global), local(local), e(e) {}
 
-    void ResolveName(const String &name, const Location &loc) {
-      if (local.find(name) != local.end())
-        return; // already defined locally
-      // define globally
-      if (auto x = global.find(name); x != global.end()) {
-        // make a copy of the global entry
-        Entry local_entry(x->second);
-        local_entry.location = loc;
-        local.emplace(std::make_pair(name, std::move(local_entry)));
-      }
-      else {
-        e.Error(loc,
-            "undefined identifier", Quote(name), "in function", fun->name);
-      }
+  // Resolve one name
+  void ResolveName(const String &name, const Location &loc) {
+    if (local.find(name) != local.end())
+      return; // already defined locally
+    // define globally
+    if (auto x = global.find(name); x != global.end()) {
+      // make a copy of the global entry
+      Entry local_entry(x->second);
+      local_entry.location = loc; // use local location
+      local.emplace(std::make_pair(name, std::move(local_entry)));
     }
+    else {
+      e.Error(loc,
+          "undefined identifier", Quote(name), "in function", Quote(fun->name));
+    }
+  }
 
   // visitor methods that handle each type of AST
 
@@ -150,7 +155,7 @@ public:
   }
 
   void visitExprStmt(ExprStmt *x) {
-    return visit(x->value);
+    visit(x->value);
   }
 
   void visitIf(If *x) {
@@ -174,6 +179,7 @@ public:
     ResolveName(x->func, x->loc);
   }
 
+  // these do not have identifiers
   void visitNum(Num *x) {}
   void visitStr(Str *x) {}
   void visitChar(Char *x) {}
@@ -194,7 +200,7 @@ public:
   }
 };
 
-// define and resolve names for a function
+// define and resolve names of a function
 void MakeLocal(FuncDef *fun,
     TableType &top, TableType &local, ErrorManager &e) {
   // define fun itself in global first
@@ -217,16 +223,16 @@ void MakeLocal(FuncDef *fun,
   // errors left in ErrorManager
 }
 
+// public interface
 bool BuildSymbolTable(Program *prog, SymbolTable &table) {
   // build global table first
   auto &global = table.global;
-  if (!MakeGlobal(prog, global))
-    return false;
-
-  auto &locals = table.locals;
-  ErrorManager e;
+  // no early return to check more errors
+  bool global_ok = MakeGlobal(prog, global);
 
   // visit all FuncDef and build their local tables
+  auto &locals = table.locals;
+  ErrorManager e;
   for (auto decl: prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       TableType local;
@@ -236,15 +242,16 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
       }
     }
   }
-  return e.IsOk();
+  return global_ok && e.IsOk();
 }
 
+// Overloads to print various data structures
 std::ostream &operator<<(std::ostream &os, Scope s) {
   switch (s) {
-  case Scope::Global:
-    return os << "Scope::Global";
-  case Scope::Local:
-    return os << "Scope::Local";
+    case Scope::Global:
+      return os << "Scope::Global";
+    case Scope::Local:
+      return os << "Scope::Local";
   }
 }
 
@@ -257,12 +264,14 @@ std::ostream &operator<<(std::ostream &os, const Entry& e) {
   return os << ")";
 }
 
+// print a dict with string key and generic value
 template <typename Value>
 std::ostream &operator<<(
     std::ostream &os, const std::unordered_map<String, Value> &t) {
-  os << "{";
   int i = 0;
   int size = t.size();
+
+  os << "{";
   for (const auto &b: t) {
     os << Quote(b.first) << ": " << b.second;
     if (i != size - 1) {
