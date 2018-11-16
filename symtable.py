@@ -221,7 +221,7 @@ $test_locals
 {
 assert($table.count("$name"));
 const Entry &e = $table["$name"];
-assert(subclass_cast<$class_name>(e.type));
+assert(IsInstance<$class_name>(e.type));
 assert(e.scope == $scope);
 assert(e.name == "$name");
 // assert(e.location == Location($loc));
