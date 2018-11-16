@@ -1,33 +1,44 @@
+"""Symbol table construction for the program"""
+
 from functools import singledispatch
+from collections import namedtuple
 from enum import Enum
+from operator import itemgetter
+from operator import attrgetter
+from pprint import pprint
 
 from AST import *
+from util import error
 
 Scope = Enum("Scope", "Local Global")
+MODULE_NAME = "<module>"
+
+class Type:
+    def __repr__(self):
+        return self.__class__.__name__
 
 # pure data class to hold type information
-class Constant:
+class Constant(Type):
 
     def __init__(self, type):
         self.type = type
 
-class Variable:
+class Variable(Type):
 
     def __init__(self, type):
         self.type = type
 
-class Array:
+class Array(Type):
 
     def __init__(self, elemtype, size):
         self.elemtype = elemtype
         self.size = size
 
-class Function:
+class Function(Type):
 
     def __init__(self, return_type, args):
         self.return_type = return_type
         self.args = args
-
 
 # Convert type declaration to Types
 @singledispatch
@@ -40,124 +51,95 @@ def ConstDecl2Type(decl):
 
 @decl_to_type.register(VarDecl)
 def VarDecl2Type(decl):
-    type = decl.var_type
+    type = decl.type
     return Array(type.type, type.size) if type.is_array else Variable(type.type)
 
-@decl_to_type(FuncDef)
+@decl_to_type.register(FuncDef)
 def FuncDef2Type(decl):
-    args = [decl_to_type(type) for type, _ in decl.args]
+    # discard names
+    args = list(map(itemgetter(0), decl.args))
     return Function(decl.return_type, args)
 
+def make_local(fun, top):
+    dict = {}
+    ok = 1
+    # insert all arguments first
+    for arg in fun.args:
+        if arg.name in dict:
+            error("redefinition of argument {!r} in function {!r}".format(
+                arg.name, fun.name), decl.loc)
+            ok = 0
+        else:
+            dict[arg.name] = Entry(Variable(arg.type), Scope.Local, arg.loc, arg.name)
 
-def make_typemap_prog(prog):
-    """Return a pair -- first is the global typemap and its name, the second is
-    a dict mapping function names to their local typemap.
-    """
+    # then local const/var decl
+    for decl in fun.decls:
+        if decl.name in dict:
+            error("redefinition of identifier {!r} in function {!r}".format(
+                decl.name, fun.name), decl.loc)
+        else:
+            dict[decl.name] = Entry(decl_to_type(decl), Scope.Local, decl.loc, decl.name)
 
-    def make_typemap(decls):
-        """Convert a series of declarations to a dict mapping names to
-        their type.
-        """
-        return {decl.name: decl_to_type(decl) for decl in decls}
+    # check uses
+    for name, loc in iter_names(fun):
+        if name in dict:
+            continue
+        if name in top:
+            dict[name] = Entry(top[name].type, Scope.Global, loc, name)
+        else:
+            ok = 0
+            error("undefined identifier {!r} in function {!r}".format(
+                name, fun.name), loc)
 
-    top = ("<module>", make_typemap(prog.decls))
-    def make_locals():
-        funcdefs = filter(lambda d: isinstance(d, FuncDef), prog.decls)
-        for fun in funcdefs:
-            yield (fun.name, make_typemap(fun.decls))
-    return top, dict(make_locals())
+    return dict if ok else None
 
-# now we have the type information collected
-# we still need scope information
+
+def make_global(prog):
+    dict = {}
+    ok = 1
+    for decl in prog.decls:
+        if decl.name in dict:
+            ok = 0
+            error("redefinition of identifier {!r} in {}".format(
+                decl.name, MODULE_NAME), decl.loc)
+        else:
+            dict[decl.name] = Entry(decl_to_type(decl), Scope.Global, decl.loc, decl.name)
+    return dict if ok else None
+
+# now we have the type information collected.
+# we still need scope information.
 # the algorithm is simple --
-# first all names in global namespace is global them themselves
-# second, in a function's local namespace, a name
+# first all names in global namespace is of global scope themselves.
+# second, in a function's local namespace, a name's scope
 #   1. is local if it is in the local typemap;
 #   2. or else, is global if it is in the global typemap;
 #   3. or else, is an error (undefined)
 # finally, type and scope information are put in the Entry namedtuple
 
-Entry = namedtuple("Entry", "type scope loc")
+# An Entry represents a single resolved symbol
+Entry = namedtuple("Entry", "type scope loc name")
 
-def extract_all_names(node):
-    """Extract all (name, loc) pair in node"""
-
-    def iter_names(node):
-        if isinstance(node, (decl, arg)):
-            yield node.name, node.loc
-        elif isinstance(node, (Read,)):
-            for name in node:
-                yield name, node.loc
-        elif isinstance(node, Call):
-            yield node.func, node.loc
-        elif isinstance(node, Name):
-            yield node.id, node.loc
-        elif isinstance(node, Subscript):
-            yield node.name, node.loc
-        else:
-            # non-terminal node
-            # work for any iterable of nodes
-            for child in node:
+def iter_names(node):
+    # XXX: this must cover all Ast node that has names
+    # handle terminal nodes that has a name:
+    if isinstance(node, (ConstDecl, VarDecl, arg)):
+        yield node.name, node.loc
+    elif isinstance(node, (Read,)):
+        for name in node.names:
+            yield name, node.loc
+    elif isinstance(node, Call):
+        yield node.func, node.loc
+    elif isinstance(node, Name):
+        yield node.id, node.loc
+    elif isinstance(node, Subscript):
+        yield node.name, node.loc
+    else:
+        # handle non-terminal nodes
+        # if isinstance(node, FuncDef):
+        #     yield node.name, node.loc
+        for child in node:
+            if isinstance(child, AST):
                 yield from iter_names(child)
-
-    return list(iter_names(node))
-
-
-def resolve_local_names(ns_name, local, global_, names):
-    """Resolve local names using both local and global typemaps.
-    Return the complete symtable if success, else return None.
-    """
-    out = {}
-    ok = 1
-    for name, loc in names:
-        if name in local:
-            out[name] = Entry(local[name], Scope.Local, loc)
-        elif name in global_:
-            out[name] = Entry(local[name], Scope.Global, loc)
-        else:
-            ok = 0
-            error("undefined identifier {!r} in function {!r}".format(
-                name, ns_name), loc)
-    return out if ok else None
-
-
-def build_local_tables(prog, top, locals_):
-    funcdefs = filter(lambda n: isinstance(n, FuncDef), prog.decls)
-    resolved = {}
-    ok = 1
-
-    for fun in funcdefs:
-        names = extract_all_names(fun)
-        local = resolve_local_names(fun.name, locals_[name], top, names)
-        if local is None:
-            ok = 0
-        else:
-            resolved[fun.name] = local
-
-    return resolved if ok else None
-
-
-def build_global_table(prog, typemap):
-    """Add scope and location information to the global typemap"""
-    def iter_name_loc():
-        for child in prog.decls:
-            yield child.name, child.loc
-
-    return {name: Entry(typemap[name], Scope.Global, loc)
-            for name, loc in iter_name_loc()}
-
-
-class SymbolTableEntry:
-    """Simple container about type, scope information of each name
-    in a block -- Module and Function block
-    """
-
-    def __init__(self, name, table):
-        self.name = name
-        self.table = table
-
-    def __getitem__(self, name):
-        return self.table[name]
 
 
 class SymbolTable:
@@ -169,7 +151,7 @@ class SymbolTable:
         self.locals_ = locals_
 
     def lookup(self, name, ns_name=None):
-        """Lookup a symbol using name. If ns_name is given, perform the
+        """Lookup a symbol (its Entry) using name. If ns_name is given, perform the
         lookup under the local namespace. Or else the global namespace
         is searched.
         """
@@ -178,23 +160,32 @@ class SymbolTable:
         else:
             return self.locals_[ns_name][name]
 
+    def report(self):
+        print("global:")
+        pprint(sorted(self.global_.values(), key=attrgetter('loc')))
+        print("locals:")
+        pprint(self.locals_)
+
+def make_locals(funcdefs, top):
+    dict = {}
+    ok = 1
+    for fun in funcdefs:
+        local = make_local(fun, top)
+        if local is None:
+            ok = 0
+        else:
+            dict[fun.name] = local
+    return dict if ok else None
 
 def build_symtable(prog):
-    # build typemap for both global and local
-    top, locals_ = make_typemap_prog(prog)
+    """Build a SymbolTable for the whole program"""
+    assert isinstance(prog, Program)
 
-    # resolve local names first
-    locals_ = build_local_tables(prog, top, locals_)
+    top = make_global(prog)
+    if top is None:
+        return None
+    funcdefs = filter(lambda d: isinstance(d, FuncDef), prog.decls)
+    locals_ = make_locals(funcdefs, top)
     if locals_ is None:
         return None
-    # turn into SymbolTableEntry dict
-    locals_ = {name: SymbolTableEntry(name, table)
-            for name, table in locals_.items()}
-
-    # build global table
-    global_ = build_global_table(prog, top)
-    global_ = SymbolTableEntry(top[0], global_)
-
-    # all set
-    return SymbolTable(global_, locals_)
-
+    return SymbolTable(top, locals_)

@@ -93,10 +93,10 @@ class TransformerVisitor(VisitorBase):
                 yield AST.VarDecl(var_type, name.value, node.context)
 
             # handle (',', var_items)*
-            for name, is_array, size in map(self.visit, var_items[1::2]): # possibly leading comma
+            for name, is_array, size, context in map(self.visit, var_items[1::2]): # possibly leading comma
                 # visit_var_item
                 var_type = AST.VarType(type, is_array, size)
-                yield AST.VarDecl(var_type, name, type_name.context)
+                yield AST.VarDecl(var_type, name, context)
 
 
     def visit_funcdef(self, return_type, name, children, context):
@@ -140,18 +140,18 @@ class TransformerVisitor(VisitorBase):
         type_name, *var_items = node.children[:-1]
         type = self.visit(type_name)
         # var_items is a varying sequence
-        for name, is_array, size, in map(self.visit, var_items[::2]):
+        for name, is_array, size, context in map(self.visit, var_items[::2]):
             var_type = AST.VarType(type, is_array, size)
-            yield AST.VarDecl(var_type, name, type_name.context)
+            yield AST.VarDecl(var_type, name, context)
 
 
     def visit_var_item(self, node):
-        name = node.first_child.value
+        name = node.first_child
         if len(node.children) == 1:
-            # name, is_array, size
-            return name, False, 0
+            # name, is_array, size, context
+            return name.value, False, 0, name.context
         # visit_subscript2
-        return name, True, self.visit(node.children[1])
+        return name.value, True, self.visit(node.children[1]), name.context
 
 
     def visit_stmt(self, node):

@@ -10,6 +10,7 @@ from pprint import pprint
 from parser import parse_file, lispify
 from cst import ToAST, astpretty_pprint
 from validate import validate
+from symtable import build_symtable
 
 
 def main():
@@ -27,10 +28,14 @@ def main():
         ast = ToAST(cst)
         if not validate(ast):
             return 1
-        if args.raw:
-            print(ast)
-        else:
-            astpretty_pprint(ast)
+        symtable = build_symtable(ast)
+        if symtable is None:
+            return 1
+        symtable.report()
+        # if args.raw:
+        #     print(ast)
+        # else:
+        #     astpretty_pprint(ast)
     else:
         if args.raw:
             print(cst)
