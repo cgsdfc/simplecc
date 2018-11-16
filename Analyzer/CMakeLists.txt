@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # All executables added hereby
 add_executable(analyzer
+  ./symtable.cpp
   ./validate.cpp
   ./AST.cpp
   ./main.cpp

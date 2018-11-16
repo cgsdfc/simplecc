@@ -1,4 +1,5 @@
 #include "validate.h"
+#include "error.h"
 #include "parser.h"
 
 String getDeclName(Decl *decl) {
