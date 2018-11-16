@@ -763,7 +763,7 @@ R visit($class_name *node, Args&&... args) {
 
     dispatch = Template("""
 if (auto x = subclass_cast<$class_name>(node))
-    return static_cast<Derived*>(this)->visit(node, args...);
+    return static_cast<Derived*>(this)->visit$class_name(x, args...);
 """)
 
     @classmethod

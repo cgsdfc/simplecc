@@ -1,19 +1,11 @@
 #include "symtable.h"
 #include "error.h"
 
-Type *DeclToType(Decl *decl) {
-  if (auto x = subclass_cast<ConstDecl>(decl))
-    return DeclToType(x);
-  if (auto x = subclass_cast<VarDecl>(decl))
-    return DeclToType(x);
-  return DeclToType(subclass_cast<FuncDef>(decl));
-}
-
-Type *DeclToType(ConstDecl *decl) {
+Type *ConstDeclToType(ConstDecl *decl) {
   return new Constant(decl->type);
 }
 
-Type *DeclToType(VarDecl *decl) {
+Type *VarDeclToType(VarDecl *decl) {
   auto  var_type = decl->type;
   if (var_type->is_array) {
     assert(var_type->size > 0);
@@ -24,12 +16,21 @@ Type *DeclToType(VarDecl *decl) {
   }
 }
 
-Type *DeclToType(FuncDef *decl) {
+Type *FuncDefToType(FuncDef *decl) {
   auto fun = new Function(decl->return_type, {});
   for (auto arg: decl->args) {
     fun->args.push_back(arg->type);
   }
   return fun;
+}
+
+// convert a declaration to type
+Type *DeclToType(Decl *decl) {
+  if (auto x = subclass_cast<ConstDecl>(decl))
+    return ConstDeclToType(x);
+  if (auto x = subclass_cast<VarDecl>(decl))
+    return VarDeclToType(x);
+  return FuncDefToType(subclass_cast<FuncDef>(decl));
 }
 
 // Add one declaration to decl, checking redefinition
@@ -65,6 +66,7 @@ void DefineArg(Arg *arg,
   }
 }
 
+// Enter all global const/var declarations into dict
 bool MakeGlobal(Program *prog, TableType &dict) {
   ErrorManager e;
   for (auto decl: prog->decls) {
@@ -75,7 +77,7 @@ bool MakeGlobal(Program *prog, TableType &dict) {
   return e.IsOk();
 }
 
-
+// Visitor that resolves local names for a function
 class LocalResolver: public VisitorBase<LocalResolver> {
 public:
     FuncDef *fun;
@@ -89,17 +91,21 @@ public:
 
     void ResolveName(const String &name, const Location &loc) {
       if (local.find(name) != local.end())
-        return;
+        return; // already defined locally
+      // define globally
       if (auto x = global.find(name); x != global.end()) {
-        const auto &entry = x->second;
-        local.emplace(std::make_pair(name,
-              Entry(entry.type, entry.scope, loc, name)));
+        // make a copy of the global entry
+        Entry local_entry(x->second);
+        local_entry.location = loc;
+        local.emplace(std::make_pair(name, std::move(local_entry)));
       }
       else {
         e.Error(loc,
             "undefined identifier", Quote(name), "in function", fun->name);
       }
     }
+
+  // visitor methods that handle each type of AST
 
   void visit(Expr *expr) {
     VisitorBase::visit<void>(expr);
@@ -109,22 +115,22 @@ public:
     VisitorBase::visit<void>(stmt);
   }
 
-  void visit(Read *x) {
+  void visitRead(Read *x) {
     for (const auto &name: x->names)
       ResolveName(name, x->loc);
   }
 
-  void visit(Write *x) {
+  void visitWrite(Write *x) {
     if (x->value)
       visit(x->value);
   }
 
-  void visit(Assign *x) {
+  void visitAssign(Assign *x) {
     visit(x->target);
     visit(x->value);
   }
 
-  void visit(For *x) {
+  void visitFor(For *x) {
     visit(x->initial);
     visit(x->condition);
     visit(x->step);
@@ -132,18 +138,22 @@ public:
       visit(s);
   }
 
-  void visit(While *x) {
+  void visitWhile(While *x) {
     visit(x->condition);
     for (auto s: x->body)
       visit(s);
   }
 
-  void visit(Return *x) {
+  void visitReturn(Return *x) {
     if (x->value)
       visit(x->value);
   }
 
-  void visit(If *x) {
+  void visitExprStmt(ExprStmt *x) {
+    return visit(x->value);
+  }
+
+  void visitIf(If *x) {
     visit(x->test);
     for (auto s: x->body)
       visit(s);
@@ -151,31 +161,32 @@ public:
       visit(s);
   }
 
-  void visit(BinOp *x) {
+  void visitBinOp(BinOp *x) {
     visit(x->left);
     visit(x->right);
   }
 
-  void visit(UnaryOp *x) {
+  void visitUnaryOp(UnaryOp *x) {
     visit(x->operand);
   }
 
-  void visit(Call *x) {
+  void visitCall(Call *x) {
     ResolveName(x->func, x->loc);
   }
 
-  void visit(Num *x) {}
-  void visit(Str *x) {}
-  void visit(Char *x) {}
+  void visitNum(Num *x) {}
+  void visitStr(Str *x) {}
+  void visitChar(Char *x) {}
 
-  void visit(Subscript *x) {
+  void visitSubscript(Subscript *x) {
     ResolveName(x->name, x->loc);
   }
 
-  void visit(Name *x) {
+  void visitName(Name *x) {
     ResolveName(x->id, x->loc);
   }
 
+  // public interface
   void Resolve() {
     for (auto stmt: fun->stmts) {
       visit(stmt);
@@ -183,18 +194,19 @@ public:
   }
 };
 
-void MakeLocal(FuncDef *fun, TableType &top, TableType &local,
-    ErrorManager &e) {
-  // define fun in global first
+// define and resolve names for a function
+void MakeLocal(FuncDef *fun,
+    TableType &top, TableType &local, ErrorManager &e) {
+  // define fun itself in global first
   DefineDecl(fun, Scope::Global, top, e, "<module>");
 
-  // define argument of a function
+  // define arguments of a function
   for (auto arg: fun->args) {
     DefineArg(arg, local, e, fun->name);
   }
 
   // define const/var declarations of a function
-  auto where = "function " + fun->name;
+  auto where = "function " + Quote(fun->name);
   for (auto decl: fun->decls) {
     DefineDecl(decl, Scope::Local, local, e, where);
   }
@@ -202,9 +214,11 @@ void MakeLocal(FuncDef *fun, TableType &top, TableType &local,
   // resolve local names
   LocalResolver resolver(fun, top, local, e);
   resolver.Resolve();
+  // errors left in ErrorManager
 }
 
 bool BuildSymbolTable(Program *prog, SymbolTable &table) {
+  // build global table first
   auto &global = table.global;
   if (!MakeGlobal(prog, global))
     return false;
@@ -212,6 +226,7 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
   auto &locals = table.locals;
   ErrorManager e;
 
+  // visit all FuncDef and build their local tables
   for (auto decl: prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       TableType local;

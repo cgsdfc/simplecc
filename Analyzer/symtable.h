@@ -8,9 +8,10 @@ public:
   Type(int subclass_tag): subclass_tag(subclass_tag) {}
   enum { Constant, Variable, Array, Function, };
   virtual ~Type() = 0;
+  virtual Type *copy() const = 0;
 };
 
-Type::~Type() {}
+inline Type::~Type() {}
 
 class Constant: public Type {
 public:
@@ -18,6 +19,7 @@ public:
 
   Constant(BasicTypeKind type): Type(Type::Constant), type(type) {}
   ~Constant() {}
+  Type *copy() const override { return new Constant(*this); }
 };
 
 class Variable: public Type {
@@ -26,6 +28,7 @@ public:
 
   Variable(BasicTypeKind type): Type(Type::Variable), type(type) {}
   ~Variable() override {}
+  Type *copy() const override { return new Variable(*this); }
 };
 
 class Array: public Type {
@@ -34,6 +37,7 @@ public:
   int size;
   Array(BasicTypeKind elemtype, int size): Type(Type::Array), elemtype(elemtype), size(size) {}
   ~Array() override {}
+  Type *copy() const override { return new Array(*this); }
 };
 
 class Function: public Type {
@@ -44,6 +48,7 @@ public:
   Function(BasicTypeKind return_type, const std::vector<BasicTypeKind> &args):
     Type(Type::Function), return_type(return_type), args(args) {}
   ~Function() override {}
+  Type *copy() const override { return new Function(*this); }
 };
 
 enum class Scope { Global, Local };
@@ -63,6 +68,11 @@ public:
   Entry(Entry &&entry):
     Entry(entry.type, entry.scope, entry.location, entry.name) {
       entry.type = nullptr;
+    }
+
+  Entry(const Entry &entry):
+    Entry(nullptr, entry.scope, entry.location, entry.name) {
+      type = entry.type->copy();
     }
 
   ~Entry() { delete type; }

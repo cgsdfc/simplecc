@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "cst.h"
 #include "validate.h"
+#include "symtable.h"
 
 int main(int argc, char **argv) {
   TokenBuffer tokens;
@@ -18,19 +19,23 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  Node *root = ParseTokens(tokens);
-  if (!root)
+  Node *cst_node = ParseTokens(tokens);
+  if (!cst_node)
     return 1;
-  Program *node = NodeToAst(root);
-  if (!node)
+  Program *ast_node = NodeToAst(cst_node);
+  if (!ast_node)
     return 1;
-  if (!ValidateSyntax(node))
+  if (!ValidateSyntax(ast_node))
     return 1;
 
-  std::cout << *node << "\n";
+  SymbolTable symbolTable;
+  if (!BuildSymbolTable(ast_node, symbolTable))
+    return 1;
 
-  delete root;
-  delete node;
+  std::cout << *ast_node << "\n";
+
+  delete ast_node;
+  delete cst_node;
   for (auto token: tokens) {
     delete token;
   }

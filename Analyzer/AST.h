@@ -588,13 +588,13 @@ public:
   template <typename R, typename... Args> R visit(Decl *node, Args &&... args) {
 
     if (auto x = subclass_cast<ConstDecl>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitConstDecl(x, args...);
 
     if (auto x = subclass_cast<VarDecl>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitVarDecl(x, args...);
 
     if (auto x = subclass_cast<FuncDef>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitFuncDef(x, args...);
 
     assert(false && "Decl");
   }
@@ -602,28 +602,28 @@ public:
   template <typename R, typename... Args> R visit(Stmt *node, Args &&... args) {
 
     if (auto x = subclass_cast<Read>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitRead(x, args...);
 
     if (auto x = subclass_cast<Write>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitWrite(x, args...);
 
     if (auto x = subclass_cast<Assign>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitAssign(x, args...);
 
     if (auto x = subclass_cast<For>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitFor(x, args...);
 
     if (auto x = subclass_cast<While>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitWhile(x, args...);
 
     if (auto x = subclass_cast<Return>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitReturn(x, args...);
 
     if (auto x = subclass_cast<If>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitIf(x, args...);
 
     if (auto x = subclass_cast<ExprStmt>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitExprStmt(x, args...);
 
     assert(false && "Stmt");
   }
@@ -631,28 +631,28 @@ public:
   template <typename R, typename... Args> R visit(Expr *node, Args &&... args) {
 
     if (auto x = subclass_cast<BinOp>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitBinOp(x, args...);
 
     if (auto x = subclass_cast<UnaryOp>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitUnaryOp(x, args...);
 
     if (auto x = subclass_cast<Call>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitCall(x, args...);
 
     if (auto x = subclass_cast<Num>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitNum(x, args...);
 
     if (auto x = subclass_cast<Str>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitStr(x, args...);
 
     if (auto x = subclass_cast<Char>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitChar(x, args...);
 
     if (auto x = subclass_cast<Subscript>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitSubscript(x, args...);
 
     if (auto x = subclass_cast<Name>(node))
-      return static_cast<Derived *>(this)->visit(node, args...);
+      return static_cast<Derived *>(this)->visitName(x, args...);
 
     assert(false && "Expr");
   }
