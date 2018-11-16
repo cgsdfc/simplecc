@@ -66,15 +66,16 @@ def make_local(fun, top):
     # insert all arguments first
     for arg in fun.args:
         if arg.name in dict:
-            error("redefinition of argument {!r} in function {!r}".format(
-                arg.name, fun.name), decl.loc)
             ok = 0
+            error("redefinition of argument {!r} in function {!r}".format(
+                arg.name, fun.name), arg.loc)
         else:
             dict[arg.name] = Entry(Variable(arg.type), Scope.Local, arg.loc, arg.name)
 
     # then local const/var decl
     for decl in fun.decls:
         if decl.name in dict:
+            ok = 0
             error("redefinition of identifier {!r} in function {!r}".format(
                 decl.name, fun.name), decl.loc)
         else:
@@ -84,7 +85,7 @@ def make_local(fun, top):
     for name, loc in iter_names(fun):
         if name in dict:
             continue
-        if name in top:
+        if name in top and top[name].loc <= loc:
             dict[name] = Entry(top[name].type, Scope.Global, loc, name)
         else:
             ok = 0
@@ -159,6 +160,10 @@ class SymbolTable:
             return self.global_[name]
         else:
             return self.locals_[ns_name][name]
+
+    def get_identifiers(self, ns_name=None):
+        return self.global_.keys() if ns_name is None else \
+                self.locals_[ns_name].keys()
 
     def report(self):
         print("global:")
