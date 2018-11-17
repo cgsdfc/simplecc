@@ -1,4 +1,4 @@
-# Automatic Generative File
+# Automatically Generated File
 from enum import Enum
 from collections import namedtuple
 
@@ -49,10 +49,12 @@ class ConstDecl(decl):
 
 
 class VarDecl(decl):
-    __slots__ = ("type","name","loc",)
+    __slots__ = ("type","is_array","size","name","loc",)
 
-    def __init__(self, type, name, loc):
+    def __init__(self, type, is_array, size, name, loc):
         self.type = type
+        self.is_array = is_array
+        self.size = size
         self.name = name
         self.loc = loc
 
@@ -233,15 +235,6 @@ expr_context = Enum("expr_context", "Load Store")
 
 
 basic_type = Enum("basic_type", "Int Character Void")
-
-
-class VarType(AST):
-    __slots__ = ("type","is_array","size",)
-
-    def __init__(self, type, is_array, size):
-        self.type = type
-        self.is_array = is_array
-        self.size = size
 
 
 # Hard coded mapping from string to their ASTs

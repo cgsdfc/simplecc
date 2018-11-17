@@ -83,8 +83,7 @@ public:
     auto type = visit_type_name(type_name);
 
     if (first->value == ";") {
-      auto var_type = new VarType(type, false, 0);
-      decls.push_back(new VarDecl(var_type, name->value, type_name->location));
+      decls.push_back(new VarDecl(type, false, 0, name->value, type_name->location));
     }
     else if (first->type == Symbol::paralist ||
         first->type == Symbol::compound_stmt) {
@@ -92,12 +91,11 @@ public:
     }
     else {
       if (first->type == Symbol::subscript2) {
-        auto var_type = new VarType(type, true, visit_subscript2(first));
-        decls.push_back(new VarDecl(var_type, name->value, node->location));
+        auto size = visit_subscript2(first);
+        decls.push_back(new VarDecl(type, true, size, name->value, node->location));
       }
       else {
-        auto var_type = new VarType(type, false, 0);
-        decls.push_back(new VarDecl(var_type, name->value, node->location));
+        decls.push_back(new VarDecl(type, false, 0, name->value, node->location));
       }
 
       for (auto c: node->children) {
@@ -170,14 +168,13 @@ public:
 
   Decl * visit_var_item(Node *node, BasicTypeKind type) {
     auto name = node->FirstChild();
-    VarType *var_type = nullptr;
     if (node->children.size() == 1) {
-      var_type = new VarType(type, false, 0);
+      return new VarDecl(type, false, 0, name->value, name->location);
     }
     else {
-      var_type = new VarType(type, true, visit_subscript2(node->children[1]));
+      auto size = visit_subscript2(node->children[1]);
+      return new VarDecl(type, true, size, name->value, name->location);
     }
-    return new VarDecl(var_type, name->value, name->location);
   }
 
   void visit_stmt(Node *node, std::vector<Stmt*> &stmts) {

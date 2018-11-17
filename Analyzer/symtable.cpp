@@ -6,13 +6,12 @@ Type *ConstDeclToType(ConstDecl *decl) {
 }
 
 Type *VarDeclToType(VarDecl *decl) {
-  auto  var_type = decl->type;
-  if (var_type->is_array) {
-    assert(var_type->size > 0);
-    return new Array(var_type->type, var_type->size);
+  if (decl->is_array) {
+    assert(decl->size > 0);
+    return new Array(decl->type, decl->size);
   }
   else {
-    return new Variable(var_type->type);
+    return new Variable(decl->type);
   }
 }
 

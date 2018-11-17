@@ -53,7 +53,6 @@ class Str;
 class Char;
 class Subscript;
 class Name;
-class VarType;
 
 // EnumClass
 
@@ -196,11 +195,15 @@ public:
 
 class VarDecl : public Decl {
 public:
-  VarType *type;
+  BasicTypeKind type;
+  int is_array;
+  int size;
   std::string name;
 
-  VarDecl(VarType *type, const std::string &name, Location loc)
-      : Decl(Decl::VarDecl, loc), type(type), name(name) {}
+  VarDecl(BasicTypeKind type, int is_array, int size, const std::string &name,
+          Location loc)
+      : Decl(Decl::VarDecl, loc), type(type), is_array(is_array), size(size),
+        name(name) {}
 
   ~VarDecl() override;
 
@@ -542,22 +545,6 @@ public:
   ~Arg() override;
 
   String ClassName() const override { return "Arg"; }
-
-  void Format(std::ostream &os) const override;
-};
-
-class VarType : public AST {
-public:
-  BasicTypeKind type;
-  int is_array;
-  int size;
-
-  VarType(BasicTypeKind type, int is_array, int size)
-      : AST(), type(type), is_array(is_array), size(size) {}
-
-  ~VarType() override;
-
-  String ClassName() const override { return "VarType"; }
 
   void Format(std::ostream &os) const override;
 };

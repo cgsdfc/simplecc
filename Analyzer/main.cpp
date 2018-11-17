@@ -34,9 +34,9 @@ int main(int argc, char **argv) {
   if (!BuildSymbolTable(ast_node, symtable))
     return 1;
 
-  /* std::cout << *ast_node << "\n"; */
+  std::cout << *ast_node << "\n";
   /* std::cout << symbolTable << "\n"; */
-  TestSymbolTable(symtable);
+  /* TestSymbolTable(symtable); */
 
   delete ast_node;
   delete cst_node;

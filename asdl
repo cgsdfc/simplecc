@@ -7,7 +7,7 @@ module Compiler
     program = Program(decl* decls)
 
     decl = ConstDecl(basic_type type, identifier name, expr value)
-         | VarDecl(var_type type, identifier name)
+         | VarDecl(basic_type type, int is_array, int size, identifier name)
          | FuncDef(basic_type return_type, identifier name, arg* args,
                        decl* decls, stmt* stmts)
           attributes (location loc)
@@ -45,6 +45,4 @@ module Compiler
     expr_context = Load | Store
 
     basic_type = Int | Character | Void
-
-    var_type = VarType(basic_type type, int is_array, int size)
 }

@@ -77,20 +77,17 @@ class TransformerVisitor(VisitorBase):
         first = node.first_child
         type = self.visit(type_name)
         if first.value == ';': # a single non-array var_decl
-            var_type = AST.VarType(type, False, 0)
-            yield AST.VarDecl(var_type, name.value, type_name.context)
+            yield AST.VarDecl(type, False, 0, name.value, type_name.context)
         elif first.type in (sym.paralist, sym.compound_stmt):
             yield self.visit_funcdef(type, name.value, node.children, type_name.context)
         else: # complex var_decl
             if first.type == sym.subscript2: # first item is an array
                 var_items = node.children[1:-1] # strip subscript2 and semicolon
                 # visit_subscript2
-                var_type = AST.VarType(type, True, self.visit(first)) # type all the same
-                yield AST.VarDecl(var_type, name.value, node.context)
+                yield AST.VarDecl(type, True, self.visit(first), name.value, node.context)
             else: # first item is a basic_type
                 var_items = node.children[:-1] # strip semicolon
-                var_type = AST.VarType(type, False, 0)
-                yield AST.VarDecl(var_type, name.value, node.context)
+                yield AST.VarDecl(type, False, 0, name.value, node.context)
 
             # handle (',', var_items)*
             for child in var_items[1::2]:
@@ -148,11 +145,11 @@ class TransformerVisitor(VisitorBase):
         name = node.first_child
         if len(node.children) == 1:
             # name, is_array, size, context
-            var_type = AST.VarType(type, False, 0)
+            return AST.VarDecl(type, False, 0, name.value, name.context)
         else:
             # visit_subscript2
-            var_type = AST.VarType(type, True, self.visit(node.children[1]))
-        return AST.VarDecl(var_type, name.value, name.context)
+            size = self.visit(node.children[1])
+            return AST.VarDecl(type, True, size, name.value, name.context)
 
 
     def visit_stmt(self, node):

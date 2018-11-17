@@ -37,6 +37,8 @@ void ConstDecl::Format(std::ostream &os) const {
 void VarDecl::Format(std::ostream &os) const {
   os << "VarDecl("
      << "type=" << type << ", "
+     << "is_array=" << is_array << ", "
+     << "size=" << size << ", "
      << "name=" << name << ")";
 }
 
@@ -151,13 +153,6 @@ void Name::Format(std::ostream &os) const {
      << "ctx=" << ctx << ")";
 }
 
-void VarType::Format(std::ostream &os) const {
-  os << "VarType("
-     << "type=" << type << ", "
-     << "is_array=" << is_array << ", "
-     << "size=" << size << ")";
-}
-
 Program::~Program() {
   for (auto v : decls)
     delete v;
@@ -165,7 +160,7 @@ Program::~Program() {
 
 ConstDecl::~ConstDecl() { delete value; }
 
-VarDecl::~VarDecl() { delete type; }
+VarDecl::~VarDecl() {}
 
 FuncDef::~FuncDef() {
   for (auto v : args)
@@ -240,8 +235,6 @@ Char::~Char() {}
 Subscript::~Subscript() { delete index; }
 
 Name::~Name() {}
-
-VarType::~VarType() {}
 
 OperatorKind String2OperatorKind(const String &s) {
 

@@ -32,15 +32,15 @@ def main():
         symtable = build_symtable(ast)
         if symtable is None:
             return 1
-        test_code = CppTestTempalte().substitute(symtable)
-        format_code(test_code, "./Analyzer/test_symtable.cpp")
+        # test_code = CppTestTempalte().substitute(symtable)
+        # format_code(test_code, "./Analyzer/test_symtable.cpp")
 
         # pprint(symtable.lookup('a', 'addi'))
         # symtable.report()
-        # if args.raw:
-        #     print(ast)
-        # else:
-        #     astpretty_pprint(ast)
+        if args.raw:
+            print(ast)
+        else:
+            astpretty_pprint(ast)
     else:
         if args.raw:
             print(cst)

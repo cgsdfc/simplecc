@@ -144,3 +144,16 @@ def get_args(fields, attrs):
             name = f.name
         args.append(name)
     return args
+
+
+class ErrorManager:
+    def __init__(self):
+        self._error_count = 0
+
+    def error(self, msg, loc):
+        error(msg, loc)
+        self._error_count += 1
+
+    @property
+    def is_ok(self):
+        return self._error_count == 0

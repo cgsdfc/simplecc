@@ -55,8 +55,10 @@ def ConstDecl2Type(decl):
 
 @decl_to_type.register(VarDecl)
 def VarDecl2Type(decl):
-    type = decl.type
-    return Array(type.type, type.size) if type.is_array else Variable(type.type)
+    if decl.is_array:
+        return Array(decl.type, decl.size)
+    else:
+        return Variable(decl.type)
 
 @decl_to_type.register(FuncDef)
 def FuncDef2Type(decl):

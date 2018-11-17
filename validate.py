@@ -83,12 +83,11 @@ def _(node):
 @visit.register(VarDecl)
 def _(node):
     # check void variable and zero-sized array
-    var_type = node.type
-    if var_type.type == basic_type.Void:
+    if node.type == basic_type.Void:
         error("cannot declare {!r} as a void variable".format(node.name),
                 node.loc)
         return False
-    if var_type.is_array and var_type.size == 0:
+    if node.is_array and node.size == 0:
         error("array size of {!r} cannot be 0".format(node.name), node.loc)
         return False
     return True

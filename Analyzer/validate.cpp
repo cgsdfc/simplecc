@@ -70,12 +70,11 @@ public:
   }
 
   bool visit(VarDecl *node) {
-    auto var_type = node->type;
-    if (var_type->type == BasicTypeKind::Void) {
+    if (node->type == BasicTypeKind::Void) {
       Error(node->loc, "cannot declare", Quote(node->name), "as a void variable");
       return false;
     }
-    if (var_type->is_array && var_type->size == 0) {
+    if (node->is_array && node->size == 0) {
       Error(node->loc, "array size of", Quote(node->name), "cannot be 0");
       return false;
     }
