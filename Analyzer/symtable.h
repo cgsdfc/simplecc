@@ -107,11 +107,11 @@ public:
   NestedTableType locals;
 
   SymbolTable(): global(), locals() {}
-  const Entry &Lookup(const String &name, const char *ns_name = 0) {
-    if (ns_name)
-      return locals[ns_name][name];
-    else
-      return global[name];
+  const Entry &LookupLocal(const String &fun, const String &name) {
+    return locals[fun][name];
+  }
+  const Entry &LookupGlobal(const String &name) {
+    return global[name];
   }
 };
 
