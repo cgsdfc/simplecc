@@ -15,8 +15,8 @@ module Compiler
     arg = (basic_type type, identifier name)
           attributes (location loc)
 
-    stmt = Read(identifier *names)
-         | Write(string? str, expr? value)
+    stmt = Read(expr* names)
+         | Write(expr? str, expr? value)
          | Assign(expr target, expr value)
          | For(stmt initial, expr condition, stmt step, stmt* body)
          | While(expr condition, stmt* body)

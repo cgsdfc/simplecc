@@ -133,7 +133,7 @@ def iter_names(node):
         yield node.name, node.loc
     elif isinstance(node, (Read,)):
         for name in node.names:
-            yield name, node.loc
+            yield name.id, node.loc
     elif isinstance(node, Call):
         yield node.func, node.loc
     elif isinstance(node, Name):

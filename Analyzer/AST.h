@@ -243,9 +243,9 @@ public:
 
 class Read : public Stmt {
 public:
-  std::vector<std::string> names;
+  std::vector<Expr *> names;
 
-  Read(const std::vector<std::string> &names, Location loc)
+  Read(const std::vector<Expr *> &names, Location loc)
       : Stmt(Stmt::Read, loc), names(names) {}
 
   ~Read() override;
@@ -259,10 +259,10 @@ public:
 
 class Write : public Stmt {
 public:
-  std::optional<std::string> str;
+  Expr *str;
   Expr *value;
 
-  Write(std::optional<std::string> str, Expr *value, Location loc)
+  Write(Expr *str, Expr *value, Location loc)
       : Stmt(Stmt::Write, loc), str(str), value(value) {}
 
   ~Write() override;

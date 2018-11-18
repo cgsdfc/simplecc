@@ -310,26 +310,26 @@ public:
   }
 
   Stmt *visit_read_stmt(Node *node) {
-    std::vector<String> names;
+    std::vector<Expr*> names;
     for (auto b = node->children.begin() + 1, e = node->children.end();
         b != e; b++) {
       auto child = *b;
       if (child->type == Symbol::NAME) {
-        names.push_back(child->value);
+        names.push_back(new Name(child->value, ExprContextKind::Store, child->location));
       }
     }
     return new Read(names, node->location);
   }
 
   Stmt *visit_write_stmt(Node *node) {
-    std::optional<String> string;
+    Expr *string = nullptr;
     Expr *expr = nullptr;
 
     for (auto c: node->children) {
       if (c->type == Symbol::expr)
         expr = visit_expr(c);
       else if (c->type == Symbol::STRING)
-        string = c->value;
+        string = new Str(c->value, c->location);
       // ignore other things
     }
     return new Write(string, expr, node->location);

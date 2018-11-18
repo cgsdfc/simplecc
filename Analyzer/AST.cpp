@@ -173,9 +173,14 @@ FuncDef::~FuncDef() {
 
 Arg::~Arg() {}
 
-Read::~Read() {}
+Read::~Read() {
+  for (auto v : names)
+    delete v;
+}
 
 Write::~Write() {
+  if (str)
+    delete str;
   if (value)
     delete value;
 }

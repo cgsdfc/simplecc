@@ -31,11 +31,6 @@ class Node(namedtuple('Node', 'type value context children')):
     "A Node in the concrete syntax tree."""
 
     @property
-    def first_child_context(self):
-        if self.children:
-            return self.children[0].context
-
-    @property
     def first_child(self):
         return self.children[0]
 

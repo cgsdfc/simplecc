@@ -121,7 +121,7 @@ public:
 
   void visitRead(Read *x) {
     for (const auto &name: x->names)
-      ResolveName(name, x->loc);
+      visit(name);
   }
 
   void visitWrite(Write *x) {

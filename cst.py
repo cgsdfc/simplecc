@@ -223,7 +223,7 @@ class TransformerVisitor(VisitorBase):
                 next, target.context)
 
         stmt = list(self.visit(node.children[-1]))
-        return AST.For(initial, condition, step, stmt, node.first_child_context)
+        return AST.For(initial, condition, step, stmt, node.context)
 
     def visit_while_stmt(self, node):
         condition = self.visit(node.children[2])
@@ -235,11 +235,12 @@ class TransformerVisitor(VisitorBase):
         if not trailer:
             return AST.Return(None, node.context)
         expr = self.visit(trailer[1])
-        return AST.Return(expr, node.first_child_context)
+        return AST.Return(expr, node.context)
 
 
     def visit_read_stmt(self, node):
-        names = [c.value for c in node.children[2:-1:2]]
+        names = [AST.Name(c.value, expr_context.Store, node.context)
+                for c in node.children[2:-1:2]]
         return AST.Read(names, node.context)
 
     def visit_write_stmt(self, node):
@@ -251,8 +252,8 @@ class TransformerVisitor(VisitorBase):
             if val.type == sym.expr:
                 expr = self.visit(val)
             elif val.type == sym.STRING:
-                string = val.value
-        return AST.Write(string, expr, node.first_child_context)
+                string = AST.Str(val.value, val.context)
+        return AST.Write(string, expr, node.context)
 
 
     def visit_expr(self, node, context=expr_context.Load):
