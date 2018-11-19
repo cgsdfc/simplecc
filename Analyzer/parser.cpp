@@ -81,10 +81,10 @@ public:
     tos.state = newstate;
   }
 
-  void Push(int type, DFA *newdfa, int newstate, Location location) {
+  void Push(Symbol type, DFA *newdfa, int newstate, Location location) {
     /* printf("push %s\n", GetSymName(type)); */
     StackEntry &tos = stack.top();
-    Node *newnode = new Node(static_cast<Symbol>(type), "", location);
+    Node *newnode = new Node(type, "", location);
     tos.state = newstate;
     stack.push(StackEntry(newdfa, 0, newnode));
   }
@@ -121,7 +121,7 @@ public:
 
       for (int i = 0; i < state->n_arcs; ++i) {
         Arc &arc = state->arcs[i];
-        int type = grammar->labels[arc.label].type;
+        auto type = static_cast<Symbol>(grammar->labels[arc.label].type);
         int newstate = arc.state;
 
         if (label == arc.label) {
@@ -140,8 +140,8 @@ public:
           return false;
         }
 
-        else if (type >= 256) {
-          DFA *itsdfa = grammar->dfas[type - NT_OFFSET];
+        else if (IsNonterminal(type)) {
+          DFA *itsdfa = grammar->dfas[static_cast<int>(type) - NT_OFFSET];
           if (IsInFirst(itsdfa, label)) {
             /* printf("push %s\n", GetSymName(type)); */
             Push(type, itsdfa, newstate, token.start);

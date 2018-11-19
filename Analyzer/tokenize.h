@@ -16,17 +16,17 @@ using std::fprintf;
 using std::fputs;
 using std::exit;
 
-inline bool IsTerminal(int type) {
-  return type < NT_OFFSET;
+inline bool IsTerminal(Symbol type) {
+  return static_cast<int>(type) < NT_OFFSET;
 }
 
-inline bool IsNonterminal(int type) {
+inline bool IsNonterminal(Symbol type) {
   return !IsTerminal(type);
 }
 
 inline const char *GetSymName(Symbol s) {
   auto sym = static_cast<int>(s);
-  return IsTerminal(sym) ? TokenNames[sym] : SymbolNames[sym - NT_OFFSET];
+  return IsTerminal(s) ? TokenNames[sym] : SymbolNames[sym - NT_OFFSET];
 }
 
 class Location {
