@@ -4,6 +4,7 @@
 
 #include "tokenize.h"
 
+#include <cassert>
 #include <iostream>
 #include <optional>
 #include <vector>

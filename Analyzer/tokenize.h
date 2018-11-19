@@ -3,13 +3,8 @@
 
 #include "Grammar.h"
 
-#include <fstream>
-#include <sstream>
-#include <cassert>
-#include <cctype>
 #include <iostream>
 #include <vector>
-#include <cstdio>
 
 typedef std::string String;
 using std::fprintf;

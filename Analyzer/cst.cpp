@@ -1,8 +1,7 @@
 #include "cst.h"
 #include "error.h"
 
-#include <algorithm>
-#include <tuple>
+#include <sstream>
 
 class TransformerVisitor {
 public:

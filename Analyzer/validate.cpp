@@ -1,6 +1,5 @@
 #include "validate.h"
 #include "error.h"
-#include "parser.h"
 
 class SyntaxValidator {
 public:

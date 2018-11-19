@@ -5,6 +5,8 @@
 #include "type_check.h"
 #include "error.h"
 
+#include <fstream>
+
 void TestSymbolTable(SymbolTable &symtable);
 
 int main(int argc, char **argv) {

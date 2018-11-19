@@ -1,7 +1,9 @@
 #include "tokenize.h"
 #include "error.h"
 
+#include <sstream>
 #include <algorithm>
+#include <cassert>
 
 // Location(lineno, col_offset) => "lineno,col_offset"
 String LocationToString(const Location &loc) {

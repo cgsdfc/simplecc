@@ -375,6 +375,7 @@ class HeaderTemplate:
 #include <vector>
 #include <iostream>
 #include <optional>
+#include <cassert>
 
 class AST {
 public:
