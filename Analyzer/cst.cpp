@@ -1,4 +1,5 @@
 #include "cst.h"
+#include "error.h"
 
 #include <algorithm>
 #include <tuple>
@@ -344,6 +345,8 @@ public:
        if (first->type == Symbol::OP &&
            (first->value == "-" || first->value == "+")) {
          unaryop = String2UnaryopKind(first->value);
+         // skip the unaryop
+         node = node->children[1];
        }
      }
 

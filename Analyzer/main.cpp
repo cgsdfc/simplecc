@@ -2,6 +2,7 @@
 #include "cst.h"
 #include "validate.h"
 #include "symtable.h"
+#include "type_check.h"
 #include "error.h"
 
 void TestSymbolTable(SymbolTable &symtable);
@@ -25,15 +26,24 @@ int main(int argc, char **argv) {
   Node *cst_node = ParseTokens(tokens);
   if (!cst_node)
     return 1;
+
   Program *ast_node = NodeToAst(cst_node);
   if (!ast_node)
     return 1;
-  if (!ValidateSyntax(ast_node))
+
+  if (!ValidateSyntax(ast_node)) {
     return 1;
+  }
 
   SymbolTable symtable;
-  if (!BuildSymbolTable(ast_node, symtable))
+  if (!BuildSymbolTable(ast_node, symtable)) {
     return 1;
+  }
+  symtable.Check();
+
+  if (!CheckType(ast_node, symtable)) {
+    return 1;
+  }
 
   std::cout << *ast_node << "\n";
   /* std::cout << symbolTable << "\n"; */

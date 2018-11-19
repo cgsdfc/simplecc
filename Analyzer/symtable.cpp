@@ -244,6 +244,26 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
   return global_ok && e.IsOk();
 }
 
+void CheckTable(const TableType &table) {
+  for (const auto &item: table) {
+    assert(item.first == item.second.name);
+    assert(item.second.type);
+  }
+}
+
+// consistency check
+void SymbolTable::Check() const {
+  CheckTable(global);
+  for (const auto &kv: locals) {
+    CheckTable(kv.second);
+    for (const auto &kv2: kv.second) {
+      assert(kv2.second.scope == Scope::Local ||
+          global.find(kv2.first) != global.end() &&
+          "entry in local with global scope must be present in global");
+    }
+  }
+}
+
 // Overloads to print various data structures
 std::ostream &operator<<(std::ostream &os, Scope s) {
   switch (s) {

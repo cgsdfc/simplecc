@@ -1,3 +1,6 @@
+#ifndef SYMTABLE_H
+#define SYMTABLE_H
+
 #include "AST.h"
 #include <unordered_map>
 
@@ -108,13 +111,18 @@ public:
 
   SymbolTable(): global(), locals() {}
   const Entry &LookupLocal(const String &fun, const String &name) {
-    return locals[fun][name];
+    return locals.at(fun).at(name);
   }
+
   const Entry &LookupGlobal(const String &name) {
-    return global[name];
+    return global.at(name);
   }
+
+  void Check() const;
 };
 
 std::ostream &operator<<(std::ostream &os, const SymbolTable &t);
 
 bool BuildSymbolTable(Program *prog, SymbolTable &table);
+
+#endif

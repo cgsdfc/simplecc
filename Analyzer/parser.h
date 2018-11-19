@@ -29,7 +29,7 @@ public:
     return *(children.end() - 1);
   }
 
-  void Format(std::ostream &os) {
+  void Format(std::ostream &os) const {
     const char *type_str = GetSymName(type);
     os << "Node(";
     os << "type=" << type_str << ", ";
@@ -50,6 +50,11 @@ public:
   }
 
 };
+
+inline std::ostream &operator<<(std::ostream &os, const Node &node) {
+  node.Format(os);
+  return os;
+}
 
 Node *ParseTokens(const TokenBuffer &tokens);
 

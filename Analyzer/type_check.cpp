@@ -1,6 +1,17 @@
 #include "type_check.h"
 #include "error.h"
 
+const char *BasicTypeKind2CString(BasicTypeKind val) {
+  switch (val) {
+  case BasicTypeKind::Int:
+    return "int";
+  case BasicTypeKind::Character:
+    return "char";
+  case BasicTypeKind::Void:
+    return "void";
+  }
+}
+
 class TypeCheker: public VisitorBase<TypeCheker> {
 public:
   SymbolTable &symtable;
@@ -14,7 +25,7 @@ public:
   // lookup the type of name within the current function
   Type *LookupType(const String &name) {
     assert(cur_fun);
-    const auto &entry = symtable.LookupLocal(name, cur_fun->name);
+    const auto &entry = symtable.LookupLocal(cur_fun->name, name);
     return entry.type;
   }
 
@@ -68,17 +79,13 @@ public:
   }
 
   void visitWrite(Write *node) {
-    if (node->value)
+    if (node->value) {
       visitExpr(node->value);
+    }
   }
 
   void visitAssign(Assign *node) {
-    auto name = subclass_cast<Name>(node->target);
-    assert(name && "target of Assign must be a Name");
-    auto type = LookupType(name->id);
-    if (IsInstance<Variable>(type)) {
-      e.Error(name->loc, "cannot assign to object of type", type->ClassName());
-    }
+    visitExpr(node->target);
     visitExpr(node->value);
   }
 
@@ -113,13 +120,16 @@ public:
       VisitorBase::visit<BasicTypeKind>(node->value) : BasicTypeKind::Void;
     if (return_type != fun_type->return_type) {
       e.Error(node->loc,
-          "function", Quote(cur_fun->name), "must return", fun_type->return_type,
-          "not", return_type);
+          "function", Quote(cur_fun->name), "must return",
+          BasicTypeKind2CString(fun_type->return_type), "not",
+          BasicTypeKind2CString(return_type));
     }
   }
 
   void visitExprStmt(ExprStmt *node) {
     if (auto name = subclass_cast<Name>(node->value)) {
+      // A function name without passing any argument is interpreted as
+      // a call to it without argument.
       auto call = new Call(name->id, {}, name->loc);
       delete name;
       node->value = call;
@@ -165,8 +175,7 @@ public:
 
   BasicTypeKind visitSubscript(Subscript *node) {
     auto type = LookupType(node->name);
-    auto array_type = subclass_cast<Array>(type);
-    if (!array_type) {
+    if (auto array_type = subclass_cast<Array>(type); !array_type) {
       e.Error(node->loc,
           "object of type", type->ClassName(), "cannot be subscripted");
     }
@@ -176,9 +185,18 @@ public:
 
   BasicTypeKind visitName(Name *node) {
     auto type = LookupType(node->id);
-    if (IsInstance<Function>(type) || IsInstance<Array>(type)) {
-      e.Error(node->loc,
-          "object of type", type->ClassName(), "cannot be used in expression");
+    if (node->ctx == ExprContextKind::Load) {
+      if (IsInstance<Function>(type) || IsInstance<Array>(type)) {
+        e.Error(node->loc,
+            "object of type", type->ClassName(), "cannot be used in an expression");
+      }
+    }
+    else {
+      assert(node->ctx == ExprContextKind::Store);
+      if (!IsInstance<Variable>(type)) {
+        e.Error(node->loc,
+            "object of type", type->ClassName(), "cannot be assigned to");
+      }
     }
     return BasicTypeKind::Int;
   }

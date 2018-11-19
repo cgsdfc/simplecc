@@ -264,7 +264,7 @@ class TransformerVisitor(VisitorBase):
         if node.type == sym.expr:
             if node.first_child.value in ('-', '+'):
                 unaryop = AST.string2unaryop[node.first_child.value]
-                node.children = node.children[1:]
+                node = node.children[1]
 
         if node.type in (sym.term, sym.expr, sym.condition):
             result = self.visit_binop(node, context)
