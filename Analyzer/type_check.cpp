@@ -14,12 +14,12 @@ const char *BasicTypeKind2CString(BasicTypeKind val) {
 
 class TypeCheker: public VisitorBase<TypeCheker> {
 public:
-  SymbolTable &symtable;
+  const SymbolTable &symtable;
   ErrorManager e;
   // point to the entry of the function being checked
   const Entry *cur_fun;
 
-  TypeCheker(SymbolTable &symtable):
+  TypeCheker(const SymbolTable &symtable):
     symtable(symtable), e(), cur_fun(nullptr) {}
 
   // lookup the type of name within the current function
@@ -49,11 +49,11 @@ public:
   }
 
   void visitStmt(Stmt *s) {
-    return VisitorBase::visit<void>(s);
+    return VisitorBase::visitStmt<void>(s);
   }
 
   void visitExpr(Expr *node, bool void_ok = false) {
-    auto type = VisitorBase::visit<BasicTypeKind>(node);
+    auto type = VisitorBase::visitExpr<BasicTypeKind>(node);
     if (type == BasicTypeKind::Void && !void_ok) {
       e.Error(node->loc, "value of expression cannot be void");
     }
@@ -117,7 +117,7 @@ public:
   void visitReturn(Return *node) {
     auto fun_type = subclass_cast<Function>(cur_fun->type);
     auto return_type = node->value ?
-      VisitorBase::visit<BasicTypeKind>(node->value) : BasicTypeKind::Void;
+      VisitorBase::visitExpr<BasicTypeKind>(node->value) : BasicTypeKind::Void;
 
     if ((return_type == BasicTypeKind::Void &&
         fun_type->return_type != BasicTypeKind::Void) ||
@@ -211,6 +211,6 @@ public:
 
 };
 
-bool CheckType(Program *prog, SymbolTable &symtable) {
+bool CheckType(Program *prog, const SymbolTable &symtable) {
   return TypeCheker(symtable).Check(prog);
 }

@@ -429,6 +429,7 @@ inline T *subclass_cast(U *x) {
 String GetDeclName(Decl *decl);
 
 $visitor_base
+$default_visitor
 #endif
 """)
 
@@ -452,6 +453,7 @@ $visitor_base
             leafnode_classes="\n".join(substitute_all(typemap, LeafNode)),
             string2enum_decls="\n".join(String2EnumTempalte.substitute_decls(typemap)),
             visitor_base=VisitorBaseTemplate.substitute(typemap),
+            default_visitor=DefaultVisitorTemplate.substitute(typemap),
         )
 
 def substitute_all(typemap, match, method="substitute"):
@@ -755,7 +757,7 @@ $abstract_visitor
 
     abstract = Template("""
 template<typename R, typename... Args>
-R visit($class_name *node, Args&&... args) {
+R visit$class_name($class_name *node, Args&&... args) {
     $test_and_dispatches
     assert(false && "$class_name");
 }
@@ -782,6 +784,60 @@ if (auto x = subclass_cast<$class_name>(node))
             abstract_visitor="\n".join(cls.make_abstract_visitor(x)
                 for x in typemap.values() if isinstance(x, AbstractNode))
         )
+
+
+class DefaultVisitorTemplate:
+    """Default implementation of visitor -- visit children"""
+    decl = Template("""
+class DefaultVisitor: public VisitorBase<DefaultVisitor> {
+public:
+$abstracts
+$concretes
+};
+""")
+
+    abstract = Template("""
+// Forward call to VisitorBase
+void visit$class_name($class_name *node) {
+    return VisitorBase::visit$class_name<void>(node);
+}""")
+
+    concrete = Template("""
+void visit$class_name($class_name *node) {
+$body
+}""")
+
+    @classmethod
+    def make_body(cls, x):
+        for type, name in x.members:
+            if isinstance(type, AstNode):
+                yield Template("visit$class_name(node->$name);").substitute(
+                    class_name=type.name,
+                    name=name
+                )
+            elif isinstance(type, Sequence) and isinstance(type.elemtype, AstNode):
+                yield Template("for (auto x: node->$name) visit$class_name(x);").substitute(
+                    name=name,
+                    class_name=type.elemtype.name,
+                )
+            elif isinstance(type, Optional) and isinstance(type.elemtype, AstNode):
+                yield Template("if (node->$name) visit$class_name(node->$name);").substitute(
+                    name=name,
+                    class_name=type.elemtype.name,
+                )
+
+    @classmethod
+    def substitute(cls, typemap):
+        return cls.decl.substitute(
+            abstracts="\n".join([cls.abstract.substitute(class_name=t.name)
+                for t in typemap.values() if isinstance(t, AbstractNode)]),
+            concretes="\n".join([cls.concrete.substitute(
+                class_name=t.name,
+                body="\n".join(cls.make_body(t)),
+            ) for t in typemap.values() if isinstance(t, (ConcreteNode, LeafNode))]),
+        )
+
+
 
 
 # helpers
