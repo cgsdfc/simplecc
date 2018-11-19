@@ -1,5 +1,3 @@
-#ifndef ERROR_H
-#define ERROR_H
 #include "tokenize.h"
 
 template <typename... Args>
@@ -47,4 +45,3 @@ public:
 inline String Quote(const String &string) {
   return '\'' + string + '\'';
 }
-#endif

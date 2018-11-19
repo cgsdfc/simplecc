@@ -3,5 +3,5 @@
 #include "AST.h"
 #include "symtable.h"
 
-bool CheckType(Program *prog, const SymbolTable &symtable);
+bool CheckType(Program *prog, SymbolTable &symtable);
 #endif

@@ -77,7 +77,7 @@ bool MakeGlobal(Program *prog, TableType &dict) {
 }
 
 // Visitor that resolves local names for a function
-class LocalResolver: public DefaultVisitor {
+class LocalResolver: public VisitorBase<LocalResolver> {
 public:
   // The Ast of the function
   FuncDef *fun;
@@ -109,10 +109,82 @@ public:
     }
   }
 
+  // visitor methods that handle each type of AST
+
+  void visit(Expr *expr) {
+    VisitorBase::visit<void>(expr);
+  }
+
+  void visit(Stmt *stmt) {
+    VisitorBase::visit<void>(stmt);
+  }
+
+  void visitRead(Read *x) {
+    for (const auto &name: x->names)
+      visit(name);
+  }
+
+  void visitWrite(Write *x) {
+    if (x->value)
+      visit(x->value);
+  }
+
+  void visitAssign(Assign *x) {
+    visit(x->target);
+    visit(x->value);
+  }
+
+  void visitFor(For *x) {
+    visit(x->initial);
+    visit(x->condition);
+    visit(x->step);
+    for (auto s: x->body)
+      visit(s);
+  }
+
+  void visitWhile(While *x) {
+    visit(x->condition);
+    for (auto s: x->body)
+      visit(s);
+  }
+
+  void visitReturn(Return *x) {
+    if (x->value)
+      visit(x->value);
+  }
+
+  void visitExprStmt(ExprStmt *x) {
+    visit(x->value);
+  }
+
+  void visitIf(If *x) {
+    visit(x->test);
+    for (auto s: x->body)
+      visit(s);
+    for (auto s: x->orelse)
+      visit(s);
+  }
+
+  void visitBinOp(BinOp *x) {
+    visit(x->left);
+    visit(x->right);
+  }
+
+  void visitUnaryOp(UnaryOp *x) {
+    visit(x->operand);
+  }
+
   void visitCall(Call *x) {
     ResolveName(x->func, x->loc);
-    DefaultVisitor::visitCall(x);
+    for (auto arg: x->args) {
+      visit(arg);
+    }
   }
+
+  // these do not have identifiers
+  void visitNum(Num *x) {}
+  void visitStr(Str *x) {}
+  void visitChar(Char *x) {}
 
   void visitSubscript(Subscript *x) {
     ResolveName(x->name, x->loc);
@@ -125,7 +197,7 @@ public:
   // public interface
   void Resolve() {
     for (auto stmt: fun->stmts) {
-      visitStmt(stmt);
+      visit(stmt);
     }
   }
 };

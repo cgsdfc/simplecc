@@ -572,8 +572,7 @@ String GetDeclName(Decl *decl);
 // CRTP-based visitor base implementing dispatch on node type.
 template <typename Derived> class VisitorBase {
 public:
-  template <typename R, typename... Args>
-  R visitDecl(Decl *node, Args &&... args) {
+  template <typename R, typename... Args> R visit(Decl *node, Args &&... args) {
 
     if (auto x = subclass_cast<ConstDecl>(node))
       return static_cast<Derived *>(this)->visitConstDecl(x, args...);
@@ -587,8 +586,7 @@ public:
     assert(false && "Decl");
   }
 
-  template <typename R, typename... Args>
-  R visitStmt(Stmt *node, Args &&... args) {
+  template <typename R, typename... Args> R visit(Stmt *node, Args &&... args) {
 
     if (auto x = subclass_cast<Read>(node))
       return static_cast<Derived *>(this)->visitRead(x, args...);
@@ -617,8 +615,7 @@ public:
     assert(false && "Stmt");
   }
 
-  template <typename R, typename... Args>
-  R visitExpr(Expr *node, Args &&... args) {
+  template <typename R, typename... Args> R visit(Expr *node, Args &&... args) {
 
     if (auto x = subclass_cast<BinOp>(node))
       return static_cast<Derived *>(this)->visitBinOp(x, args...);
@@ -646,106 +643,6 @@ public:
 
     assert(false && "Expr");
   }
-};
-
-class DefaultVisitor : public VisitorBase<DefaultVisitor> {
-public:
-  // Forward call to VisitorBase
-  void visitDecl(Decl *node) { return VisitorBase::visitDecl<void>(node); }
-
-  // Forward call to VisitorBase
-  void visitStmt(Stmt *node) { return VisitorBase::visitStmt<void>(node); }
-
-  // Forward call to VisitorBase
-  void visitExpr(Expr *node) { return VisitorBase::visitExpr<void>(node); }
-
-  void visitProgram(Program *node) {
-    for (auto x : node->decls)
-      visitDecl(x);
-  }
-
-  void visitConstDecl(ConstDecl *node) { visitExpr(node->value); }
-
-  void visitVarDecl(VarDecl *node) {}
-
-  void visitFuncDef(FuncDef *node) {
-    for (auto x : node->args)
-      visitArg(x);
-    for (auto x : node->decls)
-      visitDecl(x);
-    for (auto x : node->stmts)
-      visitStmt(x);
-  }
-
-  void visitArg(Arg *node) {}
-
-  void visitRead(Read *node) {
-    for (auto x : node->names)
-      visitExpr(x);
-  }
-
-  void visitWrite(Write *node) {
-    if (node->str)
-      visitExpr(node->str);
-    if (node->value)
-      visitExpr(node->value);
-  }
-
-  void visitAssign(Assign *node) {
-    visitExpr(node->target);
-    visitExpr(node->value);
-  }
-
-  void visitFor(For *node) {
-    visitStmt(node->initial);
-    visitExpr(node->condition);
-    visitStmt(node->step);
-    for (auto x : node->body)
-      visitStmt(x);
-  }
-
-  void visitWhile(While *node) {
-    visitExpr(node->condition);
-    for (auto x : node->body)
-      visitStmt(x);
-  }
-
-  void visitReturn(Return *node) {
-    if (node->value)
-      visitExpr(node->value);
-  }
-
-  void visitIf(If *node) {
-    visitExpr(node->test);
-    for (auto x : node->body)
-      visitStmt(x);
-    for (auto x : node->orelse)
-      visitStmt(x);
-  }
-
-  void visitExprStmt(ExprStmt *node) { visitExpr(node->value); }
-
-  void visitBinOp(BinOp *node) {
-    visitExpr(node->left);
-    visitExpr(node->right);
-  }
-
-  void visitUnaryOp(UnaryOp *node) { visitExpr(node->operand); }
-
-  void visitCall(Call *node) {
-    for (auto x : node->args)
-      visitExpr(x);
-  }
-
-  void visitNum(Num *node) {}
-
-  void visitStr(Str *node) {}
-
-  void visitChar(Char *node) {}
-
-  void visitSubscript(Subscript *node) { visitExpr(node->index); }
-
-  void visitName(Name *node) {}
 };
 
 #endif
