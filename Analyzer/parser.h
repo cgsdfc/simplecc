@@ -29,25 +29,7 @@ public:
     return *(children.end() - 1);
   }
 
-  void Format(std::ostream &os) const {
-    const char *type_str = GetSymName(type);
-    os << "Node(";
-    os << "type=" << type_str << ", ";
-    os << "value=" << FormatValue() << ", ";
-    os << "context=" << location << ", ";
-    os << "children=";
-    if (children.empty()) {
-      os << "None)";
-    } else {
-      os << "[";
-      for (int i = 0; i < children.size(); i++) {
-        children[i]->Format(os);
-        if (i != children.size() - 1)
-          os << ", ";
-      }
-      os << "])";
-    }
-  }
+  void Format(std::ostream &os) const;
 
 };
 

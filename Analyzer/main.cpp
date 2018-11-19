@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-
+  std::cout << ast_node << "\n";
   delete ast_node;
   delete cst_node;
   for (auto token: tokens) {

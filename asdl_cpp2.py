@@ -514,7 +514,7 @@ String GetDeclName(Decl *decl) {
         return cls.impl.substitute(
             formatter_impls="\n".join(substitute_all(
                 typemap,
-                (ConcreteNode, LeafNode),
+                (ConcreteNode, LeafNode, EnumClass),
                 'make_formatter',
             )),
             destructor_impls="\n".join(substitute_all(
@@ -670,15 +670,19 @@ class EnumClassTemplate:
     decl = Template("""
 enum class $class_name { $enumitems };
 
-inline std::ostream &operator<<(std::ostream &os, $class_name val) {
-    switch (val) {
-    $case_stmts
-    }
-}
+std::ostream &operator<<(std::ostream &os, $class_name val);
 """)
 
     case_stmt = Template("""
 case $class_name::$item: return os << "$class_name::$item";
+""")
+
+    impl = Template("""
+std::ostream &operator<<(std::ostream &os, $class_name val) {
+    switch (val) {
+    $case_stmts
+    }
+}
 """)
 
     @classmethod
@@ -687,6 +691,12 @@ case $class_name::$item: return os << "$class_name::$item";
         return cls.decl.substitute(
             class_name=x.name,
             enumitems=make_enumitems(x.values),
+        )
+
+    @classmethod
+    def make_formatter(cls, x):
+        return cls.impl.substitute(
+            class_name=x.name,
             case_stmts=cls.make_case_stmts(x),
         )
 

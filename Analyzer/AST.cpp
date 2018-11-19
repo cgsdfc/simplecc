@@ -153,6 +153,77 @@ void Name::Format(std::ostream &os) const {
      << "ctx=" << ctx << ")";
 }
 
+std::ostream &operator<<(std::ostream &os, OperatorKind val) {
+  switch (val) {
+
+  case OperatorKind::Add:
+    return os << "OperatorKind::Add";
+
+  case OperatorKind::Sub:
+    return os << "OperatorKind::Sub";
+
+  case OperatorKind::Mult:
+    return os << "OperatorKind::Mult";
+
+  case OperatorKind::Div:
+    return os << "OperatorKind::Div";
+
+  case OperatorKind::Eq:
+    return os << "OperatorKind::Eq";
+
+  case OperatorKind::NotEq:
+    return os << "OperatorKind::NotEq";
+
+  case OperatorKind::Lt:
+    return os << "OperatorKind::Lt";
+
+  case OperatorKind::LtE:
+    return os << "OperatorKind::LtE";
+
+  case OperatorKind::Gt:
+    return os << "OperatorKind::Gt";
+
+  case OperatorKind::GtE:
+    return os << "OperatorKind::GtE";
+  }
+}
+
+std::ostream &operator<<(std::ostream &os, UnaryopKind val) {
+  switch (val) {
+
+  case UnaryopKind::UAdd:
+    return os << "UnaryopKind::UAdd";
+
+  case UnaryopKind::USub:
+    return os << "UnaryopKind::USub";
+  }
+}
+
+std::ostream &operator<<(std::ostream &os, ExprContextKind val) {
+  switch (val) {
+
+  case ExprContextKind::Load:
+    return os << "ExprContextKind::Load";
+
+  case ExprContextKind::Store:
+    return os << "ExprContextKind::Store";
+  }
+}
+
+std::ostream &operator<<(std::ostream &os, BasicTypeKind val) {
+  switch (val) {
+
+  case BasicTypeKind::Int:
+    return os << "BasicTypeKind::Int";
+
+  case BasicTypeKind::Character:
+    return os << "BasicTypeKind::Character";
+
+  case BasicTypeKind::Void:
+    return os << "BasicTypeKind::Void";
+  }
+}
+
 Program::~Program() {
   for (auto v : decls)
     delete v;
