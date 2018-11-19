@@ -2,6 +2,7 @@
 #include "cst.h"
 #include "validate.h"
 #include "symtable.h"
+#include "error.h"
 
 void TestSymbolTable(SymbolTable &symtable);
 

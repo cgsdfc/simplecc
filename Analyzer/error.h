@@ -8,6 +8,11 @@ inline void Print(std::ostream &os) {
   os << "\n";
 }
 
+template <typename Last>
+inline void Print(std::ostream &os, Last&& last) {
+  os << last << "\n";
+}
+
 template <typename First, typename... Rest>
 inline void Print(std::ostream &os, First&& first, Rest&&... rest) {
   os << first << " ";
