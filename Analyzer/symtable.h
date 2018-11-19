@@ -110,13 +110,10 @@ public:
   NestedTableType locals;
 
   SymbolTable(): global(), locals() {}
-  const Entry &LookupLocal(const String &fun, const String &name) {
-    return locals.at(fun).at(name);
-  }
 
-  const Entry &LookupGlobal(const String &name) {
-    return global.at(name);
-  }
+  const Entry &LookupLocal(const String &fun, const String &name) const;
+
+  const Entry &LookupGlobal(const String &name) const;
 
   void Check() const;
 };

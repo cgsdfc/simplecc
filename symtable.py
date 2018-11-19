@@ -12,6 +12,7 @@ from string import Template
 import re
 
 from AST import *
+from AST import arg as Arg
 from util import error
 
 Scope = Enum("Scope", "Local Global")
@@ -129,21 +130,21 @@ Entry = namedtuple("Entry", "type scope loc name")
 def iter_names(node):
     # XXX: this must cover all Ast node that has names
     # handle terminal nodes that has a name:
-    if isinstance(node, (ConstDecl, VarDecl, arg)):
+    if isinstance(node, (ConstDecl, VarDecl, Arg)):
         yield node.name, node.loc
     elif isinstance(node, (Read,)):
         for name in node.names:
             yield name.id, node.loc
     elif isinstance(node, Call):
         yield node.func, node.loc
+        for arg in node.args:
+            yield from iter_names(arg)
     elif isinstance(node, Name):
         yield node.id, node.loc
     elif isinstance(node, Subscript):
         yield node.name, node.loc
     else:
         # handle non-terminal nodes
-        # if isinstance(node, FuncDef):
-        #     yield node.name, node.loc
         for child in node:
             if isinstance(child, AST):
                 yield from iter_names(child)

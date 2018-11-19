@@ -118,7 +118,11 @@ public:
     auto fun_type = subclass_cast<Function>(cur_fun->type);
     auto return_type = node->value ?
       VisitorBase::visit<BasicTypeKind>(node->value) : BasicTypeKind::Void;
-    if (return_type != fun_type->return_type) {
+
+    if ((return_type == BasicTypeKind::Void &&
+        fun_type->return_type != BasicTypeKind::Void) ||
+       (return_type != BasicTypeKind::Void &&
+       fun_type->return_type == BasicTypeKind::Void)) {
       e.Error(node->loc,
           "function", Quote(cur_fun->name), "must return",
           BasicTypeKind2CString(fun_type->return_type), "not",

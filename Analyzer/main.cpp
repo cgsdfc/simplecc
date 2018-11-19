@@ -45,9 +45,6 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::cout << *ast_node << "\n";
-  /* std::cout << symbolTable << "\n"; */
-  /* TestSymbolTable(symtable); */
 
   delete ast_node;
   delete cst_node;

@@ -7,7 +7,25 @@ void TestSymbolTable(SymbolTable &symtable) {
   auto &locals = symtable.locals;
 
   {
-    assert(global.size() == 27);
+    assert(global.size() == 29);
+
+    {
+      assert(global.count("positive"));
+      const Entry &e = global["positive"];
+      assert(IsInstance<Constant>(e.type));
+      assert(e.scope == Scope::Global);
+      assert(e.name == "positive");
+      // assert(e.location == Location(1, 0));
+    }
+
+    {
+      assert(global.count("negative"));
+      const Entry &e = global["negative"];
+      assert(IsInstance<Constant>(e.type));
+      assert(e.scope == Scope::Global);
+      assert(e.name == "negative");
+      // assert(e.location == Location(2, 0));
+    }
 
     {
       assert(global.count("max_heap_size"));
@@ -15,7 +33,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Constant>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "max_heap_size");
-      // assert(e.location == Location(1, 0));
+      // assert(e.location == Location(3, 0));
     }
 
     {
@@ -24,7 +42,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Constant>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "character");
-      // assert(e.location == Location(2, 0));
+      // assert(e.location == Location(4, 0));
     }
 
     {
@@ -33,7 +51,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Constant>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "is_valid");
-      // assert(e.location == Location(4, 0));
+      // assert(e.location == Location(6, 0));
     }
 
     {
@@ -42,7 +60,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Constant>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "hasattr");
-      // assert(e.location == Location(4, 0));
+      // assert(e.location == Location(6, 0));
     }
 
     {
@@ -51,7 +69,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Constant>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "digit");
-      // assert(e.location == Location(5, 0));
+      // assert(e.location == Location(7, 0));
     }
 
     {
@@ -60,7 +78,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Constant>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "letter");
-      // assert(e.location == Location(5, 0));
+      // assert(e.location == Location(7, 0));
     }
 
     {
@@ -69,7 +87,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heap");
-      // assert(e.location == Location(7, 8));
+      // assert(e.location == Location(9, 8));
     }
 
     {
@@ -78,7 +96,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "index");
-      // assert(e.location == Location(8, 0));
+      // assert(e.location == Location(10, 0));
     }
 
     {
@@ -87,7 +105,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "flag");
-      // assert(e.location == Location(10, 8));
+      // assert(e.location == Location(12, 8));
     }
 
     {
@@ -96,7 +114,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "array");
-      // assert(e.location == Location(10, 10));
+      // assert(e.location == Location(12, 10));
     }
 
     {
@@ -105,7 +123,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "module");
-      // assert(e.location == Location(11, 10));
+      // assert(e.location == Location(13, 10));
     }
 
     {
@@ -114,7 +132,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "class");
-      // assert(e.location == Location(11, 12));
+      // assert(e.location == Location(13, 12));
     }
 
     {
@@ -123,7 +141,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "errors");
-      // assert(e.location == Location(12, 10));
+      // assert(e.location == Location(14, 10));
     }
 
     {
@@ -132,7 +150,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "input");
-      // assert(e.location == Location(12, 16));
+      // assert(e.location == Location(14, 16));
     }
 
     {
@@ -141,7 +159,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "addi");
-      // assert(e.location == Location(14, 0));
+      // assert(e.location == Location(16, 0));
     }
 
     {
@@ -150,7 +168,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "addc");
-      // assert(e.location == Location(18, 0));
+      // assert(e.location == Location(20, 0));
     }
 
     {
@@ -159,7 +177,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "print_char");
-      // assert(e.location == Location(22, 0));
+      // assert(e.location == Location(24, 0));
     }
 
     {
@@ -168,7 +186,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "print_string");
-      // assert(e.location == Location(26, 0));
+      // assert(e.location == Location(28, 0));
     }
 
     {
@@ -177,7 +195,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "print_string_ex");
-      // assert(e.location == Location(30, 0));
+      // assert(e.location == Location(32, 0));
     }
 
     {
@@ -186,7 +204,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "dead_loop");
-      // assert(e.location == Location(34, 0));
+      // assert(e.location == Location(36, 0));
     }
 
     {
@@ -195,7 +213,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "prompt_int");
-      // assert(e.location == Location(40, 0));
+      // assert(e.location == Location(42, 0));
     }
 
     {
@@ -204,7 +222,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "swap");
-      // assert(e.location == Location(48, 0));
+      // assert(e.location == Location(50, 0));
     }
 
     {
@@ -213,7 +231,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heapify");
-      // assert(e.location == Location(55, 0));
+      // assert(e.location == Location(57, 0));
     }
 
     {
@@ -222,7 +240,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heap_sort");
-      // assert(e.location == Location(83, 0));
+      // assert(e.location == Location(85, 0));
     }
 
     {
@@ -231,7 +249,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "print_heap");
-      // assert(e.location == Location(98, 0));
+      // assert(e.location == Location(100, 0));
     }
 
     {
@@ -240,7 +258,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "reset_heap");
-      // assert(e.location == Location(109, 0));
+      // assert(e.location == Location(111, 0));
     }
 
     {
@@ -249,7 +267,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "main");
-      // assert(e.location == Location(117, 0));
+      // assert(e.location == Location(119, 0));
     }
   }
 
@@ -264,7 +282,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "a");
-      // assert(e.location == Location(14, 9));
+      // assert(e.location == Location(16, 9));
     }
 
     {
@@ -273,7 +291,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "b");
-      // assert(e.location == Location(14, 16));
+      // assert(e.location == Location(16, 16));
     }
   }
 
@@ -288,7 +306,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "a");
-      // assert(e.location == Location(18, 10));
+      // assert(e.location == Location(20, 10));
     }
 
     {
@@ -297,7 +315,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "b");
-      // assert(e.location == Location(18, 18));
+      // assert(e.location == Location(20, 18));
     }
   }
 
@@ -312,7 +330,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "c");
-      // assert(e.location == Location(22, 16));
+      // assert(e.location == Location(24, 16));
     }
   }
 
@@ -333,7 +351,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "expr");
-      // assert(e.location == Location(30, 21));
+      // assert(e.location == Location(32, 21));
     }
   }
 
@@ -354,7 +372,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "val");
-      // assert(e.location == Location(41, 6));
+      // assert(e.location == Location(43, 6));
     }
   }
 
@@ -369,7 +387,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "index1");
-      // assert(e.location == Location(48, 10));
+      // assert(e.location == Location(50, 10));
     }
 
     {
@@ -378,7 +396,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "index2");
-      // assert(e.location == Location(48, 22));
+      // assert(e.location == Location(50, 22));
     }
 
     {
@@ -387,7 +405,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "temp");
-      // assert(e.location == Location(49, 6));
+      // assert(e.location == Location(51, 6));
     }
 
     {
@@ -396,7 +414,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heap");
-      // assert(e.location == Location(50, 13));
+      // assert(e.location == Location(52, 13));
     }
   }
 
@@ -411,7 +429,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "index");
-      // assert(e.location == Location(55, 13));
+      // assert(e.location == Location(57, 13));
     }
 
     {
@@ -420,7 +438,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "heap_size");
-      // assert(e.location == Location(55, 24));
+      // assert(e.location == Location(57, 24));
     }
 
     {
@@ -429,7 +447,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "largest");
-      // assert(e.location == Location(56, 6));
+      // assert(e.location == Location(58, 6));
     }
 
     {
@@ -438,7 +456,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "left");
-      // assert(e.location == Location(57, 6));
+      // assert(e.location == Location(59, 6));
     }
 
     {
@@ -447,7 +465,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "right");
-      // assert(e.location == Location(58, 6));
+      // assert(e.location == Location(60, 6));
     }
 
     {
@@ -456,7 +474,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heap");
-      // assert(e.location == Location(65, 12));
+      // assert(e.location == Location(67, 12));
     }
 
     {
@@ -465,7 +483,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "swap");
-      // assert(e.location == Location(77, 4));
+      // assert(e.location == Location(79, 4));
     }
 
     {
@@ -474,7 +492,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heapify");
-      // assert(e.location == Location(78, 4));
+      // assert(e.location == Location(80, 4));
     }
   }
 
@@ -489,7 +507,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "heap_size");
-      // assert(e.location == Location(83, 15));
+      // assert(e.location == Location(85, 15));
     }
 
     {
@@ -498,7 +516,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "i");
-      // assert(e.location == Location(84, 6));
+      // assert(e.location == Location(86, 6));
     }
 
     {
@@ -507,7 +525,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heapify");
-      // assert(e.location == Location(88, 4));
+      // assert(e.location == Location(90, 4));
     }
 
     {
@@ -516,7 +534,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "swap");
-      // assert(e.location == Location(93, 4));
+      // assert(e.location == Location(95, 4));
     }
   }
 
@@ -531,7 +549,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "heap_size");
-      // assert(e.location == Location(98, 16));
+      // assert(e.location == Location(100, 16));
     }
 
     {
@@ -540,7 +558,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "i");
-      // assert(e.location == Location(99, 6));
+      // assert(e.location == Location(101, 6));
     }
 
     {
@@ -549,7 +567,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heap");
-      // assert(e.location == Location(102, 15));
+      // assert(e.location == Location(104, 15));
     }
   }
 
@@ -564,7 +582,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "i");
-      // assert(e.location == Location(110, 6));
+      // assert(e.location == Location(112, 6));
     }
 
     {
@@ -573,7 +591,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Constant>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "max_heap_size");
-      // assert(e.location == Location(112, 18));
+      // assert(e.location == Location(114, 18));
     }
 
     {
@@ -582,7 +600,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heap");
-      // assert(e.location == Location(113, 8));
+      // assert(e.location == Location(115, 8));
     }
   }
 
@@ -597,7 +615,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "n");
-      // assert(e.location == Location(118, 6));
+      // assert(e.location == Location(120, 6));
     }
 
     {
@@ -606,7 +624,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "temp");
-      // assert(e.location == Location(119, 6));
+      // assert(e.location == Location(121, 6));
     }
 
     {
@@ -615,7 +633,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "i");
-      // assert(e.location == Location(120, 6));
+      // assert(e.location == Location(122, 6));
     }
 
     {
@@ -624,7 +642,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "j");
-      // assert(e.location == Location(120, 9));
+      // assert(e.location == Location(122, 9));
     }
 
     {
@@ -633,7 +651,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Variable>(e.type));
       assert(e.scope == Scope::Local);
       assert(e.name == "array_size");
-      // assert(e.location == Location(121, 6));
+      // assert(e.location == Location(123, 6));
     }
 
     {
@@ -642,7 +660,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "reset_heap");
-      // assert(e.location == Location(123, 2));
+      // assert(e.location == Location(125, 2));
     }
 
     {
@@ -651,7 +669,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Constant>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "max_heap_size");
-      // assert(e.location == Location(128, 21));
+      // assert(e.location == Location(130, 21));
     }
 
     {
@@ -660,7 +678,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Array>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heap");
-      // assert(e.location == Location(133, 12));
+      // assert(e.location == Location(135, 12));
     }
 
     {
@@ -669,7 +687,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "heap_sort");
-      // assert(e.location == Location(135, 6));
+      // assert(e.location == Location(137, 6));
     }
 
     {
@@ -678,7 +696,7 @@ void TestSymbolTable(SymbolTable &symtable) {
       assert(IsInstance<Function>(e.type));
       assert(e.scope == Scope::Global);
       assert(e.name == "print_heap");
-      // assert(e.location == Location(136, 6));
+      // assert(e.location == Location(138, 6));
     }
   }
 }

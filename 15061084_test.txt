@@ -1,3 +1,5 @@
+const int positive = +1;
+const int negative = -1;
 const int max_heap_size = 100;
 const char character = 'c';
 

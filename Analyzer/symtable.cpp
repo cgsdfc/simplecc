@@ -176,6 +176,9 @@ public:
 
   void visitCall(Call *x) {
     ResolveName(x->func, x->loc);
+    for (auto arg: x->args) {
+      visit(arg);
+    }
   }
 
   // these do not have identifiers
@@ -262,6 +265,21 @@ void SymbolTable::Check() const {
           "entry in local with global scope must be present in global");
     }
   }
+}
+
+const Entry &SymbolTable::LookupLocal(const String &fun, const String &name) const {
+  auto iter = locals.find(fun);
+  assert(iter != locals.end() && "absent function name in locals");
+  const auto &local = iter->second;
+  const auto &entry_iter = local.find(name);
+  assert(entry_iter != local.end() && "absent name in local");
+  return entry_iter->second;
+}
+
+const Entry &SymbolTable::LookupGlobal(const String &name) const {
+  auto iter = global.find(name);
+  assert(iter != global.end() && "absent name in global");
+  return iter->second;
 }
 
 // Overloads to print various data structures
