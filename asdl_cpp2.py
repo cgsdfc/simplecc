@@ -434,24 +434,24 @@ $visitor_base
 
     forward_decl = Template("""class $class_name;""")
 
-    @classmethod
-    def make_forward_decls(cls, typemap):
+
+    def make_forward_decls(self, typemap):
         """Return an iterable of forward_decl strings"""
         for x in typemap.values():
             if isinstance(x, AstNode):
-                yield cls.forward_decl.substitute(class_name=x.name)
+                yield self.forward_decl.substitute(class_name=x.name)
 
 
-    @classmethod
-    def substitute(cls, typemap):
-        return cls.decl.substitute(
-            forward_declarations="\n".join(cls.make_forward_decls(typemap)),
+
+    def substitute(self, typemap):
+        return self.decl.substitute(
+            forward_declarations="\n".join(self.make_forward_decls(typemap)),
             enum_classes="\n".join(substitute_all(typemap, EnumClass)),
             abstract_classes="\n".join(substitute_all(typemap, AbstractNode)),
             concrete_classes="\n".join(substitute_all(typemap, ConcreteNode)),
             leafnode_classes="\n".join(substitute_all(typemap, LeafNode)),
-            string2enum_decls="\n".join(String2EnumTempalte.substitute_decls(typemap)),
-            visitor_base=VisitorBaseTemplate.substitute(typemap),
+            string2enum_decls="\n".join(String2EnumTempalte().substitute_decls(typemap)),
+            visitor_base=VisitorBaseTemplate().substitute(typemap),
         )
 
 def substitute_all(typemap, match, method="substitute"):
@@ -461,8 +461,8 @@ def substitute_all(typemap, match, method="substitute"):
 
 def substitute(x, method="substitute"):
     """Turn a cpp type ``x`` into substituted string"""
-    template = eval(x.__class__.__name__ + "Template")
-    return getattr(template, method)(x)
+    obj = eval(x.__class__.__name__ + "Template()")
+    return getattr(obj, method)(x)
 
 
 class ImplTemplate:
@@ -509,9 +509,9 @@ String GetDeclName(Decl *decl) {
 }
 """)
 
-    @classmethod
-    def substitute(cls, typemap):
-        return cls.impl.substitute(
+
+    def substitute(self, typemap):
+        return self.impl.substitute(
             formatter_impls="\n".join(substitute_all(
                 typemap,
                 (ConcreteNode, LeafNode, EnumClass),
@@ -523,7 +523,7 @@ String GetDeclName(Decl *decl) {
                 'make_destructor',
             )),
             string2enum_impls="\n".join(
-                String2EnumTempalte.substitute_impls(typemap)
+                String2EnumTempalte().substitute_impls(typemap)
             ),
         )
 
@@ -540,18 +540,18 @@ public:
     enum {$enumitems};
 };
 """)
-    @classmethod
-    def substitute(cls, x):
-        return cls.decl.substitute(
+
+    def substitute(self, x):
+        return self.decl.substitute(
             class_name=x.name,
             member_declaration=make_member_decls(x.members),
             constructor_args=make_formal_args(x.members),
             member_init=make_init(x.members),
-            enumitems=cls.make_enumitems(x.subclasses),
+            enumitems=self.make_enumitems(x.subclasses),
         )
 
-    @classmethod
-    def make_enumitems(cls, subclasses):
+
+    def make_enumitems(self, subclasses):
         return ", ".join(c.name for c in subclasses)
 
 
@@ -574,31 +574,31 @@ $class_name::~$class_name() {
 
     os_joiner = """ << ", " << """
 
-    @classmethod
-    def make_formatter(cls, x):
-        return cls.formatter_impl.substitute(
+
+    def make_formatter(self, x):
+        return self.formatter_impl.substitute(
             class_name=x.name,
-            code=cls.os_joiner.join(
-                cls.format_item.substitute(
+            code=self.os_joiner.join(
+                self.format_item.substitute(
                     field_name=name,
                     expr=name,
                 ) for type, name in x.members
             )
         )
 
-    @classmethod
-    def make_destructor(cls, x):
+
+    def make_destructor(self, x):
         delete_stmts = list(
                 filter(None, [type.delete(name) for type, name in x.members]))
-        return cls.destructor_impl.substitute(
+        return self.destructor_impl.substitute(
             class_name=x.name,
             code="\n".join(delete_stmts)
         )
 
-    @classmethod
-    def substitute_impl(cls, x):
-        yield cls.make_formatter(x)
-        yield cls.make_destructor(x)
+
+    def substitute_impl(self, x):
+        yield self.make_formatter(x)
+        yield self.make_destructor(x)
 
 
 class ConcreteNodeTemplate(ClassImplTemplate):
@@ -624,10 +624,10 @@ public:
 };
 """)
 
-    @classmethod
-    def substitute(cls, x):
+
+    def substitute(self, x):
         assert isinstance(x, ConcreteNode)
-        return cls.decl.substitute(
+        return self.decl.substitute(
             class_name=x.name,
             base=x.base.name,
             member_declaration=make_member_decls(x.members),
@@ -655,10 +655,10 @@ public:
 };
 """)
 
-    @classmethod
-    def substitute(cls, x):
+
+    def substitute(self, x):
         assert isinstance(x, LeafNode)
-        return cls.decl.substitute(
+        return self.decl.substitute(
             class_name=x.name,
             member_declaration=make_member_decls(x.members),
             constructor_args=make_formal_args(x.members),
@@ -685,24 +685,24 @@ std::ostream &operator<<(std::ostream &os, $class_name val) {
 }
 """)
 
-    @classmethod
-    def substitute(cls, x):
+
+    def substitute(self, x):
         assert isinstance(x, EnumClass)
-        return cls.decl.substitute(
+        return self.decl.substitute(
             class_name=x.name,
             enumitems=make_enumitems(x.values),
         )
 
-    @classmethod
-    def make_formatter(cls, x):
-        return cls.impl.substitute(
+
+    def make_formatter(self, x):
+        return self.impl.substitute(
             class_name=x.name,
-            case_stmts=cls.make_case_stmts(x),
+            case_stmts=self.make_case_stmts(x),
         )
 
-    @classmethod
-    def make_case_stmts(cls, x):
-        return "\n".join(cls.case_stmt.substitute(
+
+    def make_case_stmts(self, x):
+        return "\n".join(self.case_stmt.substitute(
             class_name=x.name,
             item=item) for item in x.values)
 
@@ -731,18 +731,18 @@ if (s == "$string")
         return filter(lambda x: isinstance(x, EnumClass) and x.strings,
                 typemap.values())
 
-    @classmethod
-    def substitute_decls(cls, typemap):
-        for x in cls.make_string2enums(typemap):
-            yield cls.decl.substitute(class_name=x.name)
 
-    @classmethod
-    def substitute_impls(cls, typemap):
-        for x in cls.make_string2enums(typemap):
-            yield cls.impl.substitute(
+    def substitute_decls(self, typemap):
+        for x in self.make_string2enums(typemap):
+            yield self.decl.substitute(class_name=x.name)
+
+
+    def substitute_impls(self, typemap):
+        for x in self.make_string2enums(typemap):
+            yield self.impl.substitute(
                     class_name=x.name,
                     conditions="\n".join(
-                        cls.condition.substitute(
+                        self.condition.substitute(
                             class_name=x.name,
                             item=item,
                             string=string,
@@ -776,20 +776,20 @@ if (auto x = subclass_cast<$class_name>(node))
     return static_cast<Derived*>(this)->visit$class_name(x, args...);
 """)
 
-    @classmethod
-    def make_abstract_visitor(cls, x):
+
+    def make_abstract_visitor(self, x):
         assert isinstance(x, AbstractNode)
-        return cls.abstract.substitute(
+        return self.abstract.substitute(
             class_name=x.name,
             test_and_dispatches="\n".join(
-                cls.dispatch.substitute(class_name=sub.name) for sub in x.subclasses
+                self.dispatch.substitute(class_name=sub.name) for sub in x.subclasses
             )
         )
 
-    @classmethod
-    def substitute(cls, typemap):
-        return cls.decl.substitute(
-            abstract_visitor="\n".join(cls.make_abstract_visitor(x)
+
+    def substitute(self, typemap):
+        return self.decl.substitute(
+            abstract_visitor="\n".join(self.make_abstract_visitor(x)
                 for x in typemap.values() if isinstance(x, AbstractNode))
         )
 
@@ -838,7 +838,7 @@ def make_enumitems(values):
 
 
 def generate_code(typemap, template_class, dest):
-    format_code(template_class.substitute(typemap), dest)
+    format_code(template_class().substitute(typemap), dest)
 
 
 def main():
