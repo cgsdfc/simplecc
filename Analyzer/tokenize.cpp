@@ -1,6 +1,40 @@
 #include "tokenize.h"
+#include "error.h"
 
 #include <algorithm>
+
+// Location(lineno, col_offset) => "lineno,col_offset"
+String LocationToString(const Location &loc) {
+  std::ostringstream os;
+  os << loc.lineno << ',' << loc.col_offset;
+  return os.str();
+}
+
+String LocationRangeToString(const Location &start, const Location &end) {
+  std::ostringstream os;
+  os << LocationToString(start) << '-' << LocationToString(end)
+    << ':';
+  return os.str();
+}
+
+void DumpTokenInfo(std::FILE *out, const TokenInfo &token) {
+  String &&token_range = LocationRangeToString(token.start, token.end);
+
+  std::fprintf(out, "%-20s%-15s%-15s\n",
+      token_range.c_str(),
+      GetSymName(token.type),
+      token.string.c_str()
+  );
+}
+
+void TokenInfo::Format(std::ostream &os) const {
+  os << "TokenInfo("
+    << "type=" << GetSymName(type) << ", "
+    << "string=" << Quote(string) << ", "
+    << "start=" << start << ", "
+    << "end=" << end << ", "
+    << "line=" << Quote(line) << ")";
+}
 
 bool IsBlank(const String &line) {
   for (auto ch: line)
