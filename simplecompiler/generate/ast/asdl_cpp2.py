@@ -432,9 +432,6 @@ inline T *subclass_cast(U *x) {
 }
 
 String GetDeclName(Decl *decl);
-
-$visitor_base
-$children_visitor
 #endif
 """)
 
@@ -455,8 +452,6 @@ $children_visitor
             leafnode_classes="\n".join(substitute_all(typemap, LeafNode)),
             string2enum_decls="\n".join(
                 String2EnumTempalte().substitute_decls(typemap)),
-            visitor_base=VisitorBaseTemplate().substitute(typemap),
-            children_visitor=ChildrenVisitorTemplate().substitute(typemap),
         )
 
 
@@ -845,6 +840,22 @@ if (node->$name) {
         )
 
 
+class VisitorTemplate:
+    decl = Template("""#ifndef VISITOR_H
+#define VISITOR_H
+#include "AST.h"
+
+$visitor_base
+$children_visitor
+
+#endif""")
+
+    def substitute(self, typemap):
+        return self.decl.substitute(
+            visitor_base=VisitorBaseTemplate().substitute(typemap),
+            children_visitor=ChildrenVisitorTemplate().substitute(typemap),
+        )
+
 
 # helpers
 def make_formal_args(members):
@@ -903,15 +914,21 @@ def generate(args):
         return 0
     header = format_code(HeaderTemplate().substitute(typemap))
     impl = format_code(ImplTemplate().substitute(typemap))
+    vis = format_code(VisitorTemplate().substitute(typemap))
+
     if args.output is None:
         print("// generated AST.h")
         print(header)
         print("// generated AST.cpp")
         print(impl)
+        print("// generated Visitor.h")
+        print(vis)
         return 0
     outdir = Path(args.output)
     with (outdir/"AST.h").open('w') as f:
         f.write(header)
     with (outdir/"AST.cpp").open('w') as f:
         f.write(impl)
+    with(outdir/"Visitor.h").open('w') as f:
+        f.write(vis)
     return 0

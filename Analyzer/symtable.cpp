@@ -1,4 +1,5 @@
 #include "symtable.h"
+#include "Visitor.h"
 #include "error.h"
 
 Type *ConstDeclToType(ConstDecl *decl) {

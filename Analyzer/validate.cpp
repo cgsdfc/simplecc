@@ -1,4 +1,5 @@
 #include "validate.h"
+#include "Visitor.h"
 #include "error.h"
 
 class SyntaxValidator: public VisitorBase<SyntaxValidator> {

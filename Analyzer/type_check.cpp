@@ -1,4 +1,5 @@
 #include "type_check.h"
+#include "Visitor.h"
 #include "error.h"
 
 const char *BasicTypeKind2CString(BasicTypeKind val) {
