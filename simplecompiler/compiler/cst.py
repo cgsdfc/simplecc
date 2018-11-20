@@ -32,9 +32,13 @@ class VisitorBase:
         meth = self.cache.get(symbol)
         if meth is None:
             methname = 'visit_' + symbol
-            # don't silent the absent of meth
-            meth = getattr(self, methname)
-            self.cache[symbol] = meth
+            try:
+                meth = getattr(self, methname)
+            except AttributeError:
+                # don't silent the absent of meth
+                raise NotImplementedError(methname)
+            else:
+                self.cache[symbol] = meth
         return meth(node, *args, **kwargs)
 
 

@@ -8,6 +8,8 @@ import argparse
 import sys
 from importlib import import_module
 
+# artifact @ language matrix
+# map to the name of module
 generators = {
     'grammar': {
         'cpp': 'gencpp',
@@ -59,6 +61,7 @@ def main():
     generate.add_argument('-a', '--artifact',
         dest='artifact',
         choices=('grammar', 'ast'),
+        required=True,
         help='artifact to generate',
     )
 
@@ -74,17 +77,18 @@ def main():
         dest='output',
         type=argparse.FileType('w'),
         default=sys.stdout,
-        help='output file (default to stdout)'
+        help='output file (default to stdout)',
     )
 
     compile.add_argument('--pretty',
         dest='pretty',
         action='store_true',
-        help='prettify output if true'
+        help='prettify output if true',
     )
 
     compile.add_argument('-p', '--phrase',
         dest='phrase',
+        required=True,
         choices=(
             "tokenize",
             "parse",
