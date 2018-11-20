@@ -7,9 +7,10 @@ import os
 from string import Template
 from pprint import pprint
 from itertools import chain
+from pathlib import Path
 
-import asdl
-from util import format_code
+from simplecompiler.generate import asdl
+from simplecompiler.util import format_code
 
 
 def camal_case(name):
@@ -829,48 +830,25 @@ def make_enumitems(values):
     return ", ".join(values)
 
 
-def generate_code(typemap, template_class, dest):
-    format_code(template_class().substitute(typemap), dest)
-
-
-def generate(input, output):
-    asdl_mod = asdl.parse(input)
+def generate(args):
+    asdl_mod = asdl.parse(args.input)
     if not asdl.check(asdl_mod):
         return 1
     typemap = make_typemap(asdl_mod)
-    AST_h = os.path.join(output, "AST.h")
-    AST_cpp = os.path.join(output, "AST.cpp")
-    format_code(HeaderTemplate().substitute(typemap), AST_h)
-    format_code(ImplTemplate().substitute(typemap), AST_cpp)
-    return 0
-
-
-def main():
-    import argparse
-    import json
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
-                        help='configure file', required=1)
-    parser.add_argument('-d', '--dump-typemap', dest='dump_typemap', action='store_true',
-                        default=False)
-    args = parser.parse_args()
-    config = json.load(args.config)
-
-    mod = asdl.parse(config['AST']['asdl'])
-    if not asdl.check(mod):
-        return 1
-
-    typemap = make_typemap(mod)
-    if args.dump_typemap:
+    if args.dump:
         pprint(typemap)
         return 0
-
-    generate_code(typemap, HeaderTemplate, config['AST']['AST.h'])
-    generate_code(typemap, ImplTemplate, config['AST']['AST.cpp'])
-
+    header = format_code(HeaderTemplate().substitute(typemap))
+    impl = format_code(ImplTemplate().substitute(typemap))
+    if args.output is None:
+        print("// generated AST.h")
+        print(header)
+        print("// generated AST.cpp")
+        print(impl)
+        return 0
+    outdir = Path(args.output)
+    with (outdir/"AST.h").open('w') as f:
+        f.write(header)
+    with (outdir/"AST.cpp").open('w') as f:
+        f.write(impl)
     return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())

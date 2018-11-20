@@ -1,12 +1,11 @@
 #! /usr/bin/env python3
 """Ast generation"""
 
-from operator import attrgetter
 from string import Template
 from itertools import chain
+from pathlib import Path
 
-import asdl
-from util import double_qoute
+from simplecompiler.generate import asdl
 
 TAB = "    "
 
@@ -63,7 +62,7 @@ class $name($base):
         return self.template.substitute(
             name=self.name,
             base=self.base,
-            slots=''.join(map(lambda s: double_qoute(s) + ',', self.members)),
+            slots=''.join(map(lambda s: repr(s) + ',', self.members)),
             args=", ".join(self.members),
             inits=("\n" + TAB * 2).join(
                 map(lambda n: self.init.substitute(name=n), self.members)
@@ -197,31 +196,18 @@ string2basic_type = {
         )
 
 
-def main():
-    import argparse
-    import json
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
-                        help='configure file', required=1)
-    parser.add_argument('--dump_module', action='store_true', default=False,
-                        help='Dump the asdl module and exit')
-    args = parser.parse_args()
-    config = json.load(args.config)
-
-    mod = asdl.parse(config['AST']['asdl'])
-    if args.dump_module:
-        print(mod)
-        return 0
-    if not asdl.check(mod):
+def generate(args):
+    asdl_mod = asdl.parse(args.input)
+    if not asdl.check(asdl_mod):
         return 1
-
-    with open(config['AST']['AST.py'], 'w') as f:
-        types = TypeVisitor().visit(mod)
-        f.write(ImplTemplate().substitute(types))
+    types = TypeVisitor().visit(asdl_mod)
+    code = ImplTemplate().substitute(types)
+    # for python, dump the code
+    if args.dump or args.output is None:
+        print("// generated AST.py")
+        print(code)
+        return 0
+    outdir = Path(args.output)
+    with (outdir/"AST.py").open('w') as f:
+        f.write(code)
     return 0
-
-
-if __name__ == '__main__':
-    import sys
-    sys.exit(main())

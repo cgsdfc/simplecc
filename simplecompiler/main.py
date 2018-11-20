@@ -5,23 +5,24 @@ while being an implementation of simplecompiler in Python.
 """
 
 import argparse
+from importlib import import_module
+
+generators = {
+    'grammar': {
+        'cpp': 'gencpp',
+        'py': 'genpy',
+    },
+    'ast': {
+        'cpp': 'asdl_cpp2',
+        'py': 'asdl_py',
+    },
+}
 
 def do_generate(args):
-    assert args.command == 'generate'
-    if args.artifact == 'grammar':
-        if args.language == 'cpp':
-            from simplecompiler.generate.grammar.gencpp import generate
-        else:
-            assert args.language == 'python'
-            from simplecompiler.generate.grammar.genpy import generate
-    else:
-        assert args.artifact == 'ast'
-        if args.language == 'cpp':
-            from simplecompiler.generate.ast.asdl_cpp2 import generate
-        else:
-            assert args.language == 'python'
-            from simplecompiler.generate.ast.asdl_py import generate
-    return generate(args)
+    mod_name = generators[args.artifact][args.language]
+    module = import_module('simplecompiler.generate.{}.{}'.format(args.artifact, mod_name))
+    print(module)
+    return module.generate(args)
 
 
 def compiler(args):
@@ -33,20 +34,33 @@ def main():
     commands.required = True
 
     # generate sub-command
-    generate = commands.add_parser('generate', help='generate various files')
-    generate.add_argument('-l', '--lang', dest='language', choices=('python', 'cpp'),
-            help='language of the generated artifacts', required=True)
-    generate.add_argument('-o', '--output', dest='output', help='output directory. write to stdout if omitted')
-    generate.add_argument('-d', '--dump', dest='dump', action='store_true',
-            help='dump internal data structures without generating any files')
-    generate.set_defaults(func=do_generate)
+    generate = commands.add_parser('generate', help='generate compiler a component')
 
-    # artifact sub-sub-commands
-    artifact = generate.add_subparsers(help='artifacts that can be generated', dest='artifact')
-    artifact.required = True
-    grammar = artifact.add_parser('grammar', help='grammar table and symbols')
-    ast = artifact.add_parser('ast', help='abstract syntax tree')
+    generate.add_argument('-l', '--lang',
+        dest='language',
+        choices=('py', 'cpp'),
+        help='language of the generated artifact',
+        required=True
+    )
+
+    generate.add_argument('-o', '--output',
+        dest='output',
+        help='output directory. write to stdout if omitted',
+    )
+
+    generate.add_argument('-d', '--dump',
+        dest='dump',
+        action='store_true',
+        help='dump internal data structures without generating any files',
+    )
+
+    generate.add_argument('artifact',
+        choices=('grammar', 'ast'),
+        help='artifact to generate'
+    )
+
     generate.add_argument('input', help='input file to the generator')
+    generate.set_defaults(func=do_generate)
 
     # compiler sub-command
     compiler = commands.add_parser('compiler', help='compile input file')
