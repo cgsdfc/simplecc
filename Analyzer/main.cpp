@@ -47,6 +47,8 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  TestSymbolTable(symtable);
+
   std::cout << ast_node << "\n";
   delete ast_node;
   delete cst_node;

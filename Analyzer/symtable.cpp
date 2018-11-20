@@ -78,7 +78,8 @@ bool MakeGlobal(Program *prog, TableType &dict) {
 }
 
 // Visitor that resolves local names for a function
-class LocalResolver: public VisitorBase<LocalResolver> {
+class LocalResolver: public VisitorBase<LocalResolver>,
+                     public ChildrenVisitor<LocalResolver> {
 public:
   // The Ast of the function
   FuncDef *fun;
@@ -110,76 +111,18 @@ public:
     }
   }
 
-  // visitor methods that handle each type of AST
-
-  void visit(Expr *expr) {
-    VisitorBase::visitExpr<void>(expr);
+  // pull in VisitorBase's methods
+  void visitStmt(Stmt *s) {
+    return VisitorBase::visitStmt<void>(s);
   }
 
-  void visit(Stmt *stmt) {
-    VisitorBase::visitStmt<void>(stmt);
-  }
-
-  void visitRead(Read *x) {
-    for (const auto &name: x->names)
-      visit(name);
-  }
-
-  void visitWrite(Write *x) {
-    if (x->value)
-      visit(x->value);
-  }
-
-  void visitAssign(Assign *x) {
-    visit(x->target);
-    visit(x->value);
-  }
-
-  void visitFor(For *x) {
-    visit(x->initial);
-    visit(x->condition);
-    visit(x->step);
-    for (auto s: x->body)
-      visit(s);
-  }
-
-  void visitWhile(While *x) {
-    visit(x->condition);
-    for (auto s: x->body)
-      visit(s);
-  }
-
-  void visitReturn(Return *x) {
-    if (x->value)
-      visit(x->value);
-  }
-
-  void visitExprStmt(ExprStmt *x) {
-    visit(x->value);
-  }
-
-  void visitIf(If *x) {
-    visit(x->test);
-    for (auto s: x->body)
-      visit(s);
-    for (auto s: x->orelse)
-      visit(s);
-  }
-
-  void visitBinOp(BinOp *x) {
-    visit(x->left);
-    visit(x->right);
-  }
-
-  void visitUnaryOp(UnaryOp *x) {
-    visit(x->operand);
+  void visitExpr(Expr *s) {
+    return VisitorBase::visitExpr<void>(s);
   }
 
   void visitCall(Call *x) {
     ResolveName(x->func, x->loc);
-    for (auto arg: x->args) {
-      visit(arg);
-    }
+    return ChildrenVisitor::visitCall(x);
   }
 
   // these do not have identifiers
@@ -198,7 +141,7 @@ public:
   // public interface
   void Resolve() {
     for (auto stmt: fun->stmts) {
-      visit(stmt);
+      visitStmt(stmt);
     }
   }
 };
