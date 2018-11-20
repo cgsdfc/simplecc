@@ -5,6 +5,7 @@ while being an implementation of simplecompiler in Python.
 """
 
 import argparse
+import sys
 from importlib import import_module
 
 generators = {
@@ -21,12 +22,13 @@ generators = {
 def do_generate(args):
     mod_name = generators[args.artifact][args.language]
     module = import_module('simplecompiler.generate.{}.{}'.format(args.artifact, mod_name))
-    print(module)
     return module.generate(args)
 
 
-def compiler(args):
-    pass
+def do_compile(args):
+    from simplecompiler.compiler import compile
+    return compile(**vars(args))
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -54,30 +56,53 @@ def main():
         help='dump internal data structures without generating any files',
     )
 
-    generate.add_argument('artifact',
+    generate.add_argument('-a', '--artifact',
+        dest='artifact',
         choices=('grammar', 'ast'),
-        help='artifact to generate'
+        help='artifact to generate',
     )
 
     generate.add_argument('input', help='input file to the generator')
     generate.set_defaults(func=do_generate)
 
-    # compiler sub-command
-    compiler = commands.add_parser('compiler', help='compile input file')
-    compiler.add_argument('-o', '--output', dest='output', help='output file')
-    compiler.add_argument('--pretty', dest='is_pretty', action='store_true', help='prettify output')
-    phrases = compiler.add_subparsers(help='compilation phrases to execute', dest='phrase')
-    phrases.required = True
+    # compile sub-command
+    compile = commands.add_parser('compile', help='compile input file')
 
-    # phrases sub-sub-commands
-    tokenize = phrases.add_parser('tokenize', help='tokenize the input')
-    parse = phrases.add_parser('parse', help='parse the input and generate CST')
-    build_ast = phrases.add_parser('build-ast', help='build AST from CST')
-    validate = phrases.add_parser('validate', help='validate the AST')
-    build_symtable = phrases.add_parser('build-symtable', help='build symbol table')
-    typecheck = phrases.add_parser('typecheck', help='run typecheck on the AST')
-    # typecheck.set_defaults(func=typecheck)
+    compile.add_argument('input', help='input file to the compiler')
+
+    compile.add_argument('-o', '--output',
+        dest='output',
+        type=argparse.FileType('w'),
+        default=sys.stdout,
+        help='output file (default to stdout)'
+    )
+
+    compile.add_argument('--pretty',
+        dest='pretty',
+        action='store_true',
+        help='prettify output if true'
+    )
+
+    compile.add_argument('-p', '--phrase',
+        dest='phrase',
+        choices=(
+            "tokenize",
+            "parse",
+            "validate",
+            "build-ast",
+            "build-symtable",
+            "typecheck",
+        ),
+        help="compilation phrase to run",
+    )
+
+    compile.add_argument('--cpp-test',
+        dest='cpp_test',
+        action='store_true',
+        help='produce cpp test based on internal data structures (symtable only)',
+    )
+
+    compile.set_defaults(func=do_compile)
 
     args = parser.parse_args()
-    print(args)
     return args.func(args)

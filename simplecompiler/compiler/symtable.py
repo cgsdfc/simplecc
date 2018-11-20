@@ -1,4 +1,4 @@
-"""Symbol table construction for the program"""
+"""Symbol table construction"""
 
 from functools import singledispatch
 from collections import namedtuple
@@ -13,11 +13,13 @@ import re
 
 from simplecompiler.compiler.AST import *
 from simplecompiler.util import error
+from simplecompiler.util import format_code
 Arg = arg
 
 Scope = Enum("Scope", "Local Global")
 MODULE_NAME = "<module>"
 
+__all__ = ["build_symtable", "SymbolTable", "symtable_make_test"]
 
 class Type:
     def __repr__(self):
@@ -189,11 +191,13 @@ class SymbolTable:
         return self.global_.keys() if ns_name is None else \
             self.locals_[ns_name].keys()
 
-    def report(self):
-        print("global:")
-        pprint(sorted(self.global_.values(), key=attrgetter('loc')))
-        print("locals:")
-        pprint(self.locals_)
+    def report(self, output):
+        print("Global:", file=output)
+        global_ = sorted(self.global_.values(), key=attrgetter('loc'))
+        pprint(global_, stream=output)
+        print(file=output)  # make a blank line
+        print("Locals:", file=output)
+        pprint(self.locals_, stream=output)
 
 
 def make_locals(funcdefs, top):
@@ -239,6 +243,7 @@ $test_global
 $test_locals
 }
 """)
+
     testEntry = Template("""
 {
 assert($table.count("$name"));
@@ -246,15 +251,16 @@ const Entry &e = $table["$name"];
 assert(IsInstance<$class_name>(e.type));
 assert(e.scope == $scope);
 assert(e.name == "$name");
-// assert(e.location == Location($loc));
 }
 """)
+
     testGlobal = Template("""
 {
 assert(global.size() == $size);
 $test_entries
 }
 """)
+
     testLocal = Template("""
 assert(locals.find("$name") != locals.end());
 {
@@ -295,3 +301,9 @@ $test_entries
             test_locals="".join(self.make_testLocal(name, local)
                                 for name, local in symtable.locals_.items()),
         )
+
+
+def symtable_make_test(symtable, file):
+    """Generate a cpp test file using symtable"""
+    code = format_code(CppTestTempalte().substitute(symtable))
+    print(code, file=file)

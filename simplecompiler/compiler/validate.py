@@ -7,6 +7,7 @@ from functools import singledispatch
 from simplecompiler.compiler.AST import *
 from simplecompiler.util import error
 
+__all__ = ["validate"]
 
 @singledispatch
 def visit(node):

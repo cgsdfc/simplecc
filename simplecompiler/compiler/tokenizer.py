@@ -3,8 +3,12 @@
 """Tokenize a program"""
 import re
 from tokenize import TokenInfo
+from tokenize import ISTERMINAL as is_terminal
+from tokenize import ISNONTERMINAL as is_nonterminal
+
 from simplecompiler.compiler.Symbol import *
 
+__all__ = [ "is_terminal", "is_nonterminal", "tokenize", "print_tokens" ]
 
 def group(*args): return '({})'.format('|'.join(args))
 
@@ -26,7 +30,7 @@ PseudoToken = re.compile(
 Blank = re.compile(r'[ \t\f]*(?:[\r\n]|$)')
 
 
-def tokenize(readline):
+def _tokenize(readline):
     """Tokenize lines from ``readline()``, which should be the ``__next__``
     attribute of an opened file in text mode.
 
@@ -73,29 +77,11 @@ def tokenize(readline):
     yield TokenInfo(ENDMARKER, '', (lnum, 0), (lnum, 0), '')
 
 
-def do_tokenize(input, output):
-    with input:
-        tokens = list(tokenize(input.__next__))
+def tokenize(input):
+    return list(_tokenize(input.__next__))
+
+def print_tokens(tokens, output):
     for token in tokens:
         token_range = "%d,%d-%d,%d:" % (token.start + token.end)
         print("%-20s%-15s%-15r" %
               (token_range, tok_name[token.type], token.string), file=output)
-
-
-def main():
-    import argparse
-    import sys
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('file', type=argparse.FileType())
-    args = parser.parse_args()
-    with args.file:
-        tokens = list(tokenize(args.file.__next__))
-    for token in tokens:
-        token_range = "%d,%d-%d,%d:" % (token.start + token.end)
-        print("%-20s%-15s%-15r" %
-              (token_range, tok_name[token.type], token.string))
-
-
-if __name__ == '__main__':
-    main()

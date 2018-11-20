@@ -2,9 +2,22 @@
 from pprint import pprint
 import sys
 
-import simplecompiler.compiler.Symbol as sym
-import simplecompiler.compiler.AST as AST
+from simplecompiler.compiler import AST
 from simplecompiler.compiler.AST import expr_context
+from simplecompiler.compiler import Symbol as sym
+
+from simplecompiler.compiler import astpretty
+# register our AST intead of Python's
+astpretty.customize(AST.AST, expr_context)
+
+from simplecompiler.compiler.astpretty import pformat as ast_pformat
+
+__all__ = ["build_ast", "astpretty_pprint"]
+
+
+def astpretty_pprint(ast_node, file):
+    """Pretty print an ast_node to file"""
+    print(ast_pformat(ast_node), file=file)
 
 
 class VisitorBase:
@@ -321,13 +334,6 @@ class TransformerVisitor(VisitorBase):
         return int(node.children[1].value)
 
 
-def ToAST(node):
-    return TransformerVisitor().visit(node)
-
-
-def astpretty_pprint(rootnode):
-    import astpretty
-    import AST
-
-    astpretty.customize(AST.AST, expr_context)
-    astpretty.pprint(rootnode)
+def build_ast(cst_node):
+    """Build an AST from cst_node"""
+    return TransformerVisitor().visit(cst_node)
