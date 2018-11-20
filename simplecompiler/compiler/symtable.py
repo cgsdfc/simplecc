@@ -12,14 +12,18 @@ from string import Template
 import re
 
 from simplecompiler.compiler.AST import *
-from simplecompiler.util import error
+from simplecompiler.util import ErrorManager
 from simplecompiler.util import format_code
 Arg = arg
 
+__all__ = ["build_symtable", "SymbolTable", "symtable_make_test"]
+
+
+# An Entry represents a single resolved symbol
+Entry = namedtuple("Entry", "type scope loc name")
 Scope = Enum("Scope", "Local Global")
 MODULE_NAME = "<module>"
 
-__all__ = ["build_symtable", "SymbolTable", "symtable_make_test"]
 
 class Type:
     def __repr__(self):
@@ -81,69 +85,73 @@ def FuncDef2Type(decl):
     return Function(decl.return_type, args)
 
 
-def make_local(fun, top):
-    dict = {}
-    ok = 1
+def define_decl(decl, scope, dict, e, where):
+    if decl.name in dict:
+        msg = "redefinition of identifier {!r} in {}".format(decl.name, where)
+        e.error(msg, decl.loc)
+    else:
+        type = decl_to_type(decl)
+        dict[decl.name] = Entry(type, scope, decl.loc, decl.name)
+
+
+def define_arg(arg, dict, e, funcname):
+    if arg.name in dict:
+        msg = "redefinition of argument {!r}".format(arg.name)
+        e.error(msg, arg.loc)
+    else:
+        type = Variable(arg.type)
+        dict[arg.name] = Entry(type, Scope.Local, arg.loc, arg.name)
+
+
+def make_global(prog, e):
+    top = {}
+    for decl in prog.decls:
+        if isinstance(decl, FuncDef):
+            continue
+        define_decl(decl, Scope.Global, top, e, MODULE_NAME)
+    return top
+
+
+class LocalResolver:
+
+    def __init__(self, fun, top, local, e):
+        self.fun = fun
+        self.top = top
+        self.local = local
+        self.e = e
+
+    def resolve_name(self, name, loc):
+        if name in self.local:
+            return
+        if name in self.top:
+            type, scope, _, name = self.top[name]
+            self.local[name] = Entry(type, scope, loc, name)
+        else:
+            msg = "undefined identifier {!r} in function {!r}".format(
+                    name, self.fun.name)
+            self.e.error(msg, loc)
+
+    def resolve(self):
+        for name, loc in iter_names(self.fun):
+            self.resolve_name(name, loc)
+
+
+
+def make_local(fun, top, e):
+    local = {}
+    define_decl(fun, Scope.Global, top, e, MODULE_NAME)
+
     # insert all arguments first
     for arg in fun.args:
-        if arg.name in dict:
-            ok = 0
-            error("redefinition of argument {!r} in function {!r}".format(
-                arg.name, fun.name), arg.loc)
-        else:
-            dict[arg.name] = Entry(
-                Variable(arg.type), Scope.Local, arg.loc, arg.name)
+        define_arg(arg, local, e, fun.name)
 
     # then local const/var decl
+    where = "function {!r}".format(fun.name)
     for decl in fun.decls:
-        if decl.name in dict:
-            ok = 0
-            error("redefinition of identifier {!r} in function {!r}".format(
-                decl.name, fun.name), decl.loc)
-        else:
-            dict[decl.name] = Entry(decl_to_type(
-                decl), Scope.Local, decl.loc, decl.name)
+        define_decl(decl, Scope.Local, local, e, where)
 
-    # check uses
-    for name, loc in iter_names(fun):
-        if name in dict:
-            continue
-        if name in top and top[name].loc <= loc:
-            dict[name] = Entry(top[name].type, Scope.Global, loc, name)
-        else:
-            ok = 0
-            error("undefined identifier {!r} in function {!r}".format(
-                name, fun.name), loc)
-
-    return dict if ok else None
-
-
-def make_global(prog):
-    dict = {}
-    ok = 1
-    for decl in prog.decls:
-        if decl.name in dict:
-            ok = 0
-            error("redefinition of identifier {!r} in {}".format(
-                decl.name, MODULE_NAME), decl.loc)
-        else:
-            dict[decl.name] = Entry(decl_to_type(
-                decl), Scope.Global, decl.loc, decl.name)
-    return dict if ok else None
-
-# now we have the type information collected.
-# we still need scope information.
-# the algorithm is simple --
-# first all names in global namespace is of global scope themselves.
-# second, in a function's local namespace, a name's scope
-#   1. is local if it is in the local typemap;
-#   2. or else, is global if it is in the global typemap;
-#   3. or else, is an error (undefined)
-# finally, type and scope information are put in the Entry namedtuple
-
-
-# An Entry represents a single resolved symbol
-Entry = namedtuple("Entry", "type scope loc name")
+    LocalResolver(fun, top, local, e).resolve()
+    return local
 
 
 def iter_names(node):
@@ -177,20 +185,6 @@ class SymbolTable:
         self.global_ = global_
         self.locals_ = locals_
 
-    def lookup(self, name, ns_name=None):
-        """Lookup a symbol (its Entry) using name. If ns_name is given, perform the
-        lookup under the local namespace. Or else the global namespace
-        is searched.
-        """
-        if ns_name is None:
-            return self.global_[name]
-        else:
-            return self.locals_[ns_name][name]
-
-    def get_identifiers(self, ns_name=None):
-        return self.global_.keys() if ns_name is None else \
-            self.locals_[ns_name].keys()
-
     def report(self, output):
         print("Global:", file=output)
         global_ = sorted(self.global_.values(), key=attrgetter('loc'))
@@ -200,30 +194,18 @@ class SymbolTable:
         pprint(self.locals_, stream=output)
 
 
-def make_locals(funcdefs, top):
-    dict = {}
-    ok = 1
-    for fun in funcdefs:
-        local = make_local(fun, top)
-        if local is None:
-            ok = 0
-        else:
-            dict[fun.name] = local
-    return dict if ok else None
-
-
 def build_symtable(prog):
     """Build a SymbolTable for the whole program"""
     assert isinstance(prog, Program)
+    e = ErrorManager()
+    top = make_global(prog, e)
+    locals_ = {}
 
-    top = make_global(prog)
-    if top is None:
-        return None
-    funcdefs = filter(lambda d: isinstance(d, FuncDef), prog.decls)
-    locals_ = make_locals(funcdefs, top)
-    if locals_ is None:
-        return None
-    return SymbolTable(top, locals_)
+    for decl in prog.decls:
+        if isinstance(decl, FuncDef):
+            locals_[decl.name] = make_local(decl, top, e)
+
+    return SymbolTable(top, locals_) if e.is_ok else None
 
 
 def pyenum2cppenum(enum):

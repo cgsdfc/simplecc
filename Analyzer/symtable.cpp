@@ -67,14 +67,12 @@ void DefineArg(Arg *arg,
 }
 
 // Enter all global const/var declarations into dict
-bool MakeGlobal(Program *prog, TableType &dict) {
-  ErrorManager e;
+void MakeGlobal(Program *prog, TableType &dict, ErrorManager &e) {
   for (auto decl: prog->decls) {
     if (IsInstance<FuncDef>(decl))
       continue; // not now
     DefineDecl(decl, Scope::Global, dict, e, "<module>");
   }
-  return e.IsOk();
 }
 
 // Visitor that resolves local names for a function
@@ -171,14 +169,14 @@ void MakeLocal(FuncDef *fun,
 
 // public interface
 bool BuildSymbolTable(Program *prog, SymbolTable &table) {
+  ErrorManager e;
   // build global table first
   auto &global = table.global;
   // no early return to check more errors
-  bool global_ok = MakeGlobal(prog, global);
+  MakeGlobal(prog, global, e);
 
   // visit all FuncDef and build their local tables
   auto &locals = table.locals;
-  ErrorManager e;
   for (auto decl: prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       TableType local;
@@ -188,7 +186,7 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
       }
     }
   }
-  return global_ok && e.IsOk();
+  return e.IsOk();
 }
 
 void CheckTable(const TableType &table) {
