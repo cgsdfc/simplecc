@@ -11,9 +11,9 @@ from pprint import pprint
 from string import Template
 import re
 
-from AST import *
-from AST import arg as Arg
-from util import error
+from simplecompiler.compiler.AST import *
+from simplecompiler.util import error
+Arg = arg
 
 Scope = Enum("Scope", "Local Global")
 MODULE_NAME = "<module>"

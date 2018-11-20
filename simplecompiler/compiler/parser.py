@@ -13,16 +13,22 @@ how this parsing engine works.
 
 import logging
 import pickle
+from pathlib import Path
+
 from pprint import pprint
 from collections import namedtuple
 
-from tokenizer import tokenize
-from Symbol import ERRORTOKEN
+from simplecompiler.compiler.tokenizer import tokenize
+from simplecompiler.compiler.Symbol import ERRORTOKEN
+
+def load_grammar():
+    """Load Grammar.pickle from simplecompiler/"""
+    thisscript = Path(__file__)
+    with (thisscript.parent / "Grammar.pickle").open('r') as f:
+        return pickle.load(f)
 
 
-with open('./Grammar.pickle', 'rb') as f:
-    grammar = pickle.load(f)
-
+grammar = load_grammar()
 logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
 
@@ -183,3 +189,12 @@ def lispify(root):
         children = tuple( lispify(child) for child in children )
         out.append(children)
     return tuple(out)
+
+
+def do_parse(input, output, pretty):
+    node = parse_file(input)
+    if pretty:
+        node = lispify(node)
+        pprint(node, file=output)
+    else:
+        print(node, file=output)

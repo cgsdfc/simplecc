@@ -3,7 +3,7 @@
 """Tokenize a program"""
 import re
 from tokenize import TokenInfo
-from Symbol import *
+from simplecompiler.compiler.Symbol import *
 
 def group(*args): return '({})'.format('|'.join(args))
 
@@ -69,6 +69,14 @@ def tokenize(readline):
                 pos += 1
     yield TokenInfo(ENDMARKER, '', (lnum, 0), (lnum, 0), '')
 
+
+def do_tokenize(input, output):
+    with input:
+        tokens = list(tokenize(input.__next__))
+    for token in tokens:
+        token_range = "%d,%d-%d,%d:" % (token.start + token.end)
+        print("%-20s%-15s%-15r" %
+                (token_range, tok_name[token.type], token.string), file=output)
 
 def main():
     import argparse

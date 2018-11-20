@@ -841,6 +841,16 @@ def make_enumitems(values):
 def generate_code(typemap, template_class, dest):
     format_code(template_class().substitute(typemap), dest)
 
+def generate(input, output):
+    asdl_mod = asdl.parse(input)
+    if not asdl.check(asdl_mod):
+        return 1
+    typemap = make_typemap(asdl_mod)
+    AST_h = os.path.join(output, "AST.h")
+    AST_cpp = os.path.join(output, "AST.cpp")
+    format_code(HeaderTemplate().substitute(typemap), AST_h)
+    format_code(ImplTemplate().substitute(typemap), AST_cpp)
+    return 0
 
 def main():
     import argparse

@@ -4,8 +4,9 @@ import sys
 from itertools import chain
 from functools import singledispatch
 
-from AST import *
-from util import error
+from simplecompiler.compiler.AST import *
+from simplecompiler.util import error
+
 
 @singledispatch
 def visit(node):
