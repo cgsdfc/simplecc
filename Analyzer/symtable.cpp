@@ -112,11 +112,11 @@ public:
   // visitor methods that handle each type of AST
 
   void visit(Expr *expr) {
-    VisitorBase::visit<void>(expr);
+    VisitorBase::visitExpr<void>(expr);
   }
 
   void visit(Stmt *stmt) {
-    VisitorBase::visit<void>(stmt);
+    VisitorBase::visitStmt<void>(stmt);
   }
 
   void visitRead(Read *x) {

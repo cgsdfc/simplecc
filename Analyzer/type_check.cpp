@@ -12,7 +12,7 @@ const char *BasicTypeKind2CString(BasicTypeKind val) {
   }
 }
 
-class TypeCheker: public VisitorBase<TypeCheker> {
+class TypeCheker: public VisitorBase<TypeCheker>, public ChildrenVisitor<TypeCheker> {
 public:
   SymbolTable &symtable;
   ErrorManager e;
@@ -49,11 +49,11 @@ public:
   }
 
   void visitStmt(Stmt *s) {
-    return VisitorBase::visit<void>(s);
+    return VisitorBase::visitStmt<void>(s);
   }
 
   void visitExpr(Expr *node, bool void_ok = false) {
-    auto type = VisitorBase::visit<BasicTypeKind>(node);
+    auto type = VisitorBase::visitExpr<BasicTypeKind>(node);
     if (type == BasicTypeKind::Void && !void_ok) {
       e.Error(node->loc, "value of expression cannot be void");
     }
@@ -78,46 +78,17 @@ public:
     }
   }
 
+  // skip node->str
   void visitWrite(Write *node) {
     if (node->value) {
       visitExpr(node->value);
     }
   }
 
-  void visitAssign(Assign *node) {
-    visitExpr(node->target);
-    visitExpr(node->value);
-  }
-
-  void visitFor(For *node) {
-    visitStmt(node->initial);
-    visitExpr(node->condition);
-    visitStmt(node->step);
-
-    for (auto s: node->body) {
-      visitStmt(s);
-    }
-  }
-
-  void visitWhile(While *node) {
-    visitExpr(node->condition);
-    for (auto s: node->body) {
-      visitStmt(s);
-    }
-  }
-
-  void visitIf(If *node) {
-    visitExpr(node->test);
-    for (auto s: node->body)
-      visitStmt(s);
-    for (auto s: node->orelse)
-      visitStmt(s);
-  }
-
   void visitReturn(Return *node) {
     auto fun_type = subclass_cast<Function>(cur_fun->type);
     auto return_type = node->value ?
-      VisitorBase::visit<BasicTypeKind>(node->value) : BasicTypeKind::Void;
+      VisitorBase::visitExpr<BasicTypeKind>(node->value) : BasicTypeKind::Void;
 
     if ((return_type == BasicTypeKind::Void &&
         fun_type->return_type != BasicTypeKind::Void) ||
@@ -170,10 +141,7 @@ public:
           "expects", formal_args_len, "arguments, got", actual_args_len);
     }
 
-    for (auto arg: node->args) {
-      visitExpr(arg);
-    }
-
+    ChildrenVisitor::visitCall(node);
     return fun_type->return_type;
   }
 
@@ -206,6 +174,7 @@ public:
   }
 
   BasicTypeKind visitNum(Num *x) { return BasicTypeKind::Int; }
+  // not actuall used, for instantiation only
   BasicTypeKind visitStr(Str *x) { return BasicTypeKind::Int; }
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Int; }
 

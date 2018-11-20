@@ -13,7 +13,7 @@ public:
       return;
     }
     for (auto decl: node->decls) {
-      VisitorBase::visit<void>(decl);
+      VisitorBase::visitDecl<void>(decl);
     }
 
     auto decl_iter = node->decls.begin();
@@ -43,8 +43,10 @@ public:
   }
 
   void visitConstDecl(ConstDecl *node) {
-    if (node->type == BasicTypeKind::Int && !IsInstance<Num>(node->value)) {
-      e.Error(node->loc, "const int", Quote(node->name), "expects an integer");
+    if (node->type == BasicTypeKind::Int) {
+      if (!IsInstance<Num>(node->value)) {
+        e.Error(node->loc, "const int", Quote(node->name), "expects an integer");
+      }
     }
     else {
       assert(node->type == BasicTypeKind::Character);
@@ -75,7 +77,7 @@ public:
       visitArg(arg, node->name);
     }
     for (auto decl: node->decls) {
-      VisitorBase::visit<void>(decl);
+      VisitorBase::visitDecl<void>(decl);
     }
 
     if (node->name == "main") {

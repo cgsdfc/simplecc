@@ -434,6 +434,7 @@ inline T *subclass_cast(U *x) {
 String GetDeclName(Decl *decl);
 
 $visitor_base
+$children_visitor
 #endif
 """)
 
@@ -455,6 +456,7 @@ $visitor_base
             string2enum_decls="\n".join(
                 String2EnumTempalte().substitute_decls(typemap)),
             visitor_base=VisitorBaseTemplate().substitute(typemap),
+            children_visitor=ChildrenVisitorTemplate().substitute(typemap),
         )
 
 
@@ -746,7 +748,7 @@ if (s == "$string")
 
 class VisitorBaseTemplate:
     decl = Template("""
-// CRTP-based visitor base implementing dispatch on node type.
+// Visitor Mixin that provides runtime dispatch of abstract nodes
 template <typename Derived>
 class VisitorBase {
 public:
@@ -756,7 +758,7 @@ $abstract_visitor
 
     abstract = Template("""
 template<typename R, typename... Args>
-R visit($class_name *node, Args&&... args) {
+R visit$class_name($class_name *node, Args&&... args) {
     $test_and_dispatches
     assert(false && "$class_name");
 }
@@ -781,6 +783,67 @@ if (auto x = subclass_cast<$class_name>(node))
             abstract_visitor="\n".join(self.make_abstract_visitor(x)
                                        for x in typemap.values() if isinstance(x, AbstractNode))
         )
+
+
+class ChildrenVisitorTemplate:
+    decl = Template("""
+// Visitor Mixin that provides default implementation for visiting nodes
+// that have children.
+template <class Derived>
+class ChildrenVisitor {
+public:
+$methods
+$downcasts
+};
+""")
+    method = Template("""
+template <typename... Args>
+void visit$class_name($class_name *node, Args&&... args) {
+$code
+}""")
+    crtp_downcast = Template("""
+template <typename... Args>
+void visit$class_name($class_name *node, Args&&... args) {
+    static_cast<Derived*>(this)->visit$class_name(node, args...);
+}""")
+
+    visit = Template("""
+    visit$class_name(node->$name, args...);
+""")
+    visit_for = Template("""
+for (auto s: node->$name) {
+    visit$class_name(s, args...);
+}""")
+    visit_if = Template("""
+if (node->$name) {
+    visit$class_name(node->$name, args...);
+}""")
+
+    def make_visit_children(self, members):
+        for type, name in members:
+            if isinstance(type, AstNode):
+                yield self.visit.substitute(class_name=type.name, name=name)
+            elif isinstance(type, Sequence) and isinstance(type.elemtype, AstNode):
+                yield self.visit_for.substitute(
+                        class_name=type.elemtype.name, name=name)
+            elif isinstance(type, Optional) and isinstance(type.elemtype, AstNode):
+                yield self.visit_if.substitute(
+                        class_name=type.elemtype.name, name=name)
+
+    def substitute(self, typemap):
+        # methods forward to Derived
+        crtp_nodes = filter(lambda t: isinstance(t, AbstractNode), typemap.values())
+        # methods we implement
+        impl_nodes = filter(lambda t: isinstance(t, (ConcreteNode, LeafNode)), typemap.values())
+        return self.decl.substitute(
+            methods="\n".join(self.method.substitute(
+                class_name=t.name,
+                code="\n".join(self.make_visit_children(t.members)),
+            ) for t in impl_nodes),
+            downcasts="\n".join(self.crtp_downcast.substitute(class_name=t.name)
+                for t in crtp_nodes),
+        )
+
 
 
 # helpers
