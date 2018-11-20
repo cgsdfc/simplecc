@@ -119,13 +119,14 @@ def error(msg, loc):
 
 
 def double_qoute(s):
-    """Add double quotes to s
+    """Add double quotes to s, needed to produce C strings.
 
     >>> double_qoute('program')
     '"program"'
     """
 
     return '"' + s + '"'
+
 
 def get_args(fields, attrs):
     """Return a list of names from fields and attrs"""

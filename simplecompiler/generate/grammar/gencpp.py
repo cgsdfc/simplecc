@@ -6,7 +6,7 @@ from operator import itemgetter
 from itertools import chain
 from pathlib import Path
 
-from simplecompiler.generate.grammar.pgen2 import generate_grammar
+from simplecompiler.generate import generate_grammar
 from simplecompiler.util import format_code, double_qoute
 
 
