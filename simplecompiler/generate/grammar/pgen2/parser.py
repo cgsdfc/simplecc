@@ -1,8 +1,10 @@
 # Copyright 2004-2005 Elemental Security, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
-import token, tokenize
+import token
+import tokenize
 from .grammar import NFAState, DFAState
+
 
 class Parser:
     """Parse Python Grammar Description
@@ -19,8 +21,8 @@ class Parser:
         self.filename = filename
         self.stream = stream
         self.generator = tokenize.tokenize(stream.readline)
-        next(self.generator) # Eat ENCODING
-        self.gettoken() # Initialize lookahead
+        next(self.generator)  # Eat ENCODING
+        self.gettoken()  # Initialize lookahead
 
     def parse(self):
         dfas = {}
@@ -41,7 +43,7 @@ class Parser:
             self.simplify_dfa(dfa)
             newlen = len(dfa)
             dfas[name] = dfa
-            #print name, oldlen, newlen
+            # print name, oldlen, newlen
             if startsymbol is None:
                 startsymbol = name
         return dfas, startsymbol
@@ -53,10 +55,12 @@ class Parser:
         # values.
         assert isinstance(start, NFAState)
         assert isinstance(finish, NFAState)
+
         def closure(state):
             base = {}
             addclosure(state, base)
             return base
+
         def addclosure(state, base):
             assert isinstance(state, NFAState)
             if state in base:
@@ -66,7 +70,7 @@ class Parser:
                 if label is None:
                     addclosure(next, base)
         states = [DFAState(closure(start), finish)]
-        for state in states: # NB states grows while we're iterating
+        for state in states:  # NB states grows while we're iterating
             arcs = {}
             for nfastate in state.nfaset:
                 for label, next in nfastate.arcs:
@@ -80,7 +84,7 @@ class Parser:
                     st = DFAState(nfaset, finish)
                     states.append(st)
                 state.addarc(st, label)
-        return states # List of DFAState instances; first one is start
+        return states  # List of DFAState instances; first one is start
 
     def dump_nfa(self, name, start, finish):
         print("Dump of NFA for", name)
@@ -119,7 +123,7 @@ class Parser:
                 for j in range(i+1, len(dfa)):
                     state_j = dfa[j]
                     if state_i == state_j:
-                        #print "  unify", i, j
+                        # print "  unify", i, j
                         del dfa[j]
                         for state in dfa:
                             state.unifystate(state_j, state_i)
@@ -203,7 +207,7 @@ class Parser:
         while tup[0] in (tokenize.COMMENT, tokenize.NL):
             tup = next(self.generator)
         self.type, self.value, self.begin, self.end, self.line = tup
-        #print token.tok_name[self.type], repr(self.value)
+        # print token.tok_name[self.type], repr(self.value)
 
     def raise_error(self, msg, *args):
         if args:

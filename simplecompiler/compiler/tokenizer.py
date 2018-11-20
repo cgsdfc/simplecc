@@ -5,10 +5,13 @@ import re
 from tokenize import TokenInfo
 from simplecompiler.compiler.Symbol import *
 
+
 def group(*args): return '({})'.format('|'.join(args))
+
 
 def make_string():
     return '[{}-{}]'.format(bytes([32, 33, 35]).decode(), bytes([126]).decode())
+
 
 String = r'"{}*"'.format(make_string())
 Char = r"'[+\-*/_a-zA-Z0-9]'"
@@ -19,7 +22,7 @@ Bracket = '[][(){}]'
 Special = group(r'[;:,]', r'\r?\n')
 Whitespace = r'[ \f\t]*'
 PseudoToken = re.compile(
-        Whitespace + group(String, Number, Char, Name, Operators, Bracket, Special))
+    Whitespace + group(String, Number, Char, Name, Operators, Bracket, Special))
 Blank = re.compile(r'[ \t\f]*(?:[\r\n]|$)')
 
 
@@ -51,21 +54,21 @@ def tokenize(readline):
                 spos, epos, pos = (lnum, start), (lnum, end), end
                 if start == end:
                     continue
-                token, initial = line[start : end], line[start]
+                token, initial = line[start: end], line[start]
                 if initial in numchars:
                     yield TokenInfo(NUMBER, token, spos, epos, line)
                 elif initial in '\r\n':
                     continue
                 elif initial in ("\"", "'"):
                     yield TokenInfo(CHAR if initial == "'" else STRING,
-                            token, spos, epos, line)
+                                    token, spos, epos, line)
                 elif initial.isidentifier():
                     yield TokenInfo(NAME, token.lower(), spos, epos, line)
                 else:
                     yield TokenInfo(OP, token, spos, epos, line)
             else:
                 yield TokenInfo(ERRORTOKEN, line[pos],
-                           (lnum, pos), (lnum, pos+1), line)
+                                (lnum, pos), (lnum, pos+1), line)
                 pos += 1
     yield TokenInfo(ENDMARKER, '', (lnum, 0), (lnum, 0), '')
 
@@ -76,7 +79,8 @@ def do_tokenize(input, output):
     for token in tokens:
         token_range = "%d,%d-%d,%d:" % (token.start + token.end)
         print("%-20s%-15s%-15r" %
-                (token_range, tok_name[token.type], token.string), file=output)
+              (token_range, tok_name[token.type], token.string), file=output)
+
 
 def main():
     import argparse
@@ -91,6 +95,7 @@ def main():
         token_range = "%d,%d-%d,%d:" % (token.start + token.end)
         print("%-20s%-15s%-15r" %
               (token_range, tok_name[token.type], token.string))
+
 
 if __name__ == '__main__':
     main()

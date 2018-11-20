@@ -4,10 +4,10 @@
 from string import Template
 from operator import itemgetter
 from itertools import chain
+from pathlib import Path
 
-from pgen2 import generate_grammar
-from util import format_code
-from util import double_qoute
+from simplecompiler.generate.grammar.pgen2 import generate_grammar
+from simplecompiler.util import format_code, double_qoute
 
 
 def join_ints(*ints):
@@ -47,7 +47,7 @@ extern const char *TokenNames[], *SymbolNames[];
             symbol_enum="\n".join(self.enumitem.substitute(
                 name=name,
                 value=value,
-                ) for name, value in self.get_all(gr)),
+            ) for name, value in self.get_all(gr)),
             NT_OFFSET=self.NT_OFFSET,
         )
 
@@ -136,8 +136,8 @@ $dfa_itself
             id=i,
             n_states=len(states),
             data=", ".join(self.make_state(i, j, state)
-                for j, state in enumerate(states)
-            )
+                           for j, state in enumerate(states)
+                           )
         )
 
     def make_dfa(self, i, name, states, first):
@@ -151,7 +151,7 @@ $dfa_itself
     def make_dfa_section(self, i, name, states, first):
         return self.dfa_section.substitute(
             arc_arrays="\n".join(self.make_arc_array(arcs, i, j)
-                for j, arcs in enumerate(states)),
+                                 for j, arcs in enumerate(states)),
             first_set=self.make_first(i, first),
             state_array=self.make_state_array(i, states),
             dfa_itself=self.make_dfa(i, name, states, first),
@@ -164,9 +164,9 @@ $dfa_itself
             return enumerate(sorted(gr.dfas.items(), key=itemgetter(0)))
 
         return "\n".join(
-                self.make_dfa_section(i, gr.number2symbol[type], states, first)
-                for i, (type, (states, first)) in process(gr)
-            )
+            self.make_dfa_section(i, gr.number2symbol[type], states, first)
+            for i, (type, (states, first)) in process(gr)
+        )
 
     def make_dfa_names(self, n_dfas):
         return ", ".join('&dfa_{}'.format(i) for i in range(n_dfas))
@@ -180,7 +180,6 @@ $dfa_itself
             second=string_or_null(string),
         ) for symtok, string in labels)
 
-
     def make_strings(self, x):
         """x is a mapping from string to id, return a comma-newline
         separated string for c-string in the order of ids of x.
@@ -190,7 +189,8 @@ $dfa_itself
         "NAME",
         "OP",
         """
-        strings = [double_qoute(s) for s, _ in sorted(x.items(), key=itemgetter(1))]
+        strings = [double_qoute(s)
+                   for s, _ in sorted(x.items(), key=itemgetter(1))]
         return ",\n".join(strings)
 
     def substitute(self, gr):
@@ -208,29 +208,25 @@ $dfa_itself
         )
 
 
-def main():
-    import argparse
-    from pprint import pprint
-    import json
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--dump', action='store_true', default=False,
-            help='Dump grammar and exit')
-    parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
-            help='configure file', required=1)
-
-    args = parser.parse_args()
-    config = json.load(args.config)
-    gr = generate_grammar(config['Grammar']['grammar'])
-
+def generate(args):
+    """Entry point of main.py to this module"""
+    grammar = generate_grammar(args.input)
     if args.dump:
-        gr.report()
-        return
-
-    if args.config:
-        format_code(HeaderTemplate().substitute(gr), config['Grammar']['header'])
-        format_code(ImplTemplate().substitute(gr), config['Grammar']['cpp'])
-
-
-if __name__ == '__main__':
-    main()
+        grammar.report()
+        return 0
+    header = format_code(HeaderTemplate().substitute(grammar))
+    impl = format_code(ImplTemplate().substitute(grammar))
+    if args.output is None:
+        # no directory given, write to stdout
+        print("// generated header file (Grammar.h):")
+        print(header, end="\n\n")
+        print("// generated impl file (Grammar.cpp):")
+        print(impl)
+        return 0
+    outdir = Path(args.output)
+    assert outdir.is_dir()
+    with (outdir/"Grammar.h").open('w') as f:
+        f.write(header)
+    with (outdir/"Grammar.cpp").open('w') as f:
+        f.write(impl)
+    return 0

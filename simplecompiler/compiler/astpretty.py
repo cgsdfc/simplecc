@@ -26,6 +26,7 @@ def customize(AST_, expr_context_):
     expr_context = (expr_context_,)
     AST = (AST_,)
 
+
 def _is_sub_node(node):
     return isinstance(node, AST) and not isinstance(node, expr_context)
 

@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Parser for ASDL [1] definition files. Reads in an ASDL description and parses
 # it into an AST that describes it.
 #
@@ -18,7 +18,7 @@
 #
 # [1] "The Zephyr Abstract Syntax Description Language" by Wang, et. al. See
 #     http://asdl.sourceforge.net/
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 from collections import namedtuple
 import re
 
@@ -36,9 +36,11 @@ __all__ = [
 builtin_types = {'identifier', 'string', 'bytes', 'int', 'object', 'singleton',
                  'constant'}
 
+
 class AST:
     def __repr__(self):
         raise NotImplementedError
+
 
 class Module(AST):
     def __init__(self, name, dfns):
@@ -49,6 +51,7 @@ class Module(AST):
     def __repr__(self):
         return 'Module({0.name}, {0.dfns})'.format(self)
 
+
 class Type(AST):
     def __init__(self, name, value):
         self.name = name
@@ -57,6 +60,7 @@ class Type(AST):
     def __repr__(self):
         return 'Type({0.name}, {0.value})'.format(self)
 
+
 class Constructor(AST):
     def __init__(self, name, fields=None):
         self.name = name
@@ -64,6 +68,7 @@ class Constructor(AST):
 
     def __repr__(self):
         return 'Constructor({0.name}, {0.fields})'.format(self)
+
 
 class Field(AST):
     def __init__(self, type, name=None, seq=False, opt=False):
@@ -84,6 +89,7 @@ class Field(AST):
         else:
             return 'Field({0.type}, {0.name}{1})'.format(self, extra)
 
+
 class Sum(AST):
     def __init__(self, types, attributes=None):
         self.types = types
@@ -94,6 +100,7 @@ class Sum(AST):
             return 'Sum({0.types}, {0.attributes})'.format(self)
         else:
             return 'Sum({0.types})'.format(self)
+
 
 class Product(AST):
     def __init__(self, fields, attributes=None):
@@ -112,8 +119,10 @@ class Product(AST):
 # interesting node.
 # We also define a Check visitor that makes sure the parsed ASDL is well-formed.
 
+
 class VisitorBase(object):
     """Generic tree visitor for ASTs."""
+
     def __init__(self):
         self.cache = {}
 
@@ -132,11 +141,13 @@ class VisitorBase(object):
                 print("Error visiting %r: %s" % (obj, e))
                 raise
 
+
 class Check(VisitorBase):
     """A visitor that checks a parsed ASDL tree for correctness.
 
     Errors are printed and accumulated.
     """
+
     def __init__(self):
         super(Check, self).__init__()
         self.cons = {}
@@ -175,6 +186,7 @@ class Check(VisitorBase):
         for f in prod.fields:
             self.visit(f, name)
 
+
 def check(mod):
     """Check the parsed ASDL tree for correctness.
 
@@ -194,6 +206,7 @@ def check(mod):
 # The ASDL parser itself comes next. The only interesting external interface
 # here is the top-level parse function.
 
+
 def parse(filename):
     """Parse ASDL from the given file and return a Module node describing it."""
     with open(filename) as f:
@@ -201,6 +214,8 @@ def parse(filename):
         return parser.parse(f.read())
 
 # Types for describing tokens in an ASDL specification.
+
+
 class TokenKind:
     """TokenKind is provides a scope for enumerated token kinds."""
     (ConstructorId, TypeId, Equals, Comma, Question, Pipe, Asterisk,
@@ -210,7 +225,9 @@ class TokenKind:
         '=': Equals, ',': Comma,    '?': Question, '|': Pipe,    '(': LParen,
         ')': RParen, '*': Asterisk, '{': LBrace,   '}': RBrace}
 
+
 Token = namedtuple('Token', 'kind value lineno')
+
 
 class ASDLSyntaxError(Exception):
     def __init__(self, msg, lineno=None):
@@ -219,6 +236,7 @@ class ASDLSyntaxError(Exception):
 
     def __str__(self):
         return 'Syntax error on line {0.lineno}: {0.msg}'.format(self)
+
 
 def tokenize_asdl(buf):
     """Tokenize the given buffer. Yield Token objects."""
@@ -242,6 +260,7 @@ def tokenize_asdl(buf):
                     raise ASDLSyntaxError('Invalid operator %s' % c, lineno)
                 yield Token(op_kind, c, lineno)
 
+
 class ASDLParser:
     """Parser for ASDL files.
 
@@ -249,6 +268,7 @@ class ASDLParser:
     This is a simple recursive descent parser that uses tokenize_asdl for the
     lexing.
     """
+
     def __init__(self):
         self._tokenizer = None
         self.cur_token = None
@@ -290,12 +310,12 @@ class ASDLParser:
             # Otherwise it's a sum. Look for ConstructorId
             sumlist = [Constructor(self._match(TokenKind.ConstructorId),
                                    self._parse_optional_fields())]
-            while self.cur_token.kind  == TokenKind.Pipe:
+            while self.cur_token.kind == TokenKind.Pipe:
                 # More constructors
                 self._advance()
                 sumlist.append(Constructor(
-                                self._match(TokenKind.ConstructorId),
-                                self._parse_optional_fields()))
+                    self._match(TokenKind.ConstructorId),
+                    self._parse_optional_fields()))
             return Sum(sumlist, self._parse_optional_attributes())
 
     def _parse_product(self):
@@ -308,7 +328,7 @@ class ASDLParser:
             typename = self._advance()
             is_seq, is_opt = self._parse_optional_field_quantifier()
             id = (self._advance() if self.cur_token.kind in self._id_kinds
-                                  else None)
+                  else None)
             fields.append(Field(typename, id, seq=is_seq, opt=is_opt))
             if self.cur_token.kind == TokenKind.RParen:
                 break
@@ -362,7 +382,7 @@ class ASDLParser:
         * Reads in the next token
         """
         if (isinstance(kind, tuple) and self.cur_token.kind in kind or
-            self.cur_token.kind == kind
+                self.cur_token.kind == kind
             ):
             value = self.cur_token.value
             self._advance()

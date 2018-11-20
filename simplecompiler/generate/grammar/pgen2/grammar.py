@@ -71,7 +71,6 @@ class Grammar(object):
         self.token2id = {}
         self.start = None
 
-
     def report(self):
         """Dump the grammar tables to standard output, for debugging."""
         from pprint import pprint
@@ -103,15 +102,17 @@ class Grammar(object):
 
 # These classes are used by Generator
 
+
 class NFAState(object):
 
     def __init__(self):
-        self.arcs = [] # list of (label, NFAState) pairs
+        self.arcs = []  # list of (label, NFAState) pairs
 
     def addarc(self, next, label=None):
         assert label is None or isinstance(label, str)
         assert isinstance(next, NFAState)
         self.arcs.append((label, next))
+
 
 class DFAState(object):
 
@@ -121,7 +122,7 @@ class DFAState(object):
         assert isinstance(final, NFAState)
         self.nfaset = nfaset
         self.isfinal = final in nfaset
-        self.arcs = {} # map from label to DFAState
+        self.arcs = {}  # map from label to DFAState
 
     def addarc(self, next, label):
         assert isinstance(label, str)
@@ -148,4 +149,4 @@ class DFAState(object):
                 return False
         return True
 
-    __hash__ = None # For Py3 compatibility.
+    __hash__ = None  # For Py3 compatibility.

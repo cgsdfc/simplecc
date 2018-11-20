@@ -18,26 +18,32 @@ Arg = arg
 Scope = Enum("Scope", "Local Global")
 MODULE_NAME = "<module>"
 
+
 class Type:
     def __repr__(self):
         return self.__class__.__name__
 
 # pure data class to hold type information
+
+
 class Constant(Type):
 
     def __init__(self, type):
         self.type = type
+
 
 class Variable(Type):
 
     def __init__(self, type):
         self.type = type
 
+
 class Array(Type):
 
     def __init__(self, elemtype, size):
         self.elemtype = elemtype
         self.size = size
+
 
 class Function(Type):
 
@@ -46,13 +52,17 @@ class Function(Type):
         self.args = args
 
 # Convert type declaration to Types
+
+
 @singledispatch
 def decl_to_type(decl):
     raise TypeError("unknown decl {}".format(decl.__class__.__name__))
 
+
 @decl_to_type.register(ConstDecl)
 def ConstDecl2Type(decl):
     return Constant(decl.type)
+
 
 @decl_to_type.register(VarDecl)
 def VarDecl2Type(decl):
@@ -61,11 +71,13 @@ def VarDecl2Type(decl):
     else:
         return Variable(decl.type)
 
+
 @decl_to_type.register(FuncDef)
 def FuncDef2Type(decl):
     # discard names
     args = list(map(itemgetter(0), decl.args))
     return Function(decl.return_type, args)
+
 
 def make_local(fun, top):
     dict = {}
@@ -77,7 +89,8 @@ def make_local(fun, top):
             error("redefinition of argument {!r} in function {!r}".format(
                 arg.name, fun.name), arg.loc)
         else:
-            dict[arg.name] = Entry(Variable(arg.type), Scope.Local, arg.loc, arg.name)
+            dict[arg.name] = Entry(
+                Variable(arg.type), Scope.Local, arg.loc, arg.name)
 
     # then local const/var decl
     for decl in fun.decls:
@@ -86,7 +99,8 @@ def make_local(fun, top):
             error("redefinition of identifier {!r} in function {!r}".format(
                 decl.name, fun.name), decl.loc)
         else:
-            dict[decl.name] = Entry(decl_to_type(decl), Scope.Local, decl.loc, decl.name)
+            dict[decl.name] = Entry(decl_to_type(
+                decl), Scope.Local, decl.loc, decl.name)
 
     # check uses
     for name, loc in iter_names(fun):
@@ -111,7 +125,8 @@ def make_global(prog):
             error("redefinition of identifier {!r} in {}".format(
                 decl.name, MODULE_NAME), decl.loc)
         else:
-            dict[decl.name] = Entry(decl_to_type(decl), Scope.Global, decl.loc, decl.name)
+            dict[decl.name] = Entry(decl_to_type(
+                decl), Scope.Global, decl.loc, decl.name)
     return dict if ok else None
 
 # now we have the type information collected.
@@ -124,8 +139,10 @@ def make_global(prog):
 #   3. or else, is an error (undefined)
 # finally, type and scope information are put in the Entry namedtuple
 
+
 # An Entry represents a single resolved symbol
 Entry = namedtuple("Entry", "type scope loc name")
+
 
 def iter_names(node):
     # XXX: this must cover all Ast node that has names
@@ -170,13 +187,14 @@ class SymbolTable:
 
     def get_identifiers(self, ns_name=None):
         return self.global_.keys() if ns_name is None else \
-                self.locals_[ns_name].keys()
+            self.locals_[ns_name].keys()
 
     def report(self):
         print("global:")
         pprint(sorted(self.global_.values(), key=attrgetter('loc')))
         print("locals:")
         pprint(self.locals_)
+
 
 def make_locals(funcdefs, top):
     dict = {}
@@ -188,6 +206,7 @@ def make_locals(funcdefs, top):
         else:
             dict[fun.name] = local
     return dict if ok else None
+
 
 def build_symtable(prog):
     """Build a SymbolTable for the whole program"""
@@ -245,7 +264,6 @@ $test_entries
 }
 """)
 
-
     def make_testEntry(self, e, table):
         assert isinstance(e, Entry)
         return self.testEntry.substitute(
@@ -261,22 +279,19 @@ $test_entries
             name=name,
             size=len(local),
             test_entries="".join(self.make_testEntry(e, "local")
-                for e in local.values()),
+                                 for e in local.values()),
         )
 
     def make_testGlobal(self, global_):
         return self.testGlobal.substitute(
             size=len(global_),
             test_entries="".join(self.make_testEntry(e, "global")
-                for e in global_.values()),
+                                 for e in global_.values()),
         )
-
 
     def substitute(self, symtable):
         return self.impl.substitute(
             test_global=self.make_testGlobal(symtable.global_),
             test_locals="".join(self.make_testLocal(name, local)
-                for name, local in symtable.locals_.items()),
+                                for name, local in symtable.locals_.items()),
         )
-
-

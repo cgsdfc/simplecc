@@ -2,6 +2,7 @@
 from enum import Enum
 from collections import namedtuple
 
+
 class AST:
     '''Base class of AST'''
 
@@ -39,7 +40,7 @@ class decl(AST):
 
 
 class ConstDecl(decl):
-    __slots__ = ("type","name","value","loc",)
+    __slots__ = ("type", "name", "value", "loc",)
 
     def __init__(self, type, name, value, loc):
         self.type = type
@@ -49,7 +50,7 @@ class ConstDecl(decl):
 
 
 class VarDecl(decl):
-    __slots__ = ("type","is_array","size","name","loc",)
+    __slots__ = ("type", "is_array", "size", "name", "loc",)
 
     def __init__(self, type, is_array, size, name, loc):
         self.type = type
@@ -60,7 +61,7 @@ class VarDecl(decl):
 
 
 class FuncDef(decl):
-    __slots__ = ("return_type","name","args","decls","stmts","loc",)
+    __slots__ = ("return_type", "name", "args", "decls", "stmts", "loc",)
 
     def __init__(self, return_type, name, args, decls, stmts, loc):
         self.return_type = return_type
@@ -79,7 +80,7 @@ class stmt(AST):
 
 
 class Read(stmt):
-    __slots__ = ("names","loc",)
+    __slots__ = ("names", "loc",)
 
     def __init__(self, names, loc):
         self.names = names
@@ -87,7 +88,7 @@ class Read(stmt):
 
 
 class Write(stmt):
-    __slots__ = ("str","value","loc",)
+    __slots__ = ("str", "value", "loc",)
 
     def __init__(self, str, value, loc):
         self.str = str
@@ -96,7 +97,7 @@ class Write(stmt):
 
 
 class Assign(stmt):
-    __slots__ = ("target","value","loc",)
+    __slots__ = ("target", "value", "loc",)
 
     def __init__(self, target, value, loc):
         self.target = target
@@ -105,7 +106,7 @@ class Assign(stmt):
 
 
 class For(stmt):
-    __slots__ = ("initial","condition","step","body","loc",)
+    __slots__ = ("initial", "condition", "step", "body", "loc",)
 
     def __init__(self, initial, condition, step, body, loc):
         self.initial = initial
@@ -116,7 +117,7 @@ class For(stmt):
 
 
 class While(stmt):
-    __slots__ = ("condition","body","loc",)
+    __slots__ = ("condition", "body", "loc",)
 
     def __init__(self, condition, body, loc):
         self.condition = condition
@@ -125,7 +126,7 @@ class While(stmt):
 
 
 class Return(stmt):
-    __slots__ = ("value","loc",)
+    __slots__ = ("value", "loc",)
 
     def __init__(self, value, loc):
         self.value = value
@@ -133,7 +134,7 @@ class Return(stmt):
 
 
 class If(stmt):
-    __slots__ = ("test","body","orelse","loc",)
+    __slots__ = ("test", "body", "orelse", "loc",)
 
     def __init__(self, test, body, orelse, loc):
         self.test = test
@@ -143,7 +144,7 @@ class If(stmt):
 
 
 class ExprStmt(stmt):
-    __slots__ = ("value","loc",)
+    __slots__ = ("value", "loc",)
 
     def __init__(self, value, loc):
         self.value = value
@@ -155,7 +156,7 @@ class expr(AST):
 
 
 class BinOp(expr):
-    __slots__ = ("left","op","right","loc",)
+    __slots__ = ("left", "op", "right", "loc",)
 
     def __init__(self, left, op, right, loc):
         self.left = left
@@ -165,7 +166,7 @@ class BinOp(expr):
 
 
 class UnaryOp(expr):
-    __slots__ = ("op","operand","loc",)
+    __slots__ = ("op", "operand", "loc",)
 
     def __init__(self, op, operand, loc):
         self.op = op
@@ -174,7 +175,7 @@ class UnaryOp(expr):
 
 
 class Call(expr):
-    __slots__ = ("func","args","loc",)
+    __slots__ = ("func", "args", "loc",)
 
     def __init__(self, func, args, loc):
         self.func = func
@@ -183,7 +184,7 @@ class Call(expr):
 
 
 class Num(expr):
-    __slots__ = ("n","loc",)
+    __slots__ = ("n", "loc",)
 
     def __init__(self, n, loc):
         self.n = n
@@ -191,7 +192,7 @@ class Num(expr):
 
 
 class Str(expr):
-    __slots__ = ("s","loc",)
+    __slots__ = ("s", "loc",)
 
     def __init__(self, s, loc):
         self.s = s
@@ -199,7 +200,7 @@ class Str(expr):
 
 
 class Char(expr):
-    __slots__ = ("c","loc",)
+    __slots__ = ("c", "loc",)
 
     def __init__(self, c, loc):
         self.c = c
@@ -207,7 +208,7 @@ class Char(expr):
 
 
 class Subscript(expr):
-    __slots__ = ("name","index","ctx","loc",)
+    __slots__ = ("name", "index", "ctx", "loc",)
 
     def __init__(self, name, index, ctx, loc):
         self.name = name
@@ -217,7 +218,7 @@ class Subscript(expr):
 
 
 class Name(expr):
-    __slots__ = ("id","ctx","loc",)
+    __slots__ = ("id", "ctx", "loc",)
 
     def __init__(self, id, ctx, loc):
         self.id = id

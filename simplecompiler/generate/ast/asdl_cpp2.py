@@ -11,6 +11,7 @@ from itertools import chain
 import asdl
 from util import format_code
 
+
 def camal_case(name):
     """Convert snake_case to camal_case, respecting the original
     camals in ``name``
@@ -70,6 +71,7 @@ class AstNode(CppType):
     def delete(self, name):
         return self.delete_.substitute(name=name)
 
+
 class Primitive(CppType):
     """Primitive types in both asdl and cpp"""
 
@@ -103,7 +105,7 @@ class Primitive(CppType):
 class AbstractNode(AstNode):
     """Direct subclasses of AST, virtual base class for ConcreteNode"""
 
-    extra_members = [ (Primitive('int', True), 'subclass_tag'), ]
+    extra_members = [(Primitive('int', True), 'subclass_tag'), ]
 
     def __init__(self, name):
         super().__init__(name)
@@ -250,7 +252,6 @@ class TypeVisitor(asdl.VisitorBase):
             assert cons.fields, "Mixture of simple and complex sum not allowed"
             self.typemap[cons.name] = ConcreteNode(cons.name)
 
-
     def visitProduct(self, prod, name):
         # LeafNode
         self.typemap[name] = LeafNode(name)
@@ -315,12 +316,13 @@ class TypeVisitor2(asdl.VisitorBase):
             return
 
         # LeafNode
-        if len(sum.types) == 1: # direct subclass of AST -- LeafNode
-            self.to_remove.append(name) # its sum name won't be generated
+        if len(sum.types) == 1:  # direct subclass of AST -- LeafNode
+            self.to_remove.append(name)  # its sum name won't be generated
             cons = sum.types[0]
             type = self.typemap[cons.name]
             assert isinstance(type, LeafNode)
-            type.members = [(self.field_type(f), f.name) for f in chain(cons.fields, sum.attributes)]
+            type.members = [(self.field_type(f), f.name)
+                            for f in chain(cons.fields, sum.attributes)]
             return
 
         # AbstractNode
@@ -333,7 +335,6 @@ class TypeVisitor2(asdl.VisitorBase):
         for cons in sum.types:
             self.visit(cons, type)
 
-
     def visitConstructor(self, cons, base):
         assert cons.fields, "Mixture of simple and complex sum not allowed"
         node = self.typemap[cons.name]
@@ -343,8 +344,10 @@ class TypeVisitor2(asdl.VisitorBase):
 
     def field_type(self, f):
         type = self.typemap[f.type]
-        if f.seq: return Sequence(type)
-        if f.opt: return Optional(type)
+        if f.seq:
+            return Sequence(type)
+        if f.opt:
+            return Optional(type)
         return type
 
     def visitProduct(self, prod, name):
@@ -352,7 +355,7 @@ class TypeVisitor2(asdl.VisitorBase):
         type = self.typemap[name]
         assert isinstance(type, LeafNode)
         type.members = [(self.field_type(f), f.name)
-                for f in chain(prod.fields, prod.attributes)]
+                        for f in chain(prod.fields, prod.attributes)]
 
 
 def make_typemap(mod):
@@ -435,14 +438,11 @@ $visitor_base
 
     forward_decl = Template("""class $class_name;""")
 
-
     def make_forward_decls(self, typemap):
         """Return an iterable of forward_decl strings"""
         for x in typemap.values():
             if isinstance(x, AstNode):
                 yield self.forward_decl.substitute(class_name=x.name)
-
-
 
     def substitute(self, typemap):
         return self.decl.substitute(
@@ -451,14 +451,17 @@ $visitor_base
             abstract_classes="\n".join(substitute_all(typemap, AbstractNode)),
             concrete_classes="\n".join(substitute_all(typemap, ConcreteNode)),
             leafnode_classes="\n".join(substitute_all(typemap, LeafNode)),
-            string2enum_decls="\n".join(String2EnumTempalte().substitute_decls(typemap)),
+            string2enum_decls="\n".join(
+                String2EnumTempalte().substitute_decls(typemap)),
             visitor_base=VisitorBaseTemplate().substitute(typemap),
         )
+
 
 def substitute_all(typemap, match, method="substitute"):
     """Substitute all types matching ``match`` and iterate over them"""
     return map(lambda x: substitute(x, method),
-        filter(lambda x: isinstance(x, match), typemap.values()))
+               filter(lambda x: isinstance(x, match), typemap.values()))
+
 
 def substitute(x, method="substitute"):
     """Turn a cpp type ``x`` into substituted string"""
@@ -510,7 +513,6 @@ String GetDeclName(Decl *decl) {
 }
 """)
 
-
     def substitute(self, typemap):
         return self.impl.substitute(
             formatter_impls="\n".join(substitute_all(
@@ -527,7 +529,6 @@ String GetDeclName(Decl *decl) {
                 String2EnumTempalte().substitute_impls(typemap)
             ),
         )
-
 
 
 class AbstractNodeTemplate:
@@ -550,7 +551,6 @@ public:
             member_init=make_init(x.members),
             enumitems=self.make_enumitems(x.subclasses),
         )
-
 
     def make_enumitems(self, subclasses):
         return ", ".join(c.name for c in subclasses)
@@ -575,7 +575,6 @@ $class_name::~$class_name() {
 
     os_joiner = """ << ", " << """
 
-
     def make_formatter(self, x):
         return self.formatter_impl.substitute(
             class_name=x.name,
@@ -587,15 +586,13 @@ $class_name::~$class_name() {
             )
         )
 
-
     def make_destructor(self, x):
         delete_stmts = list(
-                filter(None, [type.delete(name) for type, name in x.members]))
+            filter(None, [type.delete(name) for type, name in x.members]))
         return self.destructor_impl.substitute(
             class_name=x.name,
             code="\n".join(delete_stmts)
         )
-
 
     def substitute_impl(self, x):
         yield self.make_formatter(x)
@@ -625,14 +622,14 @@ public:
 };
 """)
 
-
     def substitute(self, x):
         assert isinstance(x, ConcreteNode)
         return self.decl.substitute(
             class_name=x.name,
             base=x.base.name,
             member_declaration=make_member_decls(x.members),
-            constructor_args=make_formal_args(x.members + x.base.members_notag),
+            constructor_args=make_formal_args(
+                x.members + x.base.members_notag),
             base_init=make_actual_args(x.base.members_notag),
             member_init=make_init(x.members),
         )
@@ -655,7 +652,6 @@ public:
     void Format(std::ostream &os) const override;
 };
 """)
-
 
     def substitute(self, x):
         assert isinstance(x, LeafNode)
@@ -686,7 +682,6 @@ std::ostream &operator<<(std::ostream &os, $class_name val) {
 }
 """)
 
-
     def substitute(self, x):
         assert isinstance(x, EnumClass)
         return self.decl.substitute(
@@ -694,19 +689,16 @@ std::ostream &operator<<(std::ostream &os, $class_name val) {
             enumitems=make_enumitems(x.values),
         )
 
-
     def make_formatter(self, x):
         return self.impl.substitute(
             class_name=x.name,
             case_stmts=self.make_case_stmts(x),
         )
 
-
     def make_case_stmts(self, x):
         return "\n".join(self.case_stmt.substitute(
             class_name=x.name,
             item=item) for item in x.values)
-
 
 
 class String2EnumTempalte:
@@ -730,28 +722,25 @@ if (s == "$string")
     def make_string2enums(typemap):
         """Filter the enums that needs string2enum()"""
         return filter(lambda x: isinstance(x, EnumClass) and x.strings,
-                typemap.values())
-
+                      typemap.values())
 
     def substitute_decls(self, typemap):
         for x in self.make_string2enums(typemap):
             yield self.decl.substitute(class_name=x.name)
 
-
     def substitute_impls(self, typemap):
         for x in self.make_string2enums(typemap):
             yield self.impl.substitute(
-                    class_name=x.name,
-                    conditions="\n".join(
-                        self.condition.substitute(
-                            class_name=x.name,
-                            item=item,
-                            string=string,
-                        )
+                class_name=x.name,
+                conditions="\n".join(
+                    self.condition.substitute(
+                        class_name=x.name,
+                        item=item,
+                        string=string,
+                    )
                     for string, item in x.strings.items()
                 )
             )
-
 
 
 class VisitorBaseTemplate:
@@ -777,7 +766,6 @@ if (auto x = subclass_cast<$class_name>(node))
     return static_cast<Derived*>(this)->visit$class_name(x, args...);
 """)
 
-
     def make_abstract_visitor(self, x):
         assert isinstance(x, AbstractNode)
         return self.abstract.substitute(
@@ -787,11 +775,10 @@ if (auto x = subclass_cast<$class_name>(node))
             )
         )
 
-
     def substitute(self, typemap):
         return self.decl.substitute(
             abstract_visitor="\n".join(self.make_abstract_visitor(x)
-                for x in typemap.values() if isinstance(x, AbstractNode))
+                                       for x in typemap.values() if isinstance(x, AbstractNode))
         )
 
 
@@ -802,7 +789,8 @@ def make_formal_args(members):
     int i, char j
     """
     return ", ".join("{} {}".format(type.as_argument, name)
-            for type, name in members)
+                     for type, name in members)
+
 
 def make_init(members):
     """Comma-separated name(name) list used in initializer list
@@ -812,12 +800,14 @@ def make_init(members):
     """
     return ", ".join("{0}({0})".format(name) for _, name in members)
 
+
 def make_actual_args(members):
     """Comma-separated name list used in actual arguments
 
     a, b, c
     """
     return ", ".join(name for _, name in members)
+
 
 def make_member_decls(members):
     """Semicolon-terminated type name list used in member declaration.
@@ -830,6 +820,7 @@ def make_member_decls(members):
         name
     ) for type, name in members)
 
+
 def make_enumitems(values):
     """Comma-separated names used in enum items.
 
@@ -840,6 +831,7 @@ def make_enumitems(values):
 
 def generate_code(typemap, template_class, dest):
     format_code(template_class().substitute(typemap), dest)
+
 
 def generate(input, output):
     asdl_mod = asdl.parse(input)
@@ -852,15 +844,16 @@ def generate(input, output):
     format_code(ImplTemplate().substitute(typemap), AST_cpp)
     return 0
 
+
 def main():
     import argparse
     import json
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
-            help='configure file', required=1)
+                        help='configure file', required=1)
     parser.add_argument('-d', '--dump-typemap', dest='dump_typemap', action='store_true',
-            default=False)
+                        default=False)
     args = parser.parse_args()
     config = json.load(args.config)
 

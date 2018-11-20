@@ -23,7 +23,7 @@ def _(list_of_nodes):
 @visit.register(Program)
 def _(node):
     assert isinstance(node, Program)
-    if len(node.decls) == 0: # empty input has no main()
+    if len(node.decls) == 0:  # empty input has no main()
         error("expected main() at the end of input", (0, 0))
         return False
 
@@ -70,14 +70,14 @@ def _(node):
         if isinstance(node.value, Num):
             return True
         error("const int {!r} expects an integer".format(node.name),
-                node.value.loc)
+              node.value.loc)
         return False
     else:
         assert node.type == basic_type.Character
         if isinstance(node.value, Char):
             return True
         error("const char {!r} expects a character".format(node.name),
-                node.value.loc)
+              node.value.loc)
         return False
 
 
@@ -86,21 +86,24 @@ def _(node):
     # check void variable and zero-sized array
     if node.type == basic_type.Void:
         error("cannot declare {!r} as a void variable".format(node.name),
-                node.loc)
+              node.loc)
         return False
     if node.is_array and node.size == 0:
         error("array size of {!r} cannot be 0".format(node.name), node.loc)
         return False
     return True
 
+
 @visit.register(arg)
 def _(node, funcname):
     assert isinstance(node, arg)
     if node.type == basic_type.Void:
-        msg ="cannot declare void argument {!r} of function {!r}".format(node.name, funcname)
+        msg = "cannot declare void argument {!r} of function {!r}".format(
+            node.name, funcname)
         error(msg, node.loc)
         return False
     return True
+
 
 @visit.register(FuncDef)
 def _(node):

@@ -21,6 +21,7 @@ from collections import namedtuple
 from simplecompiler.compiler.tokenizer import tokenize
 from simplecompiler.compiler.Symbol import ERRORTOKEN
 
+
 def load_grammar():
     """Load Grammar.pickle from simplecompiler/"""
     thisscript = Path(__file__)
@@ -33,12 +34,15 @@ logger = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
 
 # For better readability
+
+
 class Node(namedtuple('Node', 'type value context children')):
     "A Node in the concrete syntax tree."""
 
     @property
     def first_child(self):
         return self.children[0]
+
 
 StackEntry = namedtuple('StackEntry', 'dfa state node')
 
@@ -104,7 +108,7 @@ class Parser:
                         # print("push", self.grammar.number2symbol[t])
                         # Push a symbol
                         self.push(t, self.grammar.dfas[t], newstate, context)
-                        break # To continue the outer while loop
+                        break  # To continue the outer while loop
             else:
                 if (0, state) in arcs:
                     # An accepting state, pop it and try something else
@@ -167,7 +171,6 @@ class Parser:
         return self.rootnode
 
 
-
 def parse_file(filename):
     parser = Parser(grammar, filename)
     with open(filename) as f:
@@ -186,7 +189,7 @@ def lispify(root):
     out.append(type)
     out.extend(filter(None, rest))
     if children is not None:
-        children = tuple( lispify(child) for child in children )
+        children = tuple(lispify(child) for child in children)
         out.append(children)
     return tuple(out)
 

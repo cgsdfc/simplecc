@@ -94,9 +94,9 @@ class ChainOfVisitors:
             v.visit(object)
 
 
-def format_code(code_string, dest, external_formatter=None):
-    """Format C++ code in ``code_string`` using ``external_formatter`` and
-    write it to ``dest``.
+def format_code(code_string, external_formatter=None):
+    """Format C++ code in ``code_string`` using ``external_formatter``,
+    return as a string.
     external_formatter is the program to use, default to clang-format.
     """
     if external_formatter is None:
@@ -108,8 +108,7 @@ def format_code(code_string, dest, external_formatter=None):
 
     try:
         formatted = subprocess.check_output([external_formatter, temp])
-        with open(dest, 'wb') as f:
-            f.write(formatted)
+        return formatted.decode()
     finally:
         os.remove(temp)
 

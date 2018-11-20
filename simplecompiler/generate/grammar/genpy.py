@@ -7,7 +7,7 @@ def emit_symbol(config, gr):
     from operator import itemgetter
 
     tok_plus_sym = sorted(chain(((tok, val) for tok, val in gr.token2id.items()
-            if tok[0] not in ("'", '"')), gr.symbol2number.items()), key=itemgetter(1))
+                                 if tok[0] not in ("'", '"')), gr.symbol2number.items()), key=itemgetter(1))
 
     with open(config['Grammar']['symbol'], 'w') as f:
         for tok, val in tok_plus_sym:
@@ -32,9 +32,9 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dump', action='store_true', default=False,
-            help='Dump grammar and exit')
+                        help='Dump grammar and exit')
     parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
-            help='configure file', required=1)
+                        help='configure file', required=1)
 
     args = parser.parse_args()
     config = json.load(args.config)
@@ -47,6 +47,7 @@ def main():
     if args.config:
         emit_symbol(config, gr)
         emit_pickle(config, gr)
+
 
 if __name__ == '__main__':
     main()

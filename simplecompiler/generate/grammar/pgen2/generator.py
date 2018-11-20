@@ -4,13 +4,14 @@ from ast import literal_eval
 # Pgen imports
 from . import grammar
 
+
 class Generator(object):
     """Generate parse table"""
 
     def __init__(self, dfas, startsymbol):
         self.dfas = dfas
         self.startsymbol = startsymbol
-        self.first = {} # map from symbol name to set of tokens
+        self.first = {}  # map from symbol name to set of tokens
         self.addfirstsets()
 
     def make_grammar(self):
@@ -40,7 +41,7 @@ class Generator(object):
             c.states.append(states)
             c.dfas[c.symbol2number[name]] = (states, self.make_first(c, name))
         c.start = c.symbol2number[self.startsymbol]
-        c.tok_name = {val:key for key, val in c.token2id.items()}
+        c.tok_name = {val: key for key, val in c.token2id.items()}
         return c
 
     def make_first(self, c, name):
@@ -99,11 +100,11 @@ class Generator(object):
         for name in names:
             if name not in self.first:
                 self.calcfirst(name)
-            #print name, self.first[name].keys()
+            # print name, self.first[name].keys()
 
     def calcfirst(self, name):
         dfa = self.dfas[name]
-        self.first[name] = None # dummy to detect left recursion
+        self.first[name] = None  # dummy to detect left recursion
         state = dfa[0]
         totalset = {}
         overlapcheck = {}

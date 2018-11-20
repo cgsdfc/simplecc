@@ -10,6 +10,7 @@ from util import double_qoute
 
 TAB = "    "
 
+
 def is_simple(sum):
     """Return True if a sum is a simple.
 
@@ -41,6 +42,7 @@ $name = Enum("$name", "$members")
             members=" ".join(self.values),
         )
 
+
 class ConcreteNode(PythonType):
     template = Template("""
 class $name($base):
@@ -68,6 +70,7 @@ class $name($base):
             )
         )
 
+
 class AbstractNode(PythonType):
     template = Template("""
 class $name(AST):
@@ -76,6 +79,7 @@ class $name(AST):
 
     def __str__(self):
         return self.template.substitute(name=self.name)
+
 
 class LeafNode(PythonType):
     template = Template("""
@@ -111,9 +115,9 @@ class TypeVisitor(asdl.VisitorBase):
             yield Enum(name, [cons.name for cons in sum.types])
 
         # LeafNode
-        elif len(sum.types) == 1: # direct subclass of AST -- LeafNode
+        elif len(sum.types) == 1:  # direct subclass of AST -- LeafNode
             cons = sum.types[0]
-            members = [ f.name for f in chain(cons.fields, sum.attributes)]
+            members = [f.name for f in chain(cons.fields, sum.attributes)]
             yield ConcreteNode(cons.name, 'AST', members)
         else:
             # AbstractNode
@@ -122,13 +126,12 @@ class TypeVisitor(asdl.VisitorBase):
             # ConcreteNode
             for cons in sum.types:
                 yield ConcreteNode(cons.name, name,
-                        [f.name for f in chain(cons.fields, sum.attributes)])
-
+                                   [f.name for f in chain(cons.fields, sum.attributes)])
 
     def visitProduct(self, prod, name):
         # LeafNode
         yield LeafNode(name,
-                [f.name for f in chain(prod.fields, prod.attributes)])
+                       [f.name for f in chain(prod.fields, prod.attributes)])
 
 
 class ImplTemplate:
@@ -200,9 +203,9 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', dest='config', type=argparse.FileType(),
-            help='configure file', required=1)
+                        help='configure file', required=1)
     parser.add_argument('--dump_module', action='store_true', default=False,
-            help='Dump the asdl module and exit')
+                        help='Dump the asdl module and exit')
     args = parser.parse_args()
     config = json.load(args.config)
 
