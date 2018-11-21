@@ -48,6 +48,7 @@ class ExprStmt;
 class Expr;
 class BinOp;
 class ParenExpr;
+class BoolOp;
 class UnaryOp;
 class Call;
 class Num;
@@ -106,7 +107,18 @@ public:
   Expr(int subclass_tag, Location loc)
       : AST(), subclass_tag(subclass_tag), loc(loc) {}
 
-  enum { BinOp, ParenExpr, UnaryOp, Call, Num, Str, Char, Subscript, Name };
+  enum {
+    BinOp,
+    ParenExpr,
+    BoolOp,
+    UnaryOp,
+    Call,
+    Num,
+    Str,
+    Char,
+    Subscript,
+    Name
+  };
 };
 
 // ConcreteNode
@@ -354,6 +366,21 @@ public:
   static bool InstanceCheck(Expr *x) {
     return x->subclass_tag == Expr::ParenExpr;
   }
+};
+
+class BoolOp : public Expr {
+public:
+  Expr *value;
+
+  BoolOp(Expr *value, Location loc) : Expr(Expr::BoolOp, loc), value(value) {}
+
+  ~BoolOp() override;
+
+  String ClassName() const override { return "BoolOp"; }
+
+  void Format(std::ostream &os) const override;
+
+  static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::BoolOp; }
 };
 
 class UnaryOp : public Expr {

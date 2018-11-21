@@ -210,7 +210,7 @@ class TransformerVisitor(VisitorBase):
         return AST.If(test, body, orelse, node.context)
 
     def visit_condition(self, node):
-        return self.visit_expr(node)
+        return AST.BoolOp(self.visit_expr(node), node.context)
 
     def visit_for_stmt(self, node):
         # initial: stmt

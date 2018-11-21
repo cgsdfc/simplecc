@@ -42,7 +42,9 @@ public:
 
   int GetErrorCount() const { return error_count; }
 
-  bool IsOk() const { return 0 == GetErrorCount(); }
+  bool IsOk(int prev_count = 0) const {
+    return prev_count == GetErrorCount();
+  }
 };
 
 inline String Quote(const String &string) {

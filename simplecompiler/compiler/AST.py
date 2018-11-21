@@ -172,6 +172,14 @@ class ParenExpr(expr):
         self.loc = loc
 
 
+class BoolOp(expr):
+    __slots__ = ('value','loc',)
+
+    def __init__(self, value, loc):
+        self.value = value
+        self.loc = loc
+
+
 class UnaryOp(expr):
     __slots__ = ('op','operand','loc',)
 

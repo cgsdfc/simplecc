@@ -27,12 +27,15 @@ module Compiler
           attributes (location loc)
 
     expr = BinOp(expr left, operator op, expr right)
-         -- expression in parentheses, added for type_check
+         -- expression in parentheses, added for type_check.
          -- when a character is in parentheses, it is considered participate in
          -- calculation and thus cast to an int.
          -- const char a = 'a'; int b; b = (a); is correct because (a) yields an
          -- int value which matches that of b.
          | ParenExpr(expr value)
+         -- expression as condition in Grammar, added for type_check.
+         -- there is no implicit char2int conversion in this context.
+         | BoolOp(expr value)
          | UnaryOp(unaryop op, expr operand)
          | Call(identifier func, expr* args)
          | Num(int n)

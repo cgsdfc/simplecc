@@ -258,7 +258,7 @@ public:
   }
 
   Expr *visit_condition(Node *node) {
-    return visit_expr(node);
+    return new BoolOp(visit_expr(node), node->location);
   }
 
   Stmt *visit_for_stmt(Node *node) {

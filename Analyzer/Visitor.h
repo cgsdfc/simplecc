@@ -83,6 +83,11 @@ public:
           x, std::forward<Args>(args)...);
     }
 
+    if (auto x = subclass_cast<BoolOp>(node)) {
+      return static_cast<Derived *>(this)->visitBoolOp(
+          x, std::forward<Args>(args)...);
+    }
+
     if (auto x = subclass_cast<UnaryOp>(node)) {
       return static_cast<Derived *>(this)->visitUnaryOp(
           x, std::forward<Args>(args)...);
@@ -242,6 +247,11 @@ public:
 
   template <typename... Args>
   void visitParenExpr(ParenExpr *node, Args &&... args) {
+
+    visitExpr(node->value, args...);
+  }
+
+  template <typename... Args> void visitBoolOp(BoolOp *node, Args &&... args) {
 
     visitExpr(node->value, args...);
   }

@@ -118,6 +118,11 @@ void ParenExpr::Format(std::ostream &os) const {
      << "value=" << value << ")";
 }
 
+void BoolOp::Format(std::ostream &os) const {
+  os << "BoolOp("
+     << "value=" << value << ")";
+}
+
 void UnaryOp::Format(std::ostream &os) const {
   os << "UnaryOp("
      << "op=" << op << ", "
@@ -301,6 +306,8 @@ BinOp::~BinOp() {
 }
 
 ParenExpr::~ParenExpr() { delete value; }
+
+BoolOp::~BoolOp() { delete value; }
 
 UnaryOp::~UnaryOp() { delete operand; }
 

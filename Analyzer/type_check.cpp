@@ -131,6 +131,10 @@ public:
     VISIT(right);
   }
 
+  void visitBoolOp(BoolOp *node) {
+    VISIT(value);
+  }
+
   void visitParenExpr(ParenExpr *node) {
     VISIT(value);
   }
@@ -266,6 +270,29 @@ public:
     auto call = subclass_cast<Call>(node->value);
     assert(call && "value of ExprStmt must be a Call");
     visitCall(call);
+  }
+
+  BasicTypeKind visitBoolOp(BoolOp *node) {
+    auto errs = e.GetErrorCount();
+    auto result = BasicTypeKind::Int;
+
+    if (auto x = subclass_cast<BinOp>(node->value)) {
+      auto left = visitExpr(x->left);
+      auto right = visitExpr(x->right);
+
+      if (e.IsOk(errs) && left != right) {
+        e.Error(node->loc, "type mismatched in condition");
+        result = BasicTypeKind::Void;
+      }
+    }
+    else {
+      auto type = visitExpr(node->value);
+      if (e.IsOk(errs) && type != BasicTypeKind::Int) {
+        e.Error(node->loc, "type of condition must be int");
+        result = BasicTypeKind::Void;
+      }
+    }
+    return result;
   }
 
   BasicTypeKind visitBinOp(BinOp *node) {
