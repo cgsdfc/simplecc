@@ -1,2 +1,1 @@
 char main() {}
-int main() {}
