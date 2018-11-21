@@ -2,17 +2,23 @@
 #include "Visitor.h"
 #include "error.h"
 
-
-// Transform Name to Call if it is a function and it is in the context
-// of Expr or ExprStmt (Call really).
-class ImplicitCallTransformer: public VisitorBase<ImplicitCallTransformer> {
-  SymbolTable &symtable;
-  ErrorManager e;
+// Provide access to each local namespace
+class SymbolTableView {
+  const SymbolTable &symtable;
   // point to the entry of the function being checked
   const Entry *cur_fun;
 public:
-  ImplicitCallTransformer(SymbolTable &symtable):
-    symtable(symtable), e(), cur_fun(nullptr) {}
+  SymbolTableView(const SymbolTable &symtable):
+    symtable(symtable), cur_fun(nullptr) {}
+
+  const Entry &GetCurrentFunction() const {
+    assert(cur_fun);
+    return *cur_fun;
+  }
+
+  void SetCurrentFunction(FuncDef *fun) {
+    cur_fun = &symtable.LookupGlobal(fun->name);
+  }
 
   // lookup the type of name within the current function
   Type *LookupType(const String &name) {
@@ -21,13 +27,22 @@ public:
     return entry.type;
   }
 
+};
+
+// Transform Name to Call if it is a function and it is in the context
+// of Expr or ExprStmt (Call really).
+class ImplicitCallTransformer: public VisitorBase<ImplicitCallTransformer> {
+  SymbolTableView view;
+public:
+  ImplicitCallTransformer(SymbolTable &symtable): view(symtable) {}
+
   void visitStmt(Stmt *node) {
     VisitorBase::visitStmt<void>(node);
   }
 
   Expr *visitExpr(Expr *node) {
     if (auto x = subclass_cast<Name>(node)) {
-      if (auto fun = subclass_cast<Function>(LookupType(x->id))) {
+      if (auto fun = subclass_cast<Function>(view.LookupType(x->id))) {
         // replace such a name with a call
         auto call = new Call(x->id, {}, x->loc);
         delete x;
@@ -141,46 +156,28 @@ public:
   void visitProgam(Program *node) {
     for (auto decl: node->decls) {
       if (auto x = subclass_cast<FuncDef>(decl)) {
-        SetCurrentFunction(x->name);
+        view.SetCurrentFunction(x);
         visitFuncDef(x);
       }
     }
   }
 
-  void SetCurrentFunction(const String &name) {
-    cur_fun = &symtable.LookupGlobal(name);
-    assert(IsInstance<Function>(cur_fun->type));
-  }
 #undef VISIT
 
 };
 
 class TypeCheker: public VisitorBase<TypeCheker>, public ChildrenVisitor<TypeCheker> {
 public:
-  SymbolTable &symtable;
+  SymbolTableView view;
   ErrorManager e;
   // point to the entry of the function being checked
-  const Entry *cur_fun;
 
-  TypeCheker(SymbolTable &symtable):
-    symtable(symtable), e(), cur_fun(nullptr) {}
-
-  // lookup the type of name within the current function
-  Type *LookupType(const String &name) {
-    assert(cur_fun);
-    const auto &entry = symtable.LookupLocal(cur_fun->name, name);
-    return entry.type;
-  }
+  TypeCheker(SymbolTable &symtable): view(symtable), e() {}
 
   // public interface
   bool Check(Program *node) {
     visitProgam(node);
     return e.IsOk();
-  }
-
-  void SetCurrentFunction(const String &name) {
-    cur_fun = &symtable.LookupGlobal(name);
-    assert(IsInstance<Function>(cur_fun->type));
   }
 
   void visitProgam(Program *node) {
@@ -200,7 +197,7 @@ public:
   }
 
   void visitFuncDef(FuncDef *node) {
-    SetCurrentFunction(node->name);
+    view.SetCurrentFunction(node);
     for (auto stmt: node->stmts) {
       visitStmt(stmt);
     }
@@ -210,7 +207,7 @@ public:
     for (auto expr: node->names) {
       auto name = subclass_cast<Name>(expr);
       assert(name && "names of Read must be Names");
-      auto type = LookupType(name->id);
+      auto type = view.LookupType(name->id);
       if (!IsInstance<Variable>(type)) {
         e.Error(name->loc,
             "cannot read into object of type", type->ClassName());
@@ -219,12 +216,13 @@ public:
   }
 
   void visitReturn(Return *node) {
-    auto fun_type = subclass_cast<Function>(cur_fun->type);
+    const auto &cur_fun = view.GetCurrentFunction();
+    auto fun_type = subclass_cast<Function>(cur_fun.type);
     auto return_type = node->value ? visitExpr(node->value) : BasicTypeKind::Void;
 
     if (fun_type->return_type != return_type) {
       e.Error(node->loc,
-          "return type mismatched:", "function", Quote(cur_fun->name),
+          "return type mismatched:", "function", Quote(cur_fun.name),
           "must return", CStringFromBasicTypeKind(fun_type->return_type),
           "not", CStringFromBasicTypeKind(return_type));
     }
@@ -275,7 +273,7 @@ public:
   }
 
   BasicTypeKind visitCall(Call *node) {
-    auto type = LookupType(node->func);
+    auto type = view.LookupType(node->func);
     auto fun_type = subclass_cast<Function>(type);
     if (!fun_type) {
       e.Error(node->loc,
@@ -306,7 +304,7 @@ public:
   }
 
   BasicTypeKind visitSubscript(Subscript *node) {
-    auto type = LookupType(node->name);
+    auto type = view.LookupType(node->name);
     Array *array_type = subclass_cast<Array>(type);
     if (!array_type) {
       e.Error(node->loc,
@@ -321,7 +319,7 @@ public:
   }
 
   BasicTypeKind visitName(Name *node) {
-    auto type = LookupType(node->id);
+    auto type = view.LookupType(node->id);
     if (node->ctx == ExprContextKind::Load) {
       if (IsInstance<Function>(type) || IsInstance<Array>(type)) {
         e.Error(node->loc,
@@ -354,5 +352,6 @@ public:
 };
 
 bool CheckType(Program *prog, SymbolTable &symtable) {
+  ImplicitCallTransformer(symtable).visitProgam(prog);
   return TypeCheker(symtable).Check(prog);
 }
