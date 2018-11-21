@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  Print(std::cout, ast_node);
   /* std::cout << "Ast after ImplicitCallTransformer runs\n"; */
   /* std::cout << ast_node << "\n"; */
 

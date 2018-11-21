@@ -3,6 +3,14 @@
 
 #include <sstream>
 
+Expr *MakeChar(Node *node) {
+  return new Char(static_cast<int>(node->value[1]), node->location);
+}
+
+Expr *MakeNum(Node *node) {
+  return new Num(std::stoi(node->value), node->location);
+}
+
 class TransformerVisitor {
 public:
 
@@ -41,7 +49,7 @@ public:
       Expr *val;
 
       if (konstant->type == Symbol::CHAR) {
-        val = new Char(static_cast<int>(konstant->value[1]), node->location);
+        val = MakeChar(konstant);
       }
       else {
         assert(konstant->type == Symbol::integer);
@@ -280,7 +288,7 @@ public:
     auto num = node->children[12];
     assert(num->type == Symbol::NUMBER);
     auto expr1 = new Name(name2->value, ExprContextKind::Load, name2->location);
-    auto expr2 = new Num(std::stoi(num->value), num->location);
+    auto expr2 = MakeNum(num);
     auto expr3 = new BinOp(expr1,
         String2OperatorKind(op->value), expr2, name2->location);
     auto step = new Assign(
@@ -391,10 +399,10 @@ public:
             return visit_factor_trailer(trailer, first->value, context);
         }
         if (first->type == Symbol::NUMBER) {
-            return new Num(std::stoi(first->value), first->location);
+          return MakeNum(first);
         }
         if (first->type == Symbol::CHAR) {
-            return new Char(static_cast<int>(first->value[1]), first->location);
+          return MakeChar(first);
         }
         else {
             assert(first->value == "(");
