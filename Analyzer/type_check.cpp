@@ -322,8 +322,11 @@ public:
           "object of type", type->ClassName(), "cannot be subscripted as an array");
       return BasicTypeKind::Void;
     }
+    int errs = e.GetErrorCount();
     auto index = visitExpr(node->index);
-    if (index != BasicTypeKind::Int) {
+    bool index_ok = errs == e.GetErrorCount();
+
+    if (index_ok && index != BasicTypeKind::Int) {
       e.Error(node->loc, "type of array index must be int");
     }
     return array_type->elemtype;

@@ -120,7 +120,7 @@ public:
 
   void visitCall(Call *x) {
     ResolveName(x->func, x->loc);
-    return ChildrenVisitor::visitCall(x);
+    ChildrenVisitor::visitCall(x);
   }
 
   // these do not have identifiers
@@ -130,6 +130,7 @@ public:
 
   void visitSubscript(Subscript *x) {
     ResolveName(x->name, x->loc);
+    ChildrenVisitor::visitSubscript(x);
   }
 
   void visitName(Name *x) {
