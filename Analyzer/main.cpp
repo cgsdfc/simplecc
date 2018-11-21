@@ -1,6 +1,6 @@
 #include "parser.h"
 #include "cst.h"
-#include "validate.h"
+#include "syntax_check.h"
 #include "symtable.h"
 #include "type_check.h"
 #include "error.h"
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   if (!ast_node)
     return 1;
 
-  if (!ValidateSyntax(ast_node)) {
+  if (!CheckSyntax(ast_node)) {
     return 1;
   }
 

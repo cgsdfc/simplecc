@@ -1,12 +1,12 @@
-#include "validate.h"
+#include "syntax_check.h"
 #include "Visitor.h"
 #include "error.h"
 
-class SyntaxValidator: public VisitorBase<SyntaxValidator> {
+class SyntaxChecker: public VisitorBase<SyntaxChecker> {
   ErrorManager e;
 public:
 
-  SyntaxValidator(): VisitorBase(), e() {}
+  SyntaxChecker(): VisitorBase(), e() {}
 
   void visitProgram(Program *node) {
     if (node->decls.size() == 0) {
@@ -95,6 +95,6 @@ public:
 
 };
 
-bool ValidateSyntax(Program *node) {
-  return SyntaxValidator().Validate(node);
+bool CheckSyntax(Program *node) {
+  return SyntaxChecker().Validate(node);
 }

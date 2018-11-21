@@ -27,7 +27,7 @@ add_executable(analyzer
   ./type_check.cpp
   ./test_symtable.cpp
   ./symtable.cpp
-  ./validate.cpp
+  ./syntax_check.cpp
   ./main.cpp
   ./cst.cpp
   ./parser.cpp
