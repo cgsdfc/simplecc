@@ -112,7 +112,19 @@ public:
   }
 
   void visitExprStmt(ExprStmt *node) {
-      VISIT(value);
+    // ExprStmt is special since the name is **unconditionally**
+    // a call, as it is required by the Grammar. so there is no
+    // lookup with symtable, no visitExpr().
+    if (auto x = subclass_cast<Name>(node->value)) {
+      auto call = new Call(x->id, {}, x->loc);
+      delete node->value;
+      node->value = x;
+    }
+    else {
+      // visit call as usual
+      assert(IsInstance<Call>(node->value));
+      visitExpr(node->value);
+    }
   }
 
   void visitBinOp(BinOp *node) {
@@ -166,7 +178,8 @@ public:
 
 };
 
-class TypeCheker: public VisitorBase<TypeCheker>, public ChildrenVisitor<TypeCheker> {
+class TypeCheker: public VisitorBase<TypeCheker>,
+                  public ChildrenVisitor<TypeCheker> {
 public:
   SymbolTableView view;
   ErrorManager e;
@@ -192,6 +205,7 @@ public:
     return VisitorBase::visitStmt<void>(s);
   }
 
+  // Return the type of evaluating the expression
   BasicTypeKind visitExpr(Expr *node) {
     return VisitorBase::visitExpr<BasicTypeKind>(node);
   }
@@ -206,11 +220,10 @@ public:
   void visitRead(Read *node) {
     for (auto expr: node->names) {
       auto name = subclass_cast<Name>(expr);
-      assert(name && "names of Read must be Names");
       auto type = view.LookupType(name->id);
       if (!IsInstance<Variable>(type)) {
         e.Error(name->loc,
-            "cannot read into object of type", type->ClassName());
+            "cannot use scanf() on object of type", type->ClassName());
       }
     }
   }
@@ -220,6 +233,7 @@ public:
     auto fun_type = subclass_cast<Function>(cur_fun.type);
     auto return_type = node->value ? visitExpr(node->value) : BasicTypeKind::Void;
 
+    // order a strict match
     if (fun_type->return_type != return_type) {
       e.Error(node->loc,
           "return type mismatched:", "function", Quote(cur_fun.name),
@@ -231,10 +245,17 @@ public:
   void visitAssign(Assign *node) {
     int errs = e.GetErrorCount();
     auto target = visitExpr(node->target);
-    bool bad_target = e.GetErrorCount() > errs;
     auto value = visitExpr(node->value);
+    bool both_good = e.GetErrorCount() == errs;
 
-    if (!bad_target && target != value) {
+    // if the assignment target or value is bad, don't check type-match, since:
+    // int array[10];
+    // array = i;
+    // first causes a "object of Array cannot be assigned to",
+    // then will cause a "type mismatched in assignment: target type is void,
+    // value type is int", but the target type does not support assignment.
+    // i = array; it is the same since value is bad.
+    if (both_good && target != value) {
       e.Error(node->loc,
           "type mismatched in assignment: target type is",
           CStringFromBasicTypeKind(target), "value type is",
@@ -243,20 +264,11 @@ public:
   }
 
   void visitExprStmt(ExprStmt *node) {
-    if (auto name = subclass_cast<Name>(node->value)) {
-      // A function name without passing any argument is interpreted as
-      // a call to it without argument.
-      auto call = new Call(name->id, {}, name->loc);
-      delete name;
-      node->value = call;
-    }
     auto call = subclass_cast<Call>(node->value);
     assert(call && "value of ExprStmt must be a Call");
-    visitExpr(call);
+    visitCall(call);
   }
 
-  // if char is in BinOp, it will be cast to an int,
-  // even both sides are chars. Thus the result must be int.
   BasicTypeKind visitBinOp(BinOp *node) {
     ChildrenVisitor::visitBinOp(node);
     return BasicTypeKind::Int;
@@ -320,19 +332,16 @@ public:
 
   BasicTypeKind visitName(Name *node) {
     auto type = view.LookupType(node->id);
-    if (node->ctx == ExprContextKind::Load) {
-      if (IsInstance<Function>(type) || IsInstance<Array>(type)) {
-        e.Error(node->loc,
-            "object of type", type->ClassName(), "cannot be used in an expression");
-        return BasicTypeKind::Void;
-      }
+    if (node->ctx == ExprContextKind::Load && IsInstance<Array>(type)) {
+      // Function cannot be here
+      e.Error(node->loc,
+          "object of type", type->ClassName(), "cannot be used in an expression");
+      return BasicTypeKind::Void;
     }
-    else {
-      assert(node->ctx == ExprContextKind::Store);
-      if (!IsInstance<Variable>(type)) {
-        e.Error(node->loc,
-            "object of type", type->ClassName(), "cannot be assigned to");
-      }
+    if (node->ctx == ExprContextKind::Store && !IsInstance<Variable>(type)) {
+      e.Error(node->loc,
+          "object of type", type->ClassName(), "cannot be assigned to");
+      return BasicTypeKind::Void;
     }
     if (auto x = subclass_cast<Variable>(type)) {
       return x->type;
@@ -353,6 +362,6 @@ public:
 
 bool CheckType(Program *prog, SymbolTable &symtable) {
   ImplicitCallTransformer(symtable).visitProgam(prog);
-  return true;
-  /* return TypeCheker(symtable).Check(prog); */
+  /* return true; */
+  return TypeCheker(symtable).Check(prog);
 }

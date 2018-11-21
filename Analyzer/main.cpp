@@ -43,15 +43,15 @@ int main(int argc, char **argv) {
   }
   symtable.Check();
 
-  std::cout << "Ast before ImplicitCallTransformer runs\n";
-  std::cout << ast_node << "\n";
+  /* std::cout << "Ast before ImplicitCallTransformer runs\n"; */
+  /* std::cout << ast_node << "\n"; */
 
   if (!CheckType(ast_node, symtable)) {
     return 1;
   }
 
-  std::cout << "Ast after ImplicitCallTransformer runs\n";
-  std::cout << ast_node << "\n";
+  /* std::cout << "Ast after ImplicitCallTransformer runs\n"; */
+  /* std::cout << ast_node << "\n"; */
 
   delete ast_node;
   delete cst_node;

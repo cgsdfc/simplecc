@@ -11,6 +11,7 @@ void main() {
   int array[10];
 
   fun2(fun1, fun1);
+  array;
   i = -fun1;
   i = +fun1;
   i = (fun1);
