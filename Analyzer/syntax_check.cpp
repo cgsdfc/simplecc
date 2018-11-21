@@ -44,16 +44,11 @@ public:
   }
 
   void visitConstDecl(ConstDecl *node) {
-    if (node->type == BasicTypeKind::Int) {
-      if (!IsInstance<Num>(node->value)) {
-        e.SyntaxError(node->loc, "const int", Quote(node->name), "expects an integer");
-      }
+    if (node->type == BasicTypeKind::Int && !IsInstance<Num>(node->value)) {
+      e.SyntaxError(node->loc, "const int", Quote(node->name), "expects an integer");
     }
-    else {
-      assert(node->type == BasicTypeKind::Character);
-      if (!IsInstance<Char>(node->value)) {
-        e.SyntaxError(node->loc, "cont char", Quote(node->name), "expects a character");
-      }
+    else if (node->type == BasicTypeKind::Character && !IsInstance<Char>(node->value)) {
+      e.SyntaxError(node->loc, "cont char", Quote(node->name), "expects a character");
     }
   }
 
@@ -88,7 +83,7 @@ public:
     }
   }
 
-  bool Validate(Program *node) {
+  bool Check(Program *node) {
     visitProgram(node);
     return e.IsOk();
   }
@@ -96,5 +91,5 @@ public:
 };
 
 bool CheckSyntax(Program *node) {
-  return SyntaxChecker().Validate(node);
+  return SyntaxChecker().Check(node);
 }
