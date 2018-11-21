@@ -317,8 +317,10 @@ class TransformerVisitor(VisitorBase):
             return AST.Char(first.value, first.context)
         else:
             assert first.value == '('
+            # parenthesis expr
             # visit_expr
-            return self.visit(node.children[1], context)
+            value = self.visit(node.children[1], context)
+            return AST.ParenExpr(value, first.context)
 
     def visit_factor_trailer(self, node, name, context):
         first = node.first_child

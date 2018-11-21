@@ -398,7 +398,8 @@ public:
         }
         else {
             assert(first->value == "(");
-            return visit_expr(node->children[1]);
+            auto value = visit_expr(node->children[1]);
+            return new ParenExpr(value, first->location);
         }
     }
 

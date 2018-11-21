@@ -47,6 +47,7 @@ class If;
 class ExprStmt;
 class Expr;
 class BinOp;
+class ParenExpr;
 class UnaryOp;
 class Call;
 class Num;
@@ -105,7 +106,7 @@ public:
   Expr(int subclass_tag, Location loc)
       : AST(), subclass_tag(subclass_tag), loc(loc) {}
 
-  enum { BinOp, UnaryOp, Call, Num, Str, Char, Subscript, Name };
+  enum { BinOp, ParenExpr, UnaryOp, Call, Num, Str, Char, Subscript, Name };
 };
 
 // ConcreteNode
@@ -337,6 +338,24 @@ public:
   static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::BinOp; }
 };
 
+class ParenExpr : public Expr {
+public:
+  Expr *value;
+
+  ParenExpr(Expr *value, Location loc)
+      : Expr(Expr::ParenExpr, loc), value(value) {}
+
+  ~ParenExpr() override;
+
+  String ClassName() const override { return "ParenExpr"; }
+
+  void Format(std::ostream &os) const override;
+
+  static bool InstanceCheck(Expr *x) {
+    return x->subclass_tag == Expr::ParenExpr;
+  }
+};
+
 class UnaryOp : public Expr {
 public:
   UnaryopKind op;
@@ -490,10 +509,13 @@ public:
 // String2Enum
 
 OperatorKind String2OperatorKind(const String &s);
+const char *CStringFromOperatorKind(OperatorKind val);
 
 UnaryopKind String2UnaryopKind(const String &s);
+const char *CStringFromUnaryopKind(UnaryopKind val);
 
 BasicTypeKind String2BasicTypeKind(const String &s);
+const char *CStringFromBasicTypeKind(BasicTypeKind val);
 
 template <typename T, typename U> inline bool IsInstance(U *x) {
   return T::InstanceCheck(x);

@@ -113,6 +113,11 @@ void BinOp::Format(std::ostream &os) const {
      << "right=" << right << ")";
 }
 
+void ParenExpr::Format(std::ostream &os) const {
+  os << "ParenExpr("
+     << "value=" << value << ")";
+}
+
 void UnaryOp::Format(std::ostream &os) const {
   os << "UnaryOp("
      << "op=" << op << ", "
@@ -295,6 +300,8 @@ BinOp::~BinOp() {
   delete right;
 }
 
+ParenExpr::~ParenExpr() { delete value; }
+
 UnaryOp::~UnaryOp() { delete operand; }
 
 Call::~Call() {
@@ -347,6 +354,41 @@ OperatorKind String2OperatorKind(const String &s) {
   assert(false && "not a member of OperatorKind");
 }
 
+const char *CStringFromOperatorKind(OperatorKind val) {
+  switch (val) {
+
+  case OperatorKind::Add:
+    return "+";
+
+  case OperatorKind::Sub:
+    return "-";
+
+  case OperatorKind::Mult:
+    return "*";
+
+  case OperatorKind::Div:
+    return "/";
+
+  case OperatorKind::Eq:
+    return "==";
+
+  case OperatorKind::NotEq:
+    return "!=";
+
+  case OperatorKind::Lt:
+    return "<";
+
+  case OperatorKind::LtE:
+    return "<=";
+
+  case OperatorKind::Gt:
+    return ">";
+
+  case OperatorKind::GtE:
+    return ">=";
+  }
+}
+
 UnaryopKind String2UnaryopKind(const String &s) {
 
   if (s == "+")
@@ -356,6 +398,17 @@ UnaryopKind String2UnaryopKind(const String &s) {
     return UnaryopKind::USub;
 
   assert(false && "not a member of UnaryopKind");
+}
+
+const char *CStringFromUnaryopKind(UnaryopKind val) {
+  switch (val) {
+
+  case UnaryopKind::UAdd:
+    return "+";
+
+  case UnaryopKind::USub:
+    return "-";
+  }
 }
 
 BasicTypeKind String2BasicTypeKind(const String &s) {
@@ -370,6 +423,20 @@ BasicTypeKind String2BasicTypeKind(const String &s) {
     return BasicTypeKind::Void;
 
   assert(false && "not a member of BasicTypeKind");
+}
+
+const char *CStringFromBasicTypeKind(BasicTypeKind val) {
+  switch (val) {
+
+  case BasicTypeKind::Int:
+    return "int";
+
+  case BasicTypeKind::Character:
+    return "char";
+
+  case BasicTypeKind::Void:
+    return "void";
+  }
 }
 
 String GetDeclName(Decl *decl) {

@@ -538,8 +538,7 @@ public:
     $class_name($constructor_args): AST(), $member_init {}
 
     enum {$enumitems};
-};
-""")
+};""")
 
     def substitute(self, x):
         return self.decl.substitute(
@@ -617,8 +616,7 @@ public:
     static bool InstanceCheck($base *x) {
         return x->subclass_tag == $base::$class_name;
     }
-};
-""")
+};""")
 
     def substitute(self, x):
         assert isinstance(x, ConcreteNode)
@@ -648,8 +646,7 @@ public:
     }
 
     void Format(std::ostream &os) const override;
-};
-""")
+};""")
 
     def substitute(self, x):
         assert isinstance(x, LeafNode)
@@ -702,6 +699,7 @@ std::ostream &operator<<(std::ostream &os, $class_name val) {
 class String2EnumTempalte:
     decl = Template("""
 $class_name String2$class_name(const String &s);
+const char *CStringFrom$class_name($class_name val);
 """)
 
     impl = Template("""
@@ -709,12 +707,22 @@ $class_name String2$class_name(const String &s) {
     $conditions
     assert(false && "not a member of $class_name");
 }
+
+const char *CStringFrom$class_name($class_name val) {
+    switch (val) {
+    $cases
+    }
+}
 """)
 
     condition = Template("""
 if (s == "$string")
     return $class_name::$item;
 """)
+
+    case = Template("""
+case $class_name::$item:
+    return "$string"; """)
 
     @staticmethod
     def make_string2enums(typemap):
@@ -726,18 +734,21 @@ if (s == "$string")
         for x in self.make_string2enums(typemap):
             yield self.decl.substitute(class_name=x.name)
 
+    def make_code(self, template, x):
+        # condition and case are similar
+        for string, item in x.strings.items():
+            yield template.substitute(
+                class_name=x.name,
+                item=item,
+                string=string
+            )
+
     def substitute_impls(self, typemap):
         for x in self.make_string2enums(typemap):
             yield self.impl.substitute(
                 class_name=x.name,
-                conditions="\n".join(
-                    self.condition.substitute(
-                        class_name=x.name,
-                        item=item,
-                        string=string,
-                    )
-                    for string, item in x.strings.items()
-                )
+                cases="\n".join(self.make_code(self.case, x)),
+                conditions="\n".join(self.make_code(self.condition, x)),
             )
 
 
@@ -748,21 +759,19 @@ template <typename Derived>
 class VisitorBase {
 public:
 $abstract_visitor
-};
-""")
+};""")
 
     abstract = Template("""
 template<typename R, typename... Args>
 R visit$class_name($class_name *node, Args&&... args) {
     $test_and_dispatches
     assert(false && "$class_name");
-}
-""")
+} """)
 
     dispatch = Template("""
-if (auto x = subclass_cast<$class_name>(node))
-    return static_cast<Derived*>(this)->visit$class_name(x, args...);
-""")
+if (auto x = subclass_cast<$class_name>(node)) {
+    return static_cast<Derived*>(this)->visit$class_name(x, std::forward<Args>(args)...);
+} """)
 
     def make_abstract_visitor(self, x):
         assert isinstance(x, AbstractNode)
@@ -789,8 +798,7 @@ class ChildrenVisitor {
 public:
 $methods
 $downcasts
-};
-""")
+};""")
     method = Template("""
 template <typename... Args>
 void visit$class_name($class_name *node, Args&&... args) {
@@ -799,7 +807,7 @@ $code
     crtp_downcast = Template("""
 template <typename... Args>
 void visit$class_name($class_name *node, Args&&... args) {
-    static_cast<Derived*>(this)->visit$class_name(node, args...);
+    static_cast<Derived*>(this)->visit$class_name(node, std::forward<Args>(args)...);
 }""")
 
     visit = Template("""

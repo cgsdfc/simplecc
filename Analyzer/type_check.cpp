@@ -2,17 +2,6 @@
 #include "Visitor.h"
 #include "error.h"
 
-const char *BasicTypeKind2CString(BasicTypeKind val) {
-  switch (val) {
-  case BasicTypeKind::Int:
-    return "int";
-  case BasicTypeKind::Character:
-    return "char";
-  case BasicTypeKind::Void:
-    return "void";
-  }
-}
-
 class TypeCheker: public VisitorBase<TypeCheker>, public ChildrenVisitor<TypeCheker> {
 public:
   SymbolTable &symtable;
@@ -53,11 +42,8 @@ public:
     return VisitorBase::visitStmt<void>(s);
   }
 
-  void visitExpr(Expr *node, bool void_ok = false) {
-    auto type = VisitorBase::visitExpr<BasicTypeKind>(node);
-    if (type == BasicTypeKind::Void && !void_ok) {
-      e.Error(node->loc, "value of expression cannot be void");
-    }
+  BasicTypeKind visitExpr(Expr *node) {
+    return VisitorBase::visitExpr<BasicTypeKind>(node);
   }
 
   void visitFuncDef(FuncDef *node) {
@@ -79,26 +65,29 @@ public:
     }
   }
 
-  // skip node->str
-  void visitWrite(Write *node) {
-    if (node->value) {
-      visitExpr(node->value);
+  void visitReturn(Return *node) {
+    auto fun_type = subclass_cast<Function>(cur_fun->type);
+    auto return_type = node->value ? visitExpr(node->value) : BasicTypeKind::Void;
+
+    if (fun_type->return_type != return_type) {
+      e.Error(node->loc,
+          "return type mismatched:", "function", Quote(cur_fun->name),
+          "must return", CStringFromBasicTypeKind(fun_type->return_type),
+          "not", CStringFromBasicTypeKind(return_type));
     }
   }
 
-  void visitReturn(Return *node) {
-    auto fun_type = subclass_cast<Function>(cur_fun->type);
-    auto return_type = node->value ?
-      VisitorBase::visitExpr<BasicTypeKind>(node->value) : BasicTypeKind::Void;
+  void visitAssign(Assign *node) {
+    int errs = e.GetErrorCount();
+    auto target = visitExpr(node->target);
+    bool bad_target = e.GetErrorCount() > errs;
+    auto value = visitExpr(node->value);
 
-    if ((return_type == BasicTypeKind::Void &&
-        fun_type->return_type != BasicTypeKind::Void) ||
-       (return_type != BasicTypeKind::Void &&
-       fun_type->return_type == BasicTypeKind::Void)) {
+    if (!bad_target && target != value) {
       e.Error(node->loc,
-          "function", Quote(cur_fun->name), "must return",
-          BasicTypeKind2CString(fun_type->return_type), "not",
-          BasicTypeKind2CString(return_type));
+          "type mismatched in assignment: target type is",
+          CStringFromBasicTypeKind(target), "value type is",
+          CStringFromBasicTypeKind(value));
     }
   }
 
@@ -112,17 +101,23 @@ public:
     }
     auto call = subclass_cast<Call>(node->value);
     assert(call && "value of ExprStmt must be a Call");
-    visitExpr(call, true);
+    visitExpr(call);
   }
 
+  // if char is in BinOp, it will be cast to an int,
+  // even both sides are chars. Thus the result must be int.
   BasicTypeKind visitBinOp(BinOp *node) {
-    visitExpr(node->left);
-    visitExpr(node->right);
+    ChildrenVisitor::visitBinOp(node);
     return BasicTypeKind::Int;
   }
 
   BasicTypeKind visitUnaryOp(UnaryOp *node) {
-    visitExpr(node->operand);
+    ChildrenVisitor::visitUnaryOp(node);
+    return BasicTypeKind::Int;
+  }
+
+  BasicTypeKind visitParenExpr(ParenExpr *node) {
+    ChildrenVisitor::visitParenExpr(node);
     return BasicTypeKind::Int;
   }
 
@@ -132,7 +127,7 @@ public:
     if (!fun_type) {
       e.Error(node->loc,
           "object of type", type->ClassName(), "cannot be called as a function");
-      return BasicTypeKind::Int;
+      return BasicTypeKind::Void;
     }
 
     auto formal_args_len = fun_type->args.size();
@@ -142,18 +137,34 @@ public:
           "expects", formal_args_len, "arguments, got", actual_args_len);
     }
 
-    ChildrenVisitor::visitCall(node);
+    // check args
+    auto len = std::min(formal_args_len, actual_args_len);
+    for (int i = 0; i < len; i++) {
+      auto actual = visitExpr(node->args[i]);
+      auto formal = fun_type->args[i];
+      if (actual != formal) {
+        e.Error(node->args[i]->loc,
+            "type mismatched of argument", i + 1, "of function", Quote(node->func),
+            ", expected", CStringFromBasicTypeKind(formal), "got",
+            CStringFromBasicTypeKind(actual));
+      }
+    }
     return fun_type->return_type;
   }
 
   BasicTypeKind visitSubscript(Subscript *node) {
     auto type = LookupType(node->name);
-    if (auto array_type = subclass_cast<Array>(type); !array_type) {
+    Array *array_type = subclass_cast<Array>(type);
+    if (!array_type) {
       e.Error(node->loc,
-          "object of type", type->ClassName(), "cannot be subscripted");
+          "object of type", type->ClassName(), "cannot be subscripted as an array");
+      return BasicTypeKind::Void;
     }
-    visitExpr(node->index);
-    return BasicTypeKind::Int;
+    auto index = visitExpr(node->index);
+    if (index != BasicTypeKind::Int) {
+      e.Error(node->loc, "type of array index must be int");
+    }
+    return array_type->elemtype;
   }
 
   BasicTypeKind visitName(Name *node) {
@@ -162,6 +173,7 @@ public:
       if (IsInstance<Function>(type) || IsInstance<Array>(type)) {
         e.Error(node->loc,
             "object of type", type->ClassName(), "cannot be used in an expression");
+        return BasicTypeKind::Void;
       }
     }
     else {
@@ -171,13 +183,20 @@ public:
             "object of type", type->ClassName(), "cannot be assigned to");
       }
     }
-    return BasicTypeKind::Int;
+    if (auto x = subclass_cast<Variable>(type)) {
+      return x->type;
+    }
+    if (auto x = subclass_cast<Constant>(type)) {
+      return x->type;
+    }
+    // this is not possible
+    return BasicTypeKind::Void;
   }
 
   BasicTypeKind visitNum(Num *x) { return BasicTypeKind::Int; }
-  // not actuall used, for instantiation only
-  BasicTypeKind visitStr(Str *x) { return BasicTypeKind::Int; }
-  BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Int; }
+  // not actually used, for instantiation only
+  BasicTypeKind visitStr(Str *x) { return BasicTypeKind::Void; }
+  BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 
 };
 
