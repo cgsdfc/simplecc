@@ -116,9 +116,8 @@ public:
     // a call, as it is required by the Grammar. so there is no
     // lookup with symtable, no visitExpr().
     if (auto x = subclass_cast<Name>(node->value)) {
-      auto call = new Call(x->id, {}, x->loc);
-      delete node->value;
-      node->value = x;
+      node->value = new Call(x->id, {}, x->loc);
+      delete x;
     }
     else {
       // visit call as usual
@@ -307,8 +306,8 @@ public:
       auto formal = fun_type->args[i];
       if (actual != formal) {
         e.Error(node->args[i]->loc,
-            "type mismatched of argument", i + 1, "of function", Quote(node->func),
-            ", expected", CStringFromBasicTypeKind(formal), "got",
+            "argument", i + 1, "of function", Quote(node->func),
+            "must be", CStringFromBasicTypeKind(formal), ", not",
             CStringFromBasicTypeKind(actual));
       }
     }
