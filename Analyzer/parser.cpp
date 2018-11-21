@@ -68,11 +68,11 @@ public:
   std::stack<StackEntry> stack;
   Grammar *grammar;
   Node *rootnode;
+  ErrorManager e;
 
-  explicit Parser(Grammar *grammar): stack(), grammar(grammar) {
+  explicit Parser(Grammar *grammar): stack(), grammar(grammar), rootnode(nullptr), e() {
     auto start = grammar->start;
     Node *newnode = new Node(static_cast<Symbol>(start), "", Location(0, 0));
-    rootnode = nullptr;
     stack.push(StackEntry(grammar->dfas[start - NT_OFFSET], 0, newnode));
   }
 
@@ -90,7 +90,7 @@ public:
         return i;
       }
     }
-    Error(token.start, "unexpected", Quote(token.string));
+    e.SyntaxError(token.start, "unexpected", Quote(token.string));
     return -1;
   }
 
@@ -175,37 +175,39 @@ public:
         if (state->is_final) {
           Pop();
           if (stack.empty()) {
-            Error(token.start, "too much input");
+            e.SyntaxError(token.start, "too much input");
             return -1;
           }
         }
         else {
-          Error(token.start, "unexpected", Quote(token.line));
+          e.SyntaxError(token.start, "unexpected", Quote(token.line));
           return -1;
         }
       }
     }
   }
 
+  Node *ParseTokens(const TokenBuffer &tokens) {
+    for (auto token: tokens) {
+      if (token->type == Symbol::ERRORTOKEN) {
+        e.SyntaxError(token->start, "error token", Quote(token->string));
+        return nullptr;
+      }
+      int ret = AddToken(*token);
+      if (ret == 1) {
+        return rootnode;
+      }
+      if (ret < 0) {
+        return nullptr;
+      }
+    }
+    auto last = tokens.end() - 1;
+    e.SyntaxError((*last)->start, "incomplete input");
+    return nullptr;
+  }
 };
 
 Node *ParseTokens(const TokenBuffer &tokens) {
   Parser parser(&CompilerGrammar);
-
-  for (auto token: tokens) {
-    if (token->type == Symbol::ERRORTOKEN) {
-      Error(token->start, "error token", Quote(token->string));
-      return nullptr;
-    }
-    int ret = parser.AddToken(*token);
-    if (ret == 1) {
-      return parser.rootnode;
-    }
-    if (ret < 0) {
-      return nullptr;
-    }
-  }
-  auto last = tokens.end() - 1;
-  Error((*last)->start, "incomplete input");
-  return nullptr;
+  return parser.ParseTokens(tokens);
 }

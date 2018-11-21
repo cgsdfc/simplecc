@@ -23,21 +23,48 @@ inline void Print(std::ostream &os, First&& first, Rest&&... rest) {
 }
 
 template <typename... Args>
-inline void Error(const Location &loc, Args&&... args) {
-  Print(std::cerr,
-      "Error in line", loc.lineno, "column", loc.col_offset, ":", args...);
+inline void ErrorImpl(const char *etype, const Location &loc, Args&&... args) {
+  Print(std::cerr, etype, "at", loc.lineno, ":", std::forward<Args>(args)...);
 }
 
+template <typename... Args>
+inline void Error(const Location &loc, Args&&... args) {
+  return ErrorImpl("Error", loc, std::forward<Args>(args)...);
+}
 
 class ErrorManager {
-public:
   int error_count;
+public:
   ErrorManager(): error_count(0) {}
 
   template <typename... Args>
     void Error(const Location &loc, Args&&... args) {
-      ::Error(loc, args...);
+      ::Error(loc, std::forward<Args>(args)...);
       ++error_count;
+    }
+
+  template <typename... Args>
+    void SyntaxError(const Location &loc, Args&&... args) {
+      ErrorImpl("SyntaxError", loc,  std::forward<Args>(args)...);
+      ++error_count;
+    }
+
+  template <typename... Args>
+    void NameError(const Location &loc, Args&&... args) {
+      ErrorImpl("NameError", loc,  std::forward<Args>(args)...);
+      ++error_count;
+    }
+
+  template <typename... Args>
+    void TypeError(const Location &loc, Args&&... args) {
+      ErrorImpl("TypeError", loc,  std::forward<Args>(args)...);
+      ++error_count;
+    }
+
+  template <typename... Args>
+    void InternalError(const Location &loc, Args&&... args) {
+      ErrorImpl("InternalError", loc,  std::forward<Args>(args)...);
+      abort();
     }
 
   int GetErrorCount() const { return error_count; }

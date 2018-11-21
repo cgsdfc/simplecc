@@ -225,7 +225,7 @@ public:
       auto name = subclass_cast<Name>(expr);
       auto type = view.LookupType(name->id);
       if (!IsInstance<Variable>(type)) {
-        e.Error(name->loc,
+        e.TypeError(name->loc,
             "cannot use scanf() on object of type", type->ClassName());
       }
     }
@@ -238,7 +238,7 @@ public:
 
     // order a strict match
     if (fun_type->return_type != return_type) {
-      e.Error(node->loc,
+      e.TypeError(node->loc,
           "return type mismatched:", "function", Quote(cur_fun.name),
           "must return", CStringFromBasicTypeKind(fun_type->return_type),
           "not", CStringFromBasicTypeKind(return_type));
@@ -249,7 +249,6 @@ public:
     int errs = e.GetErrorCount();
     auto target = visitExpr(node->target);
     auto value = visitExpr(node->value);
-    bool both_good = e.GetErrorCount() == errs;
 
     // if the assignment target or value is bad, don't check type-match, since:
     // int array[10];
@@ -258,8 +257,8 @@ public:
     // then will cause a "type mismatched in assignment: target type is void,
     // value type is int", but the target type does not support assignment.
     // i = array; it is the same since value is bad.
-    if (both_good && target != value) {
-      e.Error(node->loc,
+    if (e.IsOk(errs) && target != value) {
+      e.TypeError(node->loc,
           "type mismatched in assignment: target type is",
           CStringFromBasicTypeKind(target), "value type is",
           CStringFromBasicTypeKind(value));
@@ -281,14 +280,14 @@ public:
       auto right = visitExpr(x->right);
 
       if (e.IsOk(errs) && left != right) {
-        e.Error(node->loc, "type mismatched in condition");
+        e.TypeError(node->loc, "type mismatched in condition");
         result = BasicTypeKind::Void;
       }
     }
     else {
       auto type = visitExpr(node->value);
       if (e.IsOk(errs) && type != BasicTypeKind::Int) {
-        e.Error(node->loc, "type of condition must be int");
+        e.TypeError(node->loc, "type of condition must be int");
         result = BasicTypeKind::Void;
       }
     }
@@ -314,7 +313,7 @@ public:
     auto type = view.LookupType(node->func);
     auto fun_type = subclass_cast<Function>(type);
     if (!fun_type) {
-      e.Error(node->loc,
+      e.TypeError(node->loc,
           "object of type", type->ClassName(), "cannot be called as a function");
       return BasicTypeKind::Void;
     }
@@ -322,7 +321,7 @@ public:
     auto formal_args_len = fun_type->args.size();
     auto actual_args_len = node->args.size();
     if (formal_args_len != actual_args_len) {
-      e.Error(node->loc, "function", Quote(node->func),
+      e.TypeError(node->loc, "function", Quote(node->func),
           "expects", formal_args_len, "arguments, got", actual_args_len);
     }
 
@@ -332,7 +331,7 @@ public:
       auto actual = visitExpr(node->args[i]);
       auto formal = fun_type->args[i];
       if (actual != formal) {
-        e.Error(node->args[i]->loc,
+        e.TypeError(node->args[i]->loc,
             "argument", i + 1, "of function", Quote(node->func),
             "must be", CStringFromBasicTypeKind(formal), ", not",
             CStringFromBasicTypeKind(actual));
@@ -345,16 +344,15 @@ public:
     auto type = view.LookupType(node->name);
     Array *array_type = subclass_cast<Array>(type);
     if (!array_type) {
-      e.Error(node->loc,
+      e.TypeError(node->loc,
           "object of type", type->ClassName(), "cannot be subscripted as an array");
       return BasicTypeKind::Void;
     }
     int errs = e.GetErrorCount();
     auto index = visitExpr(node->index);
-    bool index_ok = errs == e.GetErrorCount();
 
-    if (index_ok && index != BasicTypeKind::Int) {
-      e.Error(node->loc, "type of array index must be int");
+    if (e.IsOk(errs) && index != BasicTypeKind::Int) {
+      e.TypeError(node->loc, "type of array index must be int");
     }
     return array_type->elemtype;
   }
@@ -363,12 +361,12 @@ public:
     auto type = view.LookupType(node->id);
     if (node->ctx == ExprContextKind::Load && IsInstance<Array>(type)) {
       // Function cannot be here
-      e.Error(node->loc,
+      e.TypeError(node->loc,
           "object of type", type->ClassName(), "cannot be used in an expression");
       return BasicTypeKind::Void;
     }
     if (node->ctx == ExprContextKind::Store && !IsInstance<Variable>(type)) {
-      e.Error(node->loc,
+      e.TypeError(node->loc,
           "object of type", type->ClassName(), "cannot be assigned to");
       return BasicTypeKind::Void;
     }

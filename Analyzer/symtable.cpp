@@ -40,7 +40,7 @@ void DefineDecl(Decl* decl, Scope scope,
   const auto &name = GetDeclName(decl);
   if (dict.find(name) != dict.end()) {
     // key already there
-    e.Error(decl->loc,
+    e.NameError(decl->loc,
         "redefinition of identifier", Quote(name), "in", where);
   }
   else {
@@ -56,7 +56,7 @@ void DefineArg(Arg *arg,
     TableType &dict, ErrorManager &e, const String &funcname) {
 
   if (dict.find(arg->name) != dict.end()) {
-    e.Error(arg->loc, "redefinition of argument", Quote(arg->name),
+    e.NameError(arg->loc, "redefinition of argument", Quote(arg->name),
         "in function", Quote(funcname));
   }
   else {
@@ -104,7 +104,7 @@ public:
       local.emplace(std::make_pair(name, std::move(local_entry)));
     }
     else {
-      e.Error(loc,
+      e.NameError(loc,
           "undefined identifier", Quote(name), "in function", Quote(fun->name));
     }
   }

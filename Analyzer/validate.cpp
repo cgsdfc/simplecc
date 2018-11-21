@@ -10,7 +10,7 @@ public:
 
   void visitProgram(Program *node) {
     if (node->decls.size() == 0) {
-      e.Error(Location(0, 0), "expected main() at the end of input");
+      e.SyntaxError(Location(0, 0), "expected main() at the end of input");
       return;
     }
     for (auto decl: node->decls) {
@@ -33,42 +33,42 @@ public:
 
     if (decl_iter != end) {
       auto decl = *decl_iter;
-      e.Error(decl->loc, "unexpected", decl->ClassName(), Quote(GetDeclName(decl)));
+      e.SyntaxError(decl->loc, "unexpected", decl->ClassName(), Quote(GetDeclName(decl)));
     }
 
     // check the last declaration is the main function
     auto x = subclass_cast<FuncDef>(node->decls.back());
     if (!(x && x->name == "main")) {
-      e.Error(x->loc, "expected main() at the end of input");
+      e.SyntaxError(x->loc, "expected main() at the end of input");
     }
   }
 
   void visitConstDecl(ConstDecl *node) {
     if (node->type == BasicTypeKind::Int) {
       if (!IsInstance<Num>(node->value)) {
-        e.Error(node->loc, "const int", Quote(node->name), "expects an integer");
+        e.SyntaxError(node->loc, "const int", Quote(node->name), "expects an integer");
       }
     }
     else {
       assert(node->type == BasicTypeKind::Character);
       if (!IsInstance<Char>(node->value)) {
-        e.Error(node->loc, "cont char", Quote(node->name), "expects a character");
+        e.SyntaxError(node->loc, "cont char", Quote(node->name), "expects a character");
       }
     }
   }
 
   void visitVarDecl(VarDecl *node) {
     if (node->type == BasicTypeKind::Void) {
-      e.Error(node->loc, "cannot declare", Quote(node->name), "as a void variable");
+      e.SyntaxError(node->loc, "cannot declare", Quote(node->name), "as a void variable");
     }
     else if (node->is_array && node->size == 0) {
-      e.Error(node->loc, "array size of", Quote(node->name), "cannot be 0");
+      e.SyntaxError(node->loc, "array size of", Quote(node->name), "cannot be 0");
     }
   }
 
   void visitArg(Arg *node, const String &funname) {
     if (node->type == BasicTypeKind::Void) {
-      e.Error(node->loc, "cannot declare void argument", Quote(node->name),
+      e.SyntaxError(node->loc, "cannot declare void argument", Quote(node->name),
           "of function", Quote(funname));
     }
   }
@@ -83,7 +83,7 @@ public:
 
     if (node->name == "main") {
       if (node->return_type != BasicTypeKind::Void) {
-        e.Error(node->loc, "main() must return void");
+        e.SyntaxError(node->loc, "main() must return void");
       }
     }
   }
