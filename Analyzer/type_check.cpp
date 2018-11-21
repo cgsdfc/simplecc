@@ -2,6 +2,159 @@
 #include "Visitor.h"
 #include "error.h"
 
+
+// Transform Name to Call if it is a function and it is in the context
+// of Expr or ExprStmt (Call really).
+class ImplicitCallTransformer: public VisitorBase<ImplicitCallTransformer> {
+  SymbolTable &symtable;
+  ErrorManager e;
+  // point to the entry of the function being checked
+  const Entry *cur_fun;
+public:
+  ImplicitCallTransformer(SymbolTable &symtable):
+    symtable(symtable), e(), cur_fun(nullptr) {}
+
+  // lookup the type of name within the current function
+  Type *LookupType(const String &name) {
+    assert(cur_fun);
+    const auto &entry = symtable.LookupLocal(cur_fun->name, name);
+    return entry.type;
+  }
+
+  void visitStmt(Stmt *node) {
+    VisitorBase::visitStmt<void>(node);
+  }
+
+  Expr *visitExpr(Expr *node) {
+    if (auto x = subclass_cast<Name>(node)) {
+      if (auto fun = subclass_cast<Function>(LookupType(x->id))) {
+        // replace such a name with a call
+        auto call = new Call(x->id, {}, x->loc);
+        delete x;
+        return call;
+      }
+      else {
+        return node;
+      }
+    }
+    else {
+      VisitorBase::visitExpr<void>(node);
+      return node;
+    }
+  }
+
+#define VISIT(name) do { \
+  node->name = visitExpr(node->name); \
+} while (0)
+
+  // don't check names in Read
+  void visitRead(Read *node) {}
+
+  void visitWrite(Write *node) {
+    if (node->value) {
+      VISIT(value);
+    }
+  }
+
+  void visitAssign(Assign *node) {
+    // don't check Name
+    if (IsInstance<Subscript>(node->target)) {
+      VISIT(target);
+    }
+    VISIT(value);
+  }
+
+  void visitFor(For *node) {
+    visitStmt(node->initial);
+    VISIT(condition);
+    visitStmt(node->step);
+    for (auto s: node->body) {
+      visitStmt(s);
+    }
+  }
+
+  void visitWhile(While *node) {
+    VISIT(condition);
+    for (auto s: node->body) {
+      visitStmt(s);
+    }
+  }
+
+  void visitReturn(Return *node) {
+    if (node->value) {
+      VISIT(value);
+    }
+  }
+
+  void visitIf(If *node) {
+    VISIT(test);
+    for (auto s: node->body) {
+      visitStmt(s);
+    }
+    for (auto s : node->orelse) {
+      visitStmt(s);
+    }
+  }
+
+  void visitExprStmt(ExprStmt *node) {
+      VISIT(value);
+  }
+
+  void visitBinOp(BinOp *node) {
+    VISIT(left);
+    VISIT(right);
+  }
+
+  void visitParenExpr(ParenExpr *node) {
+    VISIT(value);
+  }
+
+  void visitUnaryOp(UnaryOp *node) {
+    VISIT(operand);
+  }
+
+  void visitCall(Call *node) {
+    for (int i = 0, size = node->args.size(); i < size; i++) {
+      node->args[i] = visitExpr(node->args[i]);
+    }
+  }
+
+  void visitNum(Num*) {}
+  void visitStr(Str*) {}
+  void visitChar(Char*) {}
+  void visitName(Name*) {
+    // calling this is an error
+    assert(false && "All Names must be handled by container nodes");
+  }
+
+  void visitSubscript(Subscript *node) {
+    VISIT(index);
+  }
+
+
+  void visitFuncDef(FuncDef *node) {
+    for (auto s: node->stmts) {
+      visitStmt(s);
+    }
+  }
+
+  void visitProgam(Program *node) {
+    for (auto decl: node->decls) {
+      if (auto x = subclass_cast<FuncDef>(decl)) {
+        SetCurrentFunction(x->name);
+        visitFuncDef(x);
+      }
+    }
+  }
+
+  void SetCurrentFunction(const String &name) {
+    cur_fun = &symtable.LookupGlobal(name);
+    assert(IsInstance<Function>(cur_fun->type));
+  }
+#undef VISIT
+
+};
+
 class TypeCheker: public VisitorBase<TypeCheker>, public ChildrenVisitor<TypeCheker> {
 public:
   SymbolTable &symtable;
