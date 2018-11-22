@@ -180,14 +180,60 @@ public:
     }
   }
 
-  void visitParenExpr(ParenExpr *node) {
+  BasicTypeKind visitParenExpr(ParenExpr *node) {
     visitExpr(node->value);
+    return BasicTypeKind::Int;
   }
 
   void visitExprStmt(ExprStmt *node) {
     visitExpr(node->value);
   }
 
+  BasicTypeKind visitUnaryOp(UnaryOp *node) {
+    visitExpr(node->operand);
+    AddByteCode(MakeUnary(node->op));
+    return BasicTypeKind::Int;
+  }
 
+  void visitReturn(Return *node) {
+    if (node->value) {
+      visitExpr(node->value);
+      curblock->AddByteCode(Opcode::RETURN_VALUE);
+    }
+    else {
+      curblock->AddByteCode(Opcode::RETURN_NONE);
+    }
+  }
+
+  void visitFor(For *node) {
+
+
+  }
+
+  void visitWhile(While *node) {
+
+  }
+
+  void visitIf(If *node) {
+
+
+  }
+
+  void visitAssign(Assign *node) {
+
+
+  }
+
+  void visitSubscript(Subscript *node) {
+
+
+  }
+      
+  void visitBoolOp(BoolOp *node) {
+
+
+  }
+
+  void visitCall(Call *node) 
 };
 

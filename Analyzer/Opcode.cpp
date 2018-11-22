@@ -2,6 +2,16 @@
 #include "Opcode.h"
 
 // Hard coded mappings
+
+Opcode MakeSubScr(ExprContextKind ctx) {
+  switch (ctx) {
+  case ExprContextKind::Load:
+    return Opcode::BINARY_SUBSCR;
+  case ExprContextKind::Store:
+    return Opcode::STORE_SUBSCR;
+  }
+}
+
 Opcode MakeLoad(Scope scope) {
   switch (scope) {
   case Scope::Global:
@@ -26,7 +36,7 @@ Opcode MakeRead(BasicTypeKind type) {
     return Opcode::READ_CHARACTER;
   case BasicTypeKind::Int:
     return Opcode::READ_INTEGER;
-  case BasicTypeKind::Void:
+  default:
     assert(false);
   }
 }
@@ -66,6 +76,25 @@ Opcode MakeUnary(UnaryopKind oper) {
   }
 }
 
+Opcode MakeJump(OperatorKind oper) {
+  switch (oper) {
+  case OperatorKind::Eq:
+    return Opcode::JUMP_IF_EQUAL;
+  case OperatorKind::NotEq:
+    return Opcode::JUMP_IF_NOT_EQUAL;
+  case OperatorKind::Lt:
+    return Opcode::JUMP_IF_LESS;
+  case OperatorKind::LtE:
+    return Opcode::JUMP_IF_LESS_EQUAL;
+  case OperatorKind::Gt:
+    return Opcode::JUMP_IF_GREATER;
+  case OperatorKind::GtE:
+    return Opcode::JUMP_IF_GREATER_EQUAL;
+  default:
+    assert(false);
+  }
+}
+
 const char *CStringFromOpcode(Opcode val) {
   switch (val) {
   case Opcode::LOAD_LOCAL:
@@ -94,6 +123,8 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::CALL_FUNCTION";
   case Opcode::RETURN_VALUE:
     return "Opcode::RETURN_VALUE";
+  case Opcode::RETURN_NONE:
+    return "Opcode::RETURN_NONE";
   case Opcode::PRINT_STRING:
     return "Opcode::PRINT_STRING";
   case Opcode::PRINT_CHARACTER:
@@ -108,9 +139,21 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::BINARY_SUBSCR";
   case Opcode::STORE_SUBSCR:
     return "Opcode::STORE_SUBSCR";
-  case Opcode::COMPARE_AND_JUMP:
-    return "Opcode::COMPARE_AND_JUMP";
+  case Opcode::JUMP_IF_TRUE:
+    return "Opcode::JUMP_IF_TRUE";
   case Opcode::JUMP_FORWARD:
     return "Opcode::JUMP_FORWARD";
+  case Opcode::JUMP_IF_NOT_EQUAL:
+    return "Opcode::JUMP_IF_NOT_EQUAL";
+  case Opcode::JUMP_IF_EQUAL:
+    return "Opcode::JUMP_IF_EQUAL";
+  case Opcode::JUMP_IF_GREATER:
+    return "Opcode::JUMP_IF_GREATER";
+  case Opcode::JUMP_IF_GREATER_EQUAL:
+    return "Opcode::JUMP_IF_GREATER_EQUAL";
+  case Opcode::JUMP_IF_LESS:
+    return "Opcode::JUMP_IF_LESS";
+  case Opcode::JUMP_IF_LESS_EQUAL:
+    return "Opcode::JUMP_IF_LESS_EQUAL";
   }
 }

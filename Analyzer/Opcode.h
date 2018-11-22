@@ -19,6 +19,7 @@ enum class Opcode {
   UNARY_NEGATIVE,
   CALL_FUNCTION,
   RETURN_VALUE,
+  RETURN_NONE,
   PRINT_STRING,
   PRINT_CHARACTER,
   PRINT_INTEGER,
@@ -26,17 +27,25 @@ enum class Opcode {
   READ_CHARACTER,
   BINARY_SUBSCR,
   STORE_SUBSCR,
-  COMPARE_AND_JUMP,
-  JUMP_FORWARD
+  JUMP_IF_TRUE,
+  JUMP_FORWARD,
+  JUMP_IF_NOT_EQUAL,
+  JUMP_IF_EQUAL,
+  JUMP_IF_GREATER,
+  JUMP_IF_GREATER_EQUAL,
+  JUMP_IF_LESS,
+  JUMP_IF_LESS_EQUAL
 };
 
 const char *CStringFromOpcode(Opcode val);
+Opcode MakeSubScr(ExprContextKind ctx);
 Opcode MakeStore(Scope scope);
 Opcode MakeLoad(Scope scope);
 Opcode MakeRead(BasicTypeKind type);
 Opcode MakePrint(BasicTypeKind type);
 Opcode MakeBinary(OperatorKind oper);
 Opcode MakeUnary(UnaryopKind oper);
+Opcode MakeJump(OperatorKind oper);
 inline std::ostream &operator<<(std::ostream &os, Opcode val) {
   return os << CStringFromOpcode(val);
 }
