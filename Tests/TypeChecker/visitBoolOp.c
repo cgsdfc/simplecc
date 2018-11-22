@@ -8,7 +8,15 @@ void main() {
   char carr[1];
 
   if (iconst > cconst) {
-    printf("type mismatched");
+    printf("type of condition must be int");
+  }
+
+  if (cconst != carr[0]) {
+    printf("type of condition must be int");
+  }
+
+  if (iconst > carr[0]) {
+    printf("type of condition must be int");
   }
 
   if ('a') {
@@ -32,10 +40,6 @@ void main() {
   }
 
   if (iconst > cconst + 1) {
-    printf("ok");
-  }
-
-  if (carr[0] > cconst) {
     printf("ok");
   }
 

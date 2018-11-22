@@ -274,21 +274,27 @@ public:
   BasicTypeKind visitBoolOp(BoolOp *node) {
     auto errs = e.GetErrorCount();
     auto result = BasicTypeKind::Int;
+    auto msg = "operands of condition must be of type int";
 
     if (auto x = subclass_cast<BinOp>(node->value)) {
       auto left = visitExpr(x->left);
       auto right = visitExpr(x->right);
 
-      if (e.IsOk(errs) && left != right) {
-        e.TypeError(node->loc, "type mismatched in condition");
-        result = BasicTypeKind::Void;
+      if (!e.IsOk(errs)) {
+        return result;
+      }
+
+      if (left != BasicTypeKind::Int || right != BasicTypeKind::Int) {
+        e.TypeError(node->loc, msg);
+        return result;
       }
     }
     else {
       auto type = visitExpr(node->value);
+
       if (e.IsOk(errs) && type != BasicTypeKind::Int) {
-        e.TypeError(node->loc, "type of condition must be int");
-        result = BasicTypeKind::Void;
+        e.TypeError(node->loc, msg);
+        return result;
       }
     }
     return result;
