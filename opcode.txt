@@ -1,0 +1,35 @@
+# Load/Store:
+LOAD_LOCAL # push a local variable
+LOAD_GLOBAL # push a global variable
+LOAD_CONST # push a constant
+STORE_LOCAL # pop and save a local variable
+STORE_GLOBAL # pop and save a global variable
+
+# Binary Arithmetic
+# tos = tos1 op tos
+BINARY_ADD
+BINARY_SUB
+BINARY_MULTIPLY
+BINARY_DIVIDE # floor divide
+
+# Unary Arithmetic
+# tos = op tos
+UNARY_POSITIVE
+UNARY_NEGATIVE
+
+# Function Calling
+CALL_FUNCTION
+RETURN_VALUE
+
+# Value Printing
+PRINT_STRING
+PRINT_CHARACTER
+PRINT_INTEGER
+
+# Subscript Related
+BINARY_SUBSCR
+STORE_SUBSCR
+
+# Jump/Branch
+COMPARE_AND_JUMP
+JUMP_FORWARD

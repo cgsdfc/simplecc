@@ -19,6 +19,9 @@ generators = {
         'cpp': 'asdl_cpp2',
         'py': 'asdl_py',
     },
+    'codegen': {
+        'cpp': 'opcode',
+    },
 }
 
 def do_generate(args):
@@ -60,7 +63,7 @@ def main():
 
     generate.add_argument('-a', '--artifact',
         dest='artifact',
-        choices=('grammar', 'ast'),
+        choices=('grammar', 'ast', 'codegen'),
         required=True,
         help='artifact to generate',
     )
