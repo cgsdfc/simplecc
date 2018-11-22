@@ -22,6 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # All executables added hereby
 add_executable(analyzer
+  ./compile.cpp
   ./Opcode.cpp
   ./AST.cpp
   ./Grammar.cpp

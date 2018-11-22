@@ -21,6 +21,8 @@ class OpcodeTemplate:
     header = Template("""
 #ifndef OPCODE_H
 #define OPCODE_H
+#include "AST.h"
+#include "symtable.h"
 #include <iostream>
 
 enum class Opcode {
@@ -28,7 +30,12 @@ $values
 };
 
 const char *CStringFromOpcode(Opcode val);
-
+Opcode MakeStore(Scope scope);
+Opcode MakeLoad(Scope scope);
+Opcode MakeRead(BasicTypeKind type);
+Opcode MakePrint(BasicTypeKind type);
+Opcode MakeBinary(OperatorKind oper);
+Opcode MakeUnary(UnaryopKind oper);
 inline std::ostream &operator<<(std::ostream &os, Opcode val) {
     return os << CStringFromOpcode(val);
 }
@@ -37,6 +44,71 @@ inline std::ostream &operator<<(std::ostream &os, Opcode val) {
 
     cpp = Template("""
 #include "Opcode.h"
+
+// Hard coded mappings
+Opcode MakeLoad(Scope scope) {
+    switch (scope) {
+    case Scope::Global:
+      return Opcode::LOAD_GLOBAL;
+    case Scope::Local:
+      return Opcode::LOAD_LOCAL;
+    }
+}
+
+Opcode MakeStore(Scope scope) {
+    switch (scope) {
+    case Scope::Global:
+      return Opcode::STORE_GLOBAL;
+    case Scope::Local:
+      return Opcode::STORE_LOCAL;
+    }
+}
+
+Opcode MakeRead(BasicTypeKind type) {
+  switch (type) {
+  case BasicTypeKind::Character:
+    return Opcode::READ_CHARACTER;
+  case BasicTypeKind::Int:
+    return Opcode::READ_INTEGER;
+  case BasicTypeKind::Void:
+    assert(false);
+  }
+}
+
+Opcode MakePrint(BasicTypeKind type) {
+  switch (type) {
+  case BasicTypeKind::Character:
+    return Opcode::PRINT_CHARACTER;
+  case BasicTypeKind::Int:
+    return Opcode::PRINT_INTEGER;
+  default:
+    assert(false);
+  }
+}
+
+Opcode MakeBinary(OperatorKind oper) {
+  switch (oper) {
+  case OperatorKind::Add:
+    return Opcode::BINARY_ADD;
+  case OperatorKind::Sub:
+    return Opcode::BINARY_SUB;
+  case OperatorKind::Mult:
+    return Opcode::BINARY_MULTIPLY;
+  case OperatorKind::Div:
+    return Opcode::BINARY_DIVIDE;
+  default:
+    assert(false);
+  }
+}
+
+Opcode MakeUnary(UnaryopKind oper) {
+    switch (oper) {
+    case UnaryopKind::UAdd:
+        return Opcode::UNARY_POSITIVE;
+    case UnaryopKind::USub:
+        return Opcode::UNARY_NEGATIVE;
+    }
+}
 
 const char *CStringFromOpcode(Opcode val) {
     switch (val) {

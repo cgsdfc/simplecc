@@ -1,6 +1,8 @@
 
 #ifndef OPCODE_H
 #define OPCODE_H
+#include "AST.h"
+#include "symtable.h"
 #include <iostream>
 
 enum class Opcode {
@@ -20,6 +22,8 @@ enum class Opcode {
   PRINT_STRING,
   PRINT_CHARACTER,
   PRINT_INTEGER,
+  READ_INTEGER,
+  READ_CHARACTER,
   BINARY_SUBSCR,
   STORE_SUBSCR,
   COMPARE_AND_JUMP,
@@ -27,7 +31,12 @@ enum class Opcode {
 };
 
 const char *CStringFromOpcode(Opcode val);
-
+Opcode MakeStore(Scope scope);
+Opcode MakeLoad(Scope scope);
+Opcode MakeRead(BasicTypeKind type);
+Opcode MakePrint(BasicTypeKind type);
+Opcode MakeBinary(OperatorKind oper);
+Opcode MakeUnary(UnaryopKind oper);
 inline std::ostream &operator<<(std::ostream &os, Opcode val) {
   return os << CStringFromOpcode(val);
 }

@@ -115,7 +115,44 @@ public:
 
   const Entry &LookupGlobal(const String &name) const;
 
+  const TableType &GetGlobalTable() const {
+    return global;
+  }
+
+  const TableType &GetLocalTable(const String &name) const {
+    auto iter = locals.find(name);
+    assert(iter != locals.end());
+    return iter->second;
+  }
+
   void Check() const;
+};
+
+// Provide access to each local namespace
+class SymbolTableView {
+  const SymbolTable &symtable;
+  // point to the entry of the function being checked
+  const Entry *cur_fun;
+public:
+  SymbolTableView(const SymbolTable &symtable):
+    symtable(symtable), cur_fun(nullptr) {}
+
+  const Entry &GetCurrentFunction() const {
+    assert(cur_fun);
+    return *cur_fun;
+  }
+
+  void SetCurrentFunction(FuncDef *fun) {
+    cur_fun = &symtable.LookupGlobal(fun->name);
+  }
+
+  // lookup the type of name within the current function
+  Type *LookupType(const String &name) {
+    assert(cur_fun);
+    const auto &entry = symtable.LookupLocal(cur_fun->name, name);
+    return entry.type;
+  }
+
 };
 
 std::ostream &operator<<(std::ostream &os, const SymbolTable &t);

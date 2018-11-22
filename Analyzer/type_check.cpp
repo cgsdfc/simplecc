@@ -2,33 +2,6 @@
 #include "Visitor.h"
 #include "error.h"
 
-// Provide access to each local namespace
-class SymbolTableView {
-  const SymbolTable &symtable;
-  // point to the entry of the function being checked
-  const Entry *cur_fun;
-public:
-  SymbolTableView(const SymbolTable &symtable):
-    symtable(symtable), cur_fun(nullptr) {}
-
-  const Entry &GetCurrentFunction() const {
-    assert(cur_fun);
-    return *cur_fun;
-  }
-
-  void SetCurrentFunction(FuncDef *fun) {
-    cur_fun = &symtable.LookupGlobal(fun->name);
-  }
-
-  // lookup the type of name within the current function
-  Type *LookupType(const String &name) {
-    assert(cur_fun);
-    const auto &entry = symtable.LookupLocal(cur_fun->name, name);
-    return entry.type;
-  }
-
-};
-
 // Transform Name to Call if it is a function and it is in the context
 // of Expr or ExprStmt (Call really).
 class ImplicitCallTransformer: public VisitorBase<ImplicitCallTransformer> {

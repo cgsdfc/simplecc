@@ -1,6 +1,71 @@
 
 #include "Opcode.h"
 
+// Hard coded mappings
+Opcode MakeLoad(Scope scope) {
+  switch (scope) {
+  case Scope::Global:
+    return Opcode::LOAD_GLOBAL;
+  case Scope::Local:
+    return Opcode::LOAD_LOCAL;
+  }
+}
+
+Opcode MakeStore(Scope scope) {
+  switch (scope) {
+  case Scope::Global:
+    return Opcode::STORE_GLOBAL;
+  case Scope::Local:
+    return Opcode::STORE_LOCAL;
+  }
+}
+
+Opcode MakeRead(BasicTypeKind type) {
+  switch (type) {
+  case BasicTypeKind::Character:
+    return Opcode::READ_CHARACTER;
+  case BasicTypeKind::Int:
+    return Opcode::READ_INTEGER;
+  case BasicTypeKind::Void:
+    assert(false);
+  }
+}
+
+Opcode MakePrint(BasicTypeKind type) {
+  switch (type) {
+  case BasicTypeKind::Character:
+    return Opcode::PRINT_CHARACTER;
+  case BasicTypeKind::Int:
+    return Opcode::PRINT_INTEGER;
+  default:
+    assert(false);
+  }
+}
+
+Opcode MakeBinary(OperatorKind oper) {
+  switch (oper) {
+  case OperatorKind::Add:
+    return Opcode::BINARY_ADD;
+  case OperatorKind::Sub:
+    return Opcode::BINARY_SUB;
+  case OperatorKind::Mult:
+    return Opcode::BINARY_MULTIPLY;
+  case OperatorKind::Div:
+    return Opcode::BINARY_DIVIDE;
+  default:
+    assert(false);
+  }
+}
+
+Opcode MakeUnary(UnaryopKind oper) {
+  switch (oper) {
+  case UnaryopKind::UAdd:
+    return Opcode::UNARY_POSITIVE;
+  case UnaryopKind::USub:
+    return Opcode::UNARY_NEGATIVE;
+  }
+}
+
 const char *CStringFromOpcode(Opcode val) {
   switch (val) {
   case Opcode::LOAD_LOCAL:
@@ -35,6 +100,10 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::PRINT_CHARACTER";
   case Opcode::PRINT_INTEGER:
     return "Opcode::PRINT_INTEGER";
+  case Opcode::READ_INTEGER:
+    return "Opcode::READ_INTEGER";
+  case Opcode::READ_CHARACTER:
+    return "Opcode::READ_CHARACTER";
   case Opcode::BINARY_SUBSCR:
     return "Opcode::BINARY_SUBSCR";
   case Opcode::STORE_SUBSCR:
