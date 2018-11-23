@@ -229,10 +229,10 @@ $test_locals
     testEntry = Template("""
 {
 assert($table.count("$name"));
-const Entry &e = $table["$name"];
-assert(IsInstance<$class_name>(e.type));
-assert(e.scope == $scope);
-assert(e.name == "$name");
+const SymbolEntry &e = $table.at("$name");
+assert(e.Is$class_name());
+assert(e.GetScope() == $scope);
+assert(e.GetName() == "$name");
 }
 """)
 

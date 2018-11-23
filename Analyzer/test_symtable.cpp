@@ -11,234 +11,234 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(global.count("positive"));
-      const Entry &e = global["positive"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "positive");
+      const SymbolEntry &e = global.at("positive");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "positive");
     }
 
     {
       assert(global.count("negative"));
-      const Entry &e = global["negative"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "negative");
+      const SymbolEntry &e = global.at("negative");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "negative");
     }
 
     {
       assert(global.count("max_heap_size"));
-      const Entry &e = global["max_heap_size"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "max_heap_size");
+      const SymbolEntry &e = global.at("max_heap_size");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "max_heap_size");
     }
 
     {
       assert(global.count("character"));
-      const Entry &e = global["character"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "character");
+      const SymbolEntry &e = global.at("character");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "character");
     }
 
     {
       assert(global.count("is_valid"));
-      const Entry &e = global["is_valid"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "is_valid");
+      const SymbolEntry &e = global.at("is_valid");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "is_valid");
     }
 
     {
       assert(global.count("hasattr"));
-      const Entry &e = global["hasattr"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "hasattr");
+      const SymbolEntry &e = global.at("hasattr");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "hasattr");
     }
 
     {
       assert(global.count("digit"));
-      const Entry &e = global["digit"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "digit");
+      const SymbolEntry &e = global.at("digit");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "digit");
     }
 
     {
       assert(global.count("letter"));
-      const Entry &e = global["letter"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "letter");
+      const SymbolEntry &e = global.at("letter");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "letter");
     }
 
     {
       assert(global.count("heap"));
-      const Entry &e = global["heap"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heap");
+      const SymbolEntry &e = global.at("heap");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heap");
     }
 
     {
       assert(global.count("index"));
-      const Entry &e = global["index"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "index");
+      const SymbolEntry &e = global.at("index");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "index");
     }
 
     {
       assert(global.count("flag"));
-      const Entry &e = global["flag"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "flag");
+      const SymbolEntry &e = global.at("flag");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "flag");
     }
 
     {
       assert(global.count("array"));
-      const Entry &e = global["array"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "array");
+      const SymbolEntry &e = global.at("array");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "array");
     }
 
     {
       assert(global.count("module"));
-      const Entry &e = global["module"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "module");
+      const SymbolEntry &e = global.at("module");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "module");
     }
 
     {
       assert(global.count("class"));
-      const Entry &e = global["class"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "class");
+      const SymbolEntry &e = global.at("class");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "class");
     }
 
     {
       assert(global.count("errors"));
-      const Entry &e = global["errors"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "errors");
+      const SymbolEntry &e = global.at("errors");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "errors");
     }
 
     {
       assert(global.count("input"));
-      const Entry &e = global["input"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "input");
+      const SymbolEntry &e = global.at("input");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "input");
     }
 
     {
       assert(global.count("addi"));
-      const Entry &e = global["addi"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "addi");
+      const SymbolEntry &e = global.at("addi");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "addi");
     }
 
     {
       assert(global.count("addc"));
-      const Entry &e = global["addc"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "addc");
+      const SymbolEntry &e = global.at("addc");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "addc");
     }
 
     {
       assert(global.count("print_char"));
-      const Entry &e = global["print_char"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "print_char");
+      const SymbolEntry &e = global.at("print_char");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "print_char");
     }
 
     {
       assert(global.count("print_string"));
-      const Entry &e = global["print_string"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "print_string");
+      const SymbolEntry &e = global.at("print_string");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "print_string");
     }
 
     {
       assert(global.count("print_string_ex"));
-      const Entry &e = global["print_string_ex"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "print_string_ex");
+      const SymbolEntry &e = global.at("print_string_ex");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "print_string_ex");
     }
 
     {
       assert(global.count("dead_loop"));
-      const Entry &e = global["dead_loop"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "dead_loop");
+      const SymbolEntry &e = global.at("dead_loop");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "dead_loop");
     }
 
     {
       assert(global.count("prompt_int"));
-      const Entry &e = global["prompt_int"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "prompt_int");
+      const SymbolEntry &e = global.at("prompt_int");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "prompt_int");
     }
 
     {
       assert(global.count("swap"));
-      const Entry &e = global["swap"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "swap");
+      const SymbolEntry &e = global.at("swap");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "swap");
     }
 
     {
       assert(global.count("heapify"));
-      const Entry &e = global["heapify"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heapify");
+      const SymbolEntry &e = global.at("heapify");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heapify");
     }
 
     {
       assert(global.count("heap_sort"));
-      const Entry &e = global["heap_sort"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heap_sort");
+      const SymbolEntry &e = global.at("heap_sort");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heap_sort");
     }
 
     {
       assert(global.count("print_heap"));
-      const Entry &e = global["print_heap"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "print_heap");
+      const SymbolEntry &e = global.at("print_heap");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "print_heap");
     }
 
     {
       assert(global.count("reset_heap"));
-      const Entry &e = global["reset_heap"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "reset_heap");
+      const SymbolEntry &e = global.at("reset_heap");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "reset_heap");
     }
 
     {
       assert(global.count("main"));
-      const Entry &e = global["main"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "main");
+      const SymbolEntry &e = global.at("main");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "main");
     }
   }
 
@@ -249,18 +249,18 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("a"));
-      const Entry &e = local["a"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "a");
+      const SymbolEntry &e = local.at("a");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "a");
     }
 
     {
       assert(local.count("b"));
-      const Entry &e = local["b"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "b");
+      const SymbolEntry &e = local.at("b");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "b");
     }
   }
 
@@ -271,18 +271,18 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("a"));
-      const Entry &e = local["a"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "a");
+      const SymbolEntry &e = local.at("a");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "a");
     }
 
     {
       assert(local.count("b"));
-      const Entry &e = local["b"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "b");
+      const SymbolEntry &e = local.at("b");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "b");
     }
   }
 
@@ -293,10 +293,10 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("c"));
-      const Entry &e = local["c"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "c");
+      const SymbolEntry &e = local.at("c");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "c");
     }
   }
 
@@ -313,10 +313,10 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("expr"));
-      const Entry &e = local["expr"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "expr");
+      const SymbolEntry &e = local.at("expr");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "expr");
     }
   }
 
@@ -333,10 +333,10 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("val"));
-      const Entry &e = local["val"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "val");
+      const SymbolEntry &e = local.at("val");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "val");
     }
   }
 
@@ -347,34 +347,34 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("index1"));
-      const Entry &e = local["index1"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "index1");
+      const SymbolEntry &e = local.at("index1");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "index1");
     }
 
     {
       assert(local.count("index2"));
-      const Entry &e = local["index2"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "index2");
+      const SymbolEntry &e = local.at("index2");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "index2");
     }
 
     {
       assert(local.count("temp"));
-      const Entry &e = local["temp"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "temp");
+      const SymbolEntry &e = local.at("temp");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "temp");
     }
 
     {
       assert(local.count("heap"));
-      const Entry &e = local["heap"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heap");
+      const SymbolEntry &e = local.at("heap");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heap");
     }
   }
 
@@ -385,66 +385,66 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("index"));
-      const Entry &e = local["index"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "index");
+      const SymbolEntry &e = local.at("index");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "index");
     }
 
     {
       assert(local.count("heap_size"));
-      const Entry &e = local["heap_size"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "heap_size");
+      const SymbolEntry &e = local.at("heap_size");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "heap_size");
     }
 
     {
       assert(local.count("largest"));
-      const Entry &e = local["largest"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "largest");
+      const SymbolEntry &e = local.at("largest");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "largest");
     }
 
     {
       assert(local.count("left"));
-      const Entry &e = local["left"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "left");
+      const SymbolEntry &e = local.at("left");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "left");
     }
 
     {
       assert(local.count("right"));
-      const Entry &e = local["right"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "right");
+      const SymbolEntry &e = local.at("right");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "right");
     }
 
     {
       assert(local.count("heap"));
-      const Entry &e = local["heap"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heap");
+      const SymbolEntry &e = local.at("heap");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heap");
     }
 
     {
       assert(local.count("swap"));
-      const Entry &e = local["swap"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "swap");
+      const SymbolEntry &e = local.at("swap");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "swap");
     }
 
     {
       assert(local.count("heapify"));
-      const Entry &e = local["heapify"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heapify");
+      const SymbolEntry &e = local.at("heapify");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heapify");
     }
   }
 
@@ -455,34 +455,34 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("heap_size"));
-      const Entry &e = local["heap_size"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "heap_size");
+      const SymbolEntry &e = local.at("heap_size");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "heap_size");
     }
 
     {
       assert(local.count("i"));
-      const Entry &e = local["i"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "i");
+      const SymbolEntry &e = local.at("i");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "i");
     }
 
     {
       assert(local.count("heapify"));
-      const Entry &e = local["heapify"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heapify");
+      const SymbolEntry &e = local.at("heapify");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heapify");
     }
 
     {
       assert(local.count("swap"));
-      const Entry &e = local["swap"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "swap");
+      const SymbolEntry &e = local.at("swap");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "swap");
     }
   }
 
@@ -493,26 +493,26 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("heap_size"));
-      const Entry &e = local["heap_size"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "heap_size");
+      const SymbolEntry &e = local.at("heap_size");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "heap_size");
     }
 
     {
       assert(local.count("i"));
-      const Entry &e = local["i"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "i");
+      const SymbolEntry &e = local.at("i");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "i");
     }
 
     {
       assert(local.count("heap"));
-      const Entry &e = local["heap"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heap");
+      const SymbolEntry &e = local.at("heap");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heap");
     }
   }
 
@@ -523,26 +523,26 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("i"));
-      const Entry &e = local["i"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "i");
+      const SymbolEntry &e = local.at("i");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "i");
     }
 
     {
       assert(local.count("max_heap_size"));
-      const Entry &e = local["max_heap_size"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "max_heap_size");
+      const SymbolEntry &e = local.at("max_heap_size");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "max_heap_size");
     }
 
     {
       assert(local.count("heap"));
-      const Entry &e = local["heap"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heap");
+      const SymbolEntry &e = local.at("heap");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heap");
     }
   }
 
@@ -553,82 +553,82 @@ void TestSymbolTable(SymbolTable &symtable) {
 
     {
       assert(local.count("n"));
-      const Entry &e = local["n"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "n");
+      const SymbolEntry &e = local.at("n");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "n");
     }
 
     {
       assert(local.count("temp"));
-      const Entry &e = local["temp"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "temp");
+      const SymbolEntry &e = local.at("temp");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "temp");
     }
 
     {
       assert(local.count("i"));
-      const Entry &e = local["i"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "i");
+      const SymbolEntry &e = local.at("i");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "i");
     }
 
     {
       assert(local.count("j"));
-      const Entry &e = local["j"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "j");
+      const SymbolEntry &e = local.at("j");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "j");
     }
 
     {
       assert(local.count("array_size"));
-      const Entry &e = local["array_size"];
-      assert(IsInstance<Variable>(e.type));
-      assert(e.scope == Scope::Local);
-      assert(e.name == "array_size");
+      const SymbolEntry &e = local.at("array_size");
+      assert(e.IsVariable());
+      assert(e.GetScope() == Scope::Local);
+      assert(e.GetName() == "array_size");
     }
 
     {
       assert(local.count("reset_heap"));
-      const Entry &e = local["reset_heap"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "reset_heap");
+      const SymbolEntry &e = local.at("reset_heap");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "reset_heap");
     }
 
     {
       assert(local.count("max_heap_size"));
-      const Entry &e = local["max_heap_size"];
-      assert(IsInstance<Constant>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "max_heap_size");
+      const SymbolEntry &e = local.at("max_heap_size");
+      assert(e.IsConstant());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "max_heap_size");
     }
 
     {
       assert(local.count("heap"));
-      const Entry &e = local["heap"];
-      assert(IsInstance<Array>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heap");
+      const SymbolEntry &e = local.at("heap");
+      assert(e.IsArray());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heap");
     }
 
     {
       assert(local.count("heap_sort"));
-      const Entry &e = local["heap_sort"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "heap_sort");
+      const SymbolEntry &e = local.at("heap_sort");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "heap_sort");
     }
 
     {
       assert(local.count("print_heap"));
-      const Entry &e = local["print_heap"];
-      assert(IsInstance<Function>(e.type));
-      assert(e.scope == Scope::Global);
-      assert(e.name == "print_heap");
+      const SymbolEntry &e = local.at("print_heap");
+      assert(e.IsFunction());
+      assert(e.GetScope() == Scope::Global);
+      assert(e.GetName() == "print_heap");
     }
   }
 }
