@@ -43,7 +43,7 @@ void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
     e.NameError(decl->loc, "redefinition of identifier", Quote(decl->name), "in <module>");
     return;
   }
-  global.emplace(std::make_pair(decl->name, Entry(DeclToType(decl), Scope::Global, decl->loc, decl->name)));
+  global.emplace(decl->name, SymbolEntry(Scope::Global, decl));
 }
 
 // Define a declaration locally.
@@ -57,12 +57,12 @@ void DefineLocalDecl(DeclLike *decl, TableType &local, const TableType &global,
         "redefinition of identifier", Quote(decl->name), where);
     return;
   }
-  if (auto iter = global.find(decl->name); iter != global.end() && IsInstance<Function>(iter->second.type)) {
+  if (auto iter = global.find(decl->name); iter != global.end() && iter->second.IsFunction()) {
     e.NameError(decl->loc,
         "local identifier", Quote(decl->name), where, "shallows a global function name");
     return;
   }
-  local.emplace(std::make_pair(decl->name, Entry(DeclToType(decl), Scope::Local, decl->loc, decl->name)));
+  local.emplace(decl->name, SymbolEntry(Scope::Local, decl));
 }
 
 // Enter all global const/var declarations into dict
@@ -95,12 +95,9 @@ public:
   void ResolveName(const String &name, const Location &loc) {
     if (local.find(name) != local.end())
       return; // already defined locally
-    // define globally
+    // defined globally
     if (auto x = global.find(name); x != global.end()) {
-      // make a copy of the global entry
-      Entry local_entry(x->second);
-      local_entry.location = loc; // use local location
-      local.emplace(std::make_pair(name, std::move(local_entry)));
+      local.emplace(name, x->second);
     }
     else {
       e.NameError(loc,
@@ -191,8 +188,7 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
 
 void CheckTable(const TableType &table) {
   for (const auto &item: table) {
-    assert(item.first == item.second.name);
-    assert(item.second.type);
+    assert(item.first == item.second.GetName());
   }
 }
 
@@ -202,14 +198,14 @@ void SymbolTable::Check() const {
   for (const auto &kv: locals) {
     CheckTable(kv.second);
     for (const auto &kv2: kv.second) {
-      assert(kv2.second.scope == Scope::Local ||
+      assert(kv2.second.GetScope() == Scope::Local ||
           global.find(kv2.first) != global.end() &&
           "entry in local with global scope must be present in global");
     }
   }
 }
 
-const Entry &SymbolTable::LookupLocal(const String &fun, const String &name) const {
+const SymbolEntry &SymbolTable::LookupLocal(const String &fun, const String &name) const {
   auto iter = locals.find(fun);
   assert(iter != locals.end() && "absent function name in locals");
   const auto &local = iter->second;
@@ -218,7 +214,7 @@ const Entry &SymbolTable::LookupLocal(const String &fun, const String &name) con
   return entry_iter->second;
 }
 
-const Entry &SymbolTable::LookupGlobal(const String &name) const {
+const SymbolEntry &SymbolTable::LookupGlobal(const String &name) const {
   auto iter = global.find(name);
   assert(iter != global.end() && "absent name in global");
   return iter->second;
@@ -234,12 +230,12 @@ std::ostream &operator<<(std::ostream &os, Scope s) {
   }
 }
 
-std::ostream &operator<<(std::ostream &os, const Entry& e) {
-  os << "Entry(";
-  os << "type=" << e.type->ClassName() << ", "
-    << "scope=" << e.scope << ", "
-    << "location=" << e.location << ", "
-    << "name=" << e.name;
+std::ostream &operator<<(std::ostream &os, const SymbolEntry& e) {
+  os << "SymbolEntry(";
+  os << "type=" << e.GetTypeName() << ", "
+    << "scope=" << e.GetScope() << ", "
+    << "location=" << e.GetLocation() << ", "
+    << "name=" << e.GetName();
   return os << ")";
 }
 
