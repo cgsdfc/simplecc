@@ -129,6 +129,37 @@ void MakeLocal(FuncDef *fun,
   // errors left in ErrorManager
 }
 
+// Visitor that build string table.
+class StringLiteralVisitor: public VisitorBase<StringLiteralVisitor>,
+                            public ChildrenVisitor<StringLiteralVisitor> {
+  StringLiteralTable &table;
+public:
+  StringLiteralVisitor(StringLiteralTable &table): table(table) {}
+
+  void visitStr(Str *node) {
+    assert(node->s.size() >= 2);
+    String &&stripped = node->s.substr(1, node->s.size() - 2);
+    table.emplace(std::move(stripped), table.size());
+  }
+
+  void visitDecl(Decl *node) {
+    if (auto x = subclass_cast<FuncDef>(node)) {
+      ChildrenVisitor::visitFuncDef(x);
+    }
+  }
+
+  void visitStmt(Stmt *node) {
+    if (auto x = subclass_cast<Write>(node)) {
+      ChildrenVisitor::visitWrite(x);
+    }
+  }
+
+  void visitExpr(Expr *s) {
+    return VisitorBase::visitExpr<void>(s);
+  }
+
+};
+
 // public interface
 bool BuildSymbolTable(Program *prog, SymbolTable &table) {
   ErrorManager e;
@@ -147,6 +178,9 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
         locals.emplace(reinterpret_cast<uintptr_t>(fun), std::move(local));
       }
     }
+  }
+  if (e.IsOk()) {
+    StringLiteralVisitor(table.string_literals).visitProgram(prog);
   }
   return e.IsOk();
 }
@@ -207,9 +241,28 @@ std::ostream &operator<<(
   return os << "}";
 }
 
+// Specialized version for String key
+template <typename Value>
+std::ostream &operator<<(
+    std::ostream &os, const std::unordered_map<String, Value> &t) {
+  int i = 0;
+  int size = t.size();
+
+  os << "{";
+  for (const auto &b: t) {
+    os << Quote(b.first) << ": " << b.second;
+    if (i != size - 1) {
+      os << ", ";
+    }
+    i++;
+  }
+  return os << "}";
+}
+
 std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {
   os << "SymbolTable(";
   os << "global=" << t.global << ", "
-    << "locals=" << t.locals;
+    << "locals=" << t.locals << ", "
+    << "string_literals=" << t.string_literals;
   return os << ")";
 }

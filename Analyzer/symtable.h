@@ -149,6 +149,7 @@ public:
 
 using TableType = std::unordered_map<String, SymbolEntry>;
 using NestedTableType = std::unordered_map<uintptr_t, TableType>;
+using StringLiteralTable = std::unordered_map<String, int>;
 
 class SymbolTableView {
   const TableType &subtable;
@@ -166,8 +167,9 @@ class SymbolTable {
 public:
   TableType global;
   NestedTableType locals;
+  StringLiteralTable string_literals;
 
-  SymbolTable(): global(), locals() {}
+  SymbolTable(): global(), locals(), string_literals() {}
 
   SymbolTableView GetLocal(FuncDef *fun) const {
     auto key = reinterpret_cast<uintptr_t>(fun);
@@ -177,6 +179,11 @@ public:
 
   SymbolTableView GetGlobal() const {
     return SymbolTableView(global);
+  }
+
+  int GetStringLiteralID(const String &literal) {
+    assert(string_literals.count(literal));
+    return string_literals.find(literal)->second;
   }
 
   void Check() const;
