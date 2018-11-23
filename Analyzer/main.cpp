@@ -46,9 +46,9 @@ int main(int argc, char **argv) {
   /* std::cout << "Ast before ImplicitCallTransformer runs\n"; */
   /* std::cout << ast_node << "\n"; */
 
-  /* if (!CheckType(ast_node, symtable)) { */
-  /*   return 1; */
-  /* } */
+  if (!CheckType(ast_node, symtable)) {
+    return 1;
+  }
 
   Print(std::cout, ast_node);
   /* std::cout << "Ast after ImplicitCallTransformer runs\n"; */

@@ -15,7 +15,7 @@ public:
 
   Expr *visitExpr(Expr *node) {
     if (auto x = subclass_cast<Name>(node)) {
-      if (auto fun = subclass_cast<Function>(view.LookupType(x->id))) {
+      if (view.Lookup(x->id).IsFunction()) {
         // replace such a name with a call
         auto call = new Call(x->id, {}, x->loc);
         delete x;
@@ -196,24 +196,24 @@ public:
   void visitRead(Read *node) {
     for (auto expr: node->names) {
       auto name = subclass_cast<Name>(expr);
-      auto type = view.LookupType(name->id);
-      if (!IsInstance<Variable>(type)) {
+      const auto &entry = view.Lookup(name->id);
+      if (!entry.IsVariable()) {
         e.TypeError(name->loc,
-            "cannot use scanf() on object of type", type->ClassName());
+            "cannot use scanf() on object of type", entry.GetTypeName());
       }
     }
   }
 
   void visitReturn(Return *node) {
     const auto &cur_fun = view.GetCurrentFunction();
-    auto fun_type = subclass_cast<Function>(cur_fun.type);
+    auto fun_type = cur_fun.AsFunction();
     auto return_type = node->value ? visitExpr(node->value) : BasicTypeKind::Void;
 
     // order a strict match
-    if (fun_type->return_type != return_type) {
+    if (fun_type.GetReturnType() != return_type) {
       e.TypeError(node->loc,
-          "return type mismatched:", "function", Quote(cur_fun.name),
-          "must return", CStringFromBasicTypeKind(fun_type->return_type),
+          "return type mismatched:", "function", Quote(cur_fun.GetName()),
+          "must return", CStringFromBasicTypeKind(fun_type.GetReturnType()),
           "not", CStringFromBasicTypeKind(return_type));
     }
   }
@@ -289,15 +289,15 @@ public:
   }
 
   BasicTypeKind visitCall(Call *node) {
-    auto type = view.LookupType(node->func);
-    auto fun_type = subclass_cast<Function>(type);
-    if (!fun_type) {
+    const auto &entry = view.Lookup(node->func);
+    if (!entry.IsFunction()) {
       e.TypeError(node->loc,
-          "object of type", type->ClassName(), "cannot be called as a function");
+          "object of type", entry.GetTypeName(), "cannot be called as a function");
       return BasicTypeKind::Void;
     }
 
-    auto formal_args_len = fun_type->args.size();
+    auto fun_type = entry.AsFunction();
+    auto formal_args_len = fun_type.GetArgCount();
     auto actual_args_len = node->args.size();
     if (formal_args_len != actual_args_len) {
       e.TypeError(node->loc, "function", Quote(node->func),
@@ -308,7 +308,7 @@ public:
     auto len = std::min(formal_args_len, actual_args_len);
     for (int i = 0; i < len; i++) {
       auto actual = visitExpr(node->args[i]);
-      auto formal = fun_type->args[i];
+      auto formal = fun_type.GetArgTypeAt(i);
       if (actual != formal) {
         e.TypeError(node->args[i]->loc,
             "argument", i + 1, "of function", Quote(node->func),
@@ -316,15 +316,14 @@ public:
             CStringFromBasicTypeKind(actual));
       }
     }
-    return fun_type->return_type;
+    return fun_type.GetReturnType();
   }
 
   BasicTypeKind visitSubscript(Subscript *node) {
-    auto type = view.LookupType(node->name);
-    Array *array_type = subclass_cast<Array>(type);
-    if (!array_type) {
+    const auto &entry = view.Lookup(node->name);
+    if (!entry.IsArray()) {
       e.TypeError(node->loc,
-          "object of type", type->ClassName(), "cannot be subscripted as an array");
+          "object of type", entry.GetTypeName(), "cannot be subscripted as an array");
       return BasicTypeKind::Void;
     }
     int errs = e.GetErrorCount();
@@ -333,30 +332,25 @@ public:
     if (e.IsOk(errs) && index != BasicTypeKind::Int) {
       e.TypeError(node->loc, "type of array index must be int");
     }
-    return array_type->elemtype;
+    return entry.AsArray().GetElementType();
   }
 
   BasicTypeKind visitName(Name *node) {
-    auto type = view.LookupType(node->id);
-    if (node->ctx == ExprContextKind::Load && IsInstance<Array>(type)) {
+    const auto &entry = view.Lookup(node->id);
+    if (node->ctx == ExprContextKind::Load && entry.IsArray()) {
       // Function cannot be here
       e.TypeError(node->loc,
-          "object of type", type->ClassName(), "cannot be used in an expression");
+          "object of type", entry.GetTypeName(), "cannot be used in an expression");
       return BasicTypeKind::Void;
     }
-    if (node->ctx == ExprContextKind::Store && !IsInstance<Variable>(type)) {
+    if (node->ctx == ExprContextKind::Store && !entry.IsVariable()) {
       e.TypeError(node->loc,
-          "object of type", type->ClassName(), "cannot be assigned to");
+          "object of type", entry.GetTypeName(), "cannot be assigned to");
       return BasicTypeKind::Void;
     }
-    if (auto x = subclass_cast<Variable>(type)) {
-      return x->type;
-    }
-    if (auto x = subclass_cast<Constant>(type)) {
-      return x->type;
-    }
-    // this is not possible
-    return BasicTypeKind::Void;
+    if (entry.IsConstant())
+      return entry.AsConstant().GetType();
+    return entry.AsVariable().GetType();
   }
 
   BasicTypeKind visitNum(Num *x) { return BasicTypeKind::Int; }
@@ -368,6 +362,5 @@ public:
 
 bool CheckType(Program *prog, SymbolTable &symtable) {
   ImplicitCallTransformer(symtable).visitProgam(prog);
-  /* return true; */
   return TypeCheker(symtable).Check(prog);
 }

@@ -10,4 +10,4 @@ void vfun(int arg) {}
 int ifun {}
 int ifun_i(int arg) {}
 
-int main() {}
+void main() {}
