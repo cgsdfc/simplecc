@@ -55,7 +55,7 @@ public:
         assert(konstant->type == Symbol::integer);
         val = new Num(visit_integer(konstant), konstant->location);
       }
-      return new ConstDecl(type, name->value, val, name->location);
+      return new ConstDecl(type, val, name->value, name->location);
     }
 
   int visit_integer(Node *node) {
@@ -76,7 +76,7 @@ public:
       auto type = visit_type_name(type_name);
       visit_compound_stmt(node->LastChild(), fn_decls, fn_stmts);
       decls.push_back(
-          new FuncDef(type, "main", {}, fn_decls, fn_stmts, type_name->location));
+          new FuncDef(type, {}, fn_decls, fn_stmts, "main", type_name->location));
     }
     else {
       auto decl_trailer = node->LastChild();
@@ -127,7 +127,7 @@ public:
 
     visit_compound_stmt(decl_trailer->LastChild(), fn_decls, fn_stmts);
     decls.push_back(new FuncDef(
-          return_type, name, paralist, fn_decls, fn_stmts, location));
+          return_type, paralist, fn_decls, fn_stmts, name, location));
   }
 
   void visit_paralist(Node *node, std::vector<Arg*> &paralist) {

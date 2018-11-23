@@ -80,10 +80,11 @@ std::ostream &operator<<(std::ostream &os, BasicTypeKind val);
 class Decl : public AST {
 public:
   int subclass_tag;
+  std::string name;
   Location loc;
 
-  Decl(int subclass_tag, Location loc)
-      : AST(), subclass_tag(subclass_tag), loc(loc) {}
+  Decl(int subclass_tag, const std::string &name, Location loc)
+      : AST(), subclass_tag(subclass_tag), name(name), loc(loc) {}
 
   enum { ConstDecl, VarDecl, FuncDef };
 };
@@ -126,12 +127,11 @@ public:
 class ConstDecl : public Decl {
 public:
   BasicTypeKind type;
-  std::string name;
   Expr *value;
 
-  ConstDecl(BasicTypeKind type, const std::string &name, Expr *value,
+  ConstDecl(BasicTypeKind type, Expr *value, const std::string &name,
             Location loc)
-      : Decl(Decl::ConstDecl, loc), type(type), name(name), value(value) {}
+      : Decl(Decl::ConstDecl, name, loc), type(type), value(value) {}
 
   ~ConstDecl() override;
 
@@ -149,12 +149,11 @@ public:
   BasicTypeKind type;
   int is_array;
   int size;
-  std::string name;
 
   VarDecl(BasicTypeKind type, int is_array, int size, const std::string &name,
           Location loc)
-      : Decl(Decl::VarDecl, loc), type(type), is_array(is_array), size(size),
-        name(name) {}
+      : Decl(Decl::VarDecl, name, loc), type(type), is_array(is_array),
+        size(size) {}
 
   ~VarDecl() override;
 
@@ -170,16 +169,15 @@ public:
 class FuncDef : public Decl {
 public:
   BasicTypeKind return_type;
-  std::string name;
   std::vector<Arg *> args;
   std::vector<Decl *> decls;
   std::vector<Stmt *> stmts;
 
-  FuncDef(BasicTypeKind return_type, const std::string &name,
-          const std::vector<Arg *> &args, const std::vector<Decl *> &decls,
-          const std::vector<Stmt *> &stmts, Location loc)
-      : Decl(Decl::FuncDef, loc), return_type(return_type), name(name),
-        args(args), decls(decls), stmts(stmts) {}
+  FuncDef(BasicTypeKind return_type, const std::vector<Arg *> &args,
+          const std::vector<Decl *> &decls, const std::vector<Stmt *> &stmts,
+          const std::string &name, Location loc)
+      : Decl(Decl::FuncDef, name, loc), return_type(return_type), args(args),
+        decls(decls), stmts(stmts) {}
 
   ~FuncDef() override;
 
@@ -554,5 +552,4 @@ template <typename T, typename U> inline T *subclass_cast(U *x) {
   return nullptr;
 }
 
-String GetDeclName(Decl *decl);
 #endif

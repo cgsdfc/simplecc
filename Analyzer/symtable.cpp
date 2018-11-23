@@ -37,7 +37,7 @@ Type *DeclToType(Decl *decl) {
 void DefineDecl(Decl* decl, Scope scope,
     TableType &dict, ErrorManager &e, const String &where) {
 
-  const auto &name = GetDeclName(decl);
+  const auto &name = decl->name;
   if (dict.find(name) != dict.end()) {
     // key already there
     e.NameError(decl->loc,

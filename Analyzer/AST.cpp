@@ -30,8 +30,9 @@ void Program::Format(std::ostream &os) const {
 void ConstDecl::Format(std::ostream &os) const {
   os << "ConstDecl("
      << "type=" << type << ", "
+     << "value=" << value << ", "
      << "name=" << name << ", "
-     << "value=" << value << ")";
+     << "loc=" << loc << ")";
 }
 
 void VarDecl::Format(std::ostream &os) const {
@@ -39,16 +40,18 @@ void VarDecl::Format(std::ostream &os) const {
      << "type=" << type << ", "
      << "is_array=" << is_array << ", "
      << "size=" << size << ", "
-     << "name=" << name << ")";
+     << "name=" << name << ", "
+     << "loc=" << loc << ")";
 }
 
 void FuncDef::Format(std::ostream &os) const {
   os << "FuncDef("
      << "return_type=" << return_type << ", "
-     << "name=" << name << ", "
      << "args=" << args << ", "
      << "decls=" << decls << ", "
-     << "stmts=" << stmts << ")";
+     << "stmts=" << stmts << ", "
+     << "name=" << name << ", "
+     << "loc=" << loc << ")";
 }
 
 void Arg::Format(std::ostream &os) const {
@@ -60,19 +63,22 @@ void Arg::Format(std::ostream &os) const {
 
 void Read::Format(std::ostream &os) const {
   os << "Read("
-     << "names=" << names << ")";
+     << "names=" << names << ", "
+     << "loc=" << loc << ")";
 }
 
 void Write::Format(std::ostream &os) const {
   os << "Write("
      << "str=" << str << ", "
-     << "value=" << value << ")";
+     << "value=" << value << ", "
+     << "loc=" << loc << ")";
 }
 
 void Assign::Format(std::ostream &os) const {
   os << "Assign("
      << "target=" << target << ", "
-     << "value=" << value << ")";
+     << "value=" << value << ", "
+     << "loc=" << loc << ")";
 }
 
 void For::Format(std::ostream &os) const {
@@ -80,87 +86,102 @@ void For::Format(std::ostream &os) const {
      << "initial=" << initial << ", "
      << "condition=" << condition << ", "
      << "step=" << step << ", "
-     << "body=" << body << ")";
+     << "body=" << body << ", "
+     << "loc=" << loc << ")";
 }
 
 void While::Format(std::ostream &os) const {
   os << "While("
      << "condition=" << condition << ", "
-     << "body=" << body << ")";
+     << "body=" << body << ", "
+     << "loc=" << loc << ")";
 }
 
 void Return::Format(std::ostream &os) const {
   os << "Return("
-     << "value=" << value << ")";
+     << "value=" << value << ", "
+     << "loc=" << loc << ")";
 }
 
 void If::Format(std::ostream &os) const {
   os << "If("
      << "test=" << test << ", "
      << "body=" << body << ", "
-     << "orelse=" << orelse << ")";
+     << "orelse=" << orelse << ", "
+     << "loc=" << loc << ")";
 }
 
 void ExprStmt::Format(std::ostream &os) const {
   os << "ExprStmt("
-     << "value=" << value << ")";
+     << "value=" << value << ", "
+     << "loc=" << loc << ")";
 }
 
 void BinOp::Format(std::ostream &os) const {
   os << "BinOp("
      << "left=" << left << ", "
      << "op=" << op << ", "
-     << "right=" << right << ")";
+     << "right=" << right << ", "
+     << "loc=" << loc << ")";
 }
 
 void ParenExpr::Format(std::ostream &os) const {
   os << "ParenExpr("
-     << "value=" << value << ")";
+     << "value=" << value << ", "
+     << "loc=" << loc << ")";
 }
 
 void BoolOp::Format(std::ostream &os) const {
   os << "BoolOp("
-     << "value=" << value << ")";
+     << "value=" << value << ", "
+     << "loc=" << loc << ")";
 }
 
 void UnaryOp::Format(std::ostream &os) const {
   os << "UnaryOp("
      << "op=" << op << ", "
-     << "operand=" << operand << ")";
+     << "operand=" << operand << ", "
+     << "loc=" << loc << ")";
 }
 
 void Call::Format(std::ostream &os) const {
   os << "Call("
      << "func=" << func << ", "
-     << "args=" << args << ")";
+     << "args=" << args << ", "
+     << "loc=" << loc << ")";
 }
 
 void Num::Format(std::ostream &os) const {
   os << "Num("
-     << "n=" << n << ")";
+     << "n=" << n << ", "
+     << "loc=" << loc << ")";
 }
 
 void Str::Format(std::ostream &os) const {
   os << "Str("
-     << "s=" << s << ")";
+     << "s=" << s << ", "
+     << "loc=" << loc << ")";
 }
 
 void Char::Format(std::ostream &os) const {
   os << "Char("
-     << "c=" << c << ")";
+     << "c=" << c << ", "
+     << "loc=" << loc << ")";
 }
 
 void Subscript::Format(std::ostream &os) const {
   os << "Subscript("
      << "name=" << name << ", "
      << "index=" << index << ", "
-     << "ctx=" << ctx << ")";
+     << "ctx=" << ctx << ", "
+     << "loc=" << loc << ")";
 }
 
 void Name::Format(std::ostream &os) const {
   os << "Name("
      << "id=" << id << ", "
-     << "ctx=" << ctx << ")";
+     << "ctx=" << ctx << ", "
+     << "loc=" << loc << ")";
 }
 
 std::ostream &operator<<(std::ostream &os, OperatorKind val) {
@@ -443,17 +464,5 @@ const char *CStringFromBasicTypeKind(BasicTypeKind val) {
 
   case BasicTypeKind::Void:
     return "void";
-  }
-}
-
-String GetDeclName(Decl *decl) {
-  if (auto x = subclass_cast<ConstDecl>(decl)) {
-    return x->name;
-  } else if (auto x = subclass_cast<VarDecl>(decl)) {
-    return x->name;
-  } else {
-    auto y = subclass_cast<FuncDef>(decl);
-    assert(y);
-    return y->name;
   }
 }

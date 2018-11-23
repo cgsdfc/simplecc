@@ -111,7 +111,6 @@ class AbstractNode(AstNode):
     def __init__(self, name):
         super().__init__(name)
         self.subclasses = None
-        self.members = None
 
     @property
     def members(self):
@@ -136,6 +135,10 @@ class ConcreteNode(AstNode):
         self.base = base
         self.members = members
 
+    @property
+    def format_members(self):
+        return self.members + self.base.members_notag
+
 
 class LeafNode(AstNode):
     """Direct subclass of AST, non-virtual class"""
@@ -143,6 +146,10 @@ class LeafNode(AstNode):
     def __init__(self, name, members=None):
         super().__init__(name)
         self.members = members
+
+    @property
+    def format_members(self):
+        return self.members
 
 
 class EnumClass(CppType):
@@ -431,7 +438,6 @@ inline T *subclass_cast(U *x) {
     return nullptr;
 }
 
-String GetDeclName(Decl *decl);
 #endif
 """)
 
@@ -495,20 +501,6 @@ std::ostream &operator<<(std::ostream &os, const std::optional<T> &v) {
 $formatter_impls
 $destructor_impls
 $string2enum_impls
-
-String GetDeclName(Decl *decl) {
-  if (auto x = subclass_cast<ConstDecl>(decl)) {
-    return x->name;
-  }
-  else if (auto x = subclass_cast<VarDecl>(decl)) {
-    return x->name;
-  }
-  else {
-    auto y = subclass_cast<FuncDef>(decl);
-    assert(y);
-    return y->name;
-  }
-}
 """)
 
     def substitute(self, typemap):
@@ -579,7 +571,7 @@ $class_name::~$class_name() {
                 self.format_item.substitute(
                     field_name=name,
                     expr=name,
-                ) for type, name in x.members
+                ) for type, name in x.format_members
             )
         )
 

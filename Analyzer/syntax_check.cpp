@@ -33,7 +33,7 @@ public:
 
     if (decl_iter != end) {
       auto decl = *decl_iter;
-      e.SyntaxError(decl->loc, "unexpected", decl->ClassName(), Quote(GetDeclName(decl)));
+      e.SyntaxError(decl->loc, "unexpected", decl->ClassName(), Quote(decl->name));
     }
 
     // check the last declaration is the main function
