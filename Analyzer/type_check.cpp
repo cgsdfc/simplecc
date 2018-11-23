@@ -340,7 +340,9 @@ public:
 
   BasicTypeKind visitNum(Num *x) { return BasicTypeKind::Int; }
   // not actually used, for instantiation only
-  BasicTypeKind visitStr(Str *x) { return BasicTypeKind::Void; }
+  BasicTypeKind visitStr(Str *x) {
+    e.InternalError(x->loc, "TypeCheker::visitStr() shall not be called");
+  }
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 
 };

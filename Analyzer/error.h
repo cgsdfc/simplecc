@@ -62,9 +62,9 @@ public:
     }
 
   template <typename... Args>
-    void InternalError(const Location &loc, Args&&... args) {
+    [[noreturn]] void InternalError(const Location &loc, Args&&... args) {
       ErrorImpl("InternalError", loc,  std::forward<Args>(args)...);
-      abort();
+      std::abort();
     }
 
   int GetErrorCount() const { return error_count; }
