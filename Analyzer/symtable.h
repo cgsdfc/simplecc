@@ -229,11 +229,11 @@ public:
   }
 
   Location GetLocation() const {
-    return decl->loc;
+    return decl ? decl->loc : arg->loc;
   }
 
   String GetName() const {
-    return decl->name;
+    return decl ? decl->name : arg->name;
   }
 
   Scope GetScope() const {

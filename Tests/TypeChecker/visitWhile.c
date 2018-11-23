@@ -1,20 +1,26 @@
 void main() {
-  int array[10];
-  int iok;
+  int iarr[10];
+  int ivar;
+  char cvar;
 
-  while (iok) {
-    iok = 1;
+  while (cvar) {
+    printf("type error in while");
   }
 
-  while (array) {
-    iok = 1;
+  while (cvar == cvar) {
+    printf("type error in while");
   }
 
-  while (iok) {
-    array = 1;
+  while (ivar == cvar) {
+    printf("type error in while");
   }
 
-  while (array) {
-    array = 1;
+  while (ivar) {
+    printf("ok");
   }
+
+  while (ivar == ivar) {
+    printf("ok");
+  }
+
 }

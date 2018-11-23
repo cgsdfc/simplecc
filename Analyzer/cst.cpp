@@ -279,7 +279,7 @@ public:
         name->location);
 
     // condition: expr
-    auto condition = visit_expr(node->children[6]);
+    auto condition = visit_condition(node->children[6]);
 
     // step: stmt
     auto target = node->children[8];

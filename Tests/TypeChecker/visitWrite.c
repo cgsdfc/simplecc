@@ -1,13 +1,19 @@
-void fun(int arg) {}
+void v_fun_i(int arg) {}
 
 void main() {
-  const int const_ok = 1;
-  int array[10];
-  int int_ok;
+  const int iconst = 1;
+  int iarr[10];
+  int ivar;
+  char cvar;
 
-  printf("function", fun);
-  printf("array", array);
-  printf("const", const_ok);
-  printf("int", int_ok);
-  printf("expr", int_ok + const_ok);
+  printf(iarr);
+  printf("array", iarr);
+
+  printf(v_fun_i(1));
+  printf("void", v_fun_i(1));
+
+  printf(cvar);
+  printf("char", cvar);
+  printf(iarr[0]);
+  printf("array[x]", iarr[0]);
 }

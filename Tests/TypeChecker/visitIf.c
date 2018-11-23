@@ -1,23 +1,26 @@
 void main() {
-  int array[10];
-  int iok;
+  int iarr[10];
+  int ivar;
+  char cvar;
 
-  if (iok) {
-    iok = 1;
-  }
-
-  if (array) {
-    iok = 1;
-  }
-  else {
-    array = 1;
+  if (cvar) {
+    printf("type error in if");
   }
 
-  if (iok) {
-    array = 1;
+  if (cvar == cvar) {
+    printf("type error in if");
   }
 
-  if (array) {
-    array = 1;
+  if (ivar == cvar) {
+    printf("type error in if");
   }
+
+  if (ivar) {
+    printf("ok");
+  }
+
+  if (ivar == ivar) {
+    printf("ok");
+  }
+
 }

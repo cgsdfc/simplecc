@@ -221,7 +221,6 @@ class TransformerVisitor(VisitorBase):
             self.visit(expr),
             name.context)
 
-        # condition: expr
         condition = self.visit(node.children[6])
 
         # step: stmt

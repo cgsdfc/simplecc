@@ -204,6 +204,12 @@ public:
     }
   }
 
+  void visitWrite(Write *node) {
+    if (node->value) {
+      CheckExprOperand(node->value);
+    }
+  }
+
   void visitReturn(Return *node) {
     const auto &cur_fun = view.GetCurrentFunction();
     auto fun_type = cur_fun.AsFunction();
@@ -220,8 +226,8 @@ public:
 
   void visitAssign(Assign *node) {
     int errs = e.GetErrorCount();
+    auto value = CheckExprOperand(node->value);
     auto target = visitExpr(node->target);
-    auto value = visitExpr(node->value);
 
     // if the assignment target or value is bad, don't check type-match, since:
     // int array[10];
@@ -244,47 +250,51 @@ public:
     visitCall(call);
   }
 
-  BasicTypeKind visitBoolOp(BoolOp *node) {
-    auto errs = e.GetErrorCount();
-    auto result = BasicTypeKind::Int;
+  // check the operand of BoolOp, restrict to int
+  void CheckBoolOpOperand(Expr *operand) {
     auto msg = "operands of condition must be of type int";
+    auto errs = e.GetErrorCount();
+    auto type = visitExpr(operand);
+    if (e.IsOk(errs) && type != BasicTypeKind::Int) {
+      e.TypeError(operand->loc, msg);
+    }
+  }
 
+  BasicTypeKind visitBoolOp(BoolOp *node) {
     if (auto x = subclass_cast<BinOp>(node->value)) {
-      auto left = visitExpr(x->left);
-      auto right = visitExpr(x->right);
-
-      if (!e.IsOk(errs)) {
-        return result;
-      }
-
-      if (left != BasicTypeKind::Int || right != BasicTypeKind::Int) {
-        e.TypeError(node->loc, msg);
-        return result;
-      }
+      CheckBoolOpOperand(x->left);
+      CheckBoolOpOperand(x->right);
     }
     else {
-      auto type = visitExpr(node->value);
-
-      if (e.IsOk(errs) && type != BasicTypeKind::Int) {
-        e.TypeError(node->loc, msg);
-        return result;
-      }
+      CheckBoolOpOperand(node->value);
     }
-    return result;
+    return BasicTypeKind::Int;
+  }
+
+  // check the operand of Expr, restrict to NOT void
+  BasicTypeKind CheckExprOperand(Expr *expr) {
+    auto msg = "void value cannot be used in an expression";
+    auto errs = e.GetErrorCount();
+    auto type = visitExpr(expr);
+    if (e.IsOk(errs) && type == BasicTypeKind::Void) {
+      e.TypeError(expr->loc, msg);
+    }
+    return BasicTypeKind::Int;
   }
 
   BasicTypeKind visitBinOp(BinOp *node) {
-    ChildrenVisitor::visitBinOp(node);
+    CheckExprOperand(node->left);
+    CheckExprOperand(node->right);
     return BasicTypeKind::Int;
   }
 
   BasicTypeKind visitUnaryOp(UnaryOp *node) {
-    ChildrenVisitor::visitUnaryOp(node);
+    CheckExprOperand(node->operand);
     return BasicTypeKind::Int;
   }
 
   BasicTypeKind visitParenExpr(ParenExpr *node) {
-    ChildrenVisitor::visitParenExpr(node);
+    CheckExprOperand(node->value);
     return BasicTypeKind::Int;
   }
 
@@ -326,9 +336,9 @@ public:
           "object of type", entry.GetTypeName(), "cannot be subscripted as an array");
       return BasicTypeKind::Void;
     }
+
     int errs = e.GetErrorCount();
     auto index = visitExpr(node->index);
-
     if (e.IsOk(errs) && index != BasicTypeKind::Int) {
       e.TypeError(node->loc, "type of array index must be int");
     }
@@ -338,7 +348,6 @@ public:
   BasicTypeKind visitName(Name *node) {
     const auto &entry = view.Lookup(node->id);
     if (node->ctx == ExprContextKind::Load && entry.IsArray()) {
-      // Function cannot be here
       e.TypeError(node->loc,
           "object of type", entry.GetTypeName(), "cannot be used in an expression");
       return BasicTypeKind::Void;
