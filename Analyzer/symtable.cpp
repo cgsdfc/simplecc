@@ -144,7 +144,7 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
       TableType local;
       MakeLocal(fun, global, local, e);
       if (e.IsOk()) {
-        locals.emplace(std::make_pair(fun->name, std::move(local)));
+        locals.emplace(reinterpret_cast<uintptr_t>(fun), std::move(local));
       }
     }
   }
@@ -189,16 +189,16 @@ std::ostream &operator<<(std::ostream &os, const SymbolEntry& e) {
   return os << ")";
 }
 
-// print a dict with string key and generic value
-template <typename Value>
+// Generic map printer
+template <typename Key, typename Value>
 std::ostream &operator<<(
-    std::ostream &os, const std::unordered_map<String, Value> &t) {
+    std::ostream &os, const std::unordered_map<Key, Value> &t) {
   int i = 0;
   int size = t.size();
 
   os << "{";
   for (const auto &b: t) {
-    os << Quote(b.first) << ": " << b.second;
+    os << b.first << ": " << b.second;
     if (i != size - 1) {
       os << ", ";
     }

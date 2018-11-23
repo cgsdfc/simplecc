@@ -5,9 +5,9 @@
 // Transform Name to Call if it is a function and it is in the context
 // of Expr or ExprStmt (Call really).
 class ImplicitCallTransformer: public VisitorBase<ImplicitCallTransformer> {
-  SymbolTableView_ view;
+  SymbolTableView view;
 public:
-  ImplicitCallTransformer(SymbolTableView_ view): view(view) {}
+  ImplicitCallTransformer(SymbolTableView view): view(view) {}
 
   void visitStmt(Stmt *node) {
     VisitorBase::visitStmt<void>(node);
@@ -147,12 +147,12 @@ public:
 class TypeCheker: public VisitorBase<TypeCheker>,
                   public ChildrenVisitor<TypeCheker> {
 public:
-  SymbolTableView_ view;
+  SymbolTableView view;
   // point to the entry of the function being checked
   const SymbolEntry &cur_fun;
   ErrorManager &e;
 
-  TypeCheker(SymbolTableView_ view, const SymbolEntry &cur_fun, ErrorManager &e):
+  TypeCheker(SymbolTableView view, const SymbolEntry &cur_fun, ErrorManager &e):
     view(view), cur_fun(cur_fun), e(e) {}
 
   void visitStmt(Stmt *s) {
@@ -350,9 +350,9 @@ bool CheckType(Program *prog, SymbolTable &symtable) {
   for (auto decl: prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       // first do transformation
-      ImplicitCallTransformer(symtable.GetLocal(fun->name)).visitFuncDef(fun);
+      ImplicitCallTransformer(symtable.GetLocal(fun)).visitFuncDef(fun);
       TypeCheker checker(
-          symtable.GetLocal(fun->name),
+          symtable.GetLocal(fun),
           symtable.GetGlobal()[fun->name], e);
       checker.visitFuncDef(fun);
     }

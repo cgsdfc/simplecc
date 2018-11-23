@@ -3,6 +3,7 @@
 
 #include "AST.h"
 #include <unordered_map>
+#include <cstdint>
 
 enum class Scope { Global, Local };
 
@@ -147,12 +148,12 @@ public:
 };
 
 using TableType = std::unordered_map<String, SymbolEntry>;
-using NestedTableType = std::unordered_map<String, TableType>;
+using NestedTableType = std::unordered_map<uintptr_t, TableType>;
 
-class SymbolTableView_ {
+class SymbolTableView {
   const TableType &subtable;
 public:
-  SymbolTableView_(const TableType &subtable): subtable(subtable) {}
+  SymbolTableView(const TableType &subtable): subtable(subtable) {}
   // Provide a safe readonly access to value
   const SymbolEntry &operator[](const String &name) const {
     assert(subtable.count(name));
@@ -168,13 +169,14 @@ public:
 
   SymbolTable(): global(), locals() {}
 
-  SymbolTableView_ GetLocal(const String &key) const {
+  SymbolTableView GetLocal(FuncDef *fun) const {
+    auto key = reinterpret_cast<uintptr_t>(fun);
     assert(locals.count(key));
-    return SymbolTableView_(locals.find(key)->second);
+    return SymbolTableView(locals.find(key)->second);
   }
 
-  SymbolTableView_ GetGlobal() const {
-    return SymbolTableView_(global);
+  SymbolTableView GetGlobal() const {
+    return SymbolTableView(global);
   }
 
   void Check() const;
