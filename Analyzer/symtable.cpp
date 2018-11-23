@@ -2,41 +2,6 @@
 #include "Visitor.h"
 #include "error.h"
 
-inline Type *ConstDeclToType(ConstDecl *decl) {
-  return new Constant(decl->type);
-}
-
-Type *VarDeclToType(VarDecl *decl) {
-  if (decl->is_array) {
-    assert(decl->size > 0);
-    return new Array(decl->type, decl->size);
-  }
-  else {
-    return new Variable(decl->type);
-  }
-}
-
-Type *FuncDefToType(FuncDef *decl) {
-  auto fun = new Function(decl->return_type, {});
-  for (auto arg: decl->args) {
-    fun->args.push_back(arg->type);
-  }
-  return fun;
-}
-
-// convert a declaration to type
-Type *DeclToType(Decl *decl) {
-  if (auto x = subclass_cast<ConstDecl>(decl))
-    return ConstDeclToType(x);
-  if (auto x = subclass_cast<VarDecl>(decl))
-    return VarDeclToType(x);
-  return FuncDefToType(subclass_cast<FuncDef>(decl));
-}
-
-inline Type *DeclToType(Arg *arg) {
-  return new Variable(arg->type);
-}
-
 // Define a declaration globally.
 void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
   if (global.count(decl->name)) {
