@@ -5,9 +5,9 @@
 // Transform Name to Call if it is a function and it is in the context
 // of Expr or ExprStmt (Call really).
 class ImplicitCallTransformer: public VisitorBase<ImplicitCallTransformer> {
-  SymbolTableView view;
+  SymbolTableView_ view;
 public:
-  ImplicitCallTransformer(SymbolTable &symtable): view(symtable) {}
+  ImplicitCallTransformer(SymbolTableView_ view): view(view) {}
 
   void visitStmt(Stmt *node) {
     VisitorBase::visitStmt<void>(node);
@@ -15,7 +15,7 @@ public:
 
   Expr *visitExpr(Expr *node) {
     if (auto x = subclass_cast<Name>(node)) {
-      if (view.Lookup(x->id).IsFunction()) {
+      if (view[x->id].IsFunction()) {
         // replace such a name with a call
         auto call = new Call(x->id, {}, x->loc);
         delete x;
@@ -134,19 +134,9 @@ public:
     VISIT(index);
   }
 
-
   void visitFuncDef(FuncDef *node) {
-    view.SetCurrentFunction(node);
     for (auto s: node->stmts) {
       visitStmt(s);
-    }
-  }
-
-  void visitProgam(Program *node) {
-    for (auto decl: node->decls) {
-      if (auto x = subclass_cast<FuncDef>(decl)) {
-        visitFuncDef(x);
-      }
     }
   }
 
@@ -157,25 +147,13 @@ public:
 class TypeCheker: public VisitorBase<TypeCheker>,
                   public ChildrenVisitor<TypeCheker> {
 public:
-  SymbolTableView view;
-  ErrorManager e;
+  SymbolTableView_ view;
   // point to the entry of the function being checked
+  const SymbolEntry &cur_fun;
+  ErrorManager &e;
 
-  TypeCheker(SymbolTable &symtable): view(symtable), e() {}
-
-  // public interface
-  bool Check(Program *node) {
-    visitProgam(node);
-    return e.IsOk();
-  }
-
-  void visitProgam(Program *node) {
-    for (auto decl: node->decls) {
-      if (auto fun = subclass_cast<FuncDef>(decl)) {
-        visitFuncDef(fun);
-      }
-    }
-  }
+  TypeCheker(SymbolTableView_ view, const SymbolEntry &cur_fun, ErrorManager &e):
+    view(view), cur_fun(cur_fun), e(e) {}
 
   void visitStmt(Stmt *s) {
     return VisitorBase::visitStmt<void>(s);
@@ -187,7 +165,6 @@ public:
   }
 
   void visitFuncDef(FuncDef *node) {
-    view.SetCurrentFunction(node);
     for (auto stmt: node->stmts) {
       visitStmt(stmt);
     }
@@ -196,7 +173,7 @@ public:
   void visitRead(Read *node) {
     for (auto expr: node->names) {
       auto name = subclass_cast<Name>(expr);
-      const auto &entry = view.Lookup(name->id);
+      const auto &entry = view[ name->id ];
       if (!entry.IsVariable()) {
         e.TypeError(name->loc,
             "cannot use scanf() on object of type", entry.GetTypeName());
@@ -211,7 +188,6 @@ public:
   }
 
   void visitReturn(Return *node) {
-    const auto &cur_fun = view.GetCurrentFunction();
     auto fun_type = cur_fun.AsFunction();
     auto return_type = node->value ? visitExpr(node->value) : BasicTypeKind::Void;
 
@@ -299,7 +275,7 @@ public:
   }
 
   BasicTypeKind visitCall(Call *node) {
-    const auto &entry = view.Lookup(node->func);
+    const auto &entry = view[ node->func ];
     if (!entry.IsFunction()) {
       e.TypeError(node->loc,
           "object of type", entry.GetTypeName(), "cannot be called as a function");
@@ -330,7 +306,7 @@ public:
   }
 
   BasicTypeKind visitSubscript(Subscript *node) {
-    const auto &entry = view.Lookup(node->name);
+    const auto &entry = view[ node->name ];
     if (!entry.IsArray()) {
       e.TypeError(node->loc,
           "object of type", entry.GetTypeName(), "cannot be subscripted as an array");
@@ -346,7 +322,7 @@ public:
   }
 
   BasicTypeKind visitName(Name *node) {
-    const auto &entry = view.Lookup(node->id);
+    const auto &entry = view[ node->id ];
     if (node->ctx == ExprContextKind::Load && entry.IsArray()) {
       e.TypeError(node->loc,
           "object of type", entry.GetTypeName(), "cannot be used in an expression");
@@ -370,6 +346,16 @@ public:
 };
 
 bool CheckType(Program *prog, SymbolTable &symtable) {
-  ImplicitCallTransformer(symtable).visitProgam(prog);
-  return TypeCheker(symtable).Check(prog);
+  ErrorManager e;
+  for (auto decl: prog->decls) {
+    if (auto fun = subclass_cast<FuncDef>(decl)) {
+      // first do transformation
+      ImplicitCallTransformer(symtable.GetLocal(fun->name)).visitFuncDef(fun);
+      TypeCheker checker(
+          symtable.GetLocal(fun->name),
+          symtable.GetGlobal()[fun->name], e);
+      checker.visitFuncDef(fun);
+    }
+  }
+  return e.IsOk();
 }

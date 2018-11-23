@@ -149,6 +149,18 @@ public:
 using TableType = std::unordered_map<String, SymbolEntry>;
 using NestedTableType = std::unordered_map<String, TableType>;
 
+class SymbolTableView_ {
+  const TableType &subtable;
+public:
+  SymbolTableView_(const TableType &subtable): subtable(subtable) {}
+  // Provide a safe readonly access to value
+  const SymbolEntry &operator[](const String &name) const {
+    assert(subtable.count(name));
+    return subtable.find(name)->second;
+  }
+};
+
+
 class SymbolTable {
 public:
   TableType global;
@@ -156,47 +168,16 @@ public:
 
   SymbolTable(): global(), locals() {}
 
-  const SymbolEntry &LookupLocal(const String &fun, const String &name) const;
+  SymbolTableView_ GetLocal(const String &key) const {
+    assert(locals.count(key));
+    return SymbolTableView_(locals.find(key)->second);
+  }
 
-  const SymbolEntry &LookupGlobal(const String &name) const;
+  SymbolTableView_ GetGlobal() const {
+    return SymbolTableView_(global);
+  }
 
   void Check() const;
-};
-
-// Provide access to each local namespace
-class SymbolTableView {
-  const SymbolTable &symtable;
-  // point to the entry of the function being checked
-  const SymbolEntry *cur_fun;
-public:
-  SymbolTableView(const SymbolTable &symtable):
-    symtable(symtable), cur_fun(nullptr) {}
-
-  const SymbolEntry &GetCurrentFunction() const {
-    assert(cur_fun);
-    return *cur_fun;
-  }
-
-  void SetCurrentFunction(FuncDef *fun) {
-    cur_fun = &symtable.LookupGlobal(fun->name);
-  }
-
-  const SymbolEntry &Lookup(const String &name) {
-    assert(cur_fun);
-    return symtable.LookupLocal(cur_fun->GetName(), name);
-  }
-
-  const TableType &GetLocalTable() const {
-    auto iter = symtable.locals.find(cur_fun->GetName());
-    assert(iter != symtable.locals.end());
-    return iter->second;
-  }
-
-  const TableType &GetGlobalTable() const {
-    return symtable.global;
-  }
-
-
 };
 
 std::ostream &operator<<(std::ostream &os, const SymbolTable &t);

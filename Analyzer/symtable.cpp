@@ -170,21 +170,6 @@ void SymbolTable::Check() const {
   }
 }
 
-const SymbolEntry &SymbolTable::LookupLocal(const String &fun, const String &name) const {
-  auto iter = locals.find(fun);
-  assert(iter != locals.end() && "absent function name in locals");
-  const auto &local = iter->second;
-  const auto &entry_iter = local.find(name);
-  assert(entry_iter != local.end() && "absent name in local");
-  return entry_iter->second;
-}
-
-const SymbolEntry &SymbolTable::LookupGlobal(const String &name) const {
-  auto iter = global.find(name);
-  assert(iter != global.end() && "absent name in global");
-  return iter->second;
-}
-
 // Overloads to print various data structures
 std::ostream &operator<<(std::ostream &os, Scope s) {
   switch (s) {
