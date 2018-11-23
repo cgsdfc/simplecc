@@ -115,16 +115,6 @@ public:
 
   const Entry &LookupGlobal(const String &name) const;
 
-  const TableType &GetGlobalTable() const {
-    return global;
-  }
-
-  const TableType &GetLocalTable(const String &name) const {
-    auto iter = locals.find(name);
-    assert(iter != locals.end());
-    return iter->second;
-  }
-
   void Check() const;
 };
 
@@ -148,10 +138,24 @@ public:
 
   // lookup the type of name within the current function
   Type *LookupType(const String &name) {
-    assert(cur_fun);
-    const auto &entry = symtable.LookupLocal(cur_fun->name, name);
-    return entry.type;
+    return Lookup(name).type;
   }
+
+  const Entry &Lookup(const String &name) {
+    assert(cur_fun);
+    return symtable.LookupLocal(cur_fun->name, name);
+  }
+
+  const TableType &GetLocalTable() const {
+    auto iter = symtable.locals.find(cur_fun->name);
+    assert(iter != symtable.locals.end());
+    return iter->second;
+  }
+
+  const TableType &GetGlobalTable() const {
+    return symtable.global;
+  }
+
 
 };
 

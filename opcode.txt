@@ -19,22 +19,34 @@ UNARY_NEGATIVE
 
 # Function Calling
 CALL_FUNCTION
+
+# pop off the tos and return that
 RETURN_VALUE
+# just end the current function, not returning any value
 RETURN_NONE
 
 # IO
+# print arg, which is an index to the strings array
 PRINT_STRING
+# the following print pops off tos and print it in different ways
 PRINT_CHARACTER
 PRINT_INTEGER
+
+# read an int, push it onto the stack
 READ_INTEGER
+# read a char, push it onto the stack
 READ_CHARACTER
 
 # Subscript Related
+# push array[index]: index = tos, array = tos1
 BINARY_SUBSCR
+# array[index] = value: value = tos2, array = tos1, index = tos
 STORE_SUBSCR
 
 # Jump/Branch
+# absolute jump if tos is true, arg is target
 JUMP_IF_TRUE
+# absolute jump, arg is target
 JUMP_FORWARD
 
 # Rich Compare and Jump
