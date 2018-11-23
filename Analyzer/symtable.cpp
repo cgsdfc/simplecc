@@ -2,7 +2,7 @@
 #include "Visitor.h"
 #include "error.h"
 
-Type *ConstDeclToType(ConstDecl *decl) {
+inline Type *ConstDeclToType(ConstDecl *decl) {
   return new Constant(decl->type);
 }
 
@@ -33,37 +33,36 @@ Type *DeclToType(Decl *decl) {
   return FuncDefToType(subclass_cast<FuncDef>(decl));
 }
 
-// Add one declaration to decl, checking redefinition errors
-void DefineDecl(Decl* decl, Scope scope,
-    TableType &dict, ErrorManager &e, const String &where) {
-
-  const auto &name = decl->name;
-  if (dict.find(name) != dict.end()) {
-    // key already there
-    e.NameError(decl->loc,
-        "redefinition of identifier", Quote(name), "in", where);
-  }
-  else {
-    auto type = DeclToType(decl);
-    dict.emplace(std::make_pair(name,
-          Entry(type, scope, decl->loc, name)));
-  }
+inline Type *DeclToType(Arg *arg) {
+  return new Variable(arg->type);
 }
 
-// Similar to DefineDecl(), but handle argument definition within
-// a function
-void DefineArg(Arg *arg,
-    TableType &dict, ErrorManager &e, const String &funcname) {
+// Define a declaration globally.
+void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
+  if (global.count(decl->name)) {
+    e.NameError(decl->loc, "redefinition of identifier", Quote(decl->name), "in <module>");
+    return;
+  }
+  global.emplace(std::make_pair(decl->name, Entry(DeclToType(decl), Scope::Global, decl->loc, decl->name)));
+}
 
-  if (dict.find(arg->name) != dict.end()) {
-    e.NameError(arg->loc, "redefinition of argument", Quote(arg->name),
-        "in function", Quote(funcname));
+// Define a declaration locally.
+// DeclLike takes Decl or Arg
+template <typename DeclLike>
+void DefineLocalDecl(DeclLike *decl, TableType &local, const TableType &global,
+                     ErrorManager &e, const String &funcname) {
+  auto where = "in function " + Quote(funcname);
+  if (local.count(decl->name)) {
+    e.NameError(decl->loc,
+        "redefinition of identifier", Quote(decl->name), where);
+    return;
   }
-  else {
-    dict.emplace(std::make_pair(arg->name,
-          Entry(new Variable(arg->type), Scope::Local,
-            arg->loc, arg->name)));
+  if (auto iter = global.find(decl->name); iter != global.end() && IsInstance<Function>(iter->second.type)) {
+    e.NameError(decl->loc,
+        "local identifier", Quote(decl->name), where, "shallows a global function name");
+    return;
   }
+  local.emplace(std::make_pair(decl->name, Entry(DeclToType(decl), Scope::Local, decl->loc, decl->name)));
 }
 
 // Enter all global const/var declarations into dict
@@ -71,7 +70,7 @@ void MakeGlobal(Program *prog, TableType &dict, ErrorManager &e) {
   for (auto decl: prog->decls) {
     if (IsInstance<FuncDef>(decl))
       continue; // not now
-    DefineDecl(decl, Scope::Global, dict, e, "<module>");
+    DefineGlobalDecl(decl, dict, e);
   }
 }
 
@@ -149,17 +148,17 @@ public:
 void MakeLocal(FuncDef *fun,
     TableType &top, TableType &local, ErrorManager &e) {
   // define fun itself in global first
-  DefineDecl(fun, Scope::Global, top, e, "<module>");
+  DefineGlobalDecl(fun, top, e);
 
   // define arguments of a function
   for (auto arg: fun->args) {
-    DefineArg(arg, local, e, fun->name);
+    DefineLocalDecl(arg, local, top, e, fun->name);
   }
 
   // define const/var declarations of a function
   auto where = "function " + Quote(fun->name);
   for (auto decl: fun->decls) {
-    DefineDecl(decl, Scope::Local, local, e, where);
+    DefineLocalDecl(decl, local, top, e, fun->name);
   }
 
   // resolve local names
