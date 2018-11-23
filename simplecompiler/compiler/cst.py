@@ -61,7 +61,7 @@ class TransformerVisitor(VisitorBase):
         name_vals = map(self.visit, const_items[::2])  # skip comma
         for name, val in name_vals:
             # type all the same
-            yield AST.ConstDecl(type, name, val, node.context)
+            yield AST.ConstDecl(type, val, name, node.context)
 
     def visit_const_item(self, node):
         name, _, konstant = node.children
@@ -84,7 +84,8 @@ class TransformerVisitor(VisitorBase):
             # main() {}
             compound_stmt = self.visit(trailer[-1])
             type = self.visit(type_name)
-            return [AST.FuncDef(type, 'main', [], *compound_stmt, type_name.context)]
+            return [AST.FuncDef(type, [], *compound_stmt, 'main',
+                type_name.context)]
         else:
             assert trailer[-1].type == sym.decl_trailer
             decl_trailer = trailer[-1]
@@ -119,7 +120,7 @@ class TransformerVisitor(VisitorBase):
         paralist = [] if len(children) == 1 else list(self.visit(children[0]))
         compound_stmt = children[-1]  # always the last one
         decls, stmts = self.visit(compound_stmt)
-        return AST.FuncDef(return_type, name, paralist, decls, stmts, context)
+        return AST.FuncDef(return_type, paralist, decls, stmts, name, context)
 
     def visit_paralist(self, node):
         # strip leading ( and tailing )

@@ -39,12 +39,12 @@ class decl(AST):
 
 
 class ConstDecl(decl):
-    __slots__ = ('type','name','value','loc',)
+    __slots__ = ('type','value','name','loc',)
 
-    def __init__(self, type, name, value, loc):
+    def __init__(self, type, value, name, loc):
         self.type = type
-        self.name = name
         self.value = value
+        self.name = name
         self.loc = loc
 
 
@@ -60,14 +60,14 @@ class VarDecl(decl):
 
 
 class FuncDef(decl):
-    __slots__ = ('return_type','name','args','decls','stmts','loc',)
+    __slots__ = ('return_type','args','decls','stmts','name','loc',)
 
-    def __init__(self, return_type, name, args, decls, stmts, loc):
+    def __init__(self, return_type, args, decls, stmts, name, loc):
         self.return_type = return_type
-        self.name = name
         self.args = args
         self.decls = decls
         self.stmts = stmts
+        self.name = name
         self.loc = loc
 
 

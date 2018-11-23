@@ -6,11 +6,10 @@ module Compiler
 {
     program = Program(decl* decls)
 
-    decl = ConstDecl(basic_type type, identifier name, expr value)
-         | VarDecl(basic_type type, int is_array, int size, identifier name)
-         | FuncDef(basic_type return_type, identifier name, arg* args,
-                       decl* decls, stmt* stmts)
-          attributes (location loc)
+    decl = ConstDecl(basic_type type, expr value)
+         | VarDecl(basic_type type, int is_array, int size)
+         | FuncDef(basic_type return_type, arg* args, decl* decls, stmt* stmts)
+          attributes (identifier name, location loc)
 
     arg = (basic_type type, identifier name)
           attributes (location loc)
