@@ -6,6 +6,7 @@
 
 class ByteCode {
   Opcode opcode;
+  unsigned lineno;
   std::optional<int> int_arg;
   std::optional<const char*> str_arg;
 public:
@@ -18,6 +19,10 @@ public:
 
   ByteCode(Opcode opcode, int int_arg, const char *str_arg):
     opcode(opcode), int_arg(int_arg), str_arg(str_arg) {}
+
+  void SetLineno(unsigned lineno) {
+    this->lineno = lineno;
+  }
 
   void SetTarget(int target) {
     int_arg = target;

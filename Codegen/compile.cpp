@@ -2,12 +2,14 @@
 #include "Visitor.h"
 #include "error.h"
 
+#include <iomanip>
 #include <unordered_map>
 
 using ByteCodeBuffer = std::vector<ByteCode>;
 using NameTable = std::unordered_map<const char*, int>;
 
 class FunctionCompiler: public VisitorBase<FunctionCompiler> {
+  unsigned current_lineno;
   bool jump_negative;
   ByteCodeBuffer *buffer;
   SymbolTableView local;
@@ -15,6 +17,7 @@ class FunctionCompiler: public VisitorBase<FunctionCompiler> {
   FuncDef *function;
 
   ByteCode &Add(ByteCode code) {
+    code.SetLineno(current_lineno);
     buffer->push_back(code);
     return buffer->back();
   }
@@ -46,17 +49,13 @@ public:
   }
 
   void visitExpr(Expr *node) {
+    current_lineno = node->loc.lineno;
     VisitorBase::visitExpr<void>(node);
   }
 
   void visitStmt(Stmt *node) {
+    current_lineno = node->loc.lineno;
     VisitorBase::visitStmt<void>(node);
-  }
-
-  void visitStmtList(const std::vector<Stmt*> &statements) {
-    for (auto s: statements) {
-      visitStmt(s);
-    }
   }
 
   void visitRead(Read *node) {
@@ -242,7 +241,7 @@ void CompiledFunction::Format(std::ostream &os) const {
   os << "CompiledFunction(" << Quote(GetName()) << "):\n";
   auto lineno = 1;
   for (const auto &code: GetCode()) {
-    os << "\t" << lineno << ": " << code << "\n";
+    os << std::setw(4) << lineno << ": " << code << "\n";
     lineno++;
   }
 }

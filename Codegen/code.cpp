@@ -69,8 +69,7 @@ void ByteCode::Check() const {
 }
 
 void ByteCode::Format(std::ostream &os) const {
-  os << "ByteCode("
-    << "opcode=" << opcode << ", ";
+  os << "ByteCode(" << opcode << ", ";
   os << "int_arg=";
   if (int_arg) os << *int_arg; else os << "None";
   os << ", ";

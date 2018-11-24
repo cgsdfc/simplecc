@@ -138,7 +138,7 @@ public:
     return decl ? decl->loc : arg->loc;
   }
 
-  String GetName() const {
+  const String &GetName() const {
     return decl ? decl->name : arg->name;
   }
 
