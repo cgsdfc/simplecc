@@ -1,4 +1,5 @@
 #include "code.h"
+#include "error.h"
 
 bool HasIntOperand(Opcode op) {
   switch (op) {
@@ -11,6 +12,7 @@ bool HasIntOperand(Opcode op) {
     case Opcode::JUMP_IF_GREATER_EQUAL:
     case Opcode::JUMP_IF_LESS:
     case Opcode::JUMP_IF_LESS_EQUAL:
+    case Opcode::CALL_FUNCTION:
       return true;
     default:
       return false;
@@ -25,6 +27,7 @@ bool HasStrOperand(Opcode op) {
   case Opcode::LOAD_STRING:
   case Opcode::STORE_LOCAL:
   case Opcode::STORE_GLOBAL:
+  case Opcode::CALL_FUNCTION:
       return true;
     default:
       return false;
@@ -62,7 +65,7 @@ void ByteCode::Check() const {
     assert(!int_arg.has_value() && !str_arg.has_value());
     checked = true;
   }
-  assert(checked && "unchecked opcode!");
+  assert(!checked && "unchecked opcode!");
 }
 
 void ByteCode::Format(std::ostream &os) const {
@@ -71,6 +74,6 @@ void ByteCode::Format(std::ostream &os) const {
   os << "int_arg=";
   if (int_arg) os << *int_arg; else os << "None";
   os << ", ";
-  if (str_arg) os << *str_arg; else os << "None";
+  if (str_arg) os << Quote(*str_arg); else os << "None";
   os << ")";
 }

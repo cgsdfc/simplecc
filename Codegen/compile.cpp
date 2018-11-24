@@ -1,5 +1,6 @@
 #include "compile.h"
 #include "Visitor.h"
+#include "error.h"
 
 #include <unordered_map>
 
@@ -35,7 +36,8 @@ public:
     function(fun) {}
 
   CompiledFunction *Compile() {
-    auto result = new CompiledFunction(local, symtable);
+    const auto &entry = symtable.GetGlobal()[function->name];
+    auto result = new CompiledFunction(local, entry);
     buffer = &result->code;
     for (auto s: function->stmts) {
       visitStmt(s);
@@ -219,7 +221,7 @@ public:
     program(prog), symtable(symtable) {}
 
   CompiledModule *Compile() {
-    auto module = new CompiledModule(symtable);
+    auto module = new CompiledModule(symtable.GetGlobal());
     for (auto decl: program->decls) {
       if (auto fun = subclass_cast<FuncDef>(decl)) {
         FunctionCompiler functionCompiler(fun, symtable);
@@ -234,4 +236,25 @@ public:
 CompiledModule *Compile(Program *prog, const SymbolTable &symtable) {
   ModuleCompiler moduleCompiler(prog, symtable);
   return moduleCompiler.Compile();
+}
+
+void CompiledFunction::Format(std::ostream &os) const {
+  os << "CompiledFunction(" << Quote(GetName()) << "):\n";
+  auto lineno = 1;
+  for (const auto &code: GetCode()) {
+    os << "\t" << lineno << ": " << code << "\n";
+    lineno++;
+  }
+}
+
+void CompiledModule::Format(std::ostream &os) const {
+  for (auto fun: GetFunctions()) {
+    os << fun << "\n";
+  }
+}
+
+CompiledModule::~CompiledModule() {
+  for (auto fun: GetFunctions()) {
+    delete fun;
+  }
 }
