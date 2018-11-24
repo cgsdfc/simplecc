@@ -233,7 +233,7 @@ public:
 
 };
 
-CompiledModule *Compile(Program *prog, const SymbolTable &symtable) {
+CompiledModule *CompileProgram(Program *prog, const SymbolTable &symtable) {
   ModuleCompiler moduleCompiler(prog, symtable);
   return moduleCompiler.Compile();
 }
@@ -249,7 +249,7 @@ void CompiledFunction::Format(std::ostream &os) const {
 
 void CompiledModule::Format(std::ostream &os) const {
   for (auto fun: GetFunctions()) {
-    os << fun << "\n";
+    os << *fun << "\n";
   }
 }
 

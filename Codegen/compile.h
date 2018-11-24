@@ -44,7 +44,7 @@ public:
   void Format(std::ostream &os) const;
 };
 
-CompiledModule *Compile(Program *prog, const SymbolTable &symtable);
+CompiledModule *CompileProgram(Program *prog, const SymbolTable &symtable);
 
 inline std::ostream &operator<<(std::ostream &os, const CompiledFunction &c) {
   c.Format(os);

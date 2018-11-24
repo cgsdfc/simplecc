@@ -74,6 +74,7 @@ void ByteCode::Format(std::ostream &os) const {
   os << "int_arg=";
   if (int_arg) os << *int_arg; else os << "None";
   os << ", ";
+  os << "str_arg=";
   if (str_arg) os << Quote(*str_arg); else os << "None";
   os << ")";
 }

@@ -4,6 +4,7 @@
 #include "symtable.h"
 #include "type_check.h"
 #include "error.h"
+#include "compile.h"
 
 #include <fstream>
 
@@ -43,18 +44,15 @@ int main(int argc, char **argv) {
   }
   symtable.Check();
 
-  /* std::cout << "Ast before ImplicitCallTransformer runs\n"; */
-  /* std::cout << ast_node << "\n"; */
-
   if (!CheckType(ast_node, symtable)) {
     return 1;
   }
 
-  /* Print(std::cout, symtable); */
-  Print(std::cout, ast_node);
-  /* std::cout << "Ast after ImplicitCallTransformer runs\n"; */
-  /* std::cout << ast_node << "\n"; */
+  auto module = CompileProgram(ast_node, symtable);
 
+  std::cout << *module << "\n";
+
+  delete module;
   delete ast_node;
   delete cst_node;
   for (auto token: tokens) {
