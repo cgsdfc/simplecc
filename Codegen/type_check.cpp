@@ -47,7 +47,7 @@ public:
   void visitAssign(Assign *node) {
     // don't check Name
     if (IsInstance<Subscript>(node->target)) {
-      VISIT(target);
+      visitExpr(node->target);
     }
     VISIT(value);
   }
@@ -84,19 +84,10 @@ public:
     }
   }
 
+  // nothing to do since it must be a Call
   void visitExprStmt(ExprStmt *node) {
-    // ExprStmt is special since the name is **unconditionally**
-    // a call, as it is required by the Grammar. so there is no
-    // lookup with symtable, no visitExpr().
-    if (auto x = subclass_cast<Name>(node->value)) {
-      node->value = new Call(x->id, {}, x->loc);
-      delete x;
-    }
-    else {
-      // visit call as usual
-      assert(IsInstance<Call>(node->value));
-      visitExpr(node->value);
-    }
+    assert(IsInstance<Call>(node->value));
+    visitExpr(node->value);
   }
 
   void visitBinOp(BinOp *node) {

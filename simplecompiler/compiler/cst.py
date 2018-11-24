@@ -174,8 +174,9 @@ class TransformerVisitor(VisitorBase):
             yield self.visit(node.first_child.first_child)
         elif first.type == sym.NAME:
             if len(node.children) == 2:
-                expr1 = AST.Name(first.value, expr_context.Load, node.context)
-                yield AST.ExprStmt(expr1, node.context)
+                # single Name is a Call
+                call = AST.Call(first.value, [], first.context)
+                yield AST.ExprStmt(call, node.context)
             else:  # stmt_trailer
                 yield self.visit(node.children[1], first)
         elif first.value == '{':

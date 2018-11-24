@@ -192,9 +192,8 @@ public:
     }
     else if (first->type == Symbol::NAME) {
       if (node->children.size() == 2) {
-        auto expr1 = new Name(
-            first->value, ExprContextKind::Load, node->location);
-        stmts.push_back(new ExprStmt(expr1, node->location));
+        auto call = new Call(first->value, {}, first->location);
+        stmts.push_back(new ExprStmt(call, node->location));
       }
       else {
         stmts.push_back(visit_stmt_trailer(node->children[1], first));
