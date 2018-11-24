@@ -32,6 +32,7 @@ class FunctionCompiler: public VisitorBase<FunctionCompiler> {
 
 public:
   FunctionCompiler(FuncDef *fun, const SymbolTable &symtable):
+    current_lineno(1),
     jump_negative(false),
     buffer(nullptr),
     local(symtable.GetLocal(fun)),
@@ -44,6 +45,10 @@ public:
     buffer = &result->code;
     for (auto s: function->stmts) {
       visitStmt(s);
+    }
+    if (buffer->empty() || GetLastByteCode().GetOpcode() != Opcode::RETURN_VALUE) {
+      // A missing reutrn_stmt, insert one.
+      Add(ByteCode(Opcode::RETURN_NONE));
     }
     return result;
   }
@@ -126,15 +131,15 @@ public:
   void visitReturn(Return *node) {
     if (node->value) {
       visitExpr(node->value);
+      Add(ByteCode(Opcode::RETURN_VALUE));
     }
     else {
-      Add(ByteCode(Opcode::LOAD_CONST, 0));
+      Add(ByteCode(Opcode::RETURN_NONE));
     }
-    Add(ByteCode(Opcode::RETURN_VALUE));
   }
 
   void visitExprStmt(ExprStmt *node) {
-    visitExpr(node->value);
+    auto type = visitExpr(node->value);
     // discard return value
     Add(ByteCode(Opcode::POP_TOP));
   }
