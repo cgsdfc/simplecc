@@ -48,9 +48,9 @@ public:
     return result;
   }
 
-  void visitExpr(Expr *node) {
+  BasicTypeKind visitExpr(Expr *node) {
     current_lineno = node->loc.lineno;
-    VisitorBase::visitExpr<void>(node);
+    return VisitorBase::visitExpr<BasicTypeKind>(node);
   }
 
   void visitStmt(Stmt *node) {
@@ -73,22 +73,9 @@ public:
       Add(ByteCode(Opcode::PRINT_STRING));
     }
     if (node->value) {
-      visitExpr(node->value);
-      auto opcode = IsInstance<Char>(node->value) ? Opcode::PRINT_CHARACTER :
-                                                    Opcode::PRINT_INTEGER;
-      Add(ByteCode(opcode));
+      auto type = visitExpr(node->value);
+      Add(ByteCode(MakePrint(type)));
     }
-  }
-
-  void visitBoolOp(BoolOp *node) {
-    if (auto x = subclass_cast<BinOp>(node->value)) {
-      visitExpr(x->left);
-      visitExpr(x->right);
-      Add(ByteCode(jump_negative ? MakeJumpNegative(x->op) : MakeJump(x->op)));
-      return;
-    }
-    visitExpr(node->value);
-    Add(ByteCode(jump_negative ? Opcode::JUMP_IF_FALSE : Opcode::JUMP_IF_TRUE));
   }
 
   void visitAssign(Assign *node) {
@@ -152,22 +139,38 @@ public:
     Add(ByteCode(Opcode::POP_TOP));
   }
 
-  void visitUnaryOp(UnaryOp *node) {
-    visitExpr(node->operand);
-    Add(ByteCode(MakeUnary(node->op)));
+  BasicTypeKind visitBoolOp(BoolOp *node) {
+    if (auto x = subclass_cast<BinOp>(node->value)) {
+      visitExpr(x->left);
+      visitExpr(x->right);
+      Add(ByteCode(jump_negative ? MakeJumpNegative(x->op) : MakeJump(x->op)));
+    }
+    else {
+      visitExpr(node->value);
+      Add(ByteCode(jump_negative ? Opcode::JUMP_IF_FALSE : Opcode::JUMP_IF_TRUE));
+    }
+    return BasicTypeKind::Int;
   }
 
-  void visitBinOp(BinOp *node) {
+  BasicTypeKind visitUnaryOp(UnaryOp *node) {
+    visitExpr(node->operand);
+    Add(ByteCode(MakeUnary(node->op)));
+    return BasicTypeKind::Int;
+  }
+
+  BasicTypeKind visitBinOp(BinOp *node) {
     visitExpr(node->left);
     visitExpr(node->right);
     Add(ByteCode(MakeBinary(node->op)));
+    return BasicTypeKind::Int;
   }
 
-  void visitParenExpr(ParenExpr *node) {
+  BasicTypeKind visitParenExpr(ParenExpr *node) {
     visitExpr(node->value);
+    return BasicTypeKind::Int;
   }
 
-  void visitCall(Call *node) {
+  BasicTypeKind visitCall(Call *node) {
     for (auto expr: node->args) {
       visitExpr(expr);
     }
@@ -175,40 +178,46 @@ public:
           Opcode::CALL_FUNCTION,
           node->args.size(),
           node->func.data()));
+    return local[node->func].AsFunction().GetReturnType();
   }
 
-  void visitNum(Num *node) {
+  BasicTypeKind visitNum(Num *node) {
     Add(ByteCode(Opcode::LOAD_CONST, node->n));
+    return BasicTypeKind::Int;
   }
 
-  void visitStr(Str *node) {
+  BasicTypeKind visitStr(Str *node) {
     Add(ByteCode(Opcode::LOAD_STRING, symtable.GetStringLiteralID(node->s)));
+    return BasicTypeKind::Void;
   }
 
-  void visitChar(Char *node) {
+  BasicTypeKind visitChar(Char *node) {
     Add(ByteCode(Opcode::LOAD_CONST, node->c));
+    return BasicTypeKind::Character;
   }
 
-  void visitSubscript(Subscript *node) {
+  BasicTypeKind visitSubscript(Subscript *node) {
     const auto &entry = local[node->name];
     auto load = MakeLoad(entry.GetScope());
     Add(ByteCode(load, node->name.data()));
     visitExpr(node->index);
     Add(ByteCode(MakeSubScr(node->ctx)));
+    return entry.AsArray().GetElementType();
   }
 
-  void visitName(Name *node) {
+  BasicTypeKind visitName(Name *node) {
     const auto &entry = local[node->id];
     if (entry.IsConstant()) {
       Add(ByteCode(Opcode::LOAD_CONST, entry.AsConstant().GetValue()));
+      return entry.AsConstant().GetType();
     }
     else {
       auto opcode = node->ctx == ExprContextKind::Load ? MakeLoad(entry.GetScope())
                                                        : MakeStore(entry.GetScope());
       Add(ByteCode(opcode, node->id.data()));
     }
+    return entry.AsVariable().GetType();
   }
-
 };
 
 class ModuleCompiler {

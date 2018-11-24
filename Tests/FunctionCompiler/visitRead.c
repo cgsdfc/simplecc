@@ -1,3 +1,6 @@
+int glbl_ivar;
+char glbl_cvar;
+
 void main() {
   int ivar;
   char cvar;
@@ -5,6 +8,7 @@ void main() {
   scanf(ivar);
   scanf(cvar);
 
-  scanf(ivar, cvar);
-  scanf(cvar, ivar);
+  scanf(glbl_cvar);
+  scanf(glbl_ivar);
+
 }
