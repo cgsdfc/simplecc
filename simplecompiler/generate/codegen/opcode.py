@@ -38,6 +38,7 @@ Opcode MakePrint(BasicTypeKind type);
 Opcode MakeBinary(OperatorKind oper);
 Opcode MakeUnary(UnaryopKind oper);
 Opcode MakeJump(OperatorKind oper);
+Opcode MakeJumpNegative(OperatorKind oper);
 inline std::ostream &operator<<(std::ostream &os, Opcode val) {
     return os << CStringFromOpcode(val);
 }
@@ -116,6 +117,24 @@ Opcode MakeUnary(UnaryopKind oper) {
         return Opcode::UNARY_POSITIVE;
     case UnaryopKind::USub:
         return Opcode::UNARY_NEGATIVE;
+    }
+}
+
+Opcode MakeJumpNegative(OperatorKind oper) {
+    switch (oper) {
+    case OperatorKind::NotEq:
+        return Opcode::JUMP_IF_EQUAL;
+    case OperatorKind::Eq:
+        return Opcode::JUMP_IF_NOT_EQUAL;
+    case OperatorKind::GtE:
+        return Opcode::JUMP_IF_LESS;
+    case OperatorKind::Gt:
+        return Opcode::JUMP_IF_LESS_EQUAL;
+    case OperatorKind::LtE:
+        return Opcode::JUMP_IF_GREATER;
+    case OperatorKind::Lt:
+        return Opcode::JUMP_IF_GREATER_EQUAL;
+    $default
     }
 }
 

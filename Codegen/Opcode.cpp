@@ -76,6 +76,25 @@ Opcode MakeUnary(UnaryopKind oper) {
   }
 }
 
+Opcode MakeJumpNegative(OperatorKind oper) {
+  switch (oper) {
+  case OperatorKind::NotEq:
+    return Opcode::JUMP_IF_EQUAL;
+  case OperatorKind::Eq:
+    return Opcode::JUMP_IF_NOT_EQUAL;
+  case OperatorKind::GtE:
+    return Opcode::JUMP_IF_LESS;
+  case OperatorKind::Gt:
+    return Opcode::JUMP_IF_LESS_EQUAL;
+  case OperatorKind::LtE:
+    return Opcode::JUMP_IF_GREATER;
+  case OperatorKind::Lt:
+    return Opcode::JUMP_IF_GREATER_EQUAL;
+  default:
+    assert(false);
+  }
+}
+
 Opcode MakeJump(OperatorKind oper) {
   switch (oper) {
   case OperatorKind::Eq:
@@ -103,6 +122,8 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::LOAD_GLOBAL";
   case Opcode::LOAD_CONST:
     return "Opcode::LOAD_CONST";
+  case Opcode::LOAD_STRING:
+    return "Opcode::LOAD_STRING";
   case Opcode::STORE_LOCAL:
     return "Opcode::STORE_LOCAL";
   case Opcode::STORE_GLOBAL:
@@ -115,6 +136,8 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::BINARY_MULTIPLY";
   case Opcode::BINARY_DIVIDE:
     return "Opcode::BINARY_DIVIDE";
+  case Opcode::UNARY_NOT:
+    return "Opcode::UNARY_NOT";
   case Opcode::UNARY_POSITIVE:
     return "Opcode::UNARY_POSITIVE";
   case Opcode::UNARY_NEGATIVE:
@@ -141,6 +164,8 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::STORE_SUBSCR";
   case Opcode::JUMP_IF_TRUE:
     return "Opcode::JUMP_IF_TRUE";
+  case Opcode::JUMP_IF_FALSE:
+    return "Opcode::JUMP_IF_FALSE";
   case Opcode::JUMP_FORWARD:
     return "Opcode::JUMP_FORWARD";
   case Opcode::JUMP_IF_NOT_EQUAL:
@@ -155,5 +180,7 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::JUMP_IF_LESS";
   case Opcode::JUMP_IF_LESS_EQUAL:
     return "Opcode::JUMP_IF_LESS_EQUAL";
+  case Opcode::POP_TOP:
+    return "Opcode::POP_TOP";
   }
 }

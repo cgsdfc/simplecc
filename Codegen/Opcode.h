@@ -9,12 +9,14 @@ enum class Opcode {
   LOAD_LOCAL,
   LOAD_GLOBAL,
   LOAD_CONST,
+  LOAD_STRING,
   STORE_LOCAL,
   STORE_GLOBAL,
   BINARY_ADD,
   BINARY_SUB,
   BINARY_MULTIPLY,
   BINARY_DIVIDE,
+  UNARY_NOT,
   UNARY_POSITIVE,
   UNARY_NEGATIVE,
   CALL_FUNCTION,
@@ -28,13 +30,15 @@ enum class Opcode {
   BINARY_SUBSCR,
   STORE_SUBSCR,
   JUMP_IF_TRUE,
+  JUMP_IF_FALSE,
   JUMP_FORWARD,
   JUMP_IF_NOT_EQUAL,
   JUMP_IF_EQUAL,
   JUMP_IF_GREATER,
   JUMP_IF_GREATER_EQUAL,
   JUMP_IF_LESS,
-  JUMP_IF_LESS_EQUAL
+  JUMP_IF_LESS_EQUAL,
+  POP_TOP
 };
 
 const char *CStringFromOpcode(Opcode val);
@@ -46,6 +50,7 @@ Opcode MakePrint(BasicTypeKind type);
 Opcode MakeBinary(OperatorKind oper);
 Opcode MakeUnary(UnaryopKind oper);
 Opcode MakeJump(OperatorKind oper);
+Opcode MakeJumpNegative(OperatorKind oper);
 inline std::ostream &operator<<(std::ostream &os, Opcode val) {
   return os << CStringFromOpcode(val);
 }

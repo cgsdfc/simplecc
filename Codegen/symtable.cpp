@@ -138,8 +138,7 @@ public:
 
   void visitStr(Str *node) {
     assert(node->s.size() >= 2);
-    String &&stripped = node->s.substr(1, node->s.size() - 2);
-    table.emplace(std::move(stripped), table.size());
+    table.emplace(node->s, table.size());
   }
 
   void visitDecl(Decl *node) {

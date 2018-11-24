@@ -2,6 +2,7 @@
 LOAD_LOCAL # push a local variable
 LOAD_GLOBAL # push a global variable
 LOAD_CONST # push a constant
+LOAD_STRING # push a string's id
 STORE_LOCAL # pop and save a local variable
 STORE_GLOBAL # pop and save a global variable
 
@@ -14,6 +15,7 @@ BINARY_DIVIDE # floor divide
 
 # Unary Arithmetic
 # tos = op tos
+UNARY_NOT
 UNARY_POSITIVE
 UNARY_NEGATIVE
 
@@ -26,9 +28,8 @@ RETURN_VALUE
 RETURN_NONE
 
 # IO
-# print arg, which is an index to the strings array
-PRINT_STRING
 # the following print pops off tos and print it in different ways
+PRINT_STRING
 PRINT_CHARACTER
 PRINT_INTEGER
 
@@ -46,6 +47,7 @@ STORE_SUBSCR
 # Jump/Branch
 # absolute jump if tos is true, arg is target
 JUMP_IF_TRUE
+JUMP_IF_FALSE
 # absolute jump, arg is target
 JUMP_FORWARD
 
@@ -56,3 +58,6 @@ JUMP_IF_GREATER
 JUMP_IF_GREATER_EQUAL
 JUMP_IF_LESS
 JUMP_IF_LESS_EQUAL
+
+# stack manipulation
+POP_TOP

@@ -181,7 +181,7 @@ public:
     return SymbolTableView(global);
   }
 
-  int GetStringLiteralID(const String &literal) {
+  int GetStringLiteralID(const String &literal) const {
     assert(string_literals.count(literal));
     return string_literals.find(literal)->second;
   }
