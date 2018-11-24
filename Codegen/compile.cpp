@@ -215,8 +215,8 @@ public:
       auto opcode = node->ctx == ExprContextKind::Load ? MakeLoad(entry.GetScope())
                                                        : MakeStore(entry.GetScope());
       Add(ByteCode(opcode, node->id.data()));
+      return entry.AsVariable().GetType();
     }
-    return entry.AsVariable().GetType();
   }
 };
 

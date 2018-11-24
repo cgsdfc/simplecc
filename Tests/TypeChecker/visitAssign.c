@@ -30,4 +30,11 @@ void main() {
   iarr[0] = 1;
   iarr[0] = ivar;
   iarr[0] = ifun;
+
+  cvar = 'a';
+  cvar = cfun;
+  cvar = carr[0];
+  carr[0] = 'a';
+  carr[0] = cvar;
+  carr[0] = cfun;
 }

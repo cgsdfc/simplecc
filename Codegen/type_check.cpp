@@ -246,7 +246,7 @@ public:
     if (e.IsOk(errs) && type == BasicTypeKind::Void) {
       e.TypeError(expr->loc, msg);
     }
-    return BasicTypeKind::Int;
+    return type;
   }
 
   BasicTypeKind visitBinOp(BinOp *node) {
