@@ -40,23 +40,23 @@ public:
 
 class CompiledFunction {
 public:
-  // All local names: Variable and Array
-  std::vector<NameInfo> names;
-  // All byte code
+  SymbolTableView local;
+  const SymbolTable &symtable;
   std::vector<ByteCode> code;
+  CompiledFunction(SymbolTableView local, const SymbolTable &symtable):
+    local(local), symtable(symtable), code() {}
 };
 
 class CompiledModule {
 public:
-  // All int/char constants
-  std::vector<int> consts;
-  // All string literals
-  std::vector<String> strings;
+  const SymbolTable &symtable;
   // All global names: Variable, Function and Array
   std::vector<NameInfo> names;
   // All functions
-  std::vector<CompiledFunction*> code;
+  std::vector<CompiledFunction*> functions;
+
+  CompiledModule(const SymbolTable &symtable): symtable(symtable) {}
 };
 
-/* Module *Compile(Program *prog, const SymbolTable &symtable); */
+CompiledModule *Compile(Program *prog, const SymbolTable &symtable);
 #endif

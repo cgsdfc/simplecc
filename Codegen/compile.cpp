@@ -8,26 +8,40 @@ using NameTable = std::unordered_map<const char*, int>;
 
 class FunctionCompiler: public VisitorBase<FunctionCompiler> {
   bool jump_negative;
-  ByteCodeBuffer &buffer;
-  SymbolTableView view;
+  ByteCodeBuffer *buffer;
+  SymbolTableView local;
   const SymbolTable &symtable;
+  FuncDef *function;
 
   ByteCode &Add(ByteCode code) {
-    buffer.push_back(code);
-    return buffer.back();
+    buffer->push_back(code);
+    return buffer->back();
   }
 
   ByteCode &GetLastByteCode() const {
-    return buffer.back();
+    return buffer->back();
   }
 
   int GetOffset() const {
-    return buffer.size();
+    return buffer->size();
   }
+
 public:
-  FunctionCompiler(ByteCodeBuffer &buffer, SymbolTableView view,
-      const SymbolTable &symtable):
-    buffer(buffer), view(view), symtable(symtable), jump_negative(false) {}
+  FunctionCompiler(FuncDef *fun, const SymbolTable &symtable):
+    jump_negative(false),
+    buffer(nullptr),
+    local(symtable.GetLocal(fun)),
+    symtable(symtable),
+    function(fun) {}
+
+  CompiledFunction *Compile() {
+    auto result = new CompiledFunction(local, symtable);
+    buffer = &result->code;
+    for (auto s: function->stmts) {
+      visitStmt(s);
+    }
+    return result;
+  }
 
   void visitExpr(Expr *node) {
     VisitorBase::visitExpr<void>(node);
@@ -46,7 +60,7 @@ public:
   void visitRead(Read *node) {
     for (auto expr: node->names) {
       auto name = static_cast<Name*>(expr);
-      const auto &entry = view[name->id];
+      const auto &entry = local[name->id];
       Add(ByteCode(MakeRead(entry.AsVariable().GetType())));
       Add(ByteCode(MakeStore(entry.GetScope()), entry.GetName().data()));
     }
@@ -175,7 +189,7 @@ public:
   }
 
   void visitSubscript(Subscript *node) {
-    const auto &entry = view[node->name];
+    const auto &entry = local[node->name];
     auto load = MakeLoad(entry.GetScope());
     Add(ByteCode(load, node->name.data()));
     visitExpr(node->index);
@@ -183,10 +197,41 @@ public:
   }
 
   void visitName(Name *node) {
-    const auto &entry = view[node->id];
-    auto opcode = node->ctx == ExprContextKind::Load ? MakeLoad(entry.GetScope())
-                                                     : MakeStore(entry.GetScope());
-    Add(ByteCode(opcode, node->id.data()));
+    const auto &entry = local[node->id];
+    if (entry.IsConstant()) {
+      Add(ByteCode(Opcode::LOAD_CONST, entry.AsConstant().GetValue()));
+    }
+    else {
+      auto opcode = node->ctx == ExprContextKind::Load ? MakeLoad(entry.GetScope())
+                                                       : MakeStore(entry.GetScope());
+      Add(ByteCode(opcode, node->id.data()));
+    }
   }
 
 };
+
+class ModuleCompiler {
+  const SymbolTable &symtable;
+  Program *program;
+
+public:
+  ModuleCompiler(Program *prog, const SymbolTable &symtable):
+    program(prog), symtable(symtable) {}
+
+  CompiledModule *Compile() {
+    auto module = new CompiledModule(symtable);
+    for (auto decl: program->decls) {
+      if (auto fun = subclass_cast<FuncDef>(decl)) {
+        FunctionCompiler functionCompiler(fun, symtable);
+        module->functions.push_back(functionCompiler.Compile());
+      }
+    }
+    return module;
+  }
+
+};
+
+CompiledModule *Compile(Program *prog, const SymbolTable &symtable) {
+  ModuleCompiler moduleCompiler(prog, symtable);
+  return moduleCompiler.Compile();
+}
