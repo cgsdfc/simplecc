@@ -12,15 +12,14 @@ String LocationToString(const Location &loc) {
   return os.str();
 }
 
-String LocationRangeToString(const Location &start, const Location &end) {
+String LocationRangeToString(const Location &start) {
   std::ostringstream os;
-  os << LocationToString(start) << '-' << LocationToString(end)
-    << ':';
+  os << LocationToString(start) << ':';
   return os.str();
 }
 
 void DumpTokenInfo(std::FILE *out, const TokenInfo &token) {
-  String &&token_range = LocationRangeToString(token.start, token.end);
+  String &&token_range = LocationRangeToString(token.start);
 
   std::fprintf(out, "%-20s%-15s%-15s\n",
       token_range.c_str(),
@@ -34,7 +33,6 @@ void TokenInfo::Format(std::ostream &os) const {
     << "type=" << GetSymName(type) << ", "
     << "string=" << Quote(string) << ", "
     << "start=" << start << ", "
-    << "end=" << end << ", "
     << "line=" << Quote(line) << ")";
 }
 
@@ -151,13 +149,12 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
       else {
         ++pos; // ERRORTOKEN
       }
-      Location end(lnum, pos);
-      String token(line.begin() + start.col_offset, line.begin() + end.col_offset);
+      String token(line.begin() + start.col_offset, line.begin() + pos);
       if (type == Symbol::NAME) {
         std::transform(token.begin(), token.end(), token.begin(), ::tolower);
       }
-      Output.push_back(new TokenInfo(type, token, start, end, line));
+      Output.push_back(new TokenInfo(type, token, start, line));
     }
   }
-  Output.push_back(new TokenInfo(Symbol::ENDMARKER, "", Location(lnum, 0), Location(lnum, 0), ""));
+  Output.push_back(new TokenInfo(Symbol::ENDMARKER, "", Location(lnum, 0), ""));
 }

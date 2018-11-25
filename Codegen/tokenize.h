@@ -53,11 +53,10 @@ public:
   Symbol type;
   String string;
   Location start;
-  Location end;
   String line;
 
-  TokenInfo(Symbol type, const String &string, Location start, Location end, String line):
-    type(type), string(string), start(start), end(end), line(line) {}
+  TokenInfo(Symbol type, const String &string, Location start, String line):
+    type(type), string(string), start(start), line(line) {}
 
   void Format(std::ostream &os) const;
 };
