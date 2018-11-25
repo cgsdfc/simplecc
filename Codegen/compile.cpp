@@ -16,18 +16,31 @@ class FunctionCompiler: public VisitorBase<FunctionCompiler> {
   const SymbolTable &symtable;
   FuncDef *function;
 
-  ByteCode &Add(ByteCode code) {
+  // add one piece of ByteCode to buffer, return the the offset
+  // of it in buffer
+  int Add(ByteCode code) {
     code.SetLineno(current_lineno);
     buffer->push_back(code);
-    return buffer->back();
+    return buffer->size() - 1;
   }
 
-  ByteCode &GetLastByteCode() const {
-    return buffer->back();
-  }
-
-  int GetOffset() const {
+  // return the offset of the next ByteCode to be added
+  int GetNextByteCodeOffset() const {
     return buffer->size();
+  }
+
+  // return the offset of the last added ByteCode
+  int GetLastByteCodeOffset() const {
+    assert(!buffer->empty() && "there should be at least one ByteCode");
+    return buffer->size() - 1;
+  }
+
+  ByteCode GetLastByteCode() const {
+    return (*buffer)[GetLastByteCodeOffset()];
+  }
+
+  void SetTargetAt(int offset, int target) {
+    buffer->at(offset).SetTarget(target);
   }
 
 public:
@@ -88,44 +101,52 @@ public:
     visitExpr(node->target);
   }
 
+  int CompileBoolOp(BoolOp *node, bool is_negative) {
+    if (auto binop = subclass_cast<BinOp>(node->value)) {
+      // only BinOp introduce relation operator
+      visitExpr(binop->left);
+      visitExpr(binop->right);
+      auto opcode = is_negative ? MakeJumpNegative(binop->op)
+                                : MakeJump(binop->op);
+      return Add(ByteCode(opcode));
+    }
+    visitExpr(node->value);
+    auto opcode = is_negative ? Opcode::JUMP_IF_FALSE : Opcode::JUMP_IF_TRUE;
+    return Add(ByteCode(opcode));
+  }
+
   void visitFor(For *node) {
     visitStmt(node->initial);
-    auto offset = GetOffset();
+    auto offset = GetNextByteCodeOffset();
     for (auto s: node->body) {
       visitStmt(s);
     }
     visitStmt(node->step);
-    jump_negative = false;
-    visitExpr(node->condition);
+    auto jump_if = CompileBoolOp(static_cast<BoolOp*>(node->condition), false);
+    SetTargetAt(jump_if, offset);
   }
 
   void visitWhile(While *node) {
-    auto offset = GetOffset();
-    jump_negative = true;
-    visitExpr(node->condition);
-    auto &jump = GetLastByteCode();
+    auto offset = GetNextByteCodeOffset();
+    auto jump_if = CompileBoolOp(static_cast<BoolOp*>(node->condition), true);
     for (auto s: node->body) {
       visitStmt(s);
     }
     Add(ByteCode(Opcode::JUMP_FORWARD, offset));
-    jump.SetTarget(GetOffset());
+    SetTargetAt(jump_if, GetNextByteCodeOffset());
   }
 
   void visitIf(If *node) {
-    jump_negative = true;
-    visitExpr(node->test);
-    auto &jump1 = GetLastByteCode();
+    auto jump_if = CompileBoolOp(static_cast<BoolOp*>(node->test), true);
     for (auto s: node->body) {
       visitStmt(s);
     }
-    auto &jump2 = Add(ByteCode(Opcode::JUMP_FORWARD));
+    auto jump_forward = Add(ByteCode(Opcode::JUMP_FORWARD));
+    SetTargetAt(jump_if, GetNextByteCodeOffset());
     for (auto s: node->orelse) {
       visitStmt(s);
     }
-    auto target2 = GetOffset();
-    jump2.SetTarget(target2);
-    auto target1 = GetOffset();
-    jump1.SetTarget(target1);
+    SetTargetAt(jump_forward, GetNextByteCodeOffset());
   }
 
   void visitReturn(Return *node) {
@@ -145,16 +166,7 @@ public:
   }
 
   BasicTypeKind visitBoolOp(BoolOp *node) {
-    if (auto x = subclass_cast<BinOp>(node->value)) {
-      visitExpr(x->left);
-      visitExpr(x->right);
-      Add(ByteCode(jump_negative ? MakeJumpNegative(x->op) : MakeJump(x->op)));
-    }
-    else {
-      visitExpr(node->value);
-      Add(ByteCode(jump_negative ? Opcode::JUMP_IF_FALSE : Opcode::JUMP_IF_TRUE));
-    }
-    return BasicTypeKind::Int;
+    assert(false && "BoolOp should be handled by CompileBoolOp()");
   }
 
   BasicTypeKind visitUnaryOp(UnaryOp *node) {
@@ -253,7 +265,7 @@ CompiledModule *CompileProgram(Program *prog, const SymbolTable &symtable) {
 
 void CompiledFunction::Format(std::ostream &os) const {
   os << "CompiledFunction(" << Quote(GetName()) << "):\n";
-  auto lineno = 1;
+  auto lineno = 0;
   for (const auto &code: GetCode()) {
     os << std::setw(4) << lineno << ": " << code << "\n";
     lineno++;

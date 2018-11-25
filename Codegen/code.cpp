@@ -70,11 +70,7 @@ void ByteCode::Check() const {
 
 void ByteCode::Format(std::ostream &os) const {
   os << "ByteCode(" << opcode << ", ";
-  os << "lineno=" << lineno << ", ";
-  os << "int_arg=";
-  if (int_arg) os << *int_arg; else os << "None";
-  os << ", ";
-  os << "str_arg=";
-  if (str_arg) os << Quote(*str_arg); else os << "None";
-  os << ")";
+  if (int_arg) os << "int_arg=" << *int_arg << ", ";
+  if (str_arg) os << "str_arg=" << Quote(*str_arg) << ", ";
+  os << "lineno=" << lineno << ")";
 }
