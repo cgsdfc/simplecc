@@ -202,9 +202,20 @@ case Opcode::$item:
   return static_cast<Derived*>(this)->$method_name(byteCode);
 """)
 
+    skeleton = Template("""
+void $name(const ByteCode &code) {
+
+}""")
+
     @staticmethod
     def make_method_name(value):
         return "Handle" + "".join(s.capitalize() for s in value.split('_'))
+
+    def substitute_skeleton(self, values):
+        return "\n".join(self.skeleton.substitute(
+            name=self.make_method_name(value))
+            for value in values
+        )
 
     def substitute(self, values):
         return self.template.substitute(handlers="".join(
@@ -218,17 +229,22 @@ def generate(args):
     values = extract_opcode(args.input)
     code = OpcodeTemplate(values)
     header = format_code(code.substitute_header())
-    dispatch = format_code(OpcodeDispatcherTemplate().substitute(values))
     cpp = format_code(code.substitute_cpp())
+    dispatch = format_code(OpcodeDispatcherTemplate().substitute(values))
+    skeleton = OpcodeDispatcherTemplate().substitute_skeleton(values)
+
     if args.output is None:
         print(header)
         print(cpp)
         print(dispatch)
+        print(skeleton)
     else:
         with open(Path(args.output)/"Opcode.h", 'w') as f:
             f.write(header)
         with open(Path(args.output)/"OpcodeDispatcher.h", 'w') as f:
             f.write(dispatch)
+        with open(Path(args.output)/"Skeleton.h", 'w') as f:
+            f.write(skeleton)
         with open(Path(args.output)/"Opcode.cpp", 'w') as f:
             f.write(cpp)
     return 0

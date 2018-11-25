@@ -72,5 +72,6 @@ void ByteCode::Format(std::ostream &os) const {
   os << "ByteCode(" << opcode << ", ";
   if (int_arg) os << "int_arg=" << *int_arg << ", ";
   if (str_arg) os << "str_arg=" << Quote(*str_arg) << ", ";
+  os << "offset=" << offset << ", ";
   os << "lineno=" << lineno << ")";
 }

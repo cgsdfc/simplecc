@@ -19,8 +19,10 @@ class FunctionCompiler: public VisitorBase<FunctionCompiler> {
   // of it in buffer
   int Add(ByteCode code) {
     code.SetLineno(current_lineno);
+    auto offset = GetNextByteCodeOffset();
+    code.SetOffset(offset);
     buffer.push_back(code);
-    return buffer.size() - 1;
+    return offset;
   }
 
   // return the offset of the next ByteCode to be added

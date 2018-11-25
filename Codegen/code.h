@@ -9,6 +9,7 @@ class ByteCode {
   unsigned lineno;
   std::optional<int> int_arg;
   std::optional<const char*> str_arg;
+  int offset;
 public:
   ByteCode(Opcode opcode): opcode(opcode), int_arg(), str_arg() {}
 
@@ -28,6 +29,10 @@ public:
     int_arg = target;
   }
 
+  void SetOffset(int offset) {
+    this->offset = offset;
+  }
+
   Opcode GetOpcode() const {
     return opcode;
   }
@@ -40,6 +45,10 @@ public:
   const char *GetStrOperand() const {
     assert(str_arg.has_value());
     return *str_arg;
+  }
+
+  int GetOffset() const {
+    return offset;
   }
 
   void Check() const;
