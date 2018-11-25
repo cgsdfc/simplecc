@@ -40,7 +40,6 @@ bool HasNoOperand(Opcode op) {
     case Opcode::BINARY_SUB:
     case Opcode::BINARY_MULTIPLY:
     case Opcode::BINARY_DIVIDE:
-    case Opcode::UNARY_NOT:
     case Opcode::UNARY_POSITIVE:
     case Opcode::UNARY_NEGATIVE:
     case Opcode::POP_TOP:

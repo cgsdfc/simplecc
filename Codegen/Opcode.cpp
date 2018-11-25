@@ -136,8 +136,6 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::BINARY_MULTIPLY";
   case Opcode::BINARY_DIVIDE:
     return "Opcode::BINARY_DIVIDE";
-  case Opcode::UNARY_NOT:
-    return "Opcode::UNARY_NOT";
   case Opcode::UNARY_POSITIVE:
     return "Opcode::UNARY_POSITIVE";
   case Opcode::UNARY_NEGATIVE:

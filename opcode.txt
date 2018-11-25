@@ -15,7 +15,6 @@ BINARY_DIVIDE # floor divide
 
 # Unary Arithmetic
 # tos = op tos
-UNARY_NOT
 UNARY_POSITIVE
 UNARY_NEGATIVE
 

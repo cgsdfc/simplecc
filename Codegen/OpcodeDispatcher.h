@@ -38,9 +38,6 @@ public:
     case Opcode::BINARY_DIVIDE:
       return static_cast<Derived *>(this)->HandleBinaryDivide(byteCode);
 
-    case Opcode::UNARY_NOT:
-      return static_cast<Derived *>(this)->HandleUnaryNot(byteCode);
-
     case Opcode::UNARY_POSITIVE:
       return static_cast<Derived *>(this)->HandleUnaryPositive(byteCode);
 
