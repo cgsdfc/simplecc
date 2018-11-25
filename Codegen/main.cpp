@@ -48,11 +48,10 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  auto module = CompileProgram(ast_node, symtable);
+  auto&& module = CompileProgram(ast_node, symtable);
 
-  std::cout << *module << "\n";
+  std::cout << module << "\n";
 
-  delete module;
   delete ast_node;
   delete cst_node;
   for (auto token: tokens) {

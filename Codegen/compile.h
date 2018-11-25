@@ -11,11 +11,18 @@ public:
   std::vector<ByteCode> code;
   // Self identity
   SymbolEntry entry;
+  // Number of formal arguments
+  unsigned nargs;
 
-  CompiledFunction(SymbolTableView local, SymbolEntry entry):
-    local(local), code(), entry(entry) {
+  CompiledFunction(SymbolTableView local,
+     const std::vector<ByteCode> &code, SymbolEntry entry):
+    local(local), code(code), entry(entry) {
       assert(entry.IsFunction());
+      nargs = entry.AsFunction().GetArgCount();
     }
+
+  CompiledFunction(CompiledFunction &&other):
+    local(other.local), code(std::move(other.code)), entry(other.entry) {}
 
   void Format(std::ostream &os) const;
 
@@ -23,28 +30,38 @@ public:
     return code;
   }
 
-  String GetName() const {
+  const String &GetName() const {
     return entry.GetName();
   }
 
+  unsigned GetArgCount() const {
+    return nargs;
+  }
 };
 
 class CompiledModule {
 public:
   SymbolTableView global;
-  std::vector<CompiledFunction*> functions;
+  std::vector<CompiledFunction> functions;
 
-  CompiledModule(SymbolTableView global): global(global) {}
-  ~CompiledModule();
+  CompiledModule(SymbolTableView global,
+       std::vector<CompiledFunction> &&functions):
+    global(global), functions(std::move(functions)) {}
 
-  const std::vector<CompiledFunction*> &GetFunctions() const {
+  CompiledModule(CompiledModule &&other):
+    global(other.global), functions(std::move(other.functions)) {}
+
+  const std::vector<CompiledFunction> &GetFunctions() const {
     return functions;
   }
 
   void Format(std::ostream &os) const;
+
+  /* const StringLiteralTable &GetStringLiteralTable() const { */
+  /*   return */ 
 };
 
-CompiledModule *CompileProgram(Program *prog, const SymbolTable &symtable);
+CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable);
 
 inline std::ostream &operator<<(std::ostream &os, const CompiledFunction &c) {
   c.Format(os);

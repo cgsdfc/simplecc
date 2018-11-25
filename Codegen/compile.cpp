@@ -10,8 +10,7 @@ using NameTable = std::unordered_map<const char*, int>;
 
 class FunctionCompiler: public VisitorBase<FunctionCompiler> {
   unsigned current_lineno;
-  bool jump_negative;
-  ByteCodeBuffer *buffer;
+  ByteCodeBuffer buffer;
   SymbolTableView local;
   const SymbolTable &symtable;
   FuncDef *function;
@@ -20,50 +19,47 @@ class FunctionCompiler: public VisitorBase<FunctionCompiler> {
   // of it in buffer
   int Add(ByteCode code) {
     code.SetLineno(current_lineno);
-    buffer->push_back(code);
-    return buffer->size() - 1;
+    buffer.push_back(code);
+    return buffer.size() - 1;
   }
 
   // return the offset of the next ByteCode to be added
   int GetNextByteCodeOffset() const {
-    return buffer->size();
+    return buffer.size();
   }
 
   // return the offset of the last added ByteCode
   int GetLastByteCodeOffset() const {
-    assert(!buffer->empty() && "there should be at least one ByteCode");
-    return buffer->size() - 1;
+    assert(!buffer.empty() && "there should be at least one ByteCode");
+    return buffer.size() - 1;
   }
 
   ByteCode GetLastByteCode() const {
-    return (*buffer)[GetLastByteCodeOffset()];
+    return buffer[GetLastByteCodeOffset()];
   }
 
   void SetTargetAt(int offset, int target) {
-    buffer->at(offset).SetTarget(target);
+    buffer.at(offset).SetTarget(target);
   }
 
 public:
   FunctionCompiler(FuncDef *fun, const SymbolTable &symtable):
     current_lineno(1),
-    jump_negative(false),
-    buffer(nullptr),
+    buffer(),
     local(symtable.GetLocal(fun)),
     symtable(symtable),
     function(fun) {}
 
-  CompiledFunction *Compile() {
-    const auto &entry = symtable.GetGlobal()[function->name];
-    auto result = new CompiledFunction(local, entry);
-    buffer = &result->code;
+  CompiledFunction Compile() {
     for (auto s: function->stmts) {
       visitStmt(s);
     }
-    if (buffer->empty() || GetLastByteCode().GetOpcode() != Opcode::RETURN_VALUE) {
+    if (buffer.empty() || GetLastByteCode().GetOpcode() != Opcode::RETURN_VALUE) {
       // A missing reutrn_stmt, insert one.
       Add(ByteCode(Opcode::RETURN_NONE));
     }
-    return result;
+    const auto &entry = symtable.GetGlobal()[function->name];
+    return CompiledFunction(local, buffer, entry);
   }
 
   BasicTypeKind visitExpr(Expr *node) {
@@ -249,20 +245,20 @@ public:
   ModuleCompiler(Program *prog, const SymbolTable &symtable):
     program(prog), symtable(symtable) {}
 
-  CompiledModule *Compile() {
-    auto module = new CompiledModule(symtable.GetGlobal());
+  CompiledModule Compile() {
+    std::vector<CompiledFunction> functions;
     for (auto decl: program->decls) {
       if (auto fun = subclass_cast<FuncDef>(decl)) {
         FunctionCompiler functionCompiler(fun, symtable);
-        module->functions.push_back(functionCompiler.Compile());
+        functions.push_back(functionCompiler.Compile());
       }
     }
-    return module;
+    return CompiledModule(symtable.GetGlobal(), std::move(functions));
   }
 
 };
 
-CompiledModule *CompileProgram(Program *prog, const SymbolTable &symtable) {
+CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable) {
   ModuleCompiler moduleCompiler(prog, symtable);
   return moduleCompiler.Compile();
 }
@@ -277,13 +273,7 @@ void CompiledFunction::Format(std::ostream &os) const {
 }
 
 void CompiledModule::Format(std::ostream &os) const {
-  for (auto fun: GetFunctions()) {
-    os << *fun << "\n";
-  }
-}
-
-CompiledModule::~CompiledModule() {
-  for (auto fun: GetFunctions()) {
-    delete fun;
+  for (const auto &fun: functions) {
+    os << fun << "\n";
   }
 }
