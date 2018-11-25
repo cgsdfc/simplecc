@@ -83,7 +83,7 @@ public:
   std::string name;
   Location loc;
 
-  Decl(int subclass_tag, const std::string &name, Location loc)
+  Decl(int subclass_tag, const std::string &name, const Location &loc)
       : AST(), subclass_tag(subclass_tag), name(name), loc(loc) {}
 
   enum { ConstDecl, VarDecl, FuncDef };
@@ -94,7 +94,7 @@ public:
   int subclass_tag;
   Location loc;
 
-  Stmt(int subclass_tag, Location loc)
+  Stmt(int subclass_tag, const Location &loc)
       : AST(), subclass_tag(subclass_tag), loc(loc) {}
 
   enum { Read, Write, Assign, For, While, Return, If, ExprStmt };
@@ -105,7 +105,7 @@ public:
   int subclass_tag;
   Location loc;
 
-  Expr(int subclass_tag, Location loc)
+  Expr(int subclass_tag, const Location &loc)
       : AST(), subclass_tag(subclass_tag), loc(loc) {}
 
   enum {
@@ -130,7 +130,7 @@ public:
   Expr *value;
 
   ConstDecl(BasicTypeKind type, Expr *value, const std::string &name,
-            Location loc)
+            const Location &loc)
       : Decl(Decl::ConstDecl, name, loc), type(type), value(value) {}
 
   ~ConstDecl() override;
@@ -151,7 +151,7 @@ public:
   int size;
 
   VarDecl(BasicTypeKind type, int is_array, int size, const std::string &name,
-          Location loc)
+          const Location &loc)
       : Decl(Decl::VarDecl, name, loc), type(type), is_array(is_array),
         size(size) {}
 
@@ -175,7 +175,7 @@ public:
 
   FuncDef(BasicTypeKind return_type, const std::vector<Arg *> &args,
           const std::vector<Decl *> &decls, const std::vector<Stmt *> &stmts,
-          const std::string &name, Location loc)
+          const std::string &name, const Location &loc)
       : Decl(Decl::FuncDef, name, loc), return_type(return_type), args(args),
         decls(decls), stmts(stmts) {}
 
@@ -194,7 +194,7 @@ class Read : public Stmt {
 public:
   std::vector<Expr *> names;
 
-  Read(const std::vector<Expr *> &names, Location loc)
+  Read(const std::vector<Expr *> &names, const Location &loc)
       : Stmt(Stmt::Read, loc), names(names) {}
 
   ~Read() override;
@@ -211,7 +211,7 @@ public:
   Expr *str;
   Expr *value;
 
-  Write(Expr *str, Expr *value, Location loc)
+  Write(Expr *str, Expr *value, const Location &loc)
       : Stmt(Stmt::Write, loc), str(str), value(value) {}
 
   ~Write() override;
@@ -228,7 +228,7 @@ public:
   Expr *target;
   Expr *value;
 
-  Assign(Expr *target, Expr *value, Location loc)
+  Assign(Expr *target, Expr *value, const Location &loc)
       : Stmt(Stmt::Assign, loc), target(target), value(value) {}
 
   ~Assign() override;
@@ -248,7 +248,7 @@ public:
   std::vector<Stmt *> body;
 
   For(Stmt *initial, Expr *condition, Stmt *step,
-      const std::vector<Stmt *> &body, Location loc)
+      const std::vector<Stmt *> &body, const Location &loc)
       : Stmt(Stmt::For, loc), initial(initial), condition(condition),
         step(step), body(body) {}
 
@@ -266,7 +266,7 @@ public:
   Expr *condition;
   std::vector<Stmt *> body;
 
-  While(Expr *condition, const std::vector<Stmt *> &body, Location loc)
+  While(Expr *condition, const std::vector<Stmt *> &body, const Location &loc)
       : Stmt(Stmt::While, loc), condition(condition), body(body) {}
 
   ~While() override;
@@ -282,7 +282,8 @@ class Return : public Stmt {
 public:
   Expr *value;
 
-  Return(Expr *value, Location loc) : Stmt(Stmt::Return, loc), value(value) {}
+  Return(Expr *value, const Location &loc)
+      : Stmt(Stmt::Return, loc), value(value) {}
 
   ~Return() override;
 
@@ -300,7 +301,7 @@ public:
   std::vector<Stmt *> orelse;
 
   If(Expr *test, const std::vector<Stmt *> &body,
-     const std::vector<Stmt *> &orelse, Location loc)
+     const std::vector<Stmt *> &orelse, const Location &loc)
       : Stmt(Stmt::If, loc), test(test), body(body), orelse(orelse) {}
 
   ~If() override;
@@ -316,7 +317,7 @@ class ExprStmt : public Stmt {
 public:
   Expr *value;
 
-  ExprStmt(Expr *value, Location loc)
+  ExprStmt(Expr *value, const Location &loc)
       : Stmt(Stmt::ExprStmt, loc), value(value) {}
 
   ~ExprStmt() override;
@@ -336,7 +337,7 @@ public:
   OperatorKind op;
   Expr *right;
 
-  BinOp(Expr *left, OperatorKind op, Expr *right, Location loc)
+  BinOp(Expr *left, OperatorKind op, Expr *right, const Location &loc)
       : Expr(Expr::BinOp, loc), left(left), op(op), right(right) {}
 
   ~BinOp() override;
@@ -352,7 +353,7 @@ class ParenExpr : public Expr {
 public:
   Expr *value;
 
-  ParenExpr(Expr *value, Location loc)
+  ParenExpr(Expr *value, const Location &loc)
       : Expr(Expr::ParenExpr, loc), value(value) {}
 
   ~ParenExpr() override;
@@ -370,7 +371,8 @@ class BoolOp : public Expr {
 public:
   Expr *value;
 
-  BoolOp(Expr *value, Location loc) : Expr(Expr::BoolOp, loc), value(value) {}
+  BoolOp(Expr *value, const Location &loc)
+      : Expr(Expr::BoolOp, loc), value(value) {}
 
   ~BoolOp() override;
 
@@ -386,7 +388,7 @@ public:
   UnaryopKind op;
   Expr *operand;
 
-  UnaryOp(UnaryopKind op, Expr *operand, Location loc)
+  UnaryOp(UnaryopKind op, Expr *operand, const Location &loc)
       : Expr(Expr::UnaryOp, loc), op(op), operand(operand) {}
 
   ~UnaryOp() override;
@@ -405,7 +407,8 @@ public:
   std::string func;
   std::vector<Expr *> args;
 
-  Call(const std::string &func, const std::vector<Expr *> &args, Location loc)
+  Call(const std::string &func, const std::vector<Expr *> &args,
+       const Location &loc)
       : Expr(Expr::Call, loc), func(func), args(args) {}
 
   ~Call() override;
@@ -421,7 +424,7 @@ class Num : public Expr {
 public:
   int n;
 
-  Num(int n, Location loc) : Expr(Expr::Num, loc), n(n) {}
+  Num(int n, const Location &loc) : Expr(Expr::Num, loc), n(n) {}
 
   ~Num() override;
 
@@ -436,7 +439,7 @@ class Str : public Expr {
 public:
   std::string s;
 
-  Str(const std::string &s, Location loc) : Expr(Expr::Str, loc), s(s) {}
+  Str(const std::string &s, const Location &loc) : Expr(Expr::Str, loc), s(s) {}
 
   ~Str() override;
 
@@ -451,7 +454,7 @@ class Char : public Expr {
 public:
   int c;
 
-  Char(int c, Location loc) : Expr(Expr::Char, loc), c(c) {}
+  Char(int c, const Location &loc) : Expr(Expr::Char, loc), c(c) {}
 
   ~Char() override;
 
@@ -469,7 +472,7 @@ public:
   ExprContextKind ctx;
 
   Subscript(const std::string &name, Expr *index, ExprContextKind ctx,
-            Location loc)
+            const Location &loc)
       : Expr(Expr::Subscript, loc), name(name), index(index), ctx(ctx) {}
 
   ~Subscript() override;
@@ -488,7 +491,7 @@ public:
   std::string id;
   ExprContextKind ctx;
 
-  Name(const std::string &id, ExprContextKind ctx, Location loc)
+  Name(const std::string &id, ExprContextKind ctx, const Location &loc)
       : Expr(Expr::Name, loc), id(id), ctx(ctx) {}
 
   ~Name() override;
@@ -521,7 +524,7 @@ public:
   std::string name;
   Location loc;
 
-  Arg(BasicTypeKind type, const std::string &name, Location loc)
+  Arg(BasicTypeKind type, const std::string &name, const Location &loc)
       : AST(), type(type), name(name), loc(loc) {}
 
   ~Arg() override;

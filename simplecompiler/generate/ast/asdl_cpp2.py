@@ -229,7 +229,7 @@ class TypeVisitor(asdl.VisitorBase):
         self.typemap = {
             'identifier': Primitive('identifier', False),
             'string': Primitive('string', False),
-            'location': Primitive('location', True),
+            'location': Primitive('location', False),
             'int': Primitive('int', True),
         }
 
