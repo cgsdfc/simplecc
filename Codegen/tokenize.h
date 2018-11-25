@@ -55,13 +55,17 @@ public:
   Location start;
   String line;
 
-  TokenInfo(Symbol type, const String &string, Location start, String line):
+  TokenInfo(Symbol type, const String &string, const Location &start,
+      const String &line):
     type(type), string(string), start(start), line(line) {}
+
+  TokenInfo(TokenInfo &&other): type(other.type), string(std::move(other.string)),
+      start(other.start), line(std::move(other.line)) {}
 
   void Format(std::ostream &os) const;
 };
 
-typedef std::vector<TokenInfo*> TokenBuffer;
+typedef std::vector<TokenInfo> TokenBuffer;
 
 void Tokenize(std::istream &Input, TokenBuffer &Output);
 

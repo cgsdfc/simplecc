@@ -70,6 +70,9 @@ bool IsOperator(char ch) {
   return operators.find(ch) != String::npos;
 }
 
+void ToLowerInplace(String &string) {
+  std::transform(string.begin(), string.end(), string.begin(), ::tolower);
+}
 
 void Tokenize(std::istream &Input, TokenBuffer &Output) {
   assert(Output.empty());
@@ -151,10 +154,10 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
       }
       String token(line.begin() + start.col_offset, line.begin() + pos);
       if (type == Symbol::NAME) {
-        std::transform(token.begin(), token.end(), token.begin(), ::tolower);
+        ToLowerInplace(token);
       }
-      Output.push_back(new TokenInfo(type, token, start, line));
+      Output.emplace_back(type, token, start, line);
     }
   }
-  Output.push_back(new TokenInfo(Symbol::ENDMARKER, "", Location(lnum, 0), ""));
+  Output.emplace_back(Symbol::ENDMARKER, "", Location(lnum, 0), "");
 }

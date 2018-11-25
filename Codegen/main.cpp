@@ -54,8 +54,5 @@ int main(int argc, char **argv) {
 
   delete ast_node;
   delete cst_node;
-  for (auto token: tokens) {
-    delete token;
-  }
   return 0;
 }

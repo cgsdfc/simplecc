@@ -188,12 +188,12 @@ public:
   }
 
   Node *ParseTokens(const TokenBuffer &tokens) {
-    for (auto token: tokens) {
-      if (token->type == Symbol::ERRORTOKEN) {
-        e.SyntaxError(token->start, "error token", Quote(token->string));
+    for (const auto &token: tokens) {
+      if (token.type == Symbol::ERRORTOKEN) {
+        e.SyntaxError(token.start, "error token", Quote(token.string));
         return nullptr;
       }
-      int ret = AddToken(*token);
+      int ret = AddToken(token);
       if (ret == 1) {
         return rootnode;
       }
@@ -202,7 +202,7 @@ public:
       }
     }
     auto last = tokens.end() - 1;
-    e.SyntaxError((*last)->start, "incomplete input");
+    e.SyntaxError(last->start, "incomplete input");
     return nullptr;
   }
 };
