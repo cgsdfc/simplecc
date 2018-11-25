@@ -3,7 +3,13 @@
 #include "compile.h"
 #include "error.h"
 
+#include <sstream>
 #include <unordered_set>
+
+// Return the bytes for n entries
+inline int BytesFromEntries(int n_entries) {
+  return 4 * n_entries;
+}
 
 class AssemblyWriter {
   std::ostream &os;
@@ -17,45 +23,68 @@ public:
 
 };
 
-// Provide information of varying bits in the template
+// Capture global information
+class GlobalContext {
+public:
+  static String GetGlobalLabel(const String &name) {
+    return name + ":";
+  }
+
+  static String GetStringLiteralLabel(int ID) {
+    std::ostringstream os;
+    os << "string_" << ID << ":";
+    return os.str();
+  }
+
+};
+
+// Provide information for ByteCodeToMipsTranslator
 class LocalContext {
 public:
-  std::unordered_map<const char*, int> variable_location;
+  std::unordered_map<const char*, int> local_offsets;
   std::unordered_set<int> target_index;
 
   LocalContext() {}
+
+  // Return if an offset is a jump target
   bool IsTarget(int offset) {
-    return true;
+    return target_index.count(offset);
   }
 
-  int GetLocalOffset(const char *local) const {
+  // Return the offset of local name relatited to frame pointer
+  int GetLocalOffset(const char *name) const {
     return 0;
   }
 
+  // Return the label denoting a global object.
   String GetGlobalLabel(const char *name) const {
     return "";
   }
 
-  String GetStringLiteralLable(int ID) const {
+  // Return the label denoting a string literal.
+  String GetStringLiteralLabel(int ID) const {
     return "";
   }
 
+  // Return the label denoting the epilogue of a function.
   String GetReturnLabel() const {
     return "";
   }
 
+  // Return the stack offset given n stack entries in ByteCode
   int GetStackOffset(int n_entries) const {
     return 4 * n_entries;
   }
 
+  // Return the label of a jump target of a function.
   String GetTargetLabel(int offset) const {
     return "";
   }
 
 };
 
-// serve as a template translating one ByteCode to MIPS instructions
-class ByteCodeToMipsTranslator: public OpcodeDispatcher<ByteCodeToMipsTranslator> {
+// Serve as a template translating one ByteCode to MIPS instructions
+class ByteCodeToMipsTranslator: public OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
   AssemblyWriter &w;
   const LocalContext &context;
 
@@ -63,18 +92,24 @@ public:
   ByteCodeToMipsTranslator(AssemblyWriter &w, const LocalContext &context):
     w(w), context(context) {}
 
-  void PUSH(const char *r) {
+  // Push a register onto the stack
+  template <int N>
+  void PUSH(const char (&r)[N]) {
     /* # PUSH the item in $t0: */
     /* subu $sp,$sp,4      #   point to the place for the new item, */
     /* sw   $t0,($sp)      #   store the contents of $t0 as the new top. */
+    static_assert(N);
+    assert(r[0] == '$');
     w.WriteLine("subu $sp, $sp, 4");
     w.WriteLine("sw", r, "0($sp)");
   }
 
+  // Pop the stack, optionally taking the tos value
   void POP(const char *r = nullptr) {
     /* lw   $t0,($sp)      #   Copy top item to $t0. */
     /* addu $sp,$sp,4      #   Point to the item beneath the old top. */
     if (r) {
+      assert(r[0] == '$');
       w.WriteLine("lw", r, "0($sp)");
     }
     w.WriteLine("addu $sp, $sp, 4");
@@ -99,7 +134,7 @@ public:
   }
 
   void HandleLoadString(const ByteCode &code) {
-    w.WriteLine("la $t0,", context.GetStringLiteralLable(code.GetIntOperand()));
+    w.WriteLine("la $t0,", context.GetStringLiteralLabel(code.GetIntOperand()));
     PUSH("$t0");
   }
 
@@ -273,7 +308,7 @@ public:
   }
 
 };
-
+// }}}
 
 class FunctionAssembler {
   const CompiledFunction &source;
@@ -284,7 +319,7 @@ class FunctionAssembler {
   void MakeEpilogue() {}
 
   String MakeTargetLabel(int offset) {
-    return "";
+    return context.GetTargetLabel(offset) + ":";
   }
 
 public:
@@ -305,3 +340,66 @@ public:
   }
 
 };
+
+class ModuleAssembler {
+  const CompiledModule &module;
+  AssemblyWriter w;
+
+  void MakeDataSegment() {
+    w.WriteLine(".data");
+    w.WriteLine("# Global variables and arrays");
+    for (const auto &item: module.GetSymbols()) {
+      const auto &entry = item.second;
+      if (entry.IsConstant() || entry.IsFunction())
+        continue;
+      auto &&label = GlobalContext::GetGlobalLabel(item.first);
+      if (entry.IsArray()) {
+        auto bytes = BytesFromEntries(entry.AsArray().GetSize());
+        w.WriteLine(label, ".space", bytes);
+      }
+      else {
+        w.WriteLine(label, ".word", 0);
+      }
+    }
+    w.WriteLine();
+    w.WriteLine("# String literals");
+    for (const auto &item: module.GetStringLiteralTable()) {
+      auto &&label = GlobalContext::GetStringLiteralLabel(item.second);
+      w.WriteLine(label, ".asciiz", item.first);
+    }
+    w.WriteLine("# End of data segment");
+  }
+
+  void MakeTextSegment() {
+    w.WriteLine(".text");
+    w.WriteLine("# boilerplate");
+    w.WriteLine(".globl main");
+    w.WriteLine("jal main");
+    w.WriteLine("li $v0, 10");
+    w.WriteLine("syscall");
+    w.WriteLine();
+    w.WriteLine("# user functions");
+
+    for (const auto &fun: module.GetFunctions()) {
+      FunctionAssembler(fun, w).Assemble();
+      w.WriteLine("# End of", fun.GetName());
+      w.WriteLine();
+    }
+    w.WriteLine("# End of text segment");
+  }
+
+public:
+  ModuleAssembler(const CompiledModule &module, std::ostream &os):
+    module(module), w(os) {}
+
+  void Assemble() {
+    MakeDataSegment();
+    MakeTextSegment();
+  }
+};
+
+void AssembleMips(const CompiledModule &module, std::ostream &os) {
+  ModuleAssembler(module, os).Assemble();
+}
+
+// vim: set foldmethod=marker

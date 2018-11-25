@@ -255,7 +255,8 @@ public:
         functions.push_back(functionCompiler.Compile());
       }
     }
-    return CompiledModule(symtable.GetGlobal(), std::move(functions));
+    return CompiledModule(
+        symtable.GetGlobal(), std::move(functions), symtable.string_literals);
   }
 
 };

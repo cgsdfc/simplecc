@@ -43,22 +43,33 @@ class CompiledModule {
 public:
   SymbolTableView global;
   std::vector<CompiledFunction> functions;
+  const StringLiteralTable &strings;
 
   CompiledModule(SymbolTableView global,
-       std::vector<CompiledFunction> &&functions):
-    global(global), functions(std::move(functions)) {}
+       std::vector<CompiledFunction> &&functions, const StringLiteralTable &strings):
+    global(global),
+    functions(std::move(functions)),
+    strings(strings) {}
 
   CompiledModule(CompiledModule &&other):
-    global(other.global), functions(std::move(other.functions)) {}
+    global(other.global),
+    functions(std::move(other.functions)),
+    strings(other.strings) {}
 
   const std::vector<CompiledFunction> &GetFunctions() const {
     return functions;
   }
 
+  SymbolTableView GetSymbols() const {
+    return global;
+  }
+
   void Format(std::ostream &os) const;
 
-  /* const StringLiteralTable &GetStringLiteralTable() const { */
-  /*   return */ 
+  const StringLiteralTable &GetStringLiteralTable() const {
+    return strings;
+  }
+
 };
 
 CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable);

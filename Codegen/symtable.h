@@ -160,6 +160,15 @@ public:
     assert(subtable.count(name));
     return subtable.find(name)->second;
   }
+
+  TableType::const_iterator begin() const {
+    return subtable.begin();
+  }
+
+  TableType::const_iterator end() const {
+    return subtable.end();
+  }
+
 };
 
 
