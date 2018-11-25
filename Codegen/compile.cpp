@@ -141,6 +141,10 @@ public:
     for (auto s: node->body) {
       visitStmt(s);
     }
+    if (node->orelse.empty()) {
+      SetTargetAt(jump_if, GetNextByteCodeOffset());
+      return;
+    }
     auto jump_forward = Add(ByteCode(Opcode::JUMP_FORWARD));
     SetTargetAt(jump_if, GetNextByteCodeOffset());
     for (auto s: node->orelse) {
