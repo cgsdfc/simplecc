@@ -1,15 +1,22 @@
+void vfun {
+  printf("string in <function>");
+}
+
 void main() {
+  int ivar;
 
-  printf("string1");
-  printf("string2");
-  printf("string3");
+  printf("string");
 
-  printf("duplicate");
-  printf("duplicate");
+  if (1) {
+    printf("string in <if>");
+  }
 
+  for (ivar = 1; ivar < 2; ivar = ivar + 1) {
+    printf("string in <for>");
+  }
 
-  printf("1", 1);
-  printf("2", 2);
-  printf("3", 3);
+  while (1) {
+    printf("string in <while>");
+  }
 
 }

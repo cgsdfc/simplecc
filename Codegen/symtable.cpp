@@ -148,13 +148,11 @@ public:
   }
 
   void visitStmt(Stmt *node) {
-    if (auto x = subclass_cast<Write>(node)) {
-      ChildrenVisitor::visitWrite(x);
-    }
+    return VisitorBase::visitStmt<void>(node);
   }
 
-  void visitExpr(Expr *s) {
-    return VisitorBase::visitExpr<void>(s);
+  void visitExpr(Expr *node) {
+    return VisitorBase::visitExpr<void>(node);
   }
 
 };
