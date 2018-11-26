@@ -1,6 +1,7 @@
 #include "symtable.h"
 #include "Visitor.h"
 #include "error.h"
+#include <algorithm>
 
 // Define a declaration globally.
 void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
@@ -124,6 +125,19 @@ void MakeLocal(FuncDef *fun, TableType &top, TableType &local,
   // errors left in ErrorManager
 }
 
+// For each '\\' in string, make it doubled
+String DoubleBackslashes(const String &string) {
+  String result;
+  result.reserve(string.size());
+  for (auto c : string) {
+    result.push_back(c);
+    if (c == '\\') {
+      result.push_back(c);
+    }
+  }
+  return std::move(result);
+}
+
 // Visitor that build string table.
 class StringLiteralVisitor : public VisitorBase<StringLiteralVisitor>,
                              public ChildrenVisitor<StringLiteralVisitor> {
@@ -134,6 +148,7 @@ public:
 
   void visitStr(Str *node) {
     assert(node->s.size() >= 2);
+    node->s = DoubleBackslashes(node->s);
     table.emplace(node->s, table.size());
   }
 

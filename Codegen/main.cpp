@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
 
   auto &&module = CompileProgram(ast_node, symtable);
 
-  AssembleMips(module, std::cout);
-  /* std::cout << module << "\n"; */
+  /* AssembleMips(module, std::cout); */
+  std::cout << module << "\n";
 
   delete ast_node;
   delete cst_node;

@@ -299,4 +299,8 @@ void CompiledModule::Format(std::ostream &os) const {
   for (const auto &fun : functions) {
     os << fun << "\n";
   }
+  os << "\nstring_literals:\n";
+  for (auto &&item : strings) {
+    os << std::setw(4) << item.second << ": " << item.first << "\n";
+  }
 }
