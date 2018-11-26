@@ -62,6 +62,9 @@ public:
     case Opcode::PRINT_INTEGER:
       return static_cast<Derived *>(this)->HandlePrintInteger(byteCode);
 
+    case Opcode::PRINT_NEWLINE:
+      return static_cast<Derived *>(this)->HandlePrintNewline(byteCode);
+
     case Opcode::READ_INTEGER:
       return static_cast<Derived *>(this)->HandleReadInteger(byteCode);
 

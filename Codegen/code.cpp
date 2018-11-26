@@ -60,6 +60,7 @@ bool HasNoOperand(Opcode op) {
   case Opcode::UNARY_POSITIVE:
   case Opcode::UNARY_NEGATIVE:
   case Opcode::POP_TOP:
+  case Opcode::PRINT_NEWLINE:
     return true;
   default:
     return false;

@@ -31,6 +31,8 @@ RETURN_NONE
 PRINT_STRING
 PRINT_CHARACTER
 PRINT_INTEGER
+# print a newline character
+PRINT_NEWLINE
 
 # read an int, push it onto the stack
 READ_INTEGER

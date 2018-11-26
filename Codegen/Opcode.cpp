@@ -152,6 +152,8 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::PRINT_CHARACTER";
   case Opcode::PRINT_INTEGER:
     return "Opcode::PRINT_INTEGER";
+  case Opcode::PRINT_NEWLINE:
+    return "Opcode::PRINT_NEWLINE";
   case Opcode::READ_INTEGER:
     return "Opcode::READ_INTEGER";
   case Opcode::READ_CHARACTER:

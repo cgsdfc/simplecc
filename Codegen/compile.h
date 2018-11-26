@@ -27,6 +27,9 @@ class CompiledFunction {
         formal_arguments(std::move(formal_arguments)),
         local_objects(std::move(local_objects)) {
     assert(entry.IsFunction());
+    for (auto &&code : code) {
+      code.Check();
+    }
   }
 
 public:

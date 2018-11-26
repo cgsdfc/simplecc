@@ -125,6 +125,19 @@ public:
   bool IsArray(const char *name) const { return local[name].IsArray(); }
 };
 
+enum class MipsSyscallNumber {
+  PRINT_STRING = 4,
+  PRINT_CHARACTER = 11,
+  PRINT_INTEGER = 1,
+  READ_INTEGER = 5,
+  READ_CHARACTER = 12,
+  EXIT_PROGRAM = 10,
+};
+
+inline std::ostream &operator<<(std::ostream &os, MipsSyscallNumber syscall) {
+  return os << static_cast<int>(syscall);
+}
+
 // Serve as a template translating one ByteCode to MIPS instructions
 class ByteCodeToMipsTranslator
     : public OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
@@ -240,7 +253,7 @@ public:
 
   void HandleReturnNone(const ByteCode &code) { HandleReturn(); }
 
-  void HandlePrint(int syscall_code) {
+  void HandlePrint(MipsSyscallNumber syscall_code) {
     w.WriteLine("li $v0,", syscall_code);
     POP("$a0");
     w.WriteLine("syscall");
@@ -250,24 +263,30 @@ public:
     /* print string */
     /* v0 = 4 */
     /* $a0 = address of null-terminated string to print */
-    HandlePrint(4);
+    HandlePrint(MipsSyscallNumber::PRINT_STRING);
   }
 
   void HandlePrintCharacter(const ByteCode &code) {
     /* print character */
     /* 11 */
     /* $a0 = character to print */
-    HandlePrint(11);
+    HandlePrint(MipsSyscallNumber::PRINT_CHARACTER);
   }
 
   void HandlePrintInteger(const ByteCode &code) {
     /* print integer */
     /* 1 */
     /* $a0 = integer to print */
-    HandlePrint(1);
+    HandlePrint(MipsSyscallNumber::PRINT_INTEGER);
   }
 
-  void HandleRead(int syscall_code) {
+  void HandlePrintNewline(const ByteCode &code) {
+    w.WriteLine("li $a0,", static_cast<int>('\n'));
+    w.WriteLine("li $v0,", MipsSyscallNumber::PRINT_CHARACTER);
+    w.WriteLine("syscall");
+  }
+
+  void HandleRead(MipsSyscallNumber syscall_code) {
     w.WriteLine("li $v0,", syscall_code);
     w.WriteLine("syscall");
     PUSH("$v0");
@@ -277,14 +296,14 @@ public:
     /* read integer */
     /* 5 */
     /* $v0 contains integer read */
-    HandleRead(5);
+    HandleRead(MipsSyscallNumber::READ_INTEGER);
   }
 
   void HandleReadCharacter(const ByteCode &code) {
     /* read character */
     /* 12 */
     /* $v0 contains character read */
-    HandleRead(12);
+    HandleRead(MipsSyscallNumber::READ_CHARACTER);
   }
 
   void HandleBinarySubscr(const ByteCode &code) {
@@ -467,7 +486,7 @@ class ModuleAssembler {
     w.WriteLine("# Boilerplate");
     w.WriteLine(".globl main");
     w.WriteLine("jal main");
-    w.WriteLine("li $v0, 10");
+    w.WriteLine("li $v0,", MipsSyscallNumber::EXIT_PROGRAM);
     w.WriteLine("syscall");
     w.WriteLine();
     w.WriteLine("# User defined functions");

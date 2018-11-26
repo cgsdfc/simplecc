@@ -110,6 +110,7 @@ public:
       auto type = visitExpr(node->value);
       Add(ByteCode(MakePrint(type)));
     }
+    Add(ByteCode(Opcode::PRINT_NEWLINE));
   }
 
   void visitAssign(Assign *node) {
