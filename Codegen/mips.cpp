@@ -26,13 +26,14 @@ public:
 // Capture global information
 class GlobalContext {
 public:
-  static String GetGlobalLabel(const String &name) {
-    return name + ":";
+  static String GetGlobalLabel(const String &name, bool colon) {
+    return colon ? name + ":" : name;
   }
 
-  static String GetStringLiteralLabel(int ID) {
+  static String GetStringLiteralLabel(int ID, bool colon) {
     std::ostringstream os;
-    os << "string_" << ID << ":";
+    os << "string_" << ID;
+    if (colon) os << ":";
     return os.str();
   }
 
@@ -43,8 +44,13 @@ class LocalContext {
 public:
   std::unordered_map<const char*, int> local_offsets;
   std::unordered_set<int> target_index;
+  const String &name;
 
-  LocalContext() {}
+  LocalContext(const CompiledFunction &fun): name(fun.GetName()) {
+
+
+
+  }
 
   // Return if an offset is a jump target
   bool IsTarget(int offset) {
@@ -58,16 +64,16 @@ public:
 
   // Return the label denoting a global object.
   String GetGlobalLabel(const char *name) const {
-    return "";
+    return GlobalContext::GetGlobalLabel(name, false);
   }
 
   // Return the label denoting a string literal.
   String GetStringLiteralLabel(int ID) const {
-    return "";
+    return GlobalContext::GetStringLiteralLabel(ID, false);
   }
 
   // Return the label denoting the epilogue of a function.
-  String GetReturnLabel() const {
+  String GetReturnLabel(bool colon) const {
     return "";
   }
 
@@ -77,8 +83,16 @@ public:
   }
 
   // Return the label of a jump target of a function.
-  String GetTargetLabel(int offset) const {
-    return "";
+  String GetTargetLabel(int offset, bool colon = false) const {
+    std::ostringstream os;
+    os << name << "_" << offset;
+    if (colon) os << ":";
+    return os.str();
+  }
+
+  // Return the number of local entries
+  unsigned GetLocalEntries() const {
+    return 0;
   }
 
 };
@@ -182,20 +196,23 @@ public:
   void HandleCallFunction(const ByteCode &code) {
     auto label = context.GetGlobalLabel(code.GetStrOperand());
     w.WriteLine("jal", label);
-    auto nargs = code.GetIntOperand();
-    w.WriteLine("addi $sp,", context.GetStackOffset(nargs));
+    auto bytes = BytesFromEntries(code.GetIntOperand());
+    w.WriteLine("addi $sp, $sp", bytes);
     PUSH("$v0");
+  }
+
+  void HandleReturn() {
+    auto label = context.GetReturnLabel(false);
+    w.WriteLine("j", label);
   }
 
   void HandleReturnValue(const ByteCode &code) {
     POP("$v0");
-    auto label = context.GetReturnLabel();
-    w.WriteLine("j", label);
+    HandleReturn();
   }
 
   void HandleReturnNone(const ByteCode &code) {
-    auto label = context.GetReturnLabel();
-    w.WriteLine("j", label);
+    HandleReturn();
   }
 
   void HandlePrint(int syscall_code) {
@@ -312,27 +329,48 @@ public:
 
 class FunctionAssembler {
   const CompiledFunction &source;
-  AssemblyWriter &sink;
+  AssemblyWriter &w;
   LocalContext context;
 
-  void MakePrologue() {}
-  void MakeEpilogue() {}
-
-  String MakeTargetLabel(int offset) {
-    return context.GetTargetLabel(offset) + ":";
+  void MakePrologue() {
+    w.WriteLine("sw $ra, 0($sp)");
+    w.WriteLine("sw $sp, -4($sp)");
+    w.WriteLine("sw $fp, -8($sp)");
+    w.WriteLine("move $fp, $sp");
+    w.WriteLine("sub $sp, $sp, 24");
+    // copy arguments here
+    // copy the n-1 th argument:
+    // lw $t0, 4($fp)
+    // sw $t0, 0($sp)
+    // in general case:
+    // lw $t0, n*4($fp)
+    // sw $t0, (n-1)*4($sp)
+    auto offset = BytesFromEntries(context.GetLocalEntries());
+    w.WriteLine("sub $sp, $sp,", offset);
+    // now $fp points to the bottom of stack,
+    // $sp points to the top of stack.
   }
 
+  void MakeEpilogue() {
+    w.WriteLine(context.GetReturnLabel(true));
+    w.WriteLine("lw $ra, 0($fp)");
+    w.WriteLine("lw $sp, -4($fp)");
+    w.WriteLine("lw $fp, -8($fp)");
+    w.WriteLine("jr $ra");
+  }
+
+
 public:
-  FunctionAssembler(const CompiledFunction &source, AssemblyWriter &sink):
-    source(source), sink(sink) {}
+  FunctionAssembler(const CompiledFunction &source, AssemblyWriter &w):
+    source(source), w(w), context(source) {}
 
   void Assemble() {
     MakePrologue();
-    ByteCodeToMipsTranslator translator(sink, context);
+    ByteCodeToMipsTranslator translator(w, context);
     for (const auto &byteCode: source.GetCode()) {
       auto offset = byteCode.GetOffset();
       if (context.IsTarget(offset)) {
-        sink.WriteLine(MakeTargetLabel(offset));
+        w.WriteLine(context.GetTargetLabel(offset, true));
       }
       translator.dispatch(byteCode);
     }
@@ -352,7 +390,7 @@ class ModuleAssembler {
       const auto &entry = item.second;
       if (entry.IsConstant() || entry.IsFunction())
         continue;
-      auto &&label = GlobalContext::GetGlobalLabel(item.first);
+      auto &&label = GlobalContext::GetGlobalLabel(item.first, true);
       if (entry.IsArray()) {
         auto bytes = BytesFromEntries(entry.AsArray().GetSize());
         w.WriteLine(label, ".space", bytes);
@@ -364,7 +402,7 @@ class ModuleAssembler {
     w.WriteLine();
     w.WriteLine("# String literals");
     for (const auto &item: module.GetStringLiteralTable()) {
-      auto &&label = GlobalContext::GetStringLiteralLabel(item.second);
+      auto &&label = GlobalContext::GetStringLiteralLabel(item.second, true);
       w.WriteLine(label, ".asciiz", item.first);
     }
     w.WriteLine("# End of data segment");
@@ -372,13 +410,13 @@ class ModuleAssembler {
 
   void MakeTextSegment() {
     w.WriteLine(".text");
-    w.WriteLine("# boilerplate");
+    w.WriteLine("# Boilerplate");
     w.WriteLine(".globl main");
     w.WriteLine("jal main");
     w.WriteLine("li $v0, 10");
     w.WriteLine("syscall");
     w.WriteLine();
-    w.WriteLine("# user functions");
+    w.WriteLine("# User defined functions");
 
     for (const auto &fun: module.GetFunctions()) {
       FunctionAssembler(fun, w).Assemble();

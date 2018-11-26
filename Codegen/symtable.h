@@ -145,6 +145,14 @@ public:
   Scope GetScope() const {
     return scope;
   }
+
+  bool IsFormalArgument() const {
+    if (arg) {
+      assert(scope == Scope::Local);
+      return true;
+    }
+    return false;
+  }
 };
 
 using TableType = std::unordered_map<String, SymbolEntry>;

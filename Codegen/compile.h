@@ -4,21 +4,18 @@
 #include "code.h"
 
 class CompiledFunction {
-public:
   // Local symbols
   SymbolTableView local;
   // Compiled byte code
   std::vector<ByteCode> code;
   // Self identity
   SymbolEntry entry;
-  // Number of formal arguments
-  unsigned nargs;
 
+public:
   CompiledFunction(SymbolTableView local,
      const std::vector<ByteCode> &code, SymbolEntry entry):
     local(local), code(code), entry(entry) {
       assert(entry.IsFunction());
-      nargs = entry.AsFunction().GetArgCount();
     }
 
   CompiledFunction(CompiledFunction &&other):
@@ -34,17 +31,14 @@ public:
     return entry.GetName();
   }
 
-  unsigned GetArgCount() const {
-    return nargs;
-  }
 };
 
 class CompiledModule {
-public:
   SymbolTableView global;
   std::vector<CompiledFunction> functions;
   const StringLiteralTable &strings;
 
+public:
   CompiledModule(SymbolTableView global,
        std::vector<CompiledFunction> &&functions, const StringLiteralTable &strings):
     global(global),
