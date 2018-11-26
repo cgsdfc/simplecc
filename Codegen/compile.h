@@ -5,6 +5,7 @@
 
 class FunctionCompiler;
 class ModuleCompiler;
+using ObjectList = std::vector<SymbolEntry>;
 
 class CompiledFunction {
   friend class FunctionCompiler;
@@ -15,14 +16,14 @@ class CompiledFunction {
   // Self identity
   SymbolEntry entry;
   // Formal arguments
-  std::vector<SymbolEntry> formal_arguments;
+  ObjectList formal_arguments;
   // Local non-constants
-  std::vector<SymbolEntry> local_objects;
+  ObjectList local_objects;
 
   CompiledFunction(SymbolTableView local,
      std::vector<ByteCode> &&code, SymbolEntry entry,
-     std::vector<SymbolEntry> &&formal_arguments,
-     std::vector<SymbolEntry> &&local_objects):
+     ObjectList &&formal_arguments,
+     ObjectList &&local_objects):
     local(local),
     code(std::move(code)),
     entry(entry),
@@ -39,6 +40,10 @@ public:
 
   void Format(std::ostream &os) const;
 
+  SymbolTableView GetLocal() const {
+    return local;
+  }
+
   const std::vector<ByteCode> &GetCode() const {
     return code;
   }
@@ -47,7 +52,7 @@ public:
     return entry.GetName();
   }
 
-  const std::vector<SymbolEntry> &GetFormalArguments() const {
+  const ObjectList &GetFormalArguments() const {
     return formal_arguments;
   }
 
@@ -55,7 +60,7 @@ public:
     return formal_arguments.size();
   }
 
-  const std::vector<SymbolEntry> &GetLocalObjects() const {
+  const ObjectList &GetLocalObjects() const {
     return local_objects;
   }
 
@@ -63,35 +68,36 @@ public:
 
 class CompiledModule {
   friend class ModuleCompiler;
-  SymbolTableView global;
   std::vector<CompiledFunction> functions;
   const StringLiteralTable &strings;
-
-  CompiledModule(SymbolTableView global,
-       std::vector<CompiledFunction> &&functions,
-       const StringLiteralTable &strings):
-    global(global),
-    functions(std::move(functions)),
-    strings(strings) {}
+  ObjectList global_objects;
 
 public:
+  CompiledModule(
+       std::vector<CompiledFunction> &&functions,
+       const StringLiteralTable &strings,
+       ObjectList &&global_objects):
+    functions(std::move(functions)),
+    strings(strings),
+    global_objects(std::move(global_objects)) {}
+
   CompiledModule(CompiledModule &&other):
-    global(other.global),
     functions(std::move(other.functions)),
-    strings(other.strings) {}
+    strings(other.strings),
+    global_objects(std::move(other.global_objects)) {}
 
   const std::vector<CompiledFunction> &GetFunctions() const {
     return functions;
-  }
-
-  SymbolTableView GetSymbols() const {
-    return global;
   }
 
   void Format(std::ostream &os) const;
 
   const StringLiteralTable &GetStringLiteralTable() const {
     return strings;
+  }
+
+  const ObjectList &GetGlobalObjects() const {
+    return global_objects;
   }
 
 };

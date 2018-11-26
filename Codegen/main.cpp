@@ -5,6 +5,7 @@
 #include "type_check.h"
 #include "error.h"
 #include "compile.h"
+#include "mips.h"
 
 #include <fstream>
 
@@ -50,7 +51,8 @@ int main(int argc, char **argv) {
 
   auto&& module = CompileProgram(ast_node, symtable);
 
-  std::cout << module << "\n";
+  AssembleMips(module, std::cout);
+  /* std::cout << module << "\n"; */
 
   delete ast_node;
   delete cst_node;

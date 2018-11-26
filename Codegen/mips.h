@@ -1,12 +1,7 @@
 #ifndef MIPS_H
 #define MIPS_H
 #include <iostream>
+#include "compile.h"
 
-class MIPSModule {
-public:
-  MIPSModule() {}
-
-  void Format(std::ostream &os) const;
-};
-
+void AssembleMips(const CompiledModule &module, std::ostream &os);
 #endif

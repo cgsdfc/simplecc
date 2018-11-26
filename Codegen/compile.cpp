@@ -266,31 +266,22 @@ public:
   }
 };
 
-class ModuleCompiler {
-  const SymbolTable &symtable;
-  Program *program;
-
-public:
-  ModuleCompiler(Program *prog, const SymbolTable &symtable):
-    program(prog), symtable(symtable) {}
-
-  CompiledModule Compile() {
-    std::vector<CompiledFunction> functions;
-    for (auto decl: program->decls) {
-      if (auto fun = subclass_cast<FuncDef>(decl)) {
-        FunctionCompiler functionCompiler(fun, symtable);
-        functions.push_back(functionCompiler.Compile());
-      }
-    }
-    return CompiledModule(
-        symtable.GetGlobal(), std::move(functions), symtable.string_literals);
-  }
-
-};
-
 CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable) {
-  ModuleCompiler moduleCompiler(prog, symtable);
-  return moduleCompiler.Compile();
+  ObjectList global_objects;
+  std::vector<CompiledFunction> functions;
+  auto &&global = symtable.GetGlobal();
+
+  for (auto decl: prog->decls) {
+    if (auto fun = subclass_cast<FuncDef>(decl)) {
+      FunctionCompiler functionCompiler(fun, symtable);
+      functions.push_back(functionCompiler.Compile());
+    }
+    else if (auto var = subclass_cast<VarDecl>(decl)) {
+      global_objects.push_back(global[var->name]);
+    }
+  }
+  return CompiledModule(std::move(functions),
+      symtable.string_literals, std::move(global_objects));
 }
 
 void CompiledFunction::Format(std::ostream &os) const {
@@ -313,6 +304,11 @@ void CompiledFunction::Format(std::ostream &os) const {
 }
 
 void CompiledModule::Format(std::ostream &os) const {
+  os << "global_objects:\n";
+  for (const auto &obj: global_objects) {
+    os << obj << "\n";
+  }
+  os << "\nfunctions:\n";
   for (const auto &fun: functions) {
     os << fun << "\n";
   }
