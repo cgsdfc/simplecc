@@ -14,6 +14,8 @@ class FunctionCompiler: public VisitorBase<FunctionCompiler> {
   SymbolTableView local;
   const SymbolTable &symtable;
   FuncDef *function;
+  std::vector<SymbolEntry> formal_arguments;
+  std::vector<SymbolEntry> local_objects;
 
   // add one piece of ByteCode to buffer, return the the offset
   // of it in buffer
@@ -52,16 +54,31 @@ public:
     symtable(symtable),
     function(fun) {}
 
-  CompiledFunction Compile() {
-    for (auto s: function->stmts) {
+  void visitFuncDef(FuncDef *node) {
+    for (auto arg: node->args) {
+      visitArg(arg);
+    }
+    for (auto decl: node->decls) {
+      visitDecl(decl);
+    }
+    for (auto s: node->stmts) {
       visitStmt(s);
     }
+  }
+
+  CompiledFunction Compile() {
+    visitFuncDef(function);
     if (buffer.empty() || GetLastByteCode().GetOpcode() != Opcode::RETURN_VALUE) {
       // A missing reutrn_stmt, insert one.
       Add(ByteCode(Opcode::RETURN_NONE));
     }
     const auto &entry = symtable.GetGlobal()[function->name];
-    return CompiledFunction(local, buffer, entry);
+    return CompiledFunction(local, std::move(buffer), entry,
+       std::move(formal_arguments), std::move(local_objects));
+  }
+
+  void visitDecl(Decl *node) {
+    VisitorBase::visitDecl<void>(node);
   }
 
   BasicTypeKind visitExpr(Expr *node) {
@@ -73,6 +90,16 @@ public:
     current_lineno = node->loc.lineno;
     VisitorBase::visitStmt<void>(node);
   }
+
+  void visitArg(Arg *node) {
+    formal_arguments.push_back(local[node->name]);
+  }
+
+  void visitVarDecl(VarDecl *node) {
+    local_objects.push_back(local[node->name]);
+  }
+
+  void visitConstDecl(ConstDecl*) {}
 
   void visitRead(Read *node) {
     for (auto expr: node->names) {
@@ -268,6 +295,16 @@ CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable) {
 
 void CompiledFunction::Format(std::ostream &os) const {
   os << "CompiledFunction(" << Quote(GetName()) << "):\n";
+  os << "formal_arguments:\n";
+  for (const auto &arg: formal_arguments) {
+    os << arg << "\n";
+  }
+  os << "\nlocal_objects:\n";
+  for (const auto &obj: local_objects) {
+    os << obj << "\n";
+  }
+  os << "\ncode:\n";
+
   auto lineno = 0;
   for (const auto &code: GetCode()) {
     os << std::setw(4) << lineno << ": " << code << "\n";

@@ -67,6 +67,11 @@ public:
     return GlobalContext::GetGlobalLabel(name, false);
   }
 
+  // Return the label for this function.
+  String GetFuncLabel() const {
+    return name + ":";
+  }
+
   // Return the label denoting a string literal.
   String GetStringLiteralLabel(int ID) const {
     return GlobalContext::GetStringLiteralLabel(ID, false);
@@ -75,11 +80,6 @@ public:
   // Return the label denoting the epilogue of a function.
   String GetReturnLabel(bool colon) const {
     return "";
-  }
-
-  // Return the stack offset given n stack entries in ByteCode
-  int GetStackOffset(int n_entries) const {
-    return 4 * n_entries;
   }
 
   // Return the label of a jump target of a function.
@@ -104,7 +104,13 @@ class ByteCodeToMipsTranslator: public OpcodeDispatcher<ByteCodeToMipsTranslator
 
 public:
   ByteCodeToMipsTranslator(AssemblyWriter &w, const LocalContext &context):
-    w(w), context(context) {}
+    w(w), context(context) {
+      MakePrologue();
+    }
+
+  ~ByteCodeToMipsTranslator() {
+    MakeEpilogue();
+  }
 
   // Push a register onto the stack
   template <int N>
@@ -324,17 +330,9 @@ public:
     POP();
   }
 
-};
-// }}}
-
-class FunctionAssembler {
-  const CompiledFunction &source;
-  AssemblyWriter &w;
-  LocalContext context;
-
   void MakePrologue() {
     w.WriteLine("sw $ra, 0($sp)");
-    w.WriteLine("sw $sp, -4($sp)");
+    /* w.WriteLine("sw $sp, -4($sp)"); */
     w.WriteLine("sw $fp, -8($sp)");
     w.WriteLine("move $fp, $sp");
     w.WriteLine("sub $sp, $sp, 24");
@@ -354,10 +352,19 @@ class FunctionAssembler {
   void MakeEpilogue() {
     w.WriteLine(context.GetReturnLabel(true));
     w.WriteLine("lw $ra, 0($fp)");
-    w.WriteLine("lw $sp, -4($fp)");
+    /* w.WriteLine("lw $sp, -4($fp)"); */
+    w.WriteLine("move $sp, $fp");
     w.WriteLine("lw $fp, -8($fp)");
     w.WriteLine("jr $ra");
   }
+
+};
+// }}}
+
+class FunctionAssembler {
+  const CompiledFunction &source;
+  AssemblyWriter &w;
+  LocalContext context;
 
 
 public:
@@ -365,7 +372,7 @@ public:
     source(source), w(w), context(source) {}
 
   void Assemble() {
-    MakePrologue();
+    w.WriteLine(context.GetFuncLabel());
     ByteCodeToMipsTranslator translator(w, context);
     for (const auto &byteCode: source.GetCode()) {
       auto offset = byteCode.GetOffset();
@@ -374,7 +381,6 @@ public:
       }
       translator.dispatch(byteCode);
     }
-    MakeEpilogue();
   }
 
 };

@@ -211,13 +211,12 @@ std::ostream &operator<<(std::ostream &os, Scope s) {
   }
 }
 
-std::ostream &operator<<(std::ostream &os, const SymbolEntry& e) {
+void SymbolEntry::Format(std::ostream &os) const {
   os << "SymbolEntry(";
-  os << "type=" << e.GetTypeName() << ", "
-    << "scope=" << e.GetScope() << ", "
-    << "location=" << e.GetLocation() << ", "
-    << "name=" << e.GetName();
-  return os << ")";
+  os << "type=" << GetTypeName() << ", "
+    << "scope=" << GetScope() << ", "
+    << "location=" << GetLocation() << ", "
+    << "name=" << Quote(GetName()) << ")";
 }
 
 // Generic map printer

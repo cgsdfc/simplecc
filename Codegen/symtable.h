@@ -6,6 +6,7 @@
 #include <cstdint>
 
 enum class Scope { Global, Local };
+class SymbolTable;
 
 class FuncType {
   FuncDef *fun;
@@ -153,16 +154,25 @@ public:
     }
     return false;
   }
+
+  void Format(std::ostream &os) const;
 };
+
+inline std::ostream &operator<<(std::ostream &os, const SymbolEntry& e) {
+  e.Format(os);
+  return os;
+}
 
 using TableType = std::unordered_map<String, SymbolEntry>;
 using NestedTableType = std::unordered_map<uintptr_t, TableType>;
 using StringLiteralTable = std::unordered_map<String, int>;
 
 class SymbolTableView {
+  friend class SymbolTable;
   const TableType &subtable;
-public:
   SymbolTableView(const TableType &subtable): subtable(subtable) {}
+
+public:
   // Provide a safe readonly access to value
   const SymbolEntry &operator[](const String &name) const {
     assert(subtable.count(name));

@@ -3,23 +3,39 @@
 #include "symtable.h"
 #include "code.h"
 
+class FunctionCompiler;
+class ModuleCompiler;
+
 class CompiledFunction {
+  friend class FunctionCompiler;
   // Local symbols
   SymbolTableView local;
   // Compiled byte code
   std::vector<ByteCode> code;
   // Self identity
   SymbolEntry entry;
+  // Formal arguments
+  std::vector<SymbolEntry> formal_arguments;
+  // Local non-constants
+  std::vector<SymbolEntry> local_objects;
 
-public:
   CompiledFunction(SymbolTableView local,
-     const std::vector<ByteCode> &code, SymbolEntry entry):
-    local(local), code(code), entry(entry) {
+     std::vector<ByteCode> &&code, SymbolEntry entry,
+     std::vector<SymbolEntry> &&formal_arguments,
+     std::vector<SymbolEntry> &&local_objects):
+    local(local),
+    code(std::move(code)),
+    entry(entry),
+    formal_arguments(std::move(formal_arguments)),
+    local_objects(std::move(local_objects)) {
       assert(entry.IsFunction());
     }
 
+public:
   CompiledFunction(CompiledFunction &&other):
-    local(other.local), code(std::move(other.code)), entry(other.entry) {}
+    local(other.local), code(std::move(other.code)), entry(other.entry),
+    formal_arguments(std::move(other.formal_arguments)),
+    local_objects(std::move(other.local_objects)) {}
 
   void Format(std::ostream &os) const;
 
@@ -31,20 +47,30 @@ public:
     return entry.GetName();
   }
 
+  const std::vector<SymbolEntry> &GetFormalArguments() const {
+    return formal_arguments;
+  }
+
+  const std::vector<SymbolEntry> &GetLocalObjects() const {
+    return local_objects;
+  }
+
 };
 
 class CompiledModule {
+  friend class ModuleCompiler;
   SymbolTableView global;
   std::vector<CompiledFunction> functions;
   const StringLiteralTable &strings;
 
-public:
   CompiledModule(SymbolTableView global,
-       std::vector<CompiledFunction> &&functions, const StringLiteralTable &strings):
+       std::vector<CompiledFunction> &&functions,
+       const StringLiteralTable &strings):
     global(global),
     functions(std::move(functions)),
     strings(strings) {}
 
+public:
   CompiledModule(CompiledModule &&other):
     global(other.global),
     functions(std::move(other.functions)),
