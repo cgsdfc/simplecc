@@ -1,6 +1,23 @@
 #include "code.h"
 #include "error.h"
 
+bool IsJumpXXX(Opcode op) {
+  switch (op) {
+    case Opcode::JUMP_IF_TRUE:
+    case Opcode::JUMP_IF_FALSE:
+    case Opcode::JUMP_FORWARD:
+    case Opcode::JUMP_IF_NOT_EQUAL:
+    case Opcode::JUMP_IF_EQUAL:
+    case Opcode::JUMP_IF_GREATER:
+    case Opcode::JUMP_IF_GREATER_EQUAL:
+    case Opcode::JUMP_IF_LESS:
+    case Opcode::JUMP_IF_LESS_EQUAL:
+      return true;
+    default:
+      return false;
+  }
+}
+
 bool HasIntOperand(Opcode op) {
   switch (op) {
     case Opcode::JUMP_IF_TRUE:

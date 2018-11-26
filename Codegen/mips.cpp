@@ -7,7 +7,7 @@
 #include <unordered_set>
 
 // Return the bytes for n entries
-inline int BytesFromEntries(int n_entries) {
+inline constexpr int BytesFromEntries(int n_entries) {
   return 4 * n_entries;
 }
 
@@ -41,25 +41,51 @@ public:
 
 // Provide information for ByteCodeToMipsTranslator
 class LocalContext {
-public:
   std::unordered_map<const char*, int> local_offsets;
-  std::unordered_set<int> target_index;
+  std::unordered_set<int> jump_targets;
   const String &name;
 
-  LocalContext(const CompiledFunction &fun): name(fun.GetName()) {
+  void MakeLocalOffsets(const CompiledFunction &fun) {
+    auto offset = BytesFromEntries(-2);
+    for (const auto &arg: fun.GetFormalArguments()) {
+      local_offsets.emplace(arg.GetName().data(), offset);
+      offset -= BytesFromEntries(1);
+    }
+    for (const auto &obj: fun.GetLocalObjects()) {
+      local_offsets.emplace(obj.GetName().data(), offset);
+      if (obj.IsArray()) {
+        offset -= BytesFromEntries(obj.AsArray().GetSize());
+      }
+      else {
+        assert(obj.IsVariable());
+        offset -= BytesFromEntries(1);
+      }
+    }
+  }
 
+  void MakeJumpTargets(const CompiledFunction &fun) {
+    for (const auto &code: fun.GetCode()) {
+      if (IsJumpXXX(code.GetOpcode())) {
+        jump_targets.insert(code.GetIntOperand());
+      }
+    }
+  }
 
-
+public:
+  LocalContext(const CompiledFunction &fun):
+    local_offsets(), jump_targets(), name(fun.GetName()) {
+      MakeLocalOffsets(fun);
+      MakeJumpTargets(fun);
   }
 
   // Return if an offset is a jump target
   bool IsTarget(int offset) {
-    return target_index.count(offset);
+    return jump_targets.count(offset);
   }
 
   // Return the offset of local name relatited to frame pointer
   int GetLocalOffset(const char *name) const {
-    return 0;
+    return local_offsets.at(name);
   }
 
   // Return the label denoting a global object.
@@ -90,11 +116,6 @@ public:
     return os.str();
   }
 
-  // Return the number of local entries
-  unsigned GetLocalEntries() const {
-    return 0;
-  }
-
 };
 
 // Serve as a template translating one ByteCode to MIPS instructions
@@ -104,13 +125,7 @@ class ByteCodeToMipsTranslator: public OpcodeDispatcher<ByteCodeToMipsTranslator
 
 public:
   ByteCodeToMipsTranslator(AssemblyWriter &w, const LocalContext &context):
-    w(w), context(context) {
-      MakePrologue();
-    }
-
-  ~ByteCodeToMipsTranslator() {
-    MakeEpilogue();
-  }
+    w(w), context(context) {}
 
   // Push a register onto the stack
   template <int N>
@@ -330,33 +345,10 @@ public:
     POP();
   }
 
-  void MakePrologue() {
-    w.WriteLine("sw $ra, 0($sp)");
-    /* w.WriteLine("sw $sp, -4($sp)"); */
-    w.WriteLine("sw $fp, -8($sp)");
-    w.WriteLine("move $fp, $sp");
-    w.WriteLine("sub $sp, $sp, 24");
-    // copy arguments here
-    // copy the n-1 th argument:
-    // lw $t0, 4($fp)
-    // sw $t0, 0($sp)
-    // in general case:
-    // lw $t0, n*4($fp)
-    // sw $t0, (n-1)*4($sp)
-    auto offset = BytesFromEntries(context.GetLocalEntries());
-    w.WriteLine("sub $sp, $sp,", offset);
-    // now $fp points to the bottom of stack,
-    // $sp points to the top of stack.
+  static constexpr int GetArgumnetOffset() {
+    return BytesFromEntries(2);
   }
 
-  void MakeEpilogue() {
-    w.WriteLine(context.GetReturnLabel(true));
-    w.WriteLine("lw $ra, 0($fp)");
-    /* w.WriteLine("lw $sp, -4($fp)"); */
-    w.WriteLine("move $sp, $fp");
-    w.WriteLine("lw $fp, -8($fp)");
-    w.WriteLine("jr $ra");
-  }
 
 };
 // }}}
@@ -366,13 +358,38 @@ class FunctionAssembler {
   AssemblyWriter &w;
   LocalContext context;
 
+  void MakePrologue() {
+    w.WriteLine("sw $ra, 0($sp)");
+    w.WriteLine("sw $fp, -4($sp)");
+    w.WriteLine("move $fp, $sp");
+    w.WriteLine("sub $sp, $sp,", BytesFromEntries(2));
+
+    // copy arguments here
+    for (int i = 0; i < source.GetFormalArgumentCount(); i++) {
+      auto actual = BytesFromEntries(source.GetFormalArgumentCount() - i);
+      auto formal = BytesFromEntries(i);
+      w.WriteLine("lw $t0,", actual, "($fp)");
+      w.WriteLine("sw $t0,", formal, "($sp)");
+    }
+    auto offset = BytesFromEntries(source.GetFormalArgumentCount());
+    w.WriteLine("sub $sp, $sp,", offset);
+    // now $fp points to the bottom of stack,
+    // $sp points to the top of stack.
+  }
+
+  void MakeEpilogue() {
+    w.WriteLine(context.GetReturnLabel(true));
+    w.WriteLine("lw $ra, 0($fp)");
+    w.WriteLine("move $sp, $fp");
+    w.WriteLine("lw $fp, -4($fp)");
+    w.WriteLine("jr $ra");
+  }
 
 public:
   FunctionAssembler(const CompiledFunction &source, AssemblyWriter &w):
     source(source), w(w), context(source) {}
 
   void Assemble() {
-    w.WriteLine(context.GetFuncLabel());
     ByteCodeToMipsTranslator translator(w, context);
     for (const auto &byteCode: source.GetCode()) {
       auto offset = byteCode.GetOffset();
@@ -425,6 +442,7 @@ class ModuleAssembler {
     w.WriteLine("# User defined functions");
 
     for (const auto &fun: module.GetFunctions()) {
+      w.WriteLine(GlobalContext::GetGlobalLabel(fun.GetName(), true));
       FunctionAssembler(fun, w).Assemble();
       w.WriteLine("# End of", fun.GetName());
       w.WriteLine();

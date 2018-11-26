@@ -51,6 +51,10 @@ public:
     return formal_arguments;
   }
 
+  unsigned GetFormalArgumentCount() const {
+    return formal_arguments.size();
+  }
+
   const std::vector<SymbolEntry> &GetLocalObjects() const {
     return local_objects;
   }

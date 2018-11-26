@@ -63,4 +63,5 @@ inline std::ostream &operator<<(std::ostream &os, const ByteCode &c) {
 bool HasIntOperand(Opcode op);
 bool HasStrOperand(Opcode op);
 bool HasNoOperand(Opcode op);
+bool IsJumpXXX(Opcode op);
 #endif
