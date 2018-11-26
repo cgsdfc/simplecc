@@ -632,4 +632,3 @@ void TestSymbolTable(SymbolTable &symtable) {
     }
   }
 }
-

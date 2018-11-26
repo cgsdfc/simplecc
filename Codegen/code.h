@@ -8,34 +8,27 @@ class ByteCode {
   Opcode opcode;
   unsigned lineno;
   std::optional<int> int_arg;
-  std::optional<const char*> str_arg;
+  std::optional<const char *> str_arg;
   int offset;
+
 public:
-  ByteCode(Opcode opcode): opcode(opcode), int_arg(), str_arg() {}
+  ByteCode(Opcode opcode) : opcode(opcode), int_arg(), str_arg() {}
 
-  ByteCode(Opcode opcode, int arg): opcode(opcode), int_arg(arg), str_arg() {}
+  ByteCode(Opcode opcode, int arg) : opcode(opcode), int_arg(arg), str_arg() {}
 
-  ByteCode(Opcode opcode, const char *arg):
-    opcode(opcode), int_arg(), str_arg(arg) {}
+  ByteCode(Opcode opcode, const char *arg)
+      : opcode(opcode), int_arg(), str_arg(arg) {}
 
-  ByteCode(Opcode opcode, int int_arg, const char *str_arg):
-    opcode(opcode), int_arg(int_arg), str_arg(str_arg) {}
+  ByteCode(Opcode opcode, int int_arg, const char *str_arg)
+      : opcode(opcode), int_arg(int_arg), str_arg(str_arg) {}
 
-  void SetLineno(unsigned lineno) {
-    this->lineno = lineno;
-  }
+  void SetLineno(unsigned lineno) { this->lineno = lineno; }
 
-  void SetTarget(int target) {
-    int_arg = target;
-  }
+  void SetTarget(int target) { int_arg = target; }
 
-  void SetOffset(int offset) {
-    this->offset = offset;
-  }
+  void SetOffset(int offset) { this->offset = offset; }
 
-  Opcode GetOpcode() const {
-    return opcode;
-  }
+  Opcode GetOpcode() const { return opcode; }
 
   int GetIntOperand() const {
     assert(int_arg.has_value());
@@ -47,9 +40,7 @@ public:
     return *str_arg;
   }
 
-  int GetOffset() const {
-    return offset;
-  }
+  int GetOffset() const { return offset; }
 
   void Check() const;
   void Format(std::ostream &os) const;

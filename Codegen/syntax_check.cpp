@@ -2,18 +2,18 @@
 #include "Visitor.h"
 #include "error.h"
 
-class SyntaxChecker: public VisitorBase<SyntaxChecker> {
+class SyntaxChecker : public VisitorBase<SyntaxChecker> {
   ErrorManager e;
-public:
 
-  SyntaxChecker(): VisitorBase(), e() {}
+public:
+  SyntaxChecker() : VisitorBase(), e() {}
 
   void visitProgram(Program *node) {
     if (node->decls.size() == 0) {
       e.SyntaxError(Location(0, 0), "expected main() at the end of input");
       return;
     }
-    for (auto decl: node->decls) {
+    for (auto decl : node->decls) {
       VisitorBase::visitDecl<void>(decl);
     }
 
@@ -33,7 +33,8 @@ public:
 
     if (decl_iter != end) {
       auto decl = *decl_iter;
-      e.SyntaxError(decl->loc, "unexpected", decl->ClassName(), Quote(decl->name));
+      e.SyntaxError(decl->loc, "unexpected", decl->ClassName(),
+                    Quote(decl->name));
     }
 
     // check the last declaration is the main function
@@ -45,34 +46,37 @@ public:
 
   void visitConstDecl(ConstDecl *node) {
     if (node->type == BasicTypeKind::Int && !IsInstance<Num>(node->value)) {
-      e.SyntaxError(node->loc, "const int", Quote(node->name), "expects an integer");
-    }
-    else if (node->type == BasicTypeKind::Character && !IsInstance<Char>(node->value)) {
-      e.SyntaxError(node->loc, "cont char", Quote(node->name), "expects a character");
+      e.SyntaxError(node->loc, "const int", Quote(node->name),
+                    "expects an integer");
+    } else if (node->type == BasicTypeKind::Character &&
+               !IsInstance<Char>(node->value)) {
+      e.SyntaxError(node->loc, "cont char", Quote(node->name),
+                    "expects a character");
     }
   }
 
   void visitVarDecl(VarDecl *node) {
     if (node->type == BasicTypeKind::Void) {
-      e.SyntaxError(node->loc, "cannot declare", Quote(node->name), "as a void variable");
-    }
-    else if (node->is_array && node->size == 0) {
-      e.SyntaxError(node->loc, "array size of", Quote(node->name), "cannot be 0");
+      e.SyntaxError(node->loc, "cannot declare", Quote(node->name),
+                    "as a void variable");
+    } else if (node->is_array && node->size == 0) {
+      e.SyntaxError(node->loc, "array size of", Quote(node->name),
+                    "cannot be 0");
     }
   }
 
   void visitArg(Arg *node, const String &funname) {
     if (node->type == BasicTypeKind::Void) {
-      e.SyntaxError(node->loc, "cannot declare void argument", Quote(node->name),
-          "of function", Quote(funname));
+      e.SyntaxError(node->loc, "cannot declare void argument",
+                    Quote(node->name), "of function", Quote(funname));
     }
   }
 
   void visitFuncDef(FuncDef *node) {
-    for (auto arg: node->args) {
+    for (auto arg : node->args) {
       visitArg(arg, node->name);
     }
-    for (auto decl: node->decls) {
+    for (auto decl : node->decls) {
       VisitorBase::visitDecl<void>(decl);
     }
 
@@ -87,9 +91,6 @@ public:
     visitProgram(node);
     return e.IsOk();
   }
-
 };
 
-bool CheckSyntax(Program *node) {
-  return SyntaxChecker().Check(node);
-}
+bool CheckSyntax(Program *node) { return SyntaxChecker().Check(node); }

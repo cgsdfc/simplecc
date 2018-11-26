@@ -4,14 +4,13 @@
 
 // Transform Name to Call if it is a function and it is in the context
 // of Expr or ExprStmt (Call really).
-class ImplicitCallTransformer: public VisitorBase<ImplicitCallTransformer> {
+class ImplicitCallTransformer : public VisitorBase<ImplicitCallTransformer> {
   SymbolTableView view;
-public:
-  ImplicitCallTransformer(SymbolTableView view): view(view) {}
 
-  void visitStmt(Stmt *node) {
-    VisitorBase::visitStmt<void>(node);
-  }
+public:
+  ImplicitCallTransformer(SymbolTableView view) : view(view) {}
+
+  void visitStmt(Stmt *node) { VisitorBase::visitStmt<void>(node); }
 
   Expr *visitExpr(Expr *node) {
     if (auto x = subclass_cast<Name>(node)) {
@@ -20,20 +19,19 @@ public:
         auto call = new Call(x->id, {}, x->loc);
         delete x;
         return call;
-      }
-      else {
+      } else {
         return node;
       }
-    }
-    else {
+    } else {
       VisitorBase::visitExpr<void>(node);
       return node;
     }
   }
 
-#define VISIT(name) do { \
-  node->name = visitExpr(node->name); \
-} while (0)
+#define VISIT(name)                                                            \
+  do {                                                                         \
+    node->name = visitExpr(node->name);                                        \
+  } while (0)
 
   // don't check names in Read
   void visitRead(Read *node) {}
@@ -56,14 +54,14 @@ public:
     visitStmt(node->initial);
     VISIT(condition);
     visitStmt(node->step);
-    for (auto s: node->body) {
+    for (auto s : node->body) {
       visitStmt(s);
     }
   }
 
   void visitWhile(While *node) {
     VISIT(condition);
-    for (auto s: node->body) {
+    for (auto s : node->body) {
       visitStmt(s);
     }
   }
@@ -76,7 +74,7 @@ public:
 
   void visitIf(If *node) {
     VISIT(test);
-    for (auto s: node->body) {
+    for (auto s : node->body) {
       visitStmt(s);
     }
     for (auto s : node->orelse) {
@@ -95,17 +93,11 @@ public:
     VISIT(right);
   }
 
-  void visitBoolOp(BoolOp *node) {
-    VISIT(value);
-  }
+  void visitBoolOp(BoolOp *node) { VISIT(value); }
 
-  void visitParenExpr(ParenExpr *node) {
-    VISIT(value);
-  }
+  void visitParenExpr(ParenExpr *node) { VISIT(value); }
 
-  void visitUnaryOp(UnaryOp *node) {
-    VISIT(operand);
-  }
+  void visitUnaryOp(UnaryOp *node) { VISIT(operand); }
 
   void visitCall(Call *node) {
     for (int i = 0, size = node->args.size(); i < size; i++) {
@@ -113,42 +105,37 @@ public:
     }
   }
 
-  void visitNum(Num*) {}
-  void visitStr(Str*) {}
-  void visitChar(Char*) {}
-  void visitName(Name*) {
+  void visitNum(Num *) {}
+  void visitStr(Str *) {}
+  void visitChar(Char *) {}
+  void visitName(Name *) {
     // calling this is an error
     assert(false && "All Names must be handled by container nodes");
   }
 
-  void visitSubscript(Subscript *node) {
-    VISIT(index);
-  }
+  void visitSubscript(Subscript *node) { VISIT(index); }
 
   void visitFuncDef(FuncDef *node) {
-    for (auto s: node->stmts) {
+    for (auto s : node->stmts) {
       visitStmt(s);
     }
   }
 
 #undef VISIT
-
 };
 
-class TypeCheker: public VisitorBase<TypeCheker>,
-                  public ChildrenVisitor<TypeCheker> {
+class TypeCheker : public VisitorBase<TypeCheker>,
+                   public ChildrenVisitor<TypeCheker> {
 public:
   SymbolTableView view;
   // point to the entry of the function being checked
   const SymbolEntry &cur_fun;
   ErrorManager &e;
 
-  TypeCheker(SymbolTableView view, const SymbolEntry &cur_fun, ErrorManager &e):
-    view(view), cur_fun(cur_fun), e(e) {}
+  TypeCheker(SymbolTableView view, const SymbolEntry &cur_fun, ErrorManager &e)
+      : view(view), cur_fun(cur_fun), e(e) {}
 
-  void visitStmt(Stmt *s) {
-    return VisitorBase::visitStmt<void>(s);
-  }
+  void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
 
   // Return the type of evaluating the expression
   BasicTypeKind visitExpr(Expr *node) {
@@ -156,18 +143,18 @@ public:
   }
 
   void visitFuncDef(FuncDef *node) {
-    for (auto stmt: node->stmts) {
+    for (auto stmt : node->stmts) {
       visitStmt(stmt);
     }
   }
 
   void visitRead(Read *node) {
-    for (auto expr: node->names) {
+    for (auto expr : node->names) {
       auto name = subclass_cast<Name>(expr);
-      const auto &entry = view[ name->id ];
+      const auto &entry = view[name->id];
       if (!entry.IsVariable()) {
-        e.TypeError(name->loc,
-            "cannot use scanf() on object of type", entry.GetTypeName());
+        e.TypeError(name->loc, "cannot use scanf() on object of type",
+                    entry.GetTypeName());
       }
     }
   }
@@ -180,14 +167,15 @@ public:
 
   void visitReturn(Return *node) {
     auto fun_type = cur_fun.AsFunction();
-    auto return_type = node->value ? visitExpr(node->value) : BasicTypeKind::Void;
+    auto return_type =
+        node->value ? visitExpr(node->value) : BasicTypeKind::Void;
 
     // order a strict match
     if (fun_type.GetReturnType() != return_type) {
-      e.TypeError(node->loc,
-          "return type mismatched:", "function", Quote(cur_fun.GetName()),
-          "must return", CStringFromBasicTypeKind(fun_type.GetReturnType()),
-          "not", CStringFromBasicTypeKind(return_type));
+      e.TypeError(node->loc, "return type mismatched:", "function",
+                  Quote(cur_fun.GetName()), "must return",
+                  CStringFromBasicTypeKind(fun_type.GetReturnType()), "not",
+                  CStringFromBasicTypeKind(return_type));
     }
   }
 
@@ -204,10 +192,9 @@ public:
     // value type is int", but the target type does not support assignment.
     // i = array; it is the same since value is bad.
     if (e.IsOk(errs) && target != value) {
-      e.TypeError(node->loc,
-          "type mismatched in assignment: target type is",
-          CStringFromBasicTypeKind(target), "value type is",
-          CStringFromBasicTypeKind(value));
+      e.TypeError(node->loc, "type mismatched in assignment: target type is",
+                  CStringFromBasicTypeKind(target), "value type is",
+                  CStringFromBasicTypeKind(value));
     }
   }
 
@@ -231,8 +218,7 @@ public:
     if (auto x = subclass_cast<BinOp>(node->value)) {
       CheckBoolOpOperand(x->left);
       CheckBoolOpOperand(x->right);
-    }
-    else {
+    } else {
       CheckBoolOpOperand(node->value);
     }
     return BasicTypeKind::Int;
@@ -266,10 +252,10 @@ public:
   }
 
   BasicTypeKind visitCall(Call *node) {
-    const auto &entry = view[ node->func ];
+    const auto &entry = view[node->func];
     if (!entry.IsFunction()) {
-      e.TypeError(node->loc,
-          "object of type", entry.GetTypeName(), "cannot be called as a function");
+      e.TypeError(node->loc, "object of type", entry.GetTypeName(),
+                  "cannot be called as a function");
       return BasicTypeKind::Void;
     }
 
@@ -277,8 +263,8 @@ public:
     auto formal_args_len = fun_type.GetArgCount();
     auto actual_args_len = node->args.size();
     if (formal_args_len != actual_args_len) {
-      e.TypeError(node->loc, "function", Quote(node->func),
-          "expects", formal_args_len, "arguments, got", actual_args_len);
+      e.TypeError(node->loc, "function", Quote(node->func), "expects",
+                  formal_args_len, "arguments, got", actual_args_len);
     }
 
     // check args
@@ -287,20 +273,20 @@ public:
       auto actual = visitExpr(node->args[i]);
       auto formal = fun_type.GetArgTypeAt(i);
       if (actual != formal) {
-        e.TypeError(node->args[i]->loc,
-            "argument", i + 1, "of function", Quote(node->func),
-            "must be", CStringFromBasicTypeKind(formal), ", not",
-            CStringFromBasicTypeKind(actual));
+        e.TypeError(node->args[i]->loc, "argument", i + 1, "of function",
+                    Quote(node->func), "must be",
+                    CStringFromBasicTypeKind(formal), ", not",
+                    CStringFromBasicTypeKind(actual));
       }
     }
     return fun_type.GetReturnType();
   }
 
   BasicTypeKind visitSubscript(Subscript *node) {
-    const auto &entry = view[ node->name ];
+    const auto &entry = view[node->name];
     if (!entry.IsArray()) {
-      e.TypeError(node->loc,
-          "object of type", entry.GetTypeName(), "cannot be subscripted as an array");
+      e.TypeError(node->loc, "object of type", entry.GetTypeName(),
+                  "cannot be subscripted as an array");
       return BasicTypeKind::Void;
     }
 
@@ -313,15 +299,15 @@ public:
   }
 
   BasicTypeKind visitName(Name *node) {
-    const auto &entry = view[ node->id ];
+    const auto &entry = view[node->id];
     if (node->ctx == ExprContextKind::Load && entry.IsArray()) {
-      e.TypeError(node->loc,
-          "object of type", entry.GetTypeName(), "cannot be used in an expression");
+      e.TypeError(node->loc, "object of type", entry.GetTypeName(),
+                  "cannot be used in an expression");
       return BasicTypeKind::Void;
     }
     if (node->ctx == ExprContextKind::Store && !entry.IsVariable()) {
-      e.TypeError(node->loc,
-          "object of type", entry.GetTypeName(), "cannot be assigned to");
+      e.TypeError(node->loc, "object of type", entry.GetTypeName(),
+                  "cannot be assigned to");
       return BasicTypeKind::Void;
     }
     if (entry.IsConstant())
@@ -335,18 +321,16 @@ public:
     e.InternalError(x->loc, "TypeCheker::visitStr() shall not be called");
   }
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
-
 };
 
 bool CheckType(Program *prog, SymbolTable &symtable) {
   ErrorManager e;
-  for (auto decl: prog->decls) {
+  for (auto decl : prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       // first do transformation
       ImplicitCallTransformer(symtable.GetLocal(fun)).visitFuncDef(fun);
-      TypeCheker checker(
-          symtable.GetLocal(fun),
-          symtable.GetGlobal()[fun->name], e);
+      TypeCheker checker(symtable.GetLocal(fun),
+                         symtable.GetGlobal()[fun->name], e);
       checker.visitFuncDef(fun);
     }
   }

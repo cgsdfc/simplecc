@@ -1,11 +1,11 @@
-#include "parser.h"
-#include "cst.h"
-#include "syntax_check.h"
-#include "symtable.h"
-#include "type_check.h"
-#include "error.h"
 #include "compile.h"
+#include "cst.h"
+#include "error.h"
 #include "mips.h"
+#include "parser.h"
+#include "symtable.h"
+#include "syntax_check.h"
+#include "type_check.h"
 
 #include <fstream>
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  auto&& module = CompileProgram(ast_node, symtable);
+  auto &&module = CompileProgram(ast_node, symtable);
 
   AssembleMips(module, std::cout);
   /* std::cout << module << "\n"; */

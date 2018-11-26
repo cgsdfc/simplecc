@@ -1,7 +1,7 @@
 #ifndef COMPILE_H
 #define COMPILE_H
-#include "symtable.h"
 #include "code.h"
+#include "symtable.h"
 
 class FunctionCompiler;
 class ModuleCompiler;
@@ -20,50 +20,34 @@ class CompiledFunction {
   // Local non-constants
   ObjectList local_objects;
 
-  CompiledFunction(SymbolTableView local,
-     std::vector<ByteCode> &&code, SymbolEntry entry,
-     ObjectList &&formal_arguments,
-     ObjectList &&local_objects):
-    local(local),
-    code(std::move(code)),
-    entry(entry),
-    formal_arguments(std::move(formal_arguments)),
-    local_objects(std::move(local_objects)) {
-      assert(entry.IsFunction());
-    }
+  CompiledFunction(SymbolTableView local, std::vector<ByteCode> &&code,
+                   SymbolEntry entry, ObjectList &&formal_arguments,
+                   ObjectList &&local_objects)
+      : local(local), code(std::move(code)), entry(entry),
+        formal_arguments(std::move(formal_arguments)),
+        local_objects(std::move(local_objects)) {
+    assert(entry.IsFunction());
+  }
 
 public:
-  CompiledFunction(CompiledFunction &&other):
-    local(other.local), code(std::move(other.code)), entry(other.entry),
-    formal_arguments(std::move(other.formal_arguments)),
-    local_objects(std::move(other.local_objects)) {}
+  CompiledFunction(CompiledFunction &&other)
+      : local(other.local), code(std::move(other.code)), entry(other.entry),
+        formal_arguments(std::move(other.formal_arguments)),
+        local_objects(std::move(other.local_objects)) {}
 
   void Format(std::ostream &os) const;
 
-  SymbolTableView GetLocal() const {
-    return local;
-  }
+  SymbolTableView GetLocal() const { return local; }
 
-  const std::vector<ByteCode> &GetCode() const {
-    return code;
-  }
+  const std::vector<ByteCode> &GetCode() const { return code; }
 
-  const String &GetName() const {
-    return entry.GetName();
-  }
+  const String &GetName() const { return entry.GetName(); }
 
-  const ObjectList &GetFormalArguments() const {
-    return formal_arguments;
-  }
+  const ObjectList &GetFormalArguments() const { return formal_arguments; }
 
-  unsigned GetFormalArgumentCount() const {
-    return formal_arguments.size();
-  }
+  unsigned GetFormalArgumentCount() const { return formal_arguments.size(); }
 
-  const ObjectList &GetLocalObjects() const {
-    return local_objects;
-  }
-
+  const ObjectList &GetLocalObjects() const { return local_objects; }
 };
 
 class CompiledModule {
@@ -73,18 +57,14 @@ class CompiledModule {
   ObjectList global_objects;
 
 public:
-  CompiledModule(
-       std::vector<CompiledFunction> &&functions,
-       const StringLiteralTable &strings,
-       ObjectList &&global_objects):
-    functions(std::move(functions)),
-    strings(strings),
-    global_objects(std::move(global_objects)) {}
+  CompiledModule(std::vector<CompiledFunction> &&functions,
+                 const StringLiteralTable &strings, ObjectList &&global_objects)
+      : functions(std::move(functions)), strings(strings),
+        global_objects(std::move(global_objects)) {}
 
-  CompiledModule(CompiledModule &&other):
-    functions(std::move(other.functions)),
-    strings(other.strings),
-    global_objects(std::move(other.global_objects)) {}
+  CompiledModule(CompiledModule &&other)
+      : functions(std::move(other.functions)), strings(other.strings),
+        global_objects(std::move(other.global_objects)) {}
 
   const std::vector<CompiledFunction> &GetFunctions() const {
     return functions;
@@ -92,14 +72,9 @@ public:
 
   void Format(std::ostream &os) const;
 
-  const StringLiteralTable &GetStringLiteralTable() const {
-    return strings;
-  }
+  const StringLiteralTable &GetStringLiteralTable() const { return strings; }
 
-  const ObjectList &GetGlobalObjects() const {
-    return global_objects;
-  }
-
+  const ObjectList &GetGlobalObjects() const { return global_objects; }
 };
 
 CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable);

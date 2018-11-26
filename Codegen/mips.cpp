@@ -6,21 +6,18 @@
 #include <unordered_set>
 
 // Return the bytes for n entries
-inline constexpr int BytesFromEntries(int n_entries) {
-  return 4 * n_entries;
-}
+inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
 
 // Provide handy WriteLine() method to emit instructions
 class AssemblyWriter {
   std::ostream &os;
-public:
-  AssemblyWriter(std::ostream &os): os(os) {}
 
-  template <typename... Args>
-  void WriteLine(Args&&... args) {
+public:
+  AssemblyWriter(std::ostream &os) : os(os) {}
+
+  template <typename... Args> void WriteLine(Args &&... args) {
     Print(os, std::forward<Args>(args)...);
   }
-
 };
 
 // Handle global object naming
@@ -35,10 +32,10 @@ public:
   static String GetStringLiteralLabel(int ID, bool colon) {
     std::ostringstream os;
     os << "string_" << ID;
-    if (colon) os << ":";
+    if (colon)
+      os << ":";
     return os.str();
   }
-
 };
 
 // Provide local information for ByteCodeToMipsTranslator
@@ -55,16 +52,15 @@ class LocalContext {
   // populate local_offsets
   void MakeLocalOffsets(const CompiledFunction &fun) {
     auto offset = BytesFromEntries(-2);
-    for (const auto &arg: fun.GetFormalArguments()) {
+    for (const auto &arg : fun.GetFormalArguments()) {
       local_offsets.emplace(arg.GetName().data(), offset);
       offset -= BytesFromEntries(1);
     }
-    for (const auto &obj: fun.GetLocalObjects()) {
+    for (const auto &obj : fun.GetLocalObjects()) {
       local_offsets.emplace(obj.GetName().data(), offset);
       if (obj.IsArray()) {
         offset -= BytesFromEntries(obj.AsArray().GetSize());
-      }
-      else {
+      } else {
         assert(obj.IsVariable());
         offset -= BytesFromEntries(1);
       }
@@ -73,7 +69,7 @@ class LocalContext {
 
   // populate jump_targets
   void MakeJumpTargets(const CompiledFunction &fun) {
-    for (const auto &code: fun.GetCode()) {
+    for (const auto &code : fun.GetCode()) {
       if (IsJumpXXX(code.GetOpcode())) {
         jump_targets.insert(code.GetIntOperand());
       }
@@ -81,21 +77,18 @@ class LocalContext {
   }
 
 public:
-  LocalContext(const CompiledFunction &fun): local_offsets(),
-    jump_targets(), name(fun.GetName()), local(fun.GetLocal()) {
-      MakeLocalOffsets(fun);
-      MakeJumpTargets(fun);
+  LocalContext(const CompiledFunction &fun)
+      : local_offsets(), jump_targets(), name(fun.GetName()),
+        local(fun.GetLocal()) {
+    MakeLocalOffsets(fun);
+    MakeJumpTargets(fun);
   }
 
   // Return if an offset is a jump target
-  bool IsTarget(int offset) const {
-    return jump_targets.count(offset);
-  }
+  bool IsTarget(int offset) const { return jump_targets.count(offset); }
 
   // Return the offset of local name relatited to frame pointer
-  int GetLocalOffset(const char *name) const {
-    return local_offsets.at(name);
-  }
+  int GetLocalOffset(const char *name) const { return local_offsets.at(name); }
 
   // Return the label denoting a global object.
   String GetGlobalLabel(const char *name) const {
@@ -111,7 +104,8 @@ public:
   String GetReturnLabel(bool colon) const {
     std::ostringstream os;
     os << name << "_return";
-    if (colon) os << ":";
+    if (colon)
+      os << ":";
     return os.str();
   }
 
@@ -119,41 +113,39 @@ public:
   String GetTargetLabel(int offset, bool colon = false) const {
     std::ostringstream os;
     os << name << "_label_" << offset;
-    if (colon) os << ":";
+    if (colon)
+      os << ":";
     return os.str();
   }
 
   // Return whether a name is a variable
-  bool IsVariable(const char *name) const {
-    return local[name].IsVariable();
-  }
+  bool IsVariable(const char *name) const { return local[name].IsVariable(); }
 
   // Return whether a name is an array
-  bool IsArray(const char *name) const {
-    return local[name].IsArray();
-  }
+  bool IsArray(const char *name) const { return local[name].IsArray(); }
 };
 
 // Serve as a template translating one ByteCode to MIPS instructions
-class ByteCodeToMipsTranslator: public OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
+class ByteCodeToMipsTranslator
+    : public OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
   AssemblyWriter &w;
   const LocalContext &context;
 
 public:
-  ByteCodeToMipsTranslator(AssemblyWriter &w, const LocalContext &context):
-    w(w), context(context) {}
+  ByteCodeToMipsTranslator(AssemblyWriter &w, const LocalContext &context)
+      : w(w), context(context) {}
 
   // Push a register onto the stack
   void PUSH(const char *r) {
     assert(r);
     assert(r[0] == '$');
     w.WriteLine("sw", r, "0($sp)");
-    w.WriteLine("subu $sp, $sp, 4");
+    w.WriteLine("subi $sp, $sp, 4");
   }
 
   // Pop the stack, optionally taking the tos value
   void POP(const char *r = nullptr) {
-    w.WriteLine("addu $sp, $sp, 4");
+    w.WriteLine("addi $sp, $sp, 4");
     if (r) {
       assert(r[0] == '$');
       w.WriteLine("lw", r, "0($sp)");
@@ -164,8 +156,7 @@ public:
     auto offset = context.GetLocalOffset(code.GetStrOperand());
     if (context.IsVariable(code.GetStrOperand())) {
       w.WriteLine("lw $t0,", offset, "($fp)");
-    }
-    else {
+    } else {
       w.WriteLine("addi $t0, $sp,", offset);
     }
     PUSH("$t0");
@@ -209,21 +200,13 @@ public:
     PUSH("$t2");
   }
 
-  void HandleBinaryAdd(const ByteCode &code) {
-    HandleBinary("add");
-  }
+  void HandleBinaryAdd(const ByteCode &code) { HandleBinary("add"); }
 
-  void HandleBinarySub(const ByteCode &code) {
-    HandleBinary("sub");
-  }
+  void HandleBinarySub(const ByteCode &code) { HandleBinary("sub"); }
 
-  void HandleBinaryMultiply(const ByteCode &code) {
-    HandleBinary("mul");
-  }
+  void HandleBinaryMultiply(const ByteCode &code) { HandleBinary("mul"); }
 
-  void HandleBinaryDivide(const ByteCode &code) {
-    HandleBinary("div");
-  }
+  void HandleBinaryDivide(const ByteCode &code) { HandleBinary("div"); }
 
   void HandleUnaryPositive(const ByteCode &code) {
     // Nop
@@ -255,9 +238,7 @@ public:
     HandleReturn();
   }
 
-  void HandleReturnNone(const ByteCode &code) {
-    HandleReturn();
-  }
+  void HandleReturnNone(const ByteCode &code) { HandleReturn(); }
 
   void HandlePrint(int syscall_code) {
     w.WriteLine("li $v0,", syscall_code);
@@ -307,19 +288,19 @@ public:
   }
 
   void HandleBinarySubscr(const ByteCode &code) {
-    POP("$t0"); // index
-    POP("$t1"); // array
-    w.WriteLine("sll $t0, $t0, 2"); // index *= 4
+    POP("$t0");                       // index
+    POP("$t1");                       // array
+    w.WriteLine("sll $t0, $t0, 2");   // index *= 4
     w.WriteLine("add $t2, $t1, $t0"); // address = array + index
-    w.WriteLine("lw $t3, 0($t2)"); // t3 = array[index]
+    w.WriteLine("lw $t3, 0($t2)");    // t3 = array[index]
     PUSH("$t3");
   }
 
   void HandleStoreSubscr(const ByteCode &code) {
-    POP("$t0"); // index
-    POP("$t1"); // array
-    POP("$t3"); // value
-    w.WriteLine("sll $t0, $t0, 2"); // index *= 4
+    POP("$t0");                       // index
+    POP("$t1");                       // array
+    POP("$t3");                       // value
+    w.WriteLine("sll $t0, $t0, 2");   // index *= 4
     w.WriteLine("add $t2, $t1, $t0"); // address = array + index
     w.WriteLine("sw $t3, 0($t2)");
   }
@@ -374,10 +355,7 @@ public:
     HandleBinaryJumpIf("ble", code);
   }
 
-  void HandlePopTop(const ByteCode &code) {
-    POP();
-  }
-
+  void HandlePopTop(const ByteCode &code) { POP(); }
 };
 // }}}
 
@@ -391,7 +369,7 @@ class FunctionAssembler {
   // variables, arrays and formal arguments.
   int GetLocalObjectsBytes() const {
     auto entries = source.GetFormalArgumentCount();
-    for (const auto &obj: source.GetLocalObjects()) {
+    for (const auto &obj : source.GetLocalObjects()) {
       entries += obj.IsArray() ? obj.AsArray().GetSize() : 1;
     }
     return BytesFromEntries(entries);
@@ -437,14 +415,14 @@ class FunctionAssembler {
   }
 
 public:
-  FunctionAssembler(const CompiledFunction &source, AssemblyWriter &w):
-    source(source), w(w), context(source) {}
+  FunctionAssembler(const CompiledFunction &source, AssemblyWriter &w)
+      : source(source), w(w), context(source) {}
 
   // public interface
   void Assemble() {
     ByteCodeToMipsTranslator translator(w, context);
     MakePrologue();
-    for (const auto &byteCode: source.GetCode()) {
+    for (const auto &byteCode : source.GetCode()) {
       auto offset = byteCode.GetOffset();
       if (context.IsTarget(offset)) {
         w.WriteLine(context.GetTargetLabel(offset, true));
@@ -456,7 +434,6 @@ public:
     }
     MakeEpilogue();
   }
-
 };
 
 // Assemble a whole MIPS program
@@ -467,19 +444,18 @@ class ModuleAssembler {
   void MakeDataSegment() {
     w.WriteLine(".data");
     w.WriteLine("# Global objects");
-    for (const auto &obj: module.GetGlobalObjects()) {
+    for (const auto &obj : module.GetGlobalObjects()) {
       auto &&label = GlobalContext::GetGlobalLabel(obj.GetName(), true);
       if (obj.IsArray()) {
         auto bytes = BytesFromEntries(obj.AsArray().GetSize());
         w.WriteLine(label, ".space", bytes);
-      }
-      else {
+      } else {
         w.WriteLine(label, ".word", 0);
       }
     }
     w.WriteLine();
     w.WriteLine("# String literals");
-    for (const auto &item: module.GetStringLiteralTable()) {
+    for (const auto &item : module.GetStringLiteralTable()) {
       auto &&label = GlobalContext::GetStringLiteralLabel(item.second, true);
       w.WriteLine(label, ".asciiz", item.first);
     }
@@ -496,7 +472,7 @@ class ModuleAssembler {
     w.WriteLine();
     w.WriteLine("# User defined functions");
 
-    for (const auto &fun: module.GetFunctions()) {
+    for (const auto &fun : module.GetFunctions()) {
       w.WriteLine(GlobalContext::GetGlobalLabel(fun.GetName(), true));
       FunctionAssembler(fun, w).Assemble();
       w.WriteLine("# End of", fun.GetName());
@@ -506,11 +482,12 @@ class ModuleAssembler {
   }
 
 public:
-  ModuleAssembler(const CompiledModule &module, std::ostream &os):
-    module(module), w(os) {}
+  ModuleAssembler(const CompiledModule &module, std::ostream &os)
+      : module(module), w(os) {}
 
   void Assemble() {
     MakeDataSegment();
+    w.WriteLine();
     MakeTextSegment();
   }
 };

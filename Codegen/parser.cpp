@@ -1,13 +1,13 @@
 #include "parser.h"
 #include "error.h"
 
-#include <sstream>
-#include <vector>
 #include <cstdio>
+#include <sstream>
 #include <stack>
+#include <vector>
 
 Node::~Node() {
-  for (auto child: children)
+  for (auto child : children)
     delete child;
 }
 
@@ -41,10 +41,9 @@ public:
   int state;
   Node *node;
 
-  StackEntry(DFA *dfa, int state, Node *node):
-    dfa(dfa), state(state), node(node) {}
+  StackEntry(DFA *dfa, int state, Node *node)
+      : dfa(dfa), state(state), node(node) {}
 };
-
 
 bool IsInFirst(DFA *dfa, int label) {
   for (int i = 0; i < dfa->n_first; i++)
@@ -70,7 +69,8 @@ public:
   Node *rootnode;
   ErrorManager e;
 
-  explicit Parser(Grammar *grammar): stack(), grammar(grammar), rootnode(nullptr), e() {
+  explicit Parser(Grammar *grammar)
+      : stack(), grammar(grammar), rootnode(nullptr), e() {
     auto start = grammar->start;
     Node *newnode = new Node(static_cast<Symbol>(start), "", Location(0, 0));
     stack.push(StackEntry(grammar->dfas[start - NT_OFFSET], 0, newnode));
@@ -117,8 +117,7 @@ public:
 
     if (stack.size()) {
       stack.top().node->AddChild(newnode);
-    }
-    else {
+    } else {
       rootnode = newnode;
     }
   }
@@ -178,8 +177,7 @@ public:
             e.SyntaxError(token.start, "too much input");
             return -1;
           }
-        }
-        else {
+        } else {
           e.SyntaxError(token.start, "unexpected", Quote(token.line));
           return -1;
         }
@@ -188,7 +186,7 @@ public:
   }
 
   Node *ParseTokens(const TokenBuffer &tokens) {
-    for (const auto &token: tokens) {
+    for (const auto &token : tokens) {
       if (token.type == Symbol::ERRORTOKEN) {
         e.SyntaxError(token.start, "error token", Quote(token.string));
         return nullptr;

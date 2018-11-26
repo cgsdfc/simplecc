@@ -2,14 +2,14 @@
 #define GRAMDEF_H
 
 struct Arc {
-    int label;
-    int state;
+  int label;
+  int state;
 };
 
 struct DFAState {
-    int n_arcs;
-    Arc *arcs;
-    bool is_final;
+  int n_arcs;
+  Arc *arcs;
+  bool is_final;
 };
 
 struct DFA {
