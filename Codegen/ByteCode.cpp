@@ -1,4 +1,4 @@
-#include "code.h"
+#include "ByteCode.h"
 #include "error.h"
 
 bool IsJumpXXX(Opcode op) {

@@ -1,5 +1,5 @@
-#ifndef CODE_H
-#define CODE_H
+#ifndef BYTE_CODE_H
+#define BYTE_CODE_H
 
 #include "Opcode.h"
 #include <optional>

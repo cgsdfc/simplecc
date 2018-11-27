@@ -1,6 +1,6 @@
 #ifndef COMPILE_H
 #define COMPILE_H
-#include "code.h"
+#include "ByteCode.h"
 #include "symtable.h"
 
 class FunctionCompiler;

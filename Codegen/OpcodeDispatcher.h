@@ -1,7 +1,7 @@
 
 #ifndef OPCODE_DISPATCHER
 #define OPCODE_DISPATCHER
-#include "code.h"
+#include "ByteCode.h"
 
 template <class Derived> class OpcodeDispatcher {
 public:

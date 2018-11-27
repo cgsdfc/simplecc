@@ -24,7 +24,7 @@ include_directories("$ENV{HOME}/include")
 # All executables added hereby
 add_executable(codegen
   ./assemble.cpp
-  ./code.cpp
+  ./ByteCode.cpp
   ./compile.cpp
   ./Opcode.cpp
   ./AST.cpp
