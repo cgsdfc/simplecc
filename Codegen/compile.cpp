@@ -297,7 +297,7 @@ CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable) {
       global_objects.push_back(symtable.GetGlobal(var->name));
     }
   }
-  return CompiledModule(std::move(functions), symtable.string_literals,
+  return CompiledModule(std::move(functions), symtable.GetStringLiteralTable(),
                         std::move(global_objects));
 }
 

@@ -265,11 +265,11 @@ std::ostream &operator<<(std::ostream &os,
   return os << "}";
 }
 
-std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {
+void SymbolTable::Format(std::ostream &os) const {
   os << "SymbolTable(";
-  os << "global=" << t.global << ",\n"
-     << "\nlocals=" << t.locals << ",\n"
-     << "\nstring_literals=" << t.string_literals << ",\n"
-     << "\nexpr_types=" << t.expr_types;
-  return os << ")";
+  os << "global=" << global << ",\n"
+     << "\nlocals=" << locals << ",\n"
+     << "\nstring_literals=" << string_literals << ",\n"
+     << "\nexpr_types=" << expr_types;
+  os << ")";
 }

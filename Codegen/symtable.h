@@ -9,6 +9,8 @@ enum class Scope { Global, Local };
 class SymbolTable;
 class TypeCheker;
 
+bool BuildSymbolTable(Program *prog, SymbolTable &table);
+
 class FuncType {
   FuncDef *fun;
 
@@ -67,6 +69,8 @@ public:
   BasicTypeKind GetType() const { return type; }
 };
 
+// An entry in the SymbolTable with type and scope information about
+// a name within a block (global or local).
 class SymbolEntry {
   Scope scope;
   Decl *decl;
@@ -148,6 +152,7 @@ inline std::ostream &operator<<(std::ostream &os, const SymbolEntry &e) {
   return os;
 }
 
+// Binding type of an expression to its address
 class TypeEntry {
   friend class SymbolTable;
   Expr *expr;
@@ -163,18 +168,21 @@ public:
   const char *GetExprClassName() const { return expr->ClassName(); }
 };
 
+
 using ExprTypeTable = std::unordered_map<uintptr_t, TypeEntry>;
 using TableType = std::unordered_map<String, SymbolEntry>;
 using NestedTableType = std::unordered_map<uintptr_t, TableType>;
 using StringLiteralTable = std::unordered_map<String, int>;
 
+
+// Provide a safe const view to a sub-symbol table
 class SymbolTableView {
   friend class SymbolTable;
   const TableType &subtable;
   SymbolTableView(const TableType &subtable) : subtable(subtable) {}
 
 public:
-  // Provide a safe readonly access to value
+  // Sane operator[]
   const SymbolEntry &operator[](const String &name) const {
     assert(subtable.count(name));
     return subtable.find(name)->second;
@@ -187,42 +195,56 @@ public:
 
 class SymbolTable {
   friend class TypeCheker;
+  friend bool BuildSymbolTable(Program *prog, SymbolTable &table);
+
   void SetExprType(Expr *expr, BasicTypeKind type) {
     expr_types.emplace(reinterpret_cast<uintptr_t>(expr), TypeEntry(expr, type));
   }
 
-public:
   TableType global;
   NestedTableType locals;
   StringLiteralTable string_literals;
   ExprTypeTable expr_types;
 
+public:
   SymbolTable() : global(), locals(), string_literals() {}
 
+  // Return local symbol table for a function
   SymbolTableView GetLocal(FuncDef *fun) const {
     auto key = reinterpret_cast<uintptr_t>(fun);
     assert(locals.count(key));
     return SymbolTableView(locals.find(key)->second);
   }
 
+  // Return a SymbolEntry for a global name
   SymbolEntry GetGlobal(const String &name) const {
     return SymbolTableView(global)[name];
   }
 
+  // Return the ID for a string literal
   int GetStringLiteralID(const String &literal) const {
     assert(string_literals.count(literal));
     return string_literals.find(literal)->second;
   }
 
+  // Return the string literal table
+  const StringLiteralTable &GetStringLiteralTable() const {
+    return string_literals;
+  }
+
+  // Return the TypeEntry for an expression
   TypeEntry GetExprType(Expr *expr) const {
     return expr_types.at(reinterpret_cast<uintptr_t>(expr));
   }
 
+  // Self-check
   void Check() const;
+  void Format(std::ostream &os) const;
 };
 
-std::ostream &operator<<(std::ostream &os, const SymbolTable &t);
-
-bool BuildSymbolTable(Program *prog, SymbolTable &table);
+inline std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {
+  t.Format(os);
+  return os;
+}
 
 #endif
