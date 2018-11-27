@@ -1,5 +1,5 @@
-#ifndef MIPS_H
-#define MIPS_H
+#ifndef ASSEMBLE_H
+#define ASSEMBLE_H
 #include "compile.h"
 #include <iostream>
 

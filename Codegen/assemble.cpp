@@ -1,4 +1,4 @@
-#include "mips.h"
+#include "assemble.h"
 #include "OpcodeDispatcher.h"
 #include "error.h"
 

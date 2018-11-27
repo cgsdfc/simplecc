@@ -1,7 +1,7 @@
 #include "compile.h"
 #include "cst.h"
 #include "error.h"
-#include "mips.h"
+#include "assemble.h"
 #include "parser.h"
 #include "symtable.h"
 #include "syntax_check.h"

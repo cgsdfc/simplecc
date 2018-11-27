@@ -23,7 +23,7 @@ include_directories("$ENV{HOME}/include")
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # All executables added hereby
 add_executable(codegen
-  ./mips.cpp
+  ./assemble.cpp
   ./code.cpp
   ./compile.cpp
   ./Opcode.cpp
@@ -37,5 +37,3 @@ add_executable(codegen
   ./parser.cpp
   ./gramdef.cpp
   ./tokenize.cpp)
-
-add_executable(cpplovesstars ./CppLovesStars.cpp)
