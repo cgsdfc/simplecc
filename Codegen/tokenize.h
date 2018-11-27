@@ -66,5 +66,5 @@ public:
 typedef std::vector<TokenInfo> TokenBuffer;
 
 void Tokenize(std::istream &Input, TokenBuffer &Output);
-
+void PrintTokens(const TokenBuffer &tokens, std::ostream &os);
 #endif

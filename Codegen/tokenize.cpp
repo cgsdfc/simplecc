@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cassert>
 #include <sstream>
+#include <iomanip>
 
 // Location(lineno, col_offset) => "lineno,col_offset"
 String LocationToString(const Location &loc) {
@@ -18,11 +19,12 @@ String LocationRangeToString(const Location &start) {
   return os.str();
 }
 
-void DumpTokenInfo(std::FILE *out, const TokenInfo &token) {
+void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
   String &&token_range = LocationRangeToString(token.start);
 
-  std::fprintf(out, "%-20s%-15s%-15s\n", token_range.c_str(),
-               GetSymName(token.type), token.string.c_str());
+  os << std::left << std::setw(20) << token_range;
+  os << std::left << std::setw(15) << GetSymName(token.type);
+  os << std::left << std::setw(15) << Quote(token.string) << "\n";
 }
 
 void TokenInfo::Format(std::ostream &os) const {
@@ -146,4 +148,10 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
     }
   }
   Output.emplace_back(Symbol::ENDMARKER, "", Location(lnum, 0), "");
+}
+
+void PrintTokens(const TokenBuffer &tokens, std::ostream &os) {
+  for (auto &&token : tokens) {
+    DumpTokenInfo(os, token);
+  }
 }

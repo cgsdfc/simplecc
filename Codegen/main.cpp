@@ -7,54 +7,116 @@
 #include "syntax_check.h"
 #include "type_check.h"
 
+#include <tclap/CmdLine.h>
 #include <fstream>
+#include <memory>
+
+using namespace TCLAP;
 
 void TestSymbolTable(SymbolTable &symtable);
 
+
 int main(int argc, char **argv) {
-  TokenBuffer tokens;
-  if (argc == 1) {
-    Tokenize(std::cin, tokens);
-  } else if (argc == 2) {
-    std::ifstream ifs(argv[1]);
-    if (ifs.fail()) {
-      fprintf(stderr, "file %s not exist\n", argv[1]);
-      exit(1);
-    }
-    Tokenize(ifs, tokens);
-  } else {
-    fputs("Usage: parser [file]\n", stderr);
-    exit(1);
+  CmdLine parser("Simple Compiler Debugging helper", ' ', "0.0.1");
+
+  ValueArg<String> input_arg("i", "input",
+      "input file to compile", // description
+      true, // required
+      "", // default
+      "file", // metavar
+      parser);
+
+  SwitchArg tokenize("", "tokenize", "break input into tokens", false);
+  SwitchArg build_cst("", "build-cst", "run the parser and construct a concrete syntax tree", false);
+  SwitchArg build_ast("", "build-ast", "create an abstract syntax tree from the concrete syntax tree", false);
+  SwitchArg syntax_check("", "syntax-check", "verify that the AST is syntax correct", false);
+  SwitchArg build_symtable("", "build-symtable", "build a symbol table from the abstract syntax tree", false);
+  SwitchArg type_check("", "type-check", "run type-check for the input program", false);
+  SwitchArg compile("", "compile", "compile the input program to byte code", false);
+  SwitchArg assemble("", "assemble", "assemble the compiled program to MIPS assembly", false);
+  std::vector<TCLAP::Arg*> xor_list{
+    &tokenize, &build_cst, &build_ast, &syntax_check, &build_symtable, &type_check, &compile, &assemble
+  };
+
+  parser.xorAdd(xor_list);
+
+
+  try {
+    parser.parse(argc, argv);
+  } catch (TCLAP::ArgException &e) {
+    std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+    return 1;
   }
 
-  Node *cst_node = ParseTokens(tokens);
-  if (!cst_node)
+  // Prepare input stream
+  std::ifstream input_file(input_arg.getValue());
+  if (input_file.fail()) {
+    Print(std::cerr, "File", Quote(input_arg.getValue()), "does not exist");
     return 1;
+  }
 
-  Program *ast_node = NodeToAst(cst_node);
-  if (!ast_node)
-    return 1;
 
-  if (!CheckSyntax(ast_node)) {
+  TokenBuffer tokens;
+  Tokenize(input_file, tokens);
+  if (tokenize.getValue()) {
+    PrintTokens(tokens, std::cout);
+    return 0;
+  }
+
+  std::unique_ptr<Node> cst_node{ParseTokens(tokens)};
+  if (!cst_node) {
+    // SyntaxError
     return 1;
+  }
+  if (build_cst.getValue()) {
+    std::cout << *cst_node << "\n";
+    return 0;
+  }
+
+  std::unique_ptr<Program> ast_node{NodeToAst(cst_node.get())};
+  if (!ast_node) {
+    // No memory
+    return 1;
+  }
+  if (build_ast.getValue()) {
+    std::cout << *ast_node << "\n";
+    return 0;
+  }
+
+  if (!CheckSyntax(ast_node.get())) {
+    return 1;
+  }
+  if (syntax_check.getValue()) {
+    return 0;
   }
 
   SymbolTable symtable;
-  if (!BuildSymbolTable(ast_node, symtable)) {
+  if (!BuildSymbolTable(ast_node.get(), symtable)) {
     return 1;
   }
   symtable.Check();
-
-  if (!CheckType(ast_node, symtable)) {
-    return 1;
+  if (build_symtable.getValue()) {
+    std::cout << symtable << "\n";
+    return 0;
   }
 
-  auto &&module = CompileProgram(ast_node, symtable);
+  if (!CheckType(ast_node.get(), symtable)) {
+    return 1;
+  }
+  if (type_check.getValue()) {
+    return 0;
+  }
 
-  /* AssembleMips(module, std::cout); */
-  std::cout << module << "\n";
+  auto &&module = CompileProgram(ast_node.get(), symtable);
+  if (compile.getValue()) {
+    std::cout << module << "\n";
+    return 0;
+  }
 
-  delete ast_node;
-  delete cst_node;
-  return 0;
+  if (assemble.getValue()) {
+    AssembleMips(module, std::cout);
+    return 0;
+  }
+
+  return 1;
 }

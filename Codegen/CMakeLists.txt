@@ -4,6 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 17)
 
+include_directories("$ENV{HOME}/include")
 # if (NOT WIN32)
 #   # We currently don't know if python3 if available.
 # add_custom_command(
@@ -36,3 +37,5 @@ add_executable(codegen
   ./parser.cpp
   ./gramdef.cpp
   ./tokenize.cpp)
+
+add_executable(cpplovesstars ./CppLovesStars.cpp)
