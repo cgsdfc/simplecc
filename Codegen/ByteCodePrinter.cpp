@@ -2,10 +2,13 @@
 #include "Visitor.h"
 #include "Print.h"
 
+// A class that handles the formatting of the result of an epxression
+// It is a union of factor expr and temporary
 class ExprValue {
   Expr *factor;
   int temporary;
 
+  // Sanity check
   bool Check() const {
     if (!factor) {
       return temporary >= 0;
@@ -18,11 +21,14 @@ class ExprValue {
   }
 
 public:
-  explicit ExprValue(int temporary): factor(nullptr), temporary(temporary) {}
-  explicit ExprValue(Expr *factor): factor(factor), temporary(-1) {}
+  explicit ExprValue(int temporary): factor(nullptr), temporary(temporary) {
+    assert(Check());
+  }
+  explicit ExprValue(Expr *factor): factor(factor), temporary(-1) {
+    assert(Check());
+  }
 
   void Format(std::ostream &os) const {
-    assert(Check());
     if (!factor) {
       os << "t" << temporary;
     }
@@ -46,12 +52,19 @@ std::ostream &operator<<(std::ostream &os, const ExprValue &c) {
   return os;
 }
 
+// A class that handles the formatting of a label of two form:
+// inline form like GOTO Label_1 and non-inlined form like:
+// Label_1:
+// printf t0
 class LineLabel {
+  // Identifier of this label
   int value;
+  // which form it takes
   bool inlined;
 public:
   LineLabel(int value): value(value), inlined(false) {}
 
+  // setter of inlined, for use in operator<<()
   LineLabel &Inline(bool inlined) {
     this->inlined = inlined;
     return *this;
@@ -69,10 +82,13 @@ std::ostream &operator<<(std::ostream &os, const LineLabel &c) {
   return os;
 }
 
+// A class that prints a program in the quarternary form
 class ByteCodePrinter : public VisitorBase<ByteCodePrinter> {
   Program *program;
   Printer w;
+  // temporaries counter
   int temporaries;
+  // label counter
   int labels;
 
   ExprValue MakeTemporary() {
@@ -257,6 +273,7 @@ public:
     assert(false && "BoolOp should be handled by CompileBoolOp()");
   }
 
+  // XXX: result id should come after operands's
   ExprValue visitBinOp(BinOp *node) {
     auto op = CStringFromOperatorKind(node->op);
     auto &&left = visitExpr(node->left);
@@ -277,10 +294,10 @@ public:
   ExprValue visitSubscript(Subscript *node) {
     assert(node->ctx == ExprContextKind::Load &&
         "Store must be handle by visitAssign()");
-    auto &&val = MakeTemporary();
     auto &&index = visitExpr(node->index);
-    w.WriteLine(val, "=", node->name, "[", index, "]");
-    return val;
+    auto &&result = MakeTemporary();
+    w.WriteLine(result, "=", node->name, "[", index, "]");
+    return result;
   }
 
 public:

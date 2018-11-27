@@ -6,5 +6,5 @@ void main() {
   iarr[0] = 1;
   ivar = iarr[0];
   iarr[0] = iarr[1];
-  printf(carr[1]);
+  ivar = iarr[1 + 1];
 }
