@@ -52,8 +52,8 @@ class LocalContext {
   // populate local_offsets
   void MakeLocalOffsets(const CompiledFunction &fun) {
     // offset points to the first vacant byte after storing
-    // $ra and $fp
-    auto offset = BytesFromEntries(-3);
+    // $ra and $fp. $ra is at 0($fp), $fp is at -4($fp)
+    auto offset = BytesFromEntries(-2);
     for (const auto &arg : fun.GetFormalArguments()) {
       local_offsets.emplace(arg.GetName().data(), offset);
       offset -= BytesFromEntries(1);
@@ -145,6 +145,7 @@ class ByteCodeToMipsTranslator
     : public OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
   AssemblyWriter &w;
   const LocalContext &context;
+  int stack_level = 0;
 
 public:
   ByteCodeToMipsTranslator(AssemblyWriter &w, const LocalContext &context)
@@ -155,17 +156,20 @@ public:
     // $sp points to the one entry pass TOS
     assert(r);
     assert(r[0] == '$');
-    w.WriteLine("sw", r, "0($sp)");
-    w.WriteLine("subi $sp, $sp, 4");
+    w.WriteLine("sw", r, ", 0($sp)");
+    w.WriteLine("addi $sp, $sp, -4");
+    ++stack_level;
   }
 
   // Pop the stack, optionally taking the tos value
   void POP(const char *r = nullptr) {
+    assert(stack_level > 0 && "POP an empty stack!");
     w.WriteLine("addi $sp, $sp, 4");
     if (r) {
       assert(r[0] == '$');
-      w.WriteLine("lw", r, "0($sp)");
+      w.WriteLine("lw", r, ", 0($sp)");
     }
+    --stack_level;
   }
 
   void HandleLoadLocal(const ByteCode &code) {
@@ -404,7 +408,7 @@ class FunctionAssembler {
     w.WriteLine("sw $ra, 0($sp)");
     w.WriteLine("sw $fp, -4($sp)");
     w.WriteLine("move $fp, $sp");
-    w.WriteLine("sub $sp, $sp,", BytesFromEntries(2));
+    w.WriteLine("addi $sp, $sp,", -BytesFromEntries(2));
     w.WriteLine();
 
     auto nargs = source.GetFormalArgumentCount();
@@ -422,10 +426,10 @@ class FunctionAssembler {
       w.WriteLine();
     }
 
-    auto offset = GetLocalObjectsBytes();
+    auto offset = -GetLocalObjectsBytes();
     if (offset) {
       w.WriteLine("# Make room for local objects");
-      w.WriteLine("sub $sp, $sp,", offset);
+      w.WriteLine("addi $sp, $sp,", offset);
       w.WriteLine();
     }
     // now $fp points to the bottom of stack,
