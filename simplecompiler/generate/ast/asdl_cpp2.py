@@ -392,7 +392,7 @@ class AST {
 public:
     virtual void Format(std::ostream &os) const = 0;
     virtual ~AST() = 0;
-    virtual String ClassName() const = 0;
+    virtual const char *ClassName() const = 0;
 };
 
 inline AST::~AST() {}
@@ -599,7 +599,7 @@ public:
 
     ~$class_name() override;
 
-    String ClassName() const override {
+    const char *ClassName() const override {
         return "$class_name";
     }
 
@@ -633,7 +633,7 @@ public:
 
     ~$class_name() override;
 
-    String ClassName() const override {
+    const char *ClassName() const override {
         return "$class_name";
     }
 

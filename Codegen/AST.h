@@ -13,7 +13,7 @@ class AST {
 public:
   virtual void Format(std::ostream &os) const = 0;
   virtual ~AST() = 0;
-  virtual String ClassName() const = 0;
+  virtual const char *ClassName() const = 0;
 };
 
 inline AST::~AST() {}
@@ -135,7 +135,7 @@ public:
 
   ~ConstDecl() override;
 
-  String ClassName() const override { return "ConstDecl"; }
+  const char *ClassName() const override { return "ConstDecl"; }
 
   void Format(std::ostream &os) const override;
 
@@ -157,7 +157,7 @@ public:
 
   ~VarDecl() override;
 
-  String ClassName() const override { return "VarDecl"; }
+  const char *ClassName() const override { return "VarDecl"; }
 
   void Format(std::ostream &os) const override;
 
@@ -181,7 +181,7 @@ public:
 
   ~FuncDef() override;
 
-  String ClassName() const override { return "FuncDef"; }
+  const char *ClassName() const override { return "FuncDef"; }
 
   void Format(std::ostream &os) const override;
 
@@ -199,7 +199,7 @@ public:
 
   ~Read() override;
 
-  String ClassName() const override { return "Read"; }
+  const char *ClassName() const override { return "Read"; }
 
   void Format(std::ostream &os) const override;
 
@@ -216,7 +216,7 @@ public:
 
   ~Write() override;
 
-  String ClassName() const override { return "Write"; }
+  const char *ClassName() const override { return "Write"; }
 
   void Format(std::ostream &os) const override;
 
@@ -233,7 +233,7 @@ public:
 
   ~Assign() override;
 
-  String ClassName() const override { return "Assign"; }
+  const char *ClassName() const override { return "Assign"; }
 
   void Format(std::ostream &os) const override;
 
@@ -254,7 +254,7 @@ public:
 
   ~For() override;
 
-  String ClassName() const override { return "For"; }
+  const char *ClassName() const override { return "For"; }
 
   void Format(std::ostream &os) const override;
 
@@ -271,7 +271,7 @@ public:
 
   ~While() override;
 
-  String ClassName() const override { return "While"; }
+  const char *ClassName() const override { return "While"; }
 
   void Format(std::ostream &os) const override;
 
@@ -287,7 +287,7 @@ public:
 
   ~Return() override;
 
-  String ClassName() const override { return "Return"; }
+  const char *ClassName() const override { return "Return"; }
 
   void Format(std::ostream &os) const override;
 
@@ -306,7 +306,7 @@ public:
 
   ~If() override;
 
-  String ClassName() const override { return "If"; }
+  const char *ClassName() const override { return "If"; }
 
   void Format(std::ostream &os) const override;
 
@@ -322,7 +322,7 @@ public:
 
   ~ExprStmt() override;
 
-  String ClassName() const override { return "ExprStmt"; }
+  const char *ClassName() const override { return "ExprStmt"; }
 
   void Format(std::ostream &os) const override;
 
@@ -342,7 +342,7 @@ public:
 
   ~BinOp() override;
 
-  String ClassName() const override { return "BinOp"; }
+  const char *ClassName() const override { return "BinOp"; }
 
   void Format(std::ostream &os) const override;
 
@@ -358,7 +358,7 @@ public:
 
   ~ParenExpr() override;
 
-  String ClassName() const override { return "ParenExpr"; }
+  const char *ClassName() const override { return "ParenExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -376,7 +376,7 @@ public:
 
   ~BoolOp() override;
 
-  String ClassName() const override { return "BoolOp"; }
+  const char *ClassName() const override { return "BoolOp"; }
 
   void Format(std::ostream &os) const override;
 
@@ -393,7 +393,7 @@ public:
 
   ~UnaryOp() override;
 
-  String ClassName() const override { return "UnaryOp"; }
+  const char *ClassName() const override { return "UnaryOp"; }
 
   void Format(std::ostream &os) const override;
 
@@ -413,7 +413,7 @@ public:
 
   ~Call() override;
 
-  String ClassName() const override { return "Call"; }
+  const char *ClassName() const override { return "Call"; }
 
   void Format(std::ostream &os) const override;
 
@@ -428,7 +428,7 @@ public:
 
   ~Num() override;
 
-  String ClassName() const override { return "Num"; }
+  const char *ClassName() const override { return "Num"; }
 
   void Format(std::ostream &os) const override;
 
@@ -443,7 +443,7 @@ public:
 
   ~Str() override;
 
-  String ClassName() const override { return "Str"; }
+  const char *ClassName() const override { return "Str"; }
 
   void Format(std::ostream &os) const override;
 
@@ -458,7 +458,7 @@ public:
 
   ~Char() override;
 
-  String ClassName() const override { return "Char"; }
+  const char *ClassName() const override { return "Char"; }
 
   void Format(std::ostream &os) const override;
 
@@ -477,7 +477,7 @@ public:
 
   ~Subscript() override;
 
-  String ClassName() const override { return "Subscript"; }
+  const char *ClassName() const override { return "Subscript"; }
 
   void Format(std::ostream &os) const override;
 
@@ -496,7 +496,7 @@ public:
 
   ~Name() override;
 
-  String ClassName() const override { return "Name"; }
+  const char *ClassName() const override { return "Name"; }
 
   void Format(std::ostream &os) const override;
 
@@ -513,7 +513,7 @@ public:
 
   ~Program() override;
 
-  String ClassName() const override { return "Program"; }
+  const char *ClassName() const override { return "Program"; }
 
   void Format(std::ostream &os) const override;
 };
@@ -529,7 +529,7 @@ public:
 
   ~Arg() override;
 
-  String ClassName() const override { return "Arg"; }
+  const char *ClassName() const override { return "Arg"; }
 
   void Format(std::ostream &os) const override;
 };
