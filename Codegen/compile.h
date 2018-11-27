@@ -22,21 +22,10 @@ class CompiledFunction {
 
   CompiledFunction(SymbolTableView local, std::vector<ByteCode> &&code,
                    SymbolEntry entry, ObjectList &&formal_arguments,
-                   ObjectList &&local_objects)
-      : local(local), code(std::move(code)), entry(entry),
-        formal_arguments(std::move(formal_arguments)),
-        local_objects(std::move(local_objects)) {
-    assert(entry.IsFunction());
-    for (auto &&code : code) {
-      code.Check();
-    }
-  }
+                   ObjectList &&local_objects);
 
 public:
-  CompiledFunction(CompiledFunction &&other)
-      : local(other.local), code(std::move(other.code)), entry(other.entry),
-        formal_arguments(std::move(other.formal_arguments)),
-        local_objects(std::move(other.local_objects)) {}
+  CompiledFunction(CompiledFunction &&other);
 
   void Format(std::ostream &os) const;
 

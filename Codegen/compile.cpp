@@ -5,12 +5,28 @@
 #include <iomanip>
 #include <unordered_map>
 
-using ByteCodeBuffer = std::vector<ByteCode>;
-using NameTable = std::unordered_map<const char *, int>;
+CompiledFunction::CompiledFunction(
+    SymbolTableView local, std::vector<ByteCode> &&code,
+    SymbolEntry entry, ObjectList &&formal_arguments,
+    ObjectList &&local_objects)
+  : local(local), code(std::move(code)), entry(entry),
+  formal_arguments(std::move(formal_arguments)),
+  local_objects(std::move(local_objects))
+{
+  assert(entry.IsFunction());
+  for (auto &&code : code) {
+    code.Check();
+  }
+}
+
+CompiledFunction::CompiledFunction(CompiledFunction &&other)
+  : local(other.local), code(std::move(other.code)), entry(other.entry),
+  formal_arguments(std::move(other.formal_arguments)),
+  local_objects(std::move(other.local_objects)) {}
 
 class FunctionCompiler : public VisitorBase<FunctionCompiler> {
   unsigned current_lineno;
-  ByteCodeBuffer buffer;
+  std::vector<ByteCode> buffer;
   SymbolTableView local;
   const SymbolTable &symtable;
   FuncDef *function;
@@ -21,14 +37,14 @@ class FunctionCompiler : public VisitorBase<FunctionCompiler> {
   // of it in buffer
   int Add(ByteCode code) {
     code.SetLineno(current_lineno);
-    auto offset = GetNextByteCodeOffset();
+    auto offset = GetLabel();
     code.SetOffset(offset);
     buffer.push_back(code);
     return offset;
   }
 
   // return the offset of the next ByteCode to be added
-  int GetNextByteCodeOffset() const { return buffer.size(); }
+  int GetLabel() const { return buffer.size(); }
 
   // return the offset of the last added ByteCode
   int GetLastByteCodeOffset() const {
@@ -36,9 +52,12 @@ class FunctionCompiler : public VisitorBase<FunctionCompiler> {
     return buffer.size() - 1;
   }
 
+  // return the last ByteCode in the buffer
   ByteCode GetLastByteCode() const { return buffer[GetLastByteCodeOffset()]; }
 
+  // set the jump ByteCode at offset to have target
   void SetTargetAt(int offset, int target) {
+    assert(IsJumpXXX(buffer.at(offset).GetOpcode()) && "IsJumpXXX()");
     buffer.at(offset).SetTarget(target);
   }
 
@@ -134,40 +153,57 @@ public:
 
   void visitFor(For *node) {
     visitStmt(node->initial);
-    auto offset = GetNextByteCodeOffset();
+    auto jump_to_start = Add(ByteCode(Opcode::JUMP_FORWARD));
+    auto loop_label = GetLabel();
+    visitStmt(node->step);
+    auto jump_to_end =
+      CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
+    auto start_label = GetLabel();
     for (auto s : node->body) {
       visitStmt(s);
     }
-    visitStmt(node->step);
-    auto jump_if = CompileBoolOp(static_cast<BoolOp *>(node->condition), false);
-    SetTargetAt(jump_if, offset);
+    auto jump_to_loop = Add(ByteCode(Opcode::JUMP_FORWARD));
+    auto end_label = GetLabel();
+
+    SetTargetAt(jump_to_start, start_label);
+    SetTargetAt(jump_to_end, end_label);
+    SetTargetAt(jump_to_loop, loop_label);
   }
 
   void visitWhile(While *node) {
-    auto offset = GetNextByteCodeOffset();
-    auto jump_if = CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
+    auto loop_label = GetLabel();
+    auto jump_to_end =
+      CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
     for (auto s : node->body) {
       visitStmt(s);
     }
-    Add(ByteCode(Opcode::JUMP_FORWARD, offset));
-    SetTargetAt(jump_if, GetNextByteCodeOffset());
+    auto jump_to_loop = Add(ByteCode(Opcode::JUMP_FORWARD));
+    auto end_label = GetLabel();
+
+    SetTargetAt(jump_to_end, end_label);
+    SetTargetAt(jump_to_loop, loop_label);
   }
 
   void visitIf(If *node) {
-    auto jump_if = CompileBoolOp(static_cast<BoolOp *>(node->test), true);
+    auto jump_to_orelse =
+      CompileBoolOp(static_cast<BoolOp *>(node->test), true);
     for (auto s : node->body) {
       visitStmt(s);
     }
     if (node->orelse.empty()) {
-      SetTargetAt(jump_if, GetNextByteCodeOffset());
+      auto end_label = GetLabel();
+      SetTargetAt(jump_to_orelse, end_label);
       return;
     }
-    auto jump_forward = Add(ByteCode(Opcode::JUMP_FORWARD));
-    SetTargetAt(jump_if, GetNextByteCodeOffset());
+    auto jump_to_end = Add(ByteCode(Opcode::JUMP_FORWARD));
+    auto orelse_label = GetLabel();
     for (auto s : node->orelse) {
       visitStmt(s);
     }
-    SetTargetAt(jump_forward, GetNextByteCodeOffset());
+    auto end_label = GetLabel();
+
+    SetTargetAt(jump_to_orelse, orelse_label);
+    SetTargetAt(jump_to_end, end_label);
   }
 
   void visitReturn(Return *node) {
