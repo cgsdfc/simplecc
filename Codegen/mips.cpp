@@ -51,7 +51,9 @@ class LocalContext {
 
   // populate local_offsets
   void MakeLocalOffsets(const CompiledFunction &fun) {
-    auto offset = BytesFromEntries(-2);
+    // offset points to the first vacant byte after storing
+    // $ra and $fp
+    auto offset = BytesFromEntries(-3);
     for (const auto &arg : fun.GetFormalArguments()) {
       local_offsets.emplace(arg.GetName().data(), offset);
       offset -= BytesFromEntries(1);
@@ -150,6 +152,7 @@ public:
 
   // Push a register onto the stack
   void PUSH(const char *r) {
+    // $sp points to the one entry pass TOS
     assert(r);
     assert(r[0] == '$');
     w.WriteLine("sw", r, "0($sp)");
@@ -226,9 +229,11 @@ public:
   }
 
   void HandleUnaryNegative(const ByteCode &code) {
-    w.WriteLine("lw $t0, 0($sp)");
+    // $sp points to **the next vacant byte** of the stack, so
+    // TOS is 4 + $sp
+    w.WriteLine("lw $t0, 4($sp)");
     w.WriteLine("sub $t0, $zero, $t0");
-    w.WriteLine("sw, $t0, 0($sp)");
+    w.WriteLine("sw, $t0, 4($sp)");
   }
 
   void HandleCallFunction(const ByteCode &code) {
@@ -402,12 +407,15 @@ class FunctionAssembler {
     w.WriteLine("sub $sp, $sp,", BytesFromEntries(2));
     w.WriteLine();
 
-    if (source.GetFormalArgumentCount()) {
+    auto nargs = source.GetFormalArgumentCount();
+    if (nargs) {
       // copy arguments here
       w.WriteLine("# Passing Arguments");
-      for (int i = 0; i < source.GetFormalArgumentCount(); i++) {
-        auto actual = BytesFromEntries(source.GetFormalArgumentCount() - i);
-        auto formal = BytesFromEntries(i);
+      for (int i = 0; i < nargs; i++) {
+        // actual is above $fp, with $fp + 4 pointing to the last arg.
+        auto actual = BytesFromEntries(nargs - i);
+        // formal is under $sp, with $sp pointing to the first arg.
+        auto formal = BytesFromEntries(-i);
         w.WriteLine("lw $t0,", actual, "($fp)");
         w.WriteLine("sw $t0,", formal, "($sp)");
       }
@@ -421,7 +429,9 @@ class FunctionAssembler {
       w.WriteLine();
     }
     // now $fp points to the bottom of stack,
-    // $sp points to the top of stack.
+    // $sp points to the next TOS of the stack.
+    // $ra stored at 0($fp)
+    // $fp stored at -4($fp)
   }
 
   void MakeEpilogue() {

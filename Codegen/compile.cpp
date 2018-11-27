@@ -46,14 +46,8 @@ class FunctionCompiler : public VisitorBase<FunctionCompiler> {
   // return the offset of the next ByteCode to be added
   int GetLabel() const { return buffer.size(); }
 
-  // return the offset of the last added ByteCode
-  int GetLastByteCodeOffset() const {
-    assert(!buffer.empty() && "there should be at least one ByteCode");
-    return buffer.size() - 1;
-  }
-
   // return the last ByteCode in the buffer
-  ByteCode GetLastByteCode() const { return buffer[GetLastByteCodeOffset()]; }
+  ByteCode GetLastByteCode() const { return buffer.back(); }
 
   // set the jump ByteCode at offset to have target
   void SetTargetAt(int offset, int target) {
@@ -78,6 +72,7 @@ public:
     }
   }
 
+  // public interface
   CompiledFunction Compile() {
     visitFuncDef(function);
     if (buffer.empty() ||
