@@ -40,7 +40,6 @@ int main(int argc, char **argv) {
 
   parser.xorAdd(xor_list);
 
-
   try {
     parser.parse(argc, argv);
   } catch (TCLAP::ArgException &e) {
@@ -55,7 +54,6 @@ int main(int argc, char **argv) {
         Quote(input_arg.getValue()), "does not exist");
     return 1;
   }
-
 
   TokenBuffer tokens;
   Tokenize(input_file, tokens);
@@ -105,6 +103,8 @@ int main(int argc, char **argv) {
     return 1;
   }
   if (type_check.getValue()) {
+    // Add expr_types information
+    std::cout << symtable << "\n";
     return 0;
   }
 

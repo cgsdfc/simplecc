@@ -243,6 +243,10 @@ std::ostream &operator<<(std::ostream &os,
   return os << "}";
 }
 
+std::ostream &operator<<(std::ostream &os, const TypeEntry &t) {
+  return os << "TypeEntry(" << t.GetType() << ", " << t.GetLocation() << ")";
+}
+
 // Specialized version for String key
 template <typename Value>
 std::ostream &operator<<(std::ostream &os,
@@ -263,8 +267,9 @@ std::ostream &operator<<(std::ostream &os,
 
 std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {
   os << "SymbolTable(";
-  os << "global=" << t.global << ", "
-     << "locals=" << t.locals << ", "
-     << "string_literals=" << t.string_literals;
+  os << "global=" << t.global << ",\n"
+     << "\nlocals=" << t.locals << ",\n"
+     << "\nstring_literals=" << t.string_literals << ",\n"
+     << "\nexpr_types=" << t.expr_types;
   return os << ")";
 }

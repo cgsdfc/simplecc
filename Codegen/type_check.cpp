@@ -5,16 +5,18 @@
 // Transform Name to Call if it is a function and it is in the context
 // of Expr or ExprStmt (Call really).
 class ImplicitCallTransformer : public VisitorBase<ImplicitCallTransformer> {
-  SymbolTableView view;
+  FuncDef *funcDef;
+  SymbolTableView local;
 
 public:
-  ImplicitCallTransformer(SymbolTableView view) : view(view) {}
+  ImplicitCallTransformer(const SymbolTable &symtable, FuncDef *fun)
+    : funcDef(fun), local(symtable.GetLocal(fun)) {}
 
   void visitStmt(Stmt *node) { VisitorBase::visitStmt<void>(node); }
 
   Expr *visitExpr(Expr *node) {
     if (auto x = subclass_cast<Name>(node)) {
-      if (view[x->id].IsFunction()) {
+      if (local[x->id].IsFunction()) {
         // replace such a name with a call
         auto call = new Call(x->id, {}, x->loc);
         delete x;
@@ -115,43 +117,65 @@ public:
 
   void visitSubscript(Subscript *node) { VISIT(index); }
 
-  void visitFuncDef(FuncDef *node) {
-    for (auto s : node->stmts) {
-      visitStmt(s);
+  // public interface
+  void Transform() {
+    for (auto stmt : funcDef->stmts) {
+      visitStmt(stmt);
     }
   }
 
 #undef VISIT
 };
 
+// Check type for a function
 class TypeCheker : public VisitorBase<TypeCheker>,
                    public ChildrenVisitor<TypeCheker> {
-public:
-  SymbolTableView view;
-  // point to the entry of the function being checked
-  const SymbolEntry &cur_fun;
+
+  // set expression type of symbolTable
+  SymbolTable &symbolTable;
+  // local symbol information (type information mainly)
+  SymbolTableView local;
+  // FuncDef node being checked
+  FuncDef *funcDef;
+  // report errors to ErrorManager
   ErrorManager &e;
 
-  TypeCheker(SymbolTableView view, const SymbolEntry &cur_fun, ErrorManager &e)
-      : view(view), cur_fun(cur_fun), e(e) {}
+  // return type of the function being checked
+  BasicTypeKind GetReturnType() const {
+    return funcDef->return_type;
+  }
+
+  // name of the function being checked
+  const String &GetFuncName() const {
+    return funcDef->name;
+  }
+
+public:
+  TypeCheker(SymbolTable &symbolTable, FuncDef *fun, ErrorManager &e)
+    : symbolTable(symbolTable),
+    local(symbolTable.GetLocal(fun)),
+    funcDef(fun), e(e) {}
+
+  // public interface
+  void Check() {
+    for (auto stmt : funcDef->stmts) {
+      visitStmt(stmt);
+    }
+  }
 
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
 
   // Return the type of evaluating the expression
   BasicTypeKind visitExpr(Expr *node) {
-    return VisitorBase::visitExpr<BasicTypeKind>(node);
-  }
-
-  void visitFuncDef(FuncDef *node) {
-    for (auto stmt : node->stmts) {
-      visitStmt(stmt);
-    }
+    auto type = VisitorBase::visitExpr<BasicTypeKind>(node);
+    symbolTable.SetExprType(node, type);
+    return type;
   }
 
   void visitRead(Read *node) {
     for (auto expr : node->names) {
       auto name = subclass_cast<Name>(expr);
-      const auto &entry = view[name->id];
+      const auto &entry = local[name->id];
       if (!entry.IsVariable()) {
         e.TypeError(name->loc, "cannot use scanf() on object of type",
                     entry.GetTypeName());
@@ -166,15 +190,14 @@ public:
   }
 
   void visitReturn(Return *node) {
-    auto fun_type = cur_fun.AsFunction();
     auto return_type =
         node->value ? visitExpr(node->value) : BasicTypeKind::Void;
 
     // order a strict match
-    if (fun_type.GetReturnType() != return_type) {
+    if (GetReturnType() != return_type) {
       e.TypeError(node->loc, "return type mismatched:", "function",
-                  Quote(cur_fun.GetName()), "must return",
-                  CStringFromBasicTypeKind(fun_type.GetReturnType()), "not",
+                  Quote(GetFuncName()), "must return",
+                  CStringFromBasicTypeKind(GetReturnType()), "not",
                   CStringFromBasicTypeKind(return_type));
     }
   }
@@ -184,17 +207,10 @@ public:
     auto value = CheckExprOperand(node->value);
     auto target = visitExpr(node->target);
 
-    // if the assignment target or value is bad, don't check type-match, since:
-    // int array[10];
-    // array = i;
-    // first causes a "object of Array cannot be assigned to",
-    // then will cause a "type mismatched in assignment: target type is void,
-    // value type is int", but the target type does not support assignment.
-    // i = array; it is the same since value is bad.
     if (e.IsOk(errs) && target != value) {
       e.TypeError(node->loc, "type mismatched in assignment: target type is",
-                  CStringFromBasicTypeKind(target), "value type is",
-                  CStringFromBasicTypeKind(value));
+          CStringFromBasicTypeKind(target), "value type is",
+          CStringFromBasicTypeKind(value));
     }
   }
 
@@ -252,7 +268,7 @@ public:
   }
 
   BasicTypeKind visitCall(Call *node) {
-    const auto &entry = view[node->func];
+    const auto &entry = local[node->func];
     if (!entry.IsFunction()) {
       e.TypeError(node->loc, "object of type", entry.GetTypeName(),
                   "cannot be called as a function");
@@ -283,7 +299,7 @@ public:
   }
 
   BasicTypeKind visitSubscript(Subscript *node) {
-    const auto &entry = view[node->name];
+    const auto &entry = local[node->name];
     if (!entry.IsArray()) {
       e.TypeError(node->loc, "object of type", entry.GetTypeName(),
                   "cannot be subscripted as an array");
@@ -299,7 +315,7 @@ public:
   }
 
   BasicTypeKind visitName(Name *node) {
-    const auto &entry = view[node->id];
+    const auto &entry = local[node->id];
     if (node->ctx == ExprContextKind::Load && entry.IsArray()) {
       e.TypeError(node->loc, "object of type", entry.GetTypeName(),
                   "cannot be used in an expression");
@@ -323,15 +339,14 @@ public:
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 };
 
+
 bool CheckType(Program *prog, SymbolTable &symtable) {
   ErrorManager e;
   for (auto decl : prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       // first do transformation
-      ImplicitCallTransformer(symtable.GetLocal(fun)).visitFuncDef(fun);
-      TypeCheker checker(symtable.GetLocal(fun),
-                         symtable.GetGlobal()[fun->name], e);
-      checker.visitFuncDef(fun);
+      ImplicitCallTransformer(symtable, fun).Transform();
+      TypeCheker(symtable, fun, e).Check();
     }
   }
   return e.IsOk();

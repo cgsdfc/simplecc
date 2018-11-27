@@ -3,5 +3,6 @@
 #include "symtable.h"
 
 class Program;
+
 bool CheckType(Program *prog, SymbolTable &symtable);
 #endif

@@ -85,7 +85,7 @@ public:
       // A missing reutrn_stmt, insert one.
       Add(ByteCode(Opcode::RETURN_NONE));
     }
-    const auto &entry = symtable.GetGlobal()[function->name];
+    const auto &entry = symtable.GetGlobal(function->name);
     return CompiledFunction(local, std::move(buffer), entry,
                             std::move(formal_arguments),
                             std::move(local_objects));
@@ -216,7 +216,7 @@ public:
   }
 
   void visitExprStmt(ExprStmt *node) {
-    auto type = visitExpr(node->value);
+    visitExpr(node->value);
     // discard return value
     Add(ByteCode(Opcode::POP_TOP));
   }
@@ -269,8 +269,11 @@ public:
   BasicTypeKind visitSubscript(Subscript *node) {
     const auto &entry = local[node->name];
     auto load = MakeLoad(entry.GetScope());
+    // load array
     Add(ByteCode(load, node->name.data()));
+    // calculate index
     visitExpr(node->index);
+    // do subscript
     Add(ByteCode(MakeSubScr(node->ctx)));
     return entry.AsArray().GetElementType();
   }
@@ -281,6 +284,7 @@ public:
       Add(ByteCode(Opcode::LOAD_CONST, entry.AsConstant().GetValue()));
       return entry.AsConstant().GetType();
     } else {
+      // 4 choices: (LOAD, STORE) * (GLOBAL, LOCAL)
       auto opcode = node->ctx == ExprContextKind::Load
                         ? MakeLoad(entry.GetScope())
                         : MakeStore(entry.GetScope());
@@ -293,14 +297,13 @@ public:
 CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable) {
   ObjectList global_objects;
   std::vector<CompiledFunction> functions;
-  auto &&global = symtable.GetGlobal();
 
   for (auto decl : prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       FunctionCompiler functionCompiler(fun, symtable);
       functions.push_back(functionCompiler.Compile());
     } else if (auto var = subclass_cast<VarDecl>(decl)) {
-      global_objects.push_back(global[var->name]);
+      global_objects.push_back(symtable.GetGlobal(var->name));
     }
   }
   return CompiledModule(std::move(functions), symtable.string_literals,
