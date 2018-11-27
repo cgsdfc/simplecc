@@ -98,7 +98,7 @@ public:
 
  void visitVarDecl(VarDecl *node) {
     auto type = CStringFromBasicTypeKind(node->type);
-    if (node->is_array) {
+    if (!node->is_array) {
       w.WriteLine("var", type, node->name);
     } else {
       w.WriteLine("var", type, node->name, "[", node->size, "]");
@@ -116,15 +116,22 @@ public:
     for (auto stmt: node->stmts) {
       visitStmt(stmt);
     }
+    // XXX: No return here!
   }
 
   void visitRead(Read *node) {
-
+    for (auto name: node->names) {
+      w.WriteLine("scanf", visitExpr(name));
+    }
   }
 
   void visitWrite(Write *node) {
-
-
+    if (node->str) {
+      w.WriteLine("printf", visitExpr(node->str));
+    }
+    if (node->value) {
+      w.WriteLine("printf", visitExpr(node->value));
+    }
   }
 
   void visitAssign(Assign *node) {
@@ -163,6 +170,11 @@ public:
 
   LineLabel CompileBoolOp(BoolOp *node, bool jump_if_false) {
     auto &&val = visitExpr(node->value);
+    // These do not have result assigned to a temporary
+    if (!IsInstance<BinOp>(node->value) &&
+        !IsInstance<UnaryOp>(node->value)) {
+      w.WriteLine(MakeTemporary(), "=", val);
+    }
     auto &&label = MakeLineLabel();
     auto jump = jump_if_false ? "BZ" : "BNZ";
     w.WriteLine(jump, label.Inline(true));
@@ -237,26 +249,29 @@ public:
     return ExprValue(node);
   }
 
+  ExprValue visitParenExpr(ParenExpr *node) {
+    return visitExpr(node->value);
+  }
+
   ExprValue visitBoolOp(BoolOp *node) {
     assert(false && "BoolOp should be handled by CompileBoolOp()");
   }
 
   ExprValue visitBinOp(BinOp *node) {
-    auto &&val = MakeTemporary();
     auto op = CStringFromOperatorKind(node->op);
-    w.WriteLine(val, "=", visitExpr(node->left), op, visitExpr(node->right));
-    return val;
+    auto &&left = visitExpr(node->left);
+    auto &&right = visitExpr(node->right);
+    auto &&result = MakeTemporary();
+    w.WriteLine(result, "=", left, op, right);
+    return result;
   }
 
   ExprValue visitUnaryOp(UnaryOp *node) {
-    auto &&val = MakeTemporary();
     auto op = CStringFromUnaryopKind(node->op);
-    w.WriteLine(val, "=", op, visitExpr(node->operand));
-    return val;
-  }
-
-  ExprValue visitParenExpr(ParenExpr *node) {
-    return visitExpr(node->value);
+    auto &&operand = visitExpr(node->operand);
+    auto &&result = MakeTemporary();
+    w.WriteLine(result, "=", op, operand);
+    return result;
   }
 
   ExprValue visitSubscript(Subscript *node) {
@@ -264,7 +279,7 @@ public:
         "Store must be handle by visitAssign()");
     auto &&val = MakeTemporary();
     auto &&index = visitExpr(node->index);
-    w.WriteLine(val, "=", "[", index, "]");
+    w.WriteLine(val, "=", node->name, "[", index, "]");
     return val;
   }
 
