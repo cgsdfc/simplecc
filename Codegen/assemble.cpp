@@ -1,6 +1,6 @@
+#include "Print.h"
 #include "assemble.h"
 #include "OpcodeDispatcher.h"
-#include "error.h"
 
 #include <sstream>
 #include <unordered_set>
@@ -8,17 +8,6 @@
 // Return the bytes for n entries
 inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
 
-// Provide handy WriteLine() method to emit instructions
-class AssemblyWriter {
-  std::ostream &os;
-
-public:
-  AssemblyWriter(std::ostream &os) : os(os) {}
-
-  template <typename... Args> void WriteLine(Args &&... args) {
-    Print(os, std::forward<Args>(args)...);
-  }
-};
 
 // Handle global object naming
 class GlobalContext {
@@ -143,12 +132,12 @@ inline std::ostream &operator<<(std::ostream &os, MipsSyscallNumber syscall) {
 // Serve as a template translating one ByteCode to MIPS instructions
 class ByteCodeToMipsTranslator
     : public OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
-  AssemblyWriter &w;
+  Printer &w;
   const LocalContext &context;
   int stack_level = 0;
 
 public:
-  ByteCodeToMipsTranslator(AssemblyWriter &w, const LocalContext &context)
+  ByteCodeToMipsTranslator(Printer &w, const LocalContext &context)
       : w(w), context(context) {}
 
   // Push a register onto the stack
@@ -390,7 +379,7 @@ public:
 // Assemble a CompiledFunction to MIPS code
 class FunctionAssembler {
   const CompiledFunction &source;
-  AssemblyWriter &w;
+  Printer &w;
   LocalContext context;
 
   // Return the total bytes consumed by local objects, including
@@ -448,7 +437,7 @@ class FunctionAssembler {
   }
 
 public:
-  FunctionAssembler(const CompiledFunction &source, AssemblyWriter &w)
+  FunctionAssembler(const CompiledFunction &source, Printer &w)
       : source(source), w(w), context(source) {}
 
   // public interface
@@ -472,7 +461,7 @@ public:
 // Assemble a whole MIPS program
 class ModuleAssembler {
   const CompiledModule &module;
-  AssemblyWriter w;
+  Printer w;
 
   void MakeDataSegment() {
     w.WriteLine(".data");
