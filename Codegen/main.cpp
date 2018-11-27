@@ -6,6 +6,7 @@
 #include "symtable.h"
 #include "syntax_check.h"
 #include "type_check.h"
+#include "ByteCodePrinter.h"
 
 #include <tclap/CmdLine.h>
 #include <fstream>
@@ -32,10 +33,14 @@ int main(int argc, char **argv) {
   SwitchArg syntax_check("", "syntax-check", "verify that the AST is syntax correct", false);
   SwitchArg build_symtable("", "build-symtable", "build a symbol table from the abstract syntax tree", false);
   SwitchArg type_check("", "type-check", "run type-check for the input program", false);
+  SwitchArg print_bytecode("", "print-bytecode", "print byte code in quarternary form", false);
   SwitchArg compile("", "compile", "compile the input program to byte code", false);
   SwitchArg assemble("", "assemble", "assemble the compiled program to MIPS assembly", false);
+
+  // XXX: If any option is added to the list above, you **must** add an entry here!
   std::vector<TCLAP::Arg*> xor_list{
-    &tokenize, &build_cst, &build_ast, &syntax_check, &build_symtable, &type_check, &compile, &assemble
+    &tokenize, &build_cst, &build_ast, &syntax_check,
+    &build_symtable, &type_check, &print_bytecode, &compile, &assemble
   };
 
   parser.xorAdd(xor_list);
@@ -105,6 +110,11 @@ int main(int argc, char **argv) {
   if (type_check.getValue()) {
     // Add expr_types information
     std::cout << symtable << "\n";
+    return 0;
+  }
+
+  if (print_bytecode.getValue()) {
+    PrintByteCode(ast_node.get(), std::cout);
     return 0;
   }
 
