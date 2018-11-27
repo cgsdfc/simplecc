@@ -93,9 +93,9 @@ public:
 
   void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
 
-  BasicTypeKind visitExpr(Expr *node) {
+  void visitExpr(Expr *node) {
     current_lineno = node->loc.lineno;
-    return VisitorBase::visitExpr<BasicTypeKind>(node);
+    VisitorBase::visitExpr<void>(node);
   }
 
   void visitStmt(Stmt *node) {
@@ -126,7 +126,8 @@ public:
       Add(ByteCode(Opcode::PRINT_STRING));
     }
     if (node->value) {
-      auto type = visitExpr(node->value);
+      visitExpr(node->value);
+      auto type = symtable.GetExprType(node->value).GetType();
       Add(ByteCode(MakePrint(type)));
     }
     Add(ByteCode(Opcode::PRINT_NEWLINE));
@@ -221,52 +222,45 @@ public:
     Add(ByteCode(Opcode::POP_TOP));
   }
 
-  BasicTypeKind visitBoolOp(BoolOp *node) {
+  void visitBoolOp(BoolOp *node) {
     assert(false && "BoolOp should be handled by CompileBoolOp()");
   }
 
-  BasicTypeKind visitUnaryOp(UnaryOp *node) {
+  void visitUnaryOp(UnaryOp *node) {
     visitExpr(node->operand);
     Add(ByteCode(MakeUnary(node->op)));
-    return BasicTypeKind::Int;
   }
 
-  BasicTypeKind visitBinOp(BinOp *node) {
+  void visitBinOp(BinOp *node) {
     visitExpr(node->left);
     visitExpr(node->right);
     Add(ByteCode(MakeBinary(node->op)));
-    return BasicTypeKind::Int;
   }
 
-  BasicTypeKind visitParenExpr(ParenExpr *node) {
+  void visitParenExpr(ParenExpr *node) {
     visitExpr(node->value);
-    return BasicTypeKind::Int;
   }
 
-  BasicTypeKind visitCall(Call *node) {
+  void visitCall(Call *node) {
     for (auto expr : node->args) {
       visitExpr(expr);
     }
     Add(ByteCode(Opcode::CALL_FUNCTION, node->args.size(), node->func.data()));
-    return local[node->func].AsFunction().GetReturnType();
   }
 
-  BasicTypeKind visitNum(Num *node) {
+  void visitNum(Num *node) {
     Add(ByteCode(Opcode::LOAD_CONST, node->n));
-    return BasicTypeKind::Int;
   }
 
-  BasicTypeKind visitStr(Str *node) {
+  void visitStr(Str *node) {
     Add(ByteCode(Opcode::LOAD_STRING, symtable.GetStringLiteralID(node->s)));
-    return BasicTypeKind::Void;
   }
 
-  BasicTypeKind visitChar(Char *node) {
+  void visitChar(Char *node) {
     Add(ByteCode(Opcode::LOAD_CONST, node->c));
-    return BasicTypeKind::Character;
   }
 
-  BasicTypeKind visitSubscript(Subscript *node) {
+  void visitSubscript(Subscript *node) {
     const auto &entry = local[node->name];
     auto load = MakeLoad(entry.GetScope());
     // load array
@@ -275,21 +269,18 @@ public:
     visitExpr(node->index);
     // do subscript
     Add(ByteCode(MakeSubScr(node->ctx)));
-    return entry.AsArray().GetElementType();
   }
 
-  BasicTypeKind visitName(Name *node) {
+  void visitName(Name *node) {
     const auto &entry = local[node->id];
     if (entry.IsConstant()) {
       Add(ByteCode(Opcode::LOAD_CONST, entry.AsConstant().GetValue()));
-      return entry.AsConstant().GetType();
     } else {
       // 4 choices: (LOAD, STORE) * (GLOBAL, LOCAL)
       auto opcode = node->ctx == ExprContextKind::Load
                         ? MakeLoad(entry.GetScope())
                         : MakeStore(entry.GetScope());
       Add(ByteCode(opcode, node->id.data()));
-      return entry.AsVariable().GetType();
     }
   }
 };
