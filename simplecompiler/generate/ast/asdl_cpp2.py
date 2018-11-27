@@ -754,15 +754,15 @@ $abstract_visitor
 };""")
 
     abstract = Template("""
-template<typename R, typename... Args>
-R visit$class_name($class_name *node, Args&&... args) {
+template<typename R>
+R visit$class_name($class_name *node) {
     $test_and_dispatches
     assert(false && "$class_name");
 } """)
 
     dispatch = Template("""
 if (auto x = subclass_cast<$class_name>(node)) {
-    return static_cast<Derived*>(this)->visit$class_name(x, std::forward<Args>(args)...);
+    return static_cast<Derived*>(this)->visit$class_name(x);
 } """)
 
     def make_abstract_visitor(self, x):
@@ -792,26 +792,24 @@ $methods
 $downcasts
 };""")
     method = Template("""
-template <typename... Args>
-void visit$class_name($class_name *node, Args&&... args) {
+void visit$class_name($class_name *node) {
 $code
 }""")
     crtp_downcast = Template("""
-template <typename... Args>
-void visit$class_name($class_name *node, Args&&... args) {
-    static_cast<Derived*>(this)->visit$class_name(node, std::forward<Args>(args)...);
+void visit$class_name($class_name *node) {
+    static_cast<Derived*>(this)->visit$class_name(node);
 }""")
 
     visit = Template("""
-    visit$class_name(node->$name, args...);
+    visit$class_name(node->$name);
 """)
     visit_for = Template("""
 for (auto s: node->$name) {
-    visit$class_name(s, args...);
+    visit$class_name(s);
 }""")
     visit_if = Template("""
 if (node->$name) {
-    visit$class_name(node->$name, args...);
+    visit$class_name(node->$name);
 }""")
 
     def make_visit_children(self, members):

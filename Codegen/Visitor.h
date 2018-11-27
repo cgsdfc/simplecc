@@ -5,122 +5,98 @@
 // Visitor Mixin that provides runtime dispatch of abstract nodes
 template <typename Derived> class VisitorBase {
 public:
-  template <typename R, typename... Args>
-  R visitDecl(Decl *node, Args &&... args) {
+  template <typename R> R visitDecl(Decl *node) {
 
     if (auto x = subclass_cast<ConstDecl>(node)) {
-      return static_cast<Derived *>(this)->visitConstDecl(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitConstDecl(x);
     }
 
     if (auto x = subclass_cast<VarDecl>(node)) {
-      return static_cast<Derived *>(this)->visitVarDecl(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitVarDecl(x);
     }
 
     if (auto x = subclass_cast<FuncDef>(node)) {
-      return static_cast<Derived *>(this)->visitFuncDef(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitFuncDef(x);
     }
     assert(false && "Decl");
   }
 
-  template <typename R, typename... Args>
-  R visitStmt(Stmt *node, Args &&... args) {
+  template <typename R> R visitStmt(Stmt *node) {
 
     if (auto x = subclass_cast<Read>(node)) {
-      return static_cast<Derived *>(this)->visitRead(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitRead(x);
     }
 
     if (auto x = subclass_cast<Write>(node)) {
-      return static_cast<Derived *>(this)->visitWrite(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitWrite(x);
     }
 
     if (auto x = subclass_cast<Assign>(node)) {
-      return static_cast<Derived *>(this)->visitAssign(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitAssign(x);
     }
 
     if (auto x = subclass_cast<For>(node)) {
-      return static_cast<Derived *>(this)->visitFor(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitFor(x);
     }
 
     if (auto x = subclass_cast<While>(node)) {
-      return static_cast<Derived *>(this)->visitWhile(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitWhile(x);
     }
 
     if (auto x = subclass_cast<Return>(node)) {
-      return static_cast<Derived *>(this)->visitReturn(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitReturn(x);
     }
 
     if (auto x = subclass_cast<If>(node)) {
-      return static_cast<Derived *>(this)->visitIf(x,
-                                                   std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitIf(x);
     }
 
     if (auto x = subclass_cast<ExprStmt>(node)) {
-      return static_cast<Derived *>(this)->visitExprStmt(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitExprStmt(x);
     }
     assert(false && "Stmt");
   }
 
-  template <typename R, typename... Args>
-  R visitExpr(Expr *node, Args &&... args) {
+  template <typename R> R visitExpr(Expr *node) {
 
     if (auto x = subclass_cast<BinOp>(node)) {
-      return static_cast<Derived *>(this)->visitBinOp(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitBinOp(x);
     }
 
     if (auto x = subclass_cast<ParenExpr>(node)) {
-      return static_cast<Derived *>(this)->visitParenExpr(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitParenExpr(x);
     }
 
     if (auto x = subclass_cast<BoolOp>(node)) {
-      return static_cast<Derived *>(this)->visitBoolOp(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitBoolOp(x);
     }
 
     if (auto x = subclass_cast<UnaryOp>(node)) {
-      return static_cast<Derived *>(this)->visitUnaryOp(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitUnaryOp(x);
     }
 
     if (auto x = subclass_cast<Call>(node)) {
-      return static_cast<Derived *>(this)->visitCall(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitCall(x);
     }
 
     if (auto x = subclass_cast<Num>(node)) {
-      return static_cast<Derived *>(this)->visitNum(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitNum(x);
     }
 
     if (auto x = subclass_cast<Str>(node)) {
-      return static_cast<Derived *>(this)->visitStr(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitStr(x);
     }
 
     if (auto x = subclass_cast<Char>(node)) {
-      return static_cast<Derived *>(this)->visitChar(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitChar(x);
     }
 
     if (auto x = subclass_cast<Subscript>(node)) {
-      return static_cast<Derived *>(this)->visitSubscript(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitSubscript(x);
     }
 
     if (auto x = subclass_cast<Name>(node)) {
-      return static_cast<Derived *>(this)->visitName(
-          x, std::forward<Args>(args)...);
+      return static_cast<Derived *>(this)->visitName(x);
     }
     assert(false && "Expr");
   }
@@ -130,170 +106,138 @@ public:
 // that have children.
 template <class Derived> class ChildrenVisitor {
 public:
-  template <typename... Args>
-  void visitProgram(Program *node, Args &&... args) {
+  void visitProgram(Program *node) {
 
     for (auto s : node->decls) {
-      visitDecl(s, args...);
+      visitDecl(s);
     }
   }
 
-  template <typename... Args>
-  void visitConstDecl(ConstDecl *node, Args &&... args) {
+  void visitConstDecl(ConstDecl *node) { visitExpr(node->value); }
 
-    visitExpr(node->value, args...);
-  }
+  void visitVarDecl(VarDecl *node) {}
 
-  template <typename... Args>
-  void visitVarDecl(VarDecl *node, Args &&... args) {}
-
-  template <typename... Args>
-  void visitFuncDef(FuncDef *node, Args &&... args) {
+  void visitFuncDef(FuncDef *node) {
 
     for (auto s : node->args) {
-      visitArg(s, args...);
+      visitArg(s);
     }
 
     for (auto s : node->decls) {
-      visitDecl(s, args...);
+      visitDecl(s);
     }
 
     for (auto s : node->stmts) {
-      visitStmt(s, args...);
+      visitStmt(s);
     }
   }
 
-  template <typename... Args> void visitArg(Arg *node, Args &&... args) {}
+  void visitArg(Arg *node) {}
 
-  template <typename... Args> void visitRead(Read *node, Args &&... args) {
+  void visitRead(Read *node) {
 
     for (auto s : node->names) {
-      visitExpr(s, args...);
+      visitExpr(s);
     }
   }
 
-  template <typename... Args> void visitWrite(Write *node, Args &&... args) {
+  void visitWrite(Write *node) {
 
     if (node->str) {
-      visitExpr(node->str, args...);
+      visitExpr(node->str);
     }
 
     if (node->value) {
-      visitExpr(node->value, args...);
+      visitExpr(node->value);
     }
   }
 
-  template <typename... Args> void visitAssign(Assign *node, Args &&... args) {
+  void visitAssign(Assign *node) {
 
-    visitExpr(node->target, args...);
+    visitExpr(node->target);
 
-    visitExpr(node->value, args...);
+    visitExpr(node->value);
   }
 
-  template <typename... Args> void visitFor(For *node, Args &&... args) {
+  void visitFor(For *node) {
 
-    visitStmt(node->initial, args...);
+    visitStmt(node->initial);
 
-    visitExpr(node->condition, args...);
+    visitExpr(node->condition);
 
-    visitStmt(node->step, args...);
+    visitStmt(node->step);
 
     for (auto s : node->body) {
-      visitStmt(s, args...);
+      visitStmt(s);
     }
   }
 
-  template <typename... Args> void visitWhile(While *node, Args &&... args) {
+  void visitWhile(While *node) {
 
-    visitExpr(node->condition, args...);
+    visitExpr(node->condition);
 
     for (auto s : node->body) {
-      visitStmt(s, args...);
+      visitStmt(s);
     }
   }
 
-  template <typename... Args> void visitReturn(Return *node, Args &&... args) {
+  void visitReturn(Return *node) {
 
     if (node->value) {
-      visitExpr(node->value, args...);
+      visitExpr(node->value);
     }
   }
 
-  template <typename... Args> void visitIf(If *node, Args &&... args) {
+  void visitIf(If *node) {
 
-    visitExpr(node->test, args...);
+    visitExpr(node->test);
 
     for (auto s : node->body) {
-      visitStmt(s, args...);
+      visitStmt(s);
     }
 
     for (auto s : node->orelse) {
-      visitStmt(s, args...);
+      visitStmt(s);
     }
   }
 
-  template <typename... Args>
-  void visitExprStmt(ExprStmt *node, Args &&... args) {
+  void visitExprStmt(ExprStmt *node) { visitExpr(node->value); }
 
-    visitExpr(node->value, args...);
+  void visitBinOp(BinOp *node) {
+
+    visitExpr(node->left);
+
+    visitExpr(node->right);
   }
 
-  template <typename... Args> void visitBinOp(BinOp *node, Args &&... args) {
+  void visitParenExpr(ParenExpr *node) { visitExpr(node->value); }
 
-    visitExpr(node->left, args...);
+  void visitBoolOp(BoolOp *node) { visitExpr(node->value); }
 
-    visitExpr(node->right, args...);
-  }
+  void visitUnaryOp(UnaryOp *node) { visitExpr(node->operand); }
 
-  template <typename... Args>
-  void visitParenExpr(ParenExpr *node, Args &&... args) {
-
-    visitExpr(node->value, args...);
-  }
-
-  template <typename... Args> void visitBoolOp(BoolOp *node, Args &&... args) {
-
-    visitExpr(node->value, args...);
-  }
-
-  template <typename... Args>
-  void visitUnaryOp(UnaryOp *node, Args &&... args) {
-
-    visitExpr(node->operand, args...);
-  }
-
-  template <typename... Args> void visitCall(Call *node, Args &&... args) {
+  void visitCall(Call *node) {
 
     for (auto s : node->args) {
-      visitExpr(s, args...);
+      visitExpr(s);
     }
   }
 
-  template <typename... Args> void visitNum(Num *node, Args &&... args) {}
+  void visitNum(Num *node) {}
 
-  template <typename... Args> void visitStr(Str *node, Args &&... args) {}
+  void visitStr(Str *node) {}
 
-  template <typename... Args> void visitChar(Char *node, Args &&... args) {}
+  void visitChar(Char *node) {}
 
-  template <typename... Args>
-  void visitSubscript(Subscript *node, Args &&... args) {
+  void visitSubscript(Subscript *node) { visitExpr(node->index); }
 
-    visitExpr(node->index, args...);
-  }
+  void visitName(Name *node) {}
 
-  template <typename... Args> void visitName(Name *node, Args &&... args) {}
+  void visitDecl(Decl *node) { static_cast<Derived *>(this)->visitDecl(node); }
 
-  template <typename... Args> void visitDecl(Decl *node, Args &&... args) {
-    static_cast<Derived *>(this)->visitDecl(node, std::forward<Args>(args)...);
-  }
+  void visitStmt(Stmt *node) { static_cast<Derived *>(this)->visitStmt(node); }
 
-  template <typename... Args> void visitStmt(Stmt *node, Args &&... args) {
-    static_cast<Derived *>(this)->visitStmt(node, std::forward<Args>(args)...);
-  }
-
-  template <typename... Args> void visitExpr(Expr *node, Args &&... args) {
-    static_cast<Derived *>(this)->visitExpr(node, std::forward<Args>(args)...);
-  }
+  void visitExpr(Expr *node) { static_cast<Derived *>(this)->visitExpr(node); }
 };
 
 #endif
