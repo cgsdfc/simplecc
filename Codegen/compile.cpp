@@ -273,7 +273,7 @@ CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable) {
 
 void CompiledFunction::Format(std::ostream &os) const {
   os << "CompiledFunction(" << Quote(GetName()) << "):\n";
-  os << "formal_arguments:\n";
+  os << "\nformal_arguments:\n";
   for (const auto &arg : formal_arguments) {
     os << arg << "\n";
   }

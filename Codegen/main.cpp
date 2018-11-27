@@ -44,14 +44,15 @@ int main(int argc, char **argv) {
   try {
     parser.parse(argc, argv);
   } catch (TCLAP::ArgException &e) {
-    std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+    Print(std::cerr, "Error:", e.error());
     return 1;
   }
 
   // Prepare input stream
   std::ifstream input_file(input_arg.getValue());
   if (input_file.fail()) {
-    Print(std::cerr, "File", Quote(input_arg.getValue()), "does not exist");
+    Print(std::cerr, "Error: File",
+        Quote(input_arg.getValue()), "does not exist");
     return 1;
   }
 
