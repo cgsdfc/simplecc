@@ -166,7 +166,7 @@ public:
     if (context.IsVariable(code.GetStrOperand())) {
       w.WriteLine("lw $t0,", offset, "($fp)");
     } else {
-      w.WriteLine("addi $t0, $sp,", offset);
+      w.WriteLine("addi $t0, $fp,", offset);
     }
     PUSH("$t0");
   }
@@ -203,9 +203,9 @@ public:
   }
 
   void HandleBinary(const char *op) {
-    POP("$t0");
-    POP("$t1");
-    w.WriteLine(op, "$t2, $t0, $t1");
+    POP("$t0"); // TOS
+    POP("$t1"); // TOS1
+    w.WriteLine(op, "$t2, $t1, $t0");
     PUSH("$t2");
   }
 
