@@ -4,14 +4,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 17)
 
-find_path(TCLAP_INCLUDE
-  NAMES tclap/CmdLine.h
-  PATHS "$ENV{HOME}/include"
-  DOC "Tclap command line library's headers"
-)
+if (NOT WIN32)
+  find_path(TCLAP_INCLUDE
+    NAMES tclap/CmdLine.h
+    PATHS "$ENV{HOME}/include"
+    DOC "Tclap command line library's headers")
 
-message(${TCLAP_INCLUDE})
-include_directories(${TCLAP_INCLUDE})
+  message(${TCLAP_INCLUDE})
+  include_directories(${TCLAP_INCLUDE})
+  set(MAIN_CPP "main.cpp")
+else(NOT WIN32)
+  set(MAIN_CPP "windows_main.cpp")
+endif(NOT WIN32)
+
 # if (NOT WIN32)
 #   # We currently don't know if python3 if available.
 # add_custom_command(
@@ -30,6 +35,8 @@ include_directories(${TCLAP_INCLUDE})
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # All executables added hereby
 add_executable(codegen
+  ${MAIN_CPP}
+  ./CompilerInstance.cpp
   ./ByteCodePrinter.cpp
   ./assemble.cpp
   ./ByteCode.cpp
@@ -40,7 +47,6 @@ add_executable(codegen
   ./type_check.cpp
   ./symtable.cpp
   ./syntax_check.cpp
-  ./main.cpp
   ./cst.cpp
   ./parser.cpp
   ./gramdef.cpp
