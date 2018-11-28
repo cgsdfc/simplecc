@@ -4,7 +4,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories("$ENV{HOME}/include")
+find_path(TCLAP_INCLUDE
+  NAMES tclap/CmdLine.h
+  PATHS "$ENV{HOME}/include"
+  DOC "Tclap command line library's headers"
+)
+
+message(${TCLAP_INCLUDE})
+include_directories(${TCLAP_INCLUDE})
 # if (NOT WIN32)
 #   # We currently don't know if python3 if available.
 # add_custom_command(
