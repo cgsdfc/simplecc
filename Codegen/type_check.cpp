@@ -208,8 +208,8 @@ public:
     auto target = visitExpr(node->target);
 
     if (e.IsOk(errs) && target != value) {
-      e.TypeError(node->loc, "type mismatched in assignment: target type is",
-          CStringFromBasicTypeKind(target), "value type is",
+      e.TypeError(node->loc, "type mismatched in assignment:",
+          CStringFromBasicTypeKind(target), "=",
           CStringFromBasicTypeKind(value));
     }
   }

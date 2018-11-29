@@ -76,7 +76,8 @@ public:
   CompiledFunction Compile() {
     visitFuncDef(function);
     if (buffer.empty() ||
-        GetLastByteCode().GetOpcode() != Opcode::RETURN_VALUE) {
+        (GetLastByteCode().GetOpcode() != Opcode::RETURN_VALUE &&
+         GetLastByteCode().GetOpcode() != Opcode::RETURN_NONE)) {
       // A missing reutrn_stmt, insert one.
       Add(ByteCode(Opcode::RETURN_NONE));
     }
