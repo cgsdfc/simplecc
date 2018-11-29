@@ -305,20 +305,22 @@ public:
   }
 
   void HandleBinarySubscr(const ByteCode &code) {
+    // elements of smaller index are stored at higher address
+    // as opposed to C convension.
     POP("$t0");                       // index
-    POP("$t1");                       // array
-    w.WriteLine("sll $t0, $t0, 2");   // index *= 4
-    w.WriteLine("add $t2, $t1, $t0"); // address = array + index
+    POP("$t1");                       // base
+    w.WriteLine("sll $t0, $t0, 2");   // offset = index * 4
+    w.WriteLine("sub $t2, $t1, $t0"); // address = base - offset
     w.WriteLine("lw $t3, 0($t2)");    // t3 = array[index]
     PUSH("$t3");
   }
 
   void HandleStoreSubscr(const ByteCode &code) {
-    POP("$t0");                       // index
-    POP("$t1");                       // array
-    POP("$t3");                       // value
-    w.WriteLine("sll $t0, $t0, 2");   // index *= 4
-    w.WriteLine("add $t2, $t1, $t0"); // address = array + index
+    POP("$t0");
+    POP("$t1");
+    POP("$t3");
+    w.WriteLine("sll $t0, $t0, 2");
+    w.WriteLine("sub $t2, $t1, $t0");
     w.WriteLine("sw $t3, 0($t2)");
   }
 
