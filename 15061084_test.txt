@@ -1,141 +1,404 @@
-const int positive = +1;
-const int negative = -1;
-const int max_heap_size = 100;
-const char character = 'c';
+const int CompareEqual = 0,
+          CompareNotEqual = 1,
+          CompareLess = 2,
+          CompareLessEqual = 3,
+          CompareGreater = 4,
+          CompareGreaterEqual = 5;
 
-const int is_valid = 1, hasattr = 0;
-const char digit = '0', letter = 'a';
-
-int heap[100];
-int index;
-
-int flag, array[2];
-int module, class;
-int errors[10], input[20];
-
-int addi(int a, int b) {
-  return (a + b);
+void TokenTest_String {
+  printf("");
+  printf("1");
+  printf("\n\t\f\r\\\'\a\b");
+  printf(" !#$%&'()*+,-./");
+  printf("0123456789:;<=>?");
+  printf("@ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  printf("[\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
 }
 
-int addc(char a, char b) {
-  return (a + b);
+void TokenTest_Number {
+  printf(000000);
+  printf(000001);
+  printf(123456);
+  printf(-00000);
+  printf(+00000);
+  printf(+12345);
+  printf(-12345);
 }
 
-void print_char(char c) {
-  printf(c);
+void TokenTest_Character {
+  printf('+');
+  printf('-');
+  printf('*');
+  printf('/');
+
+  printf('a');
+  printf('b');
+  printf('c');
+  printf('d');
+
+  printf('0');
+  printf('1');
+  printf('2');
+  printf('3');
 }
 
-void print_string {
-  printf("this is a string");
+void TokenTest_Identifier {
+  const int _UnderscoreLead = 1;
+  const int UnderscoreTail_ = 2;
+  const int OneApple_2Banana_3PineApple = 3;
+
+  printf(_underscorelead);
+  printf(UNDERSCORETAIL_);
+  printf(OneApple_2Banana_3PineApple);
 }
 
-void print_string_ex(int expr) {
-  printf("expr is ", expr);
+void TokenTest_CaseIgnored {
+  CONST INT ALL_UPPER_INT_CONSTANT = 1;
+  printf(all_upper_int_constant);
 }
 
-void dead_loop {
+void Test_BinOp {
+  const int IntConstant = 1;
+  const char CharConstant = 'a';
+
+  printf(IntConstant + CharConstant);
+  printf(IntConstant - CharConstant);
+  printf(IntConstant * CharConstant);
+  printf(IntConstant / CharConstant);
+}
+
+void Test_ParenExpr {
+  printf("Deeply Nested ParenExpr", (((((((((1))))))))));
+  printf((1) + (2) * ((3) - (1) / (1 * 3)) - (1 + (3 * 4)));
+}
+
+void Test_UnaryOp {
+  const int IntConstant = 1;
+  const char CharConstant = 'a';
+
+  printf(-IntConstant);
+  printf(+IntConstant);
+  printf(-CharConstant);
+  printf(+CharConstant);
+  printf(-(-IntConstant));
+  printf(+(+IntConstant));
+  printf(-(-(-(IntConstant))));
+}
+
+void Test_Subscript {
+  int IntArray[2];
+  char CharArray[2];
+
+  printf(IntArray[1]);
+  printf(CharArray[1]);
+}
+
+void Test_FunctionVoid_Void {}
+
+int Test_FunctionInt_Int(int Int1) {
+  return(Int1);
+}
+
+char Test_FunctionChar_IntChar(int Int1, char Char2) {
+  return(Char2);
+}
+
+int Test_FunctionInt_CharCharChar(char Char1, char Char2, char Char3) {
+  return(1);
+}
+
+void Test_Call {
+  Test_FunctionVoid_Void;
+  Test_FunctionInt_Int(1);
+  Test_FunctionChar_IntChar(1, 'a');
+  Test_FunctionInt_CharCharChar('a', 'b', 'c');
+}
+
+void Test_Expr {
+  int SingleIntVariable, IntArray[2];
+
+  SingleIntVariable = 1;
+  IntArray[0] = 1;
+  IntArray[1] = 2;
+
+  printf((SingleIntVariable *
+        ((SingleIntVariable - 2) /
+         ((SingleIntVariable +
+           IntArray[IntArray[SingleIntVariable]]) + IntArray[SingleIntVariable]))));
+
+  printf((SingleIntVariable + 1) * (IntArray[SingleIntVariable * 2] * 2));
+
+  printf(IntArray[0 *
+        (SingleIntVariable *
+         SingleIntVariable * SingleIntVariable)]);
+
+  printf(IntArray[0 * (IntArray[SingleIntVariable] * 4) +
+         SingleIntVariable - SingleIntVariable]);
+}
+
+void Test_Empty {
+  int i;
+  ;
+  {}
+  ; ; ;
+  { ; ; ; }
+  { {} {} {} }
+  {{{}}}
+  {{{}}{}{}}
+  { ; { ; }}
+
+  while (1) ;
+  while (1) {}
+
+  if (1) ;
+  if (1) {}
+
+  for (i = 1; i; i = i + 1) ;
+  for (i = 1; i; i = i + 1) {}
+}
+
+void Test_Read {
+  int SingleIntVariable;
+  char SingleCharVariable;
+  int _1, _2, _3;
+  char _4, _5, _6;
+
+  scanf(SingleIntVariable);
+  scanf(SingleCharVariable);
+  scanf(_1, _2, _3);
+  scanf(_4, _5, _6);
+}
+
+void Test_Write {
+  const int IntConstant = 1;
+  int IntArray[2];
+
+  printf("SingleString");
+  printf(IntArray[IntConstant] + IntArray[IntConstant]);
+  printf("StringAndExpression",
+         IntConstant * IntArray[IntArray[IntConstant]]);
+}
+
+void Test_Return_Void {
+  return;
+}
+
+char Test_Return_Char {
+  const char CharConstant = 'a';
+  char CharArray[2];
+  char CharVariable;
+
+  return(CharVariable);
+  return(CharArray[1]);
+  return(CharConstant);
+  return(Test_Return_Char);
+  return('a');
+}
+
+int Test_Return_Int {
+  const int IntConstant = 1;
+  int IntArray[2];
+  int IntVariable;
+
+  return(IntConstant);
+  return(IntVariable);
+  return(Test_Return_Int);
+  return(IntArray[1]);
+  return(IntArray[(IntVariable)]);
+  return(1);
+}
+
+void Test_Compound_Empty {
+
+}
+
+void Test_Compound_NoConstDecl {
+  int IntVariable;
+  printf(IntVariable);
+}
+
+void Test_Compound_NoVarDecl {
+  const int IntConstant = 1;
+  printf(IntConstant);
+}
+
+void Test_Compound_NoStmts {
+  const int IntConstant = 1;
+  int IntVariable;
+}
+
+int Test_If(int Number) {
+  if (Number < 0)
+    return(-Number);
+  return(Number);
+}
+
+void Test_For {
+  const int Limit = 10;
+  int I;
+
+  printf("Incremental for");
+  for (I = 0; I < Limit; I = I + 1) {
+    printf("I = ", I);
+  }
+
+  printf("Decremental for");
+  for (I = Limit; I >= 0; I = I - 1) {
+    printf("I = ", I);
+  }
+
+  printf("for: execute only once");
+  for (I = 0; I > Limit; I = I - 1) {
+    printf("I = ", I);
+  }
+}
+
+void Test_While {
+  const int Limit = 10;
+  int I;
+
+  printf("Incremental while");
+  I = 0;
+  while (I < Limit) {
+    printf("I = ", I);
+    I = I + 1;
+  }
+
+  printf("Decremental while");
+  I = Limit;
+  while (I >= 0) {
+    printf("I = ", I);
+    I = I - 1;
+  }
+
+  I = 0;
+  while (I > Limit) {
+    printf("Never while");
+  }
+
+}
+
+void Test_Assign {
+  int SingleIntVariable, IntArray[2];
+
+  SingleIntVariable = 1;
+  IntArray[0] = 1;
+  IntArray[1] = 2;
+}
+
+void Test_Stmt {
+  int i;
+
+  if (1) {
+    if (2) {
+      if (3) {
+        printf("if if if");
+      } else {
+        printf("if if else");
+      }
+    } else {
+      printf("if else");
+    }
+  } else {
+    printf("else");
+  }
+
   while (1) {
-    printf("In dead loop");
-  }
-}
-
-int prompt_int {
-  int val;
-  printf("Please input an integer:");
-  scanf(val);
-  return (val);
-}
-
-
-void swap(int index1, int index2) {
-  int temp;
-  temp = heap[index1];
-  heap[index1] = heap[index2];
-  heap[index2] = temp;
-}
-
-void heapify(int index, int heap_size) {
-  int largest;
-  int left;
-  int right;
-
-  largest = index;
-  left = 2 * index + 1;
-  right = 2 * index + 2;
-
-  if (left < heap_size) {
-    if (heap[left] > heap[largest]) {
-      largest = left;
+    while (2) {
+      while (3) {
+        printf("while while while");
+      }
+      if (3) {
+        printf("while while if");
+        for (i = 0; i < 4; i = i + 1) {
+          printf("while while if for");
+        }
+      }
     }
-  }
 
-  if (right < heap_size) {
-    if (heap[right] > heap[largest]) {
-      largest = right;
+    for (i = 0; i < 2; i = i + 1) {
+      for (i = 0; i < 3; i = i + 1) {
+        for (i = 0; i < 4; i = i + 1) {
+          printf("while for for for");
+          if (5) {
+            printf("while for for for if");
+          }
+        }
+      }
     }
-  }
 
-  if (largest != index) {
-    swap(index, largest);
-    heapify(largest, heap_size);
-  }
+    printf("while");
 
-}
-
-void heap_sort(int heap_size) {
-  int i;
-
-  i = heap_size / 2 - 1;
-  while (i >= 0) {
-    heapify(i, heap_size);
-    i = i - 1;
-  }
-
-  for (i = heap_size - 1; i >= 0; i = i - 1) {
-    swap(0, i);
-    heapify(0, i);
-  }
-}
-
-void print_heap(int heap_size) {
-  int i;
-
-  for (i = 0; i < heap_size; i = i + 1) {
-    printf(heap[i]);
-    if (i != heap_size - 1) {
-      printf(" ");
+    if (2) {
+      printf("while if");
+      while (3) {
+        while (4) {
+          for (i = 0; i < 5; i = i + 1) {
+            printf("while if while while for");
+          }
+        }
+      }
     }
   }
 }
 
-void reset_heap {
-  int i;
+void PrintCompareOp {
+  printf("CompareEqual: ", CompareEqual);
+  printf("CompareNotEqual: ", CompareNotEqual);
+  printf("CompareLess: ", CompareLess);
+  printf("CompareLessEqual: ", CompareLessEqual);
+  printf("CompareGreater: ", CompareGreater);
+  printf("CompareGreaterEqual: ", CompareGreaterEqual);
+}
 
-  for (i = 0; i < max_heap_size; i = i + 1) {
-    heap[i] = 0;
+int ThreeWaysCompare(int A, int B) {
+  if (A > B) return(1);
+  if (A < B) return(-1);
+  return(0);
+}
+
+int RichCompare(int A, int B, int CompareOp) {
+  int Order;
+
+  Order = ThreeWaysCompare(A, B);
+  if (CompareOp == CompareEqual) {
+    if (Order == 0) return(1); else return(0);
   }
+  else if (CompareOp == CompareLess) {
+    if (Order == -1) return(1); else return(0);
+  }
+  else if (CompareOp == CompareGreater) {
+    if (Order == 1) return(1); else return(0);
+  }
+  else if (CompareOp == CompareNotEqual) {
+    Order = RichCompare(A, B, CompareEqual);
+    if (Order) return(0); else return(1);
+  }
+  else if (CompareOp == CompareLessEqual) {
+    Order = RichCompare(A, B, CompareGreater);
+    if (Order) return(0); else return(1);
+  }
+  else if (CompareOp == CompareGreaterEqual) {
+    Order = RichCompare(A, B, CompareLess);
+    if (Order) return(0); else return(1);
+  }
+  else {
+    printf("Unknown CompareOp: ", CompareOp);
+    return(-1);
+  }
+  return(-1);
 }
 
 void main() {
-  int N;
-  int temp;
-  int i, j;
-  int array_size;
+  int A, B, CompareOp;
+  int Result;
 
-  reset_heap;
-  scanf(N);
-
-  for (i = 0; i < N; i = i + 1) {
-    scanf(array_size);
-    if (array_size > max_heap_size) {
-      printf("array_size exceeds max_heap_size");
-    } else {
-      for (j = 0; j < array_size; j = j + 1) {
-        scanf(temp);
-        heap[j] = temp;
-      }
-      heap_sort(array_size);
-      print_heap(array_size);
-    }
+  printf("Please input three integers: A, B and CompareOp");
+  printf("where CompareOp are:");
+  PrintCompareOp;
+  scanf(A, B, CompareOp);
+  Result = RichCompare(A, B, CompareOp);
+  if (Result >= 0) {
+    printf("Result: ", Result);
   }
 }
