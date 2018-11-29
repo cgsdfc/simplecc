@@ -75,6 +75,11 @@ public:
   // public interface
   CompiledFunction Compile() {
     visitFuncDef(function);
+    // XXX: this is wrong. the last instruction in the buffer is **not**
+    // the last instruction of the last **basic block**.
+    // until the real basic block implementation comes out, no test code
+    // should reveal this bug -- they must end each function that returns
+    // with a explicit outter most return
     if (buffer.empty() ||
         (GetLastByteCode().GetOpcode() != Opcode::RETURN_VALUE &&
          GetLastByteCode().GetOpcode() != Opcode::RETURN_NONE)) {
