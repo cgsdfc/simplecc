@@ -342,10 +342,10 @@ public:
   }
 
   void HandleBinaryJumpIf(const char *op, const ByteCode &code) {
-    POP("$t0");
-    POP("$t1");
+    POP("$t0"); // TOS
+    POP("$t1"); // TOS1
     auto &&label = context.GetTargetLabel(code.GetIntOperand());
-    w.WriteLine(op, "$t0, $t1,", label);
+    w.WriteLine(op, "$t1, $t0,", label);
   }
 
   void HandleJumpIfNotEqual(const ByteCode &code) {
