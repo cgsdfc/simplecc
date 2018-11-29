@@ -1,13 +1,12 @@
-#include "Print.h"
 #include "assemble.h"
 #include "OpcodeDispatcher.h"
+#include "Print.h"
 
 #include <sstream>
 #include <unordered_set>
 
 // Return the bytes for n entries
 inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
-
 
 // Handle global object naming
 class GlobalContext {

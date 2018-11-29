@@ -3,8 +3,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
 // Location(lineno, col_offset) => "lineno,col_offset"
 String LocationToString(const Location &loc) {

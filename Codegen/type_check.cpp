@@ -10,7 +10,7 @@ class ImplicitCallTransformer : public VisitorBase<ImplicitCallTransformer> {
 
 public:
   ImplicitCallTransformer(const SymbolTable &symtable, FuncDef *fun)
-    : funcDef(fun), local(symtable.GetLocal(fun)) {}
+      : funcDef(fun), local(symtable.GetLocal(fun)) {}
 
   void visitStmt(Stmt *node) { VisitorBase::visitStmt<void>(node); }
 
@@ -141,20 +141,15 @@ class TypeCheker : public VisitorBase<TypeCheker>,
   ErrorManager &e;
 
   // return type of the function being checked
-  BasicTypeKind GetReturnType() const {
-    return funcDef->return_type;
-  }
+  BasicTypeKind GetReturnType() const { return funcDef->return_type; }
 
   // name of the function being checked
-  const String &GetFuncName() const {
-    return funcDef->name;
-  }
+  const String &GetFuncName() const { return funcDef->name; }
 
 public:
   TypeCheker(SymbolTable &symbolTable, FuncDef *fun, ErrorManager &e)
-    : symbolTable(symbolTable),
-    local(symbolTable.GetLocal(fun)),
-    funcDef(fun), e(e) {}
+      : symbolTable(symbolTable), local(symbolTable.GetLocal(fun)),
+        funcDef(fun), e(e) {}
 
   // public interface
   void Check() {
@@ -209,8 +204,8 @@ public:
 
     if (e.IsOk(errs) && target != value) {
       e.TypeError(node->loc, "type mismatched in assignment:",
-          CStringFromBasicTypeKind(target), "=",
-          CStringFromBasicTypeKind(value));
+                  CStringFromBasicTypeKind(target), "=",
+                  CStringFromBasicTypeKind(value));
     }
   }
 
@@ -338,7 +333,6 @@ public:
   }
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 };
-
 
 bool CheckType(Program *prog, SymbolTable &symtable) {
   ErrorManager e;

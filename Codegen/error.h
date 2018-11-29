@@ -6,14 +6,15 @@
 
 inline String Quote(const String &string) { return '\'' + string + '\''; }
 
-class ErrorManager: private Printer {
+class ErrorManager : private Printer {
   int error_count;
 
   template <typename... Args>
-    void ErrorWithLocation(const char *etype, const Location &loc, Args &&... args) {
-      WriteLine(etype, "at", loc.lineno, ":", std::forward<Args>(args)...);
-      ++error_count;
-    }
+  void ErrorWithLocation(const char *etype, const Location &loc,
+                         Args &&... args) {
+    WriteLine(etype, "at", loc.lineno, ":", std::forward<Args>(args)...);
+    ++error_count;
+  }
 
 public:
   ErrorManager() : Printer(std::cerr), error_count(0) {}
@@ -60,6 +61,5 @@ public:
 
   bool IsOk(int prev_count = 0) const { return prev_count == GetErrorCount(); }
 };
-
 
 #endif

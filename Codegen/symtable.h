@@ -157,7 +157,7 @@ class TypeEntry {
   friend class SymbolTable;
   Expr *expr;
   BasicTypeKind type;
-  TypeEntry(Expr *expr, BasicTypeKind type): expr(expr), type(type) {}
+  TypeEntry(Expr *expr, BasicTypeKind type) : expr(expr), type(type) {}
 
 public:
   // computed type of this expression
@@ -168,12 +168,10 @@ public:
   const char *GetExprClassName() const { return expr->ClassName(); }
 };
 
-
 using ExprTypeTable = std::unordered_map<uintptr_t, TypeEntry>;
 using TableType = std::unordered_map<String, SymbolEntry>;
 using NestedTableType = std::unordered_map<uintptr_t, TableType>;
 using StringLiteralTable = std::unordered_map<String, int>;
-
 
 // Provide a safe const view to a sub-symbol table
 class SymbolTableView {
@@ -198,7 +196,8 @@ class SymbolTable {
   friend bool BuildSymbolTable(Program *prog, SymbolTable &table);
 
   void SetExprType(Expr *expr, BasicTypeKind type) {
-    expr_types.emplace(reinterpret_cast<uintptr_t>(expr), TypeEntry(expr, type));
+    expr_types.emplace(reinterpret_cast<uintptr_t>(expr),
+                       TypeEntry(expr, type));
   }
 
   TableType global;

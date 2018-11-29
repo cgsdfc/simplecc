@@ -1,25 +1,18 @@
 #include "CompilerInstance.h"
+#include "ByteCodePrinter.h"
+#include "assemble.h"
 #include "compile.h"
 #include "cst.h"
 #include "error.h"
-#include "assemble.h"
 #include "parser.h"
 #include "symtable.h"
 #include "syntax_check.h"
 #include "type_check.h"
-#include "ByteCodePrinter.h"
 
-CompilerInstance::CompilerInstance(
-    std::istream &input,
-    std::ostream &output,
-    CompilationPhrase phrase) : 
-  input(input),
-  output(output),
-  phrase(phrase),
-  tokens(),
-  symbolTable(),
-  cst_node(nullptr),
-  ast_node(nullptr) {}
+CompilerInstance::CompilerInstance(std::istream &input, std::ostream &output,
+                                   CompilationPhrase phrase)
+    : input(input), output(output), phrase(phrase), tokens(), symbolTable(),
+      cst_node(nullptr), ast_node(nullptr) {}
 
 CompilerInstance::~CompilerInstance() {
   delete cst_node;
@@ -91,6 +84,6 @@ bool CompilerInstance::Invoke() {
     AssembleMips(module, output);
     return true;
   }
-  
+
   return false;
 }

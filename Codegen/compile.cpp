@@ -5,14 +5,14 @@
 #include <iomanip>
 #include <unordered_map>
 
-CompiledFunction::CompiledFunction(
-    SymbolTableView local, std::vector<ByteCode> &&code,
-    SymbolEntry entry, ObjectList &&formal_arguments,
-    ObjectList &&local_objects)
-  : local(local), code(std::move(code)), entry(entry),
-  formal_arguments(std::move(formal_arguments)),
-  local_objects(std::move(local_objects))
-{
+CompiledFunction::CompiledFunction(SymbolTableView local,
+                                   std::vector<ByteCode> &&code,
+                                   SymbolEntry entry,
+                                   ObjectList &&formal_arguments,
+                                   ObjectList &&local_objects)
+    : local(local), code(std::move(code)), entry(entry),
+      formal_arguments(std::move(formal_arguments)),
+      local_objects(std::move(local_objects)) {
   assert(entry.IsFunction());
   for (auto &&code : code) {
     code.Check();
@@ -20,9 +20,9 @@ CompiledFunction::CompiledFunction(
 }
 
 CompiledFunction::CompiledFunction(CompiledFunction &&other)
-  : local(other.local), code(std::move(other.code)), entry(other.entry),
-  formal_arguments(std::move(other.formal_arguments)),
-  local_objects(std::move(other.local_objects)) {}
+    : local(other.local), code(std::move(other.code)), entry(other.entry),
+      formal_arguments(std::move(other.formal_arguments)),
+      local_objects(std::move(other.local_objects)) {}
 
 class FunctionCompiler : public VisitorBase<FunctionCompiler> {
   unsigned current_lineno;
@@ -159,7 +159,7 @@ public:
     auto loop_label = GetLabel();
     visitStmt(node->step);
     auto jump_to_end =
-      CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
+        CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
     auto start_label = GetLabel();
     for (auto s : node->body) {
       visitStmt(s);
@@ -175,7 +175,7 @@ public:
   void visitWhile(While *node) {
     auto loop_label = GetLabel();
     auto jump_to_end =
-      CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
+        CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
     for (auto s : node->body) {
       visitStmt(s);
     }
@@ -188,7 +188,7 @@ public:
 
   void visitIf(If *node) {
     auto jump_to_orelse =
-      CompileBoolOp(static_cast<BoolOp *>(node->test), true);
+        CompileBoolOp(static_cast<BoolOp *>(node->test), true);
     for (auto s : node->body) {
       visitStmt(s);
     }
@@ -238,9 +238,7 @@ public:
     Add(ByteCode(MakeBinary(node->op)));
   }
 
-  void visitParenExpr(ParenExpr *node) {
-    visitExpr(node->value);
-  }
+  void visitParenExpr(ParenExpr *node) { visitExpr(node->value); }
 
   void visitCall(Call *node) {
     for (auto expr : node->args) {
@@ -249,17 +247,13 @@ public:
     Add(ByteCode(Opcode::CALL_FUNCTION, node->args.size(), node->func.data()));
   }
 
-  void visitNum(Num *node) {
-    Add(ByteCode(Opcode::LOAD_CONST, node->n));
-  }
+  void visitNum(Num *node) { Add(ByteCode(Opcode::LOAD_CONST, node->n)); }
 
   void visitStr(Str *node) {
     Add(ByteCode(Opcode::LOAD_STRING, symtable.GetStringLiteralID(node->s)));
   }
 
-  void visitChar(Char *node) {
-    Add(ByteCode(Opcode::LOAD_CONST, node->c));
-  }
+  void visitChar(Char *node) { Add(ByteCode(Opcode::LOAD_CONST, node->c)); }
 
   void visitSubscript(Subscript *node) {
     const auto &entry = local[node->name];

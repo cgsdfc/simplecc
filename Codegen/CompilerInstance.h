@@ -27,8 +27,7 @@ class CompilerInstance {
   Program *ast_node;
 
 public:
-  CompilerInstance(std::istream &input,
-                   std::ostream &output,
+  CompilerInstance(std::istream &input, std::ostream &output,
                    CompilationPhrase phrase);
 
   ~CompilerInstance();
