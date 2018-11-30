@@ -102,9 +102,8 @@ public:
   }
 };
 
-// Visitor Mixin that provides default implementation for visiting nodes
-// that have children.
-template <class Derived> class ChildrenVisitor {
+/// Visitor that simply visits children recursively and return no value.
+template <class Derived> class ChildrenVisitor : public VisitorBase<Derived> {
 public:
   void visitProgram(Program *node) {
 

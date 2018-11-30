@@ -783,23 +783,27 @@ if (auto x = subclass_cast<$class_name>(node)) {
 
 class ChildrenVisitorTemplate:
     decl = Template("""
-// Visitor Mixin that provides default implementation for visiting nodes
-// that have children.
+/// Visitor that simply visits children recursively and return no value.
 template <class Derived>
-class ChildrenVisitor {
+class ChildrenVisitor : public VisitorBase<Derived> {
 public:
 $methods
 $downcasts
 };""")
+
+    # visit children
     method = Template("""
 void visit$class_name($class_name *node) {
 $code
 }""")
+
+    # let subclass to customize this
     crtp_downcast = Template("""
 void visit$class_name($class_name *node) {
     static_cast<Derived*>(this)->visit$class_name(node);
 }""")
 
+    # ways to visit different kinds of field: Optional, Sequence, etc.
     visit = Template("""
     visit$class_name(node->$name);
 """)

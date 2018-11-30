@@ -128,8 +128,8 @@ public:
 };
 
 // Check type for a function
-class TypeCheker : public VisitorBase<TypeCheker>,
-                   public ChildrenVisitor<TypeCheker> {
+class TypeCheker : public ChildrenVisitor<TypeCheker> {
+  // use visitFor, visitWhile of ChildrenVisitor
 
   // set expression type of symbolTable
   SymbolTable &symbolTable;

@@ -43,8 +43,7 @@ void MakeGlobal(Program *prog, TableType &dict, ErrorManager &e) {
 }
 
 // Visitor that resolves local names for a function
-class LocalResolver : public VisitorBase<LocalResolver>,
-                      public ChildrenVisitor<LocalResolver> {
+class LocalResolver : public ChildrenVisitor<LocalResolver> {
 public:
   // The Ast of the function
   FuncDef *fun;
@@ -139,8 +138,7 @@ String DoubleBackslashes(const String &string) {
 }
 
 // Visitor that build string table.
-class StringLiteralVisitor : public VisitorBase<StringLiteralVisitor>,
-                             public ChildrenVisitor<StringLiteralVisitor> {
+class StringLiteralVisitor : public ChildrenVisitor<StringLiteralVisitor> {
   StringLiteralTable &table;
 
 public:
