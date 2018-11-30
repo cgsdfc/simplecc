@@ -388,6 +388,7 @@ class HeaderTemplate:
 #include <optional>
 #include <cassert>
 
+namespace simplecompiler {
 class AST {
 public:
     virtual void Format(std::ostream &os) const = 0;
@@ -437,7 +438,7 @@ inline T *subclass_cast(U *x) {
         return static_cast<T*>(x);
     return nullptr;
 }
-
+}
 #endif
 """)
 
@@ -477,6 +478,7 @@ class ImplTemplate:
     impl = Template("""
 #include "AST.h"
 
+namespace simplecompiler {
 template<class T>
 std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
     os << "[";
@@ -501,6 +503,7 @@ std::ostream &operator<<(std::ostream &os, const std::optional<T> &v) {
 $formatter_impls
 $destructor_impls
 $string2enum_impls
+}
 """)
 
     def substitute(self, typemap):
@@ -847,9 +850,10 @@ class VisitorTemplate:
 #define VISITOR_H
 #include "AST.h"
 
+namespace simplecompiler {
 $visitor_base
 $children_visitor
-
+}
 #endif""")
 
     def substitute(self, typemap):

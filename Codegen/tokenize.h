@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+namespace simplecompiler {
 using String = std::string;
 using std::exit;
 using std::fprintf;
@@ -67,4 +68,6 @@ using TokenBuffer = std::vector<TokenInfo>;
 
 void Tokenize(std::istream &Input, TokenBuffer &Output);
 void PrintTokens(const TokenBuffer &tokens, std::ostream &os);
+
+}
 #endif

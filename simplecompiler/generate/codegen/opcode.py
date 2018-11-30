@@ -26,6 +26,7 @@ class OpcodeTemplate:
 #include "symtable.h"
 #include <iostream>
 
+namespace simplecompiler {
 enum class Opcode {
 $values
 };
@@ -44,11 +45,12 @@ inline std::ostream &operator<<(std::ostream &os, Opcode val) {
     return os << CStringFromOpcode(val);
 }
 
+}
 #endif""")
 
     cpp = Template("""
 #include "Opcode.h"
-
+namespace simplecompiler {
 // Hard coded mappings
 
 Opcode MakeSubScr(ExprContextKind ctx) {
@@ -161,6 +163,7 @@ const char *CStringFromOpcode(Opcode val) {
     switch (val) {
     $code
     }
+}
 }""")
 
     default = "default: assert(false);"
@@ -185,6 +188,7 @@ class OpcodeDispatcherTemplate:
 #define OPCODE_DISPATCHER
 #include "ByteCode.h"
 
+namespace simplecompiler {
 template <class Derived>
 class OpcodeDispatcher {
 public:
@@ -194,7 +198,7 @@ public:
     }
   }
 };
-
+}
 #endif""")
 
     handler = Template("""

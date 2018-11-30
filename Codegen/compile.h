@@ -3,12 +3,10 @@
 #include "ByteCode.h"
 #include "symtable.h"
 
-class FunctionCompiler;
-class ModuleCompiler;
+namespace simplecompiler {
 using ObjectList = std::vector<SymbolEntry>;
 
 class CompiledFunction {
-  friend class FunctionCompiler;
   // Local symbols
   SymbolTableView local;
   // Compiled byte code
@@ -20,11 +18,11 @@ class CompiledFunction {
   // Local non-constants
   ObjectList local_objects;
 
+public:
   CompiledFunction(SymbolTableView local, std::vector<ByteCode> &&code,
                    SymbolEntry entry, ObjectList &&formal_arguments,
                    ObjectList &&local_objects);
 
-public:
   CompiledFunction(CompiledFunction &&other);
 
   void Format(std::ostream &os) const;
@@ -43,7 +41,6 @@ public:
 };
 
 class CompiledModule {
-  friend class ModuleCompiler;
   std::vector<CompiledFunction> functions;
   const StringLiteralTable &strings;
   ObjectList global_objects;
@@ -80,5 +77,5 @@ inline std::ostream &operator<<(std::ostream &os, const CompiledModule &c) {
   c.Format(os);
   return os;
 }
-
+}
 #endif

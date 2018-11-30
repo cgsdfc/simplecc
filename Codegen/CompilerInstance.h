@@ -4,7 +4,7 @@
 #include "error.h"
 #include "parser.h"
 #include "symtable.h"
-
+namespace simplecompiler {
 enum class CompilationPhrase {
   Tokenize,
   BuildCst,
@@ -37,5 +37,5 @@ public:
 
   bool Invoke();
 };
-
+}
 #endif

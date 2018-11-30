@@ -9,6 +9,7 @@
 #include <optional>
 #include <vector>
 
+namespace simplecompiler {
 class AST {
 public:
   virtual void Format(std::ostream &os) const = 0;
@@ -554,5 +555,5 @@ template <typename T, typename U> inline T *subclass_cast(U *x) {
     return static_cast<T *>(x);
   return nullptr;
 }
-
+} // namespace simplecompiler
 #endif

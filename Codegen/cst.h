@@ -3,6 +3,8 @@
 #include "AST.h"
 #include "parser.h"
 
+namespace simplecompiler {
 Program *NodeToAst(Node *node);
+}
 
 #endif

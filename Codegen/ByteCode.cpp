@@ -1,6 +1,8 @@
 #include "ByteCode.h"
 #include "error.h"
 
+namespace simplecompiler {
+
 bool IsJumpXXX(Opcode op) {
   switch (op) {
   case Opcode::JUMP_IF_TRUE:
@@ -92,4 +94,5 @@ void ByteCode::Format(std::ostream &os) const {
     os << "str_arg=" << Quote(*str_arg) << ", ";
   os << "offset=" << offset << ", ";
   os << "lineno=" << lineno << ")";
+}
 }

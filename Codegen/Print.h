@@ -2,6 +2,7 @@
 #define PRINT_H
 #include <iostream>
 
+namespace simplecompiler {
 template <typename... Args> void Print(std::ostream &os, Args &&... args);
 
 template <> inline void Print(std::ostream &os) { os << "\n"; }
@@ -26,5 +27,5 @@ public:
     Print(os, std::forward<Args>(args)...);
   }
 };
-
+}
 #endif

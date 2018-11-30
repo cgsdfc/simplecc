@@ -5,9 +5,9 @@
 #include <cstdint>
 #include <unordered_map>
 
+namespace simplecompiler {
 enum class Scope { Global, Local };
 class SymbolTable;
-class TypeCheker;
 
 bool BuildSymbolTable(Program *prog, SymbolTable &table);
 
@@ -154,12 +154,11 @@ inline std::ostream &operator<<(std::ostream &os, const SymbolEntry &e) {
 
 // Binding type of an expression to its address
 class TypeEntry {
-  friend class SymbolTable;
   Expr *expr;
   BasicTypeKind type;
-  TypeEntry(Expr *expr, BasicTypeKind type) : expr(expr), type(type) {}
 
 public:
+  TypeEntry(Expr *expr, BasicTypeKind type) : expr(expr), type(type) {}
   // computed type of this expression
   BasicTypeKind GetType() const { return type; }
   // location of this expression
@@ -192,13 +191,7 @@ public:
 };
 
 class SymbolTable {
-  friend class TypeCheker;
   friend bool BuildSymbolTable(Program *prog, SymbolTable &table);
-
-  void SetExprType(Expr *expr, BasicTypeKind type) {
-    expr_types.emplace(reinterpret_cast<uintptr_t>(expr),
-                       TypeEntry(expr, type));
-  }
 
   TableType global;
   NestedTableType locals;
@@ -207,6 +200,12 @@ class SymbolTable {
 
 public:
   SymbolTable() : global(), locals(), string_literals() {}
+
+  // Use only by TypeChecker
+  void SetExprType(Expr *expr, BasicTypeKind type) {
+    expr_types.emplace(reinterpret_cast<uintptr_t>(expr),
+                       TypeEntry(expr, type));
+  }
 
   // Return local symbol table for a function
   SymbolTableView GetLocal(FuncDef *fun) const {
@@ -245,5 +244,5 @@ inline std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {
   t.Format(os);
   return os;
 }
-
+}
 #endif

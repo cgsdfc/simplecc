@@ -3,6 +3,7 @@
 #include "error.h"
 #include <algorithm>
 
+using namespace simplecompiler;
 // Define a declaration globally.
 void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
   if (global.count(decl->name)) {
@@ -161,6 +162,7 @@ public:
   void visitExpr(Expr *node) { return VisitorBase::visitExpr<void>(node); }
 };
 
+namespace simplecompiler {
 // public interface
 bool BuildSymbolTable(Program *prog, SymbolTable &table) {
   ErrorManager e;
@@ -185,6 +187,7 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
   }
   return e.IsOk();
 }
+}
 
 void CheckTable(const TableType &table) {
   for (const auto &item : table) {
@@ -205,6 +208,7 @@ void SymbolTable::Check() const {
   }
 }
 
+namespace simplecompiler {
 // Overloads to print various data structures
 std::ostream &operator<<(std::ostream &os, Scope s) {
   switch (s) {
@@ -213,14 +217,6 @@ std::ostream &operator<<(std::ostream &os, Scope s) {
   case Scope::Local:
     return os << "Scope::Local";
   }
-}
-
-void SymbolEntry::Format(std::ostream &os) const {
-  os << "SymbolEntry(";
-  os << "type=" << GetTypeName() << ", "
-     << "scope=" << GetScope() << ", "
-     << "location=" << GetLocation() << ", "
-     << "name=" << Quote(GetName()) << ")";
 }
 
 // Generic map printer
@@ -261,6 +257,15 @@ std::ostream &operator<<(std::ostream &os,
     i++;
   }
   return os << "}";
+}
+}
+
+void SymbolEntry::Format(std::ostream &os) const {
+  os << "SymbolEntry(";
+  os << "type=" << GetTypeName() << ", "
+     << "scope=" << GetScope() << ", "
+     << "location=" << GetLocation() << ", "
+     << "name=" << Quote(GetName()) << ")";
 }
 
 void SymbolTable::Format(std::ostream &os) const {

@@ -5,6 +5,8 @@
 #include <sstream>
 #include <unordered_set>
 
+using namespace simplecompiler;
+
 // Return the bytes for n entries
 inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
 
@@ -515,7 +517,7 @@ public:
   }
 };
 
-void AssembleMips(const CompiledModule &module, std::ostream &os) {
+void simplecompiler::AssembleMips(const CompiledModule &module, std::ostream &os) {
   ModuleAssembler(module, os).Assemble();
 }
 

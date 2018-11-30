@@ -2,6 +2,8 @@
 #define VISITOR_H
 #include "AST.h"
 
+namespace simplecompiler {
+
 // Visitor Mixin that provides runtime dispatch of abstract nodes
 template <typename Derived> class VisitorBase {
 public:
@@ -238,5 +240,5 @@ public:
 
   void visitExpr(Expr *node) { static_cast<Derived *>(this)->visitExpr(node); }
 };
-
+} // namespace simplecompiler
 #endif

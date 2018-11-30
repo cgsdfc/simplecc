@@ -3,6 +3,7 @@
 #define OPCODE_DISPATCHER
 #include "ByteCode.h"
 
+namespace simplecompiler {
 template <class Derived> class OpcodeDispatcher {
 public:
   void dispatch(const ByteCode &byteCode) {
@@ -109,5 +110,5 @@ public:
     }
   }
 };
-
+} // namespace simplecompiler
 #endif

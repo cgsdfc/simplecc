@@ -1,6 +1,7 @@
 
 #include "AST.h"
 
+namespace simplecompiler {
 template <class T>
 std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
   os << "[";
@@ -466,3 +467,5 @@ const char *CStringFromBasicTypeKind(BasicTypeKind val) {
     return "void";
   }
 }
+
+} // namespace simplecompiler

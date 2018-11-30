@@ -5,6 +5,7 @@
 #include "symtable.h"
 #include <iostream>
 
+namespace simplecompiler {
 enum class Opcode {
   LOAD_LOCAL,
   LOAD_GLOBAL,
@@ -55,4 +56,5 @@ inline std::ostream &operator<<(std::ostream &os, Opcode val) {
   return os << CStringFromOpcode(val);
 }
 
+} // namespace simplecompiler
 #endif

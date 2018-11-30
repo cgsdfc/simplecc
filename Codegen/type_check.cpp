@@ -2,6 +2,7 @@
 #include "Visitor.h"
 #include "error.h"
 
+using namespace simplecompiler;
 // Transform Name to Call if it is a function and it is in the context
 // of Expr or ExprStmt (Call really).
 class ImplicitCallTransformer : public VisitorBase<ImplicitCallTransformer> {
@@ -334,7 +335,7 @@ public:
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 };
 
-bool CheckType(Program *prog, SymbolTable &symtable) {
+bool simplecompiler::CheckType(Program *prog, SymbolTable &symtable) {
   ErrorManager e;
   for (auto decl : prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {

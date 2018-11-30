@@ -3,5 +3,7 @@
 
 #include "AST.h"
 
+namespace simplecompiler {
 bool CheckSyntax(Program *node);
+}
 #endif

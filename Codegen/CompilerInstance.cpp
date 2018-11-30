@@ -9,6 +9,7 @@
 #include "syntax_check.h"
 #include "type_check.h"
 
+using namespace simplecompiler;
 CompilerInstance::CompilerInstance(std::istream &input, std::ostream &output,
                                    CompilationPhrase phrase)
     : input(input), output(output), phrase(phrase), tokens(), symbolTable(),

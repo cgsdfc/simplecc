@@ -3,6 +3,7 @@
 
 #include "tokenize.h"
 
+namespace simplecompiler {
 class Node {
 public:
   Symbol type;
@@ -32,5 +33,5 @@ inline std::ostream &operator<<(std::ostream &os, const Node &node) {
 }
 
 Node *ParseTokens(const TokenBuffer &tokens);
-
+}
 #endif

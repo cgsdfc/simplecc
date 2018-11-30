@@ -1,6 +1,6 @@
 
 #include "Opcode.h"
-
+namespace simplecompiler {
 // Hard coded mappings
 
 Opcode MakeSubScr(ExprContextKind ctx) {
@@ -184,3 +184,4 @@ const char *CStringFromOpcode(Opcode val) {
     return "Opcode::POP_TOP";
   }
 }
+} // namespace simplecompiler

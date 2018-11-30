@@ -4,6 +4,7 @@
 #include "Opcode.h"
 #include <optional>
 
+namespace simplecompiler {
 class ByteCode {
   Opcode opcode;
   unsigned lineno;
@@ -55,4 +56,5 @@ bool HasIntOperand(Opcode op);
 bool HasStrOperand(Opcode op);
 bool HasNoOperand(Opcode op);
 bool IsJumpXXX(Opcode op);
+}
 #endif

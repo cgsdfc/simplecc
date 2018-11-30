@@ -3,5 +3,7 @@
 #include "compile.h"
 #include <iostream>
 
+namespace simplecompiler {
 void AssembleMips(const CompiledModule &module, std::ostream &os);
+}
 #endif

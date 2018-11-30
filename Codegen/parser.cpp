@@ -6,6 +6,8 @@
 #include <stack>
 #include <vector>
 
+using namespace simplecompiler;
+
 Node::~Node() {
   for (auto child : children)
     delete child;
@@ -205,7 +207,7 @@ public:
   }
 };
 
-Node *ParseTokens(const TokenBuffer &tokens) {
+Node *simplecompiler::ParseTokens(const TokenBuffer &tokens) {
   Parser parser(&CompilerGrammar);
   return parser.ParseTokens(tokens);
 }

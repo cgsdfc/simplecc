@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <sstream>
 
+namespace {
+using namespace simplecompiler;
 // Location(lineno, col_offset) => "lineno,col_offset"
 String LocationToString(const Location &loc) {
   std::ostringstream os;
@@ -25,14 +27,6 @@ void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
   os << std::left << std::setw(20) << token_range;
   os << std::left << std::setw(15) << GetSymName(token.type);
   os << std::left << std::setw(15) << Quote(token.string) << "\n";
-}
-
-void TokenInfo::Format(std::ostream &os) const {
-  os << "TokenInfo("
-     << "type=" << GetSymName(type) << ", "
-     << "string=" << Quote(string) << ", "
-     << "start=" << start << ", "
-     << "line=" << Quote(line) << ")";
 }
 
 bool IsBlank(const String &line) {
@@ -68,8 +62,18 @@ bool IsOperator(char ch) {
 void ToLowerInplace(String &string) {
   std::transform(string.begin(), string.end(), string.begin(), ::tolower);
 }
+}
 
-void Tokenize(std::istream &Input, TokenBuffer &Output) {
+
+void TokenInfo::Format(std::ostream &os) const {
+  os << "TokenInfo("
+     << "type=" << GetSymName(type) << ", "
+     << "string=" << Quote(string) << ", "
+     << "start=" << start << ", "
+     << "line=" << Quote(line) << ")";
+}
+
+void simplecompiler::Tokenize(std::istream &Input, TokenBuffer &Output) {
   assert(Output.empty());
   unsigned lnum = 0;
   String line;
@@ -150,7 +154,7 @@ void Tokenize(std::istream &Input, TokenBuffer &Output) {
   Output.emplace_back(Symbol::ENDMARKER, "", Location(lnum, 0), "");
 }
 
-void PrintTokens(const TokenBuffer &tokens, std::ostream &os) {
+void simplecompiler::PrintTokens(const TokenBuffer &tokens, std::ostream &os) {
   for (auto &&token : tokens) {
     DumpTokenInfo(os, token);
   }

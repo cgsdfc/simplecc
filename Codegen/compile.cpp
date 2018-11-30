@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <unordered_map>
 
+using namespace simplecompiler;
 CompiledFunction::CompiledFunction(SymbolTableView local,
                                    std::vector<ByteCode> &&code,
                                    SymbolEntry entry,
@@ -280,7 +281,7 @@ public:
   }
 };
 
-CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable) {
+CompiledModule simplecompiler::CompileProgram(Program *prog, const SymbolTable &symtable) {
   ObjectList global_objects;
   std::vector<CompiledFunction> functions;
 

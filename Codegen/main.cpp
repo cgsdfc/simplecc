@@ -5,6 +5,8 @@
 #include <tclap/CmdLine.h>
 
 using namespace TCLAP;
+using namespace simplecompiler;
+
 using ArgToCompilationPhraseTable =
     std::unordered_map<TCLAP::Arg *, CompilationPhrase>;
 

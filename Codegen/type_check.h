@@ -2,7 +2,9 @@
 #define TYPE_CHECK
 #include "symtable.h"
 
-class Program;
 
+namespace simplecompiler {
+class Program;
 bool CheckType(Program *prog, SymbolTable &symtable);
+}
 #endif

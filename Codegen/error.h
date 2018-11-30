@@ -4,6 +4,7 @@
 #include "Print.h"
 #include "tokenize.h"
 
+namespace simplecompiler {
 inline String Quote(const String &string) { return '\'' + string + '\''; }
 
 class ErrorManager : private Printer {
@@ -62,4 +63,5 @@ public:
   bool IsOk(int prev_count = 0) const { return prev_count == GetErrorCount(); }
 };
 
+}
 #endif

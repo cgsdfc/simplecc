@@ -3,6 +3,7 @@
 
 #include <sstream>
 
+using namespace simplecompiler;
 Expr *MakeChar(Node *node) {
   return new Char(static_cast<int>(node->value[1]), node->location);
 }
@@ -420,6 +421,6 @@ public:
   }
 };
 
-Program *NodeToAst(Node *node) {
+Program *simplecompiler::NodeToAst(Node *node) {
   return TransformerVisitor().visit_program(node);
 }
