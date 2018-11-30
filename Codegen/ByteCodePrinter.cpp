@@ -290,7 +290,7 @@ public:
     }
   }
 };
-}
+} // namespace
 
 void simplecompiler::PrintByteCode(Program *prog, std::ostream &os) {
   ByteCodePrinter(prog, os).Print();

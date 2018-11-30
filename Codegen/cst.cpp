@@ -3,7 +3,6 @@
 
 #include <sstream>
 
-
 namespace {
 using namespace simplecompiler;
 
@@ -423,7 +422,7 @@ public:
     return std::stoi(node->children[1]->value);
   }
 };
-}
+} // namespace
 
 Program *simplecompiler::NodeToAst(Node *node) {
   return TransformerVisitor().visit_program(node);

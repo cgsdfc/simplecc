@@ -207,7 +207,7 @@ public:
     return nullptr;
   }
 };
-}
+} // namespace
 
 Node *simplecompiler::ParseTokens(const TokenBuffer &tokens) {
   Parser parser(&CompilerGrammar);

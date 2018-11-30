@@ -335,7 +335,7 @@ public:
   }
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 };
-}
+} // namespace
 
 bool simplecompiler::CheckType(Program *prog, SymbolTable &symtable) {
   ErrorManager e;

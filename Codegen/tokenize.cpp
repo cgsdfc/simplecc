@@ -64,7 +64,6 @@ void ToLowerInplace(String &string) {
 }
 } // namespace
 
-
 void TokenInfo::Format(std::ostream &os) const {
   os << "TokenInfo("
      << "type=" << GetSymName(type) << ", "

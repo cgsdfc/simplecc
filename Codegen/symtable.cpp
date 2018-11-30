@@ -169,7 +169,7 @@ void CheckTable(const TableType &table) {
   }
 }
 
-}
+} // namespace
 
 namespace simplecompiler {
 // Overloads to print various data structures

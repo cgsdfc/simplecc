@@ -262,7 +262,7 @@ public:
     }
   }
 };
-}
+} // namespace
 
 CompiledModule simplecompiler::CompileProgram(Program *prog,
                                               const SymbolTable &symtable) {

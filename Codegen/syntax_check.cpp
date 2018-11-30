@@ -94,7 +94,7 @@ public:
     return e.IsOk();
   }
 };
-}
+} // namespace
 
 bool simplecompiler::CheckSyntax(Program *node) {
   return SyntaxChecker().Check(node);

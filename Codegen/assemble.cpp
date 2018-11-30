@@ -517,7 +517,7 @@ public:
     MakeTextSegment();
   }
 };
-}
+} // namespace
 
 void simplecompiler::AssembleMips(const CompiledModule &module,
                                   std::ostream &os) {
