@@ -63,5 +63,5 @@ public:
   bool IsOk(int prev_count = 0) const { return prev_count == GetErrorCount(); }
 };
 
-}
+} // namespace simplecompiler
 #endif

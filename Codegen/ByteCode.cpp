@@ -95,4 +95,4 @@ void ByteCode::Format(std::ostream &os) const {
   os << "offset=" << offset << ", ";
   os << "lineno=" << lineno << ")";
 }
-}
+} // namespace simplecompiler

@@ -37,5 +37,5 @@ public:
 
   bool Invoke();
 };
-}
+} // namespace simplecompiler
 #endif

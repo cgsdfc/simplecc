@@ -5,5 +5,5 @@
 namespace simplecompiler {
 class Program;
 void PrintByteCode(Program *prog, std::ostream &os);
-}
+} // namespace simplecompiler
 #endif

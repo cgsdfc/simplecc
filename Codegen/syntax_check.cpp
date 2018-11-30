@@ -94,4 +94,6 @@ public:
   }
 };
 
-bool simplecompiler::CheckSyntax(Program *node) { return SyntaxChecker().Check(node); }
+bool simplecompiler::CheckSyntax(Program *node) {
+  return SyntaxChecker().Check(node);
+}

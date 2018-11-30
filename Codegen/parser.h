@@ -33,5 +33,5 @@ inline std::ostream &operator<<(std::ostream &os, const Node &node) {
 }
 
 Node *ParseTokens(const TokenBuffer &tokens);
-}
+} // namespace simplecompiler
 #endif

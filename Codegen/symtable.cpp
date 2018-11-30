@@ -187,7 +187,7 @@ bool BuildSymbolTable(Program *prog, SymbolTable &table) {
   }
   return e.IsOk();
 }
-}
+} // namespace simplecompiler
 
 void CheckTable(const TableType &table) {
   for (const auto &item : table) {
@@ -258,7 +258,7 @@ std::ostream &operator<<(std::ostream &os,
   }
   return os << "}";
 }
-}
+} // namespace simplecompiler
 
 void SymbolEntry::Format(std::ostream &os) const {
   os << "SymbolEntry(";

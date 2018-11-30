@@ -244,5 +244,5 @@ inline std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {
   t.Format(os);
   return os;
 }
-}
+} // namespace simplecompiler
 #endif

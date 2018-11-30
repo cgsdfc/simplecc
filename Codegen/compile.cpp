@@ -281,7 +281,8 @@ public:
   }
 };
 
-CompiledModule simplecompiler::CompileProgram(Program *prog, const SymbolTable &symtable) {
+CompiledModule simplecompiler::CompileProgram(Program *prog,
+                                              const SymbolTable &symtable) {
   ObjectList global_objects;
   std::vector<CompiledFunction> functions;
 

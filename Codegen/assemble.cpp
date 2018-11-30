@@ -517,7 +517,8 @@ public:
   }
 };
 
-void simplecompiler::AssembleMips(const CompiledModule &module, std::ostream &os) {
+void simplecompiler::AssembleMips(const CompiledModule &module,
+                                  std::ostream &os) {
   ModuleAssembler(module, os).Assemble();
 }
 

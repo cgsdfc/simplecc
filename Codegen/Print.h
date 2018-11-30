@@ -27,5 +27,5 @@ public:
     Print(os, std::forward<Args>(args)...);
   }
 };
-}
+} // namespace simplecompiler
 #endif

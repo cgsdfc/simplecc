@@ -77,5 +77,5 @@ inline std::ostream &operator<<(std::ostream &os, const CompiledModule &c) {
   c.Format(os);
   return os;
 }
-}
+} // namespace simplecompiler
 #endif

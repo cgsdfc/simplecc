@@ -62,8 +62,7 @@ bool IsOperator(char ch) {
 void ToLowerInplace(String &string) {
   std::transform(string.begin(), string.end(), string.begin(), ::tolower);
 }
-}
-
+} // namespace
 
 void TokenInfo::Format(std::ostream &os) const {
   os << "TokenInfo("
