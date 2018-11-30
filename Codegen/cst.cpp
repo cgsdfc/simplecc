@@ -3,7 +3,10 @@
 
 #include <sstream>
 
+
+namespace {
 using namespace simplecompiler;
+
 Expr *MakeChar(Node *node) {
   return new Char(static_cast<int>(node->value[1]), node->location);
 }
@@ -420,6 +423,7 @@ public:
     return std::stoi(node->children[1]->value);
   }
 };
+}
 
 Program *simplecompiler::NodeToAst(Node *node) {
   return TransformerVisitor().visit_program(node);

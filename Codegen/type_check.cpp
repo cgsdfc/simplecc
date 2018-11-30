@@ -2,6 +2,7 @@
 #include "Visitor.h"
 #include "error.h"
 
+namespace {
 using namespace simplecompiler;
 // Transform Name to Call if it is a function and it is in the context
 // of Expr or ExprStmt (Call really).
@@ -334,6 +335,7 @@ public:
   }
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 };
+}
 
 bool simplecompiler::CheckType(Program *prog, SymbolTable &symtable) {
   ErrorManager e;

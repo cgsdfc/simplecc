@@ -3,6 +3,8 @@
 #include "Visitor.h"
 
 using namespace simplecompiler;
+
+namespace {
 // A class that handles the formatting of the result of an epxression
 // It is a union of factor expr and temporary
 class ExprValue {
@@ -288,6 +290,7 @@ public:
     }
   }
 };
+}
 
 void simplecompiler::PrintByteCode(Program *prog, std::ostream &os) {
   ByteCodePrinter(prog, os).Print();

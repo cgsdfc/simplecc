@@ -6,6 +6,7 @@
 #include <unordered_set>
 
 using namespace simplecompiler;
+namespace {
 
 // Return the bytes for n entries
 inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
@@ -516,6 +517,7 @@ public:
     MakeTextSegment();
   }
 };
+}
 
 void simplecompiler::AssembleMips(const CompiledModule &module,
                                   std::ostream &os) {

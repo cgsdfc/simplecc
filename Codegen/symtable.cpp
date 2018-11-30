@@ -3,6 +3,7 @@
 #include "error.h"
 #include <algorithm>
 
+namespace {
 using namespace simplecompiler;
 // Define a declaration globally.
 void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
@@ -162,50 +163,12 @@ public:
   void visitExpr(Expr *node) { return VisitorBase::visitExpr<void>(node); }
 };
 
-namespace simplecompiler {
-// public interface
-bool BuildSymbolTable(Program *prog, SymbolTable &table) {
-  ErrorManager e;
-  // build global table first
-  auto &global = table.global;
-  // no early return to check more errors
-  MakeGlobal(prog, global, e);
-
-  // visit all FuncDef and build their local tables
-  auto &locals = table.locals;
-  for (auto decl : prog->decls) {
-    if (auto fun = subclass_cast<FuncDef>(decl)) {
-      TableType local;
-      MakeLocal(fun, global, local, e);
-      if (e.IsOk()) {
-        locals.emplace(reinterpret_cast<uintptr_t>(fun), std::move(local));
-      }
-    }
-  }
-  if (e.IsOk()) {
-    StringLiteralVisitor(table.string_literals).visitProgram(prog);
-  }
-  return e.IsOk();
-}
-} // namespace simplecompiler
-
 void CheckTable(const TableType &table) {
   for (const auto &item : table) {
     assert(item.first == item.second.GetName());
   }
 }
 
-// consistency check
-void SymbolTable::Check() const {
-  CheckTable(global);
-  for (const auto &kv : locals) {
-    CheckTable(kv.second);
-    for (const auto &kv2 : kv.second) {
-      assert(kv2.second.GetScope() == Scope::Local ||
-             global.find(kv2.first) != global.end() &&
-                 "entry in local with global scope must be present in global");
-    }
-  }
 }
 
 namespace simplecompiler {
@@ -275,4 +238,42 @@ void SymbolTable::Format(std::ostream &os) const {
      << "\nstring_literals=" << string_literals << ",\n"
      << "\nexpr_types=" << expr_types;
   os << ")";
+}
+
+// consistency check
+void SymbolTable::Check() const {
+  CheckTable(global);
+  for (const auto &kv : locals) {
+    CheckTable(kv.second);
+    for (const auto &kv2 : kv.second) {
+      assert(kv2.second.GetScope() == Scope::Local ||
+             global.find(kv2.first) != global.end() &&
+                 "entry in local with global scope must be present in global");
+    }
+  }
+}
+
+// public interface
+bool simplecompiler::BuildSymbolTable(Program *prog, SymbolTable &table) {
+  ErrorManager e;
+  // build global table first
+  auto &global = table.global;
+  // no early return to check more errors
+  MakeGlobal(prog, global, e);
+
+  // visit all FuncDef and build their local tables
+  auto &locals = table.locals;
+  for (auto decl : prog->decls) {
+    if (auto fun = subclass_cast<FuncDef>(decl)) {
+      TableType local;
+      MakeLocal(fun, global, local, e);
+      if (e.IsOk()) {
+        locals.emplace(reinterpret_cast<uintptr_t>(fun), std::move(local));
+      }
+    }
+  }
+  if (e.IsOk()) {
+    StringLiteralVisitor(table.string_literals).visitProgram(prog);
+  }
+  return e.IsOk();
 }

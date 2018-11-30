@@ -5,26 +5,8 @@
 #include <iomanip>
 #include <unordered_map>
 
+namespace {
 using namespace simplecompiler;
-CompiledFunction::CompiledFunction(SymbolTableView local,
-                                   std::vector<ByteCode> &&code,
-                                   SymbolEntry entry,
-                                   ObjectList &&formal_arguments,
-                                   ObjectList &&local_objects)
-    : local(local), code(std::move(code)), entry(entry),
-      formal_arguments(std::move(formal_arguments)),
-      local_objects(std::move(local_objects)) {
-  assert(entry.IsFunction());
-  for (auto &&code : code) {
-    code.Check();
-  }
-}
-
-CompiledFunction::CompiledFunction(CompiledFunction &&other)
-    : local(other.local), code(std::move(other.code)), entry(other.entry),
-      formal_arguments(std::move(other.formal_arguments)),
-      local_objects(std::move(other.local_objects)) {}
-
 class FunctionCompiler : public VisitorBase<FunctionCompiler> {
   unsigned current_lineno;
   std::vector<ByteCode> buffer;
@@ -280,6 +262,7 @@ public:
     }
   }
 };
+}
 
 CompiledModule simplecompiler::CompileProgram(Program *prog,
                                               const SymbolTable &symtable) {
@@ -297,6 +280,25 @@ CompiledModule simplecompiler::CompileProgram(Program *prog,
   return CompiledModule(std::move(functions), symtable.GetStringLiteralTable(),
                         std::move(global_objects));
 }
+
+CompiledFunction::CompiledFunction(SymbolTableView local,
+                                   std::vector<ByteCode> &&code,
+                                   SymbolEntry entry,
+                                   ObjectList &&formal_arguments,
+                                   ObjectList &&local_objects)
+    : local(local), code(std::move(code)), entry(entry),
+      formal_arguments(std::move(formal_arguments)),
+      local_objects(std::move(local_objects)) {
+  assert(entry.IsFunction());
+  for (auto &&code : code) {
+    code.Check();
+  }
+}
+
+CompiledFunction::CompiledFunction(CompiledFunction &&other)
+    : local(other.local), code(std::move(other.code)), entry(other.entry),
+      formal_arguments(std::move(other.formal_arguments)),
+      local_objects(std::move(other.local_objects)) {}
 
 void CompiledFunction::Format(std::ostream &os) const {
   os << "CompiledFunction(" << Quote(GetName()) << "):\n";

@@ -37,6 +37,7 @@ void Node::Format(std::ostream &os) const {
   }
 }
 
+namespace {
 class StackEntry {
 public:
   DFA *dfa;
@@ -206,6 +207,7 @@ public:
     return nullptr;
   }
 };
+}
 
 Node *simplecompiler::ParseTokens(const TokenBuffer &tokens) {
   Parser parser(&CompilerGrammar);

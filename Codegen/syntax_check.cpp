@@ -2,6 +2,7 @@
 #include "Visitor.h"
 #include "error.h"
 
+namespace {
 using namespace simplecompiler;
 class SyntaxChecker : public VisitorBase<SyntaxChecker> {
   ErrorManager e;
@@ -93,6 +94,7 @@ public:
     return e.IsOk();
   }
 };
+}
 
 bool simplecompiler::CheckSyntax(Program *node) {
   return SyntaxChecker().Check(node);
