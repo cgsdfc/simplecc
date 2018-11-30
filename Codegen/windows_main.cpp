@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+using namespace simplecompiler;
+
 int main(int argc, char **argv) {
   ErrorManager e;
   Print(std::clog, "Please input a filename:");
