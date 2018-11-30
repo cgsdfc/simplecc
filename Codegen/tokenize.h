@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-typedef std::string String;
+using String = std::string;
 using std::exit;
 using std::fprintf;
 using std::fputs;
@@ -63,7 +63,7 @@ public:
   void Format(std::ostream &os) const;
 };
 
-typedef std::vector<TokenInfo> TokenBuffer;
+using TokenBuffer = std::vector<TokenInfo>;
 
 void Tokenize(std::istream &Input, TokenBuffer &Output);
 void PrintTokens(const TokenBuffer &tokens, std::ostream &os);
