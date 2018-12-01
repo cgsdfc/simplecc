@@ -7,9 +7,11 @@
 namespace simplecompiler {
 class ByteCode {
   Opcode opcode;
+  // lineno in source file
   unsigned lineno;
   std::optional<int> int_arg;
-  std::optional<const char *> str_arg;
+  const char *str_arg;
+  // offset in the instruction buffer
   int offset;
 
 public:
@@ -37,8 +39,8 @@ public:
   }
 
   const char *GetStrOperand() const {
-    assert(str_arg.has_value());
-    return *str_arg;
+    assert(str_arg);
+    return str_arg;
   }
 
   int GetOffset() const { return offset; }

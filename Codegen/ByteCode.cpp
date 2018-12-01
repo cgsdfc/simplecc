@@ -76,11 +76,11 @@ void ByteCode::Check() const {
     checked = true;
   }
   if (HasStrOperand(opcode)) {
-    assert(str_arg.has_value());
+    assert(str_arg);
     checked = true;
   }
   if (HasNoOperand(opcode)) {
-    assert(!int_arg.has_value() && !str_arg.has_value());
+    assert(!int_arg.has_value() && !str_arg);
     checked = true;
   }
   assert(!checked && "unchecked opcode!");
@@ -91,7 +91,7 @@ void ByteCode::Format(std::ostream &os) const {
   if (int_arg)
     os << "int_arg=" << *int_arg << ", ";
   if (str_arg)
-    os << "str_arg=" << Quote(*str_arg) << ", ";
+    os << "str_arg=" << Quote(str_arg) << ", ";
   os << "offset=" << offset << ", ";
   os << "lineno=" << lineno << ")";
 }
