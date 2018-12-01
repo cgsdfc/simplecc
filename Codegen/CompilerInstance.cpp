@@ -5,7 +5,6 @@
 #include "cst.h"
 #include "error.h"
 #include "parser.h"
-#include "symtable.h"
 #include "syntax_check.h"
 #include "type_check.h"
 

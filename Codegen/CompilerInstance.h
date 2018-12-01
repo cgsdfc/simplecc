@@ -3,7 +3,8 @@
 
 #include "error.h"
 #include "parser.h"
-#include "symtable.h"
+#include "SymbolTable.h"
+
 namespace simplecompiler {
 enum class CompilationPhrase {
   Tokenize,

@@ -23,7 +23,7 @@ class OpcodeTemplate:
 #ifndef OPCODE_H
 #define OPCODE_H
 #include "AST.h"
-#include "symtable.h"
+#include "SymbolTable.h"
 #include <iostream>
 
 namespace simplecompiler {

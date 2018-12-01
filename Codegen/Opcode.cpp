@@ -91,7 +91,6 @@ Opcode MakeJumpNegative(OperatorKind oper) {
   case OperatorKind::Lt:
     return Opcode::JUMP_IF_GREATER_EQUAL;
   default:
-    std::cout << oper << "\n";
     assert(false);
   }
 }

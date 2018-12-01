@@ -1,5 +1,5 @@
-#ifndef SYMTABLE_H
-#define SYMTABLE_H
+#ifndef SYMBOL_TABLE_H
+#define SYMBOL_TABLE_H
 
 #include "AST.h"
 #include <cstdint>
@@ -199,6 +199,7 @@ class SymbolTable {
   ExprTypeTable expr_types;
 
 public:
+  /// Construct an empty SymbolTable
   SymbolTable() : global(), locals(), string_literals() {}
 
   // Use only by TypeChecker

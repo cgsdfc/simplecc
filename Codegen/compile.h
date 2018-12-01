@@ -1,7 +1,6 @@
 #ifndef COMPILE_H
 #define COMPILE_H
 #include "ByteCode.h"
-#include "symtable.h"
 
 namespace simplecompiler {
 using ObjectList = std::vector<SymbolEntry>;

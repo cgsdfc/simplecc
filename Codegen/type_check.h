@@ -1,6 +1,6 @@
 #ifndef TYPE_CHECK
 #define TYPE_CHECK
-#include "symtable.h"
+#include "SymbolTable.h"
 
 namespace simplecompiler {
 class Program;

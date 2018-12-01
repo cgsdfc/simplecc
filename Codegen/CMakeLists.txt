@@ -64,7 +64,7 @@ add_executable(codegen
   ./AST.cpp
   ./Grammar.cpp
   ./type_check.cpp
-  ./symtable.cpp
+  ./SymbolTable.cpp
   ./syntax_check.cpp
   ./cst.cpp
   ./parser.cpp
