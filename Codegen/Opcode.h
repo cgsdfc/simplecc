@@ -1,8 +1,6 @@
 
 #ifndef OPCODE_H
 #define OPCODE_H
-#include "AST.h"
-#include "SymbolTable.h"
 #include <iostream>
 
 namespace simplecompiler {
@@ -43,15 +41,7 @@ enum class Opcode {
 };
 
 const char *CStringFromOpcode(Opcode val);
-Opcode MakeSubScr(ExprContextKind ctx);
-Opcode MakeStore(Scope scope);
-Opcode MakeLoad(Scope scope);
-Opcode MakeRead(BasicTypeKind type);
-Opcode MakePrint(BasicTypeKind type);
-Opcode MakeBinary(OperatorKind oper);
-Opcode MakeUnary(UnaryopKind oper);
-Opcode MakeJump(OperatorKind oper);
-Opcode MakeJumpNegative(OperatorKind oper);
+
 inline std::ostream &operator<<(std::ostream &os, Opcode val) {
   return os << CStringFromOpcode(val);
 }

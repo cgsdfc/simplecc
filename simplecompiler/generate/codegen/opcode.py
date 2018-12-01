@@ -22,8 +22,6 @@ class OpcodeTemplate:
     header = Template("""
 #ifndef OPCODE_H
 #define OPCODE_H
-#include "AST.h"
-#include "SymbolTable.h"
 #include <iostream>
 
 namespace simplecompiler {
@@ -32,15 +30,7 @@ $values
 };
 
 const char *CStringFromOpcode(Opcode val);
-Opcode MakeSubScr(ExprContextKind ctx);
-Opcode MakeStore(Scope scope);
-Opcode MakeLoad(Scope scope);
-Opcode MakeRead(BasicTypeKind type);
-Opcode MakePrint(BasicTypeKind type);
-Opcode MakeBinary(OperatorKind oper);
-Opcode MakeUnary(UnaryopKind oper);
-Opcode MakeJump(OperatorKind oper);
-Opcode MakeJumpNegative(OperatorKind oper);
+
 inline std::ostream &operator<<(std::ostream &os, Opcode val) {
     return os << CStringFromOpcode(val);
 }
@@ -51,114 +41,6 @@ inline std::ostream &operator<<(std::ostream &os, Opcode val) {
     cpp = Template("""
 #include "Opcode.h"
 namespace simplecompiler {
-// Hard coded mappings
-
-Opcode MakeSubScr(ExprContextKind ctx) {
-    switch (ctx) {
-    case ExprContextKind::Load:
-        return Opcode::BINARY_SUBSCR;
-    case ExprContextKind::Store:
-        return Opcode::STORE_SUBSCR;
-    }
-}
-
-Opcode MakeLoad(Scope scope) {
-    switch (scope) {
-    case Scope::Global:
-      return Opcode::LOAD_GLOBAL;
-    case Scope::Local:
-      return Opcode::LOAD_LOCAL;
-    }
-}
-
-Opcode MakeStore(Scope scope) {
-    switch (scope) {
-    case Scope::Global:
-      return Opcode::STORE_GLOBAL;
-    case Scope::Local:
-      return Opcode::STORE_LOCAL;
-    }
-}
-
-Opcode MakeRead(BasicTypeKind type) {
-  switch (type) {
-  case BasicTypeKind::Character:
-    return Opcode::READ_CHARACTER;
-  case BasicTypeKind::Int:
-    return Opcode::READ_INTEGER;
-  $default
-  }
-}
-
-Opcode MakePrint(BasicTypeKind type) {
-  switch (type) {
-  case BasicTypeKind::Character:
-    return Opcode::PRINT_CHARACTER;
-  case BasicTypeKind::Int:
-    return Opcode::PRINT_INTEGER;
-  $default
-  }
-}
-
-Opcode MakeBinary(OperatorKind oper) {
-  switch (oper) {
-  case OperatorKind::Add:
-    return Opcode::BINARY_ADD;
-  case OperatorKind::Sub:
-    return Opcode::BINARY_SUB;
-  case OperatorKind::Mult:
-    return Opcode::BINARY_MULTIPLY;
-  case OperatorKind::Div:
-    return Opcode::BINARY_DIVIDE;
-  $default
-  }
-}
-
-Opcode MakeUnary(UnaryopKind oper) {
-    switch (oper) {
-    case UnaryopKind::UAdd:
-        return Opcode::UNARY_POSITIVE;
-    case UnaryopKind::USub:
-        return Opcode::UNARY_NEGATIVE;
-    }
-}
-
-Opcode MakeJumpNegative(OperatorKind oper) {
-    switch (oper) {
-    case OperatorKind::NotEq:
-        return Opcode::JUMP_IF_EQUAL;
-    case OperatorKind::Eq:
-        return Opcode::JUMP_IF_NOT_EQUAL;
-    case OperatorKind::GtE:
-        return Opcode::JUMP_IF_LESS;
-    case OperatorKind::Gt:
-        return Opcode::JUMP_IF_LESS_EQUAL;
-    case OperatorKind::LtE:
-        return Opcode::JUMP_IF_GREATER;
-    case OperatorKind::Lt:
-        return Opcode::JUMP_IF_GREATER_EQUAL;
-    $default
-    }
-}
-
-Opcode MakeJump(OperatorKind oper) {
-    switch (oper) {
-    case OperatorKind::Eq:
-        return Opcode::JUMP_IF_EQUAL;
-    case OperatorKind::NotEq:
-        return Opcode::JUMP_IF_NOT_EQUAL;
-    case OperatorKind::Lt:
-        return Opcode::JUMP_IF_LESS;
-    case OperatorKind::LtE:
-        return Opcode::JUMP_IF_LESS_EQUAL;
-    case OperatorKind::Gt:
-        return Opcode::JUMP_IF_GREATER;
-    case OperatorKind::GtE:
-        return Opcode::JUMP_IF_GREATER_EQUAL;
-    $default
-    }
-}
-
 const char *CStringFromOpcode(Opcode val) {
     switch (val) {
     $code

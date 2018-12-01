@@ -2,6 +2,7 @@
 #define BYTE_CODE_H
 
 #include "Opcode.h"
+#include <cassert>
 #include <optional>
 
 namespace simplecompiler {
