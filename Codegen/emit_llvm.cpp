@@ -15,6 +15,7 @@
 
 namespace {
 class LLVMIRCompiler {
+  llvm::LLVMContext context;
 
 
 };

@@ -135,6 +135,7 @@ void ParenExpr::Format(std::ostream &os) const {
 void BoolOp::Format(std::ostream &os) const {
   os << "BoolOp("
      << "value=" << value << ", "
+     << "has_cmpop=" << has_cmpop << ", "
      << "loc=" << loc << ")";
 }
 

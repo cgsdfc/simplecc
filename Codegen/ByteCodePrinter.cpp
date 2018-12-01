@@ -177,9 +177,10 @@ public:
   }
 
   LineLabel CompileBoolOp(BoolOp *node, bool jump_if_false) {
+    auto temps = temporaries;
     auto &&val = visitExpr(node->value);
-    // These do not have result assigned to a temporary
-    if (!IsInstance<BinOp>(node->value) && !IsInstance<UnaryOp>(node->value)) {
+    if (temps == temporaries) {
+      // temporaries didn't increase, we need to hold the result
       w.WriteLine(MakeTemporary(), "=", val);
     }
     auto &&label = MakeLineLabel();

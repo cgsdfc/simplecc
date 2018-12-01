@@ -253,7 +253,8 @@ public:
   }
 
   Expr *visit_condition(Node *node) {
-    return new BoolOp(visit_expr(node), node->location);
+    bool has_cmpop = node->children.size() == 3;
+    return new BoolOp(visit_expr(node), has_cmpop, node->location);
   }
 
   Stmt *visit_for_stmt(Node *node) {

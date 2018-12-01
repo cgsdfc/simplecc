@@ -124,8 +124,9 @@ public:
   }
 
   int CompileBoolOp(BoolOp *node, bool is_negative) {
-    if (auto binop = subclass_cast<BinOp>(node->value)) {
-      // only BinOp introduce relation operator
+    if (node->has_cmpop) {
+      auto binop = subclass_cast<BinOp>(node->value);
+      assert(binop);
       visitExpr(binop->left);
       visitExpr(binop->right);
       auto opcode =

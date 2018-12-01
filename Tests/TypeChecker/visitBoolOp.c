@@ -43,4 +43,8 @@ void main() {
     printf("ok");
   }
 
+  if (1 + 1) {
+    printf("ok");
+  }
+
 }

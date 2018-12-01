@@ -371,9 +371,10 @@ public:
 class BoolOp : public Expr {
 public:
   Expr *value;
+  int has_cmpop;
 
-  BoolOp(Expr *value, const Location &loc)
-      : Expr(Expr::BoolOp, loc), value(value) {}
+  BoolOp(Expr *value, int has_cmpop, const Location &loc)
+      : Expr(Expr::BoolOp, loc), value(value), has_cmpop(has_cmpop) {}
 
   ~BoolOp() override;
 

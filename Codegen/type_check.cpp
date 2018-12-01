@@ -228,7 +228,8 @@ public:
   }
 
   BasicTypeKind visitBoolOp(BoolOp *node) {
-    if (auto x = subclass_cast<BinOp>(node->value)) {
+    if (node->has_cmpop) {
+      auto x = static_cast<BinOp*>(node->value);
       CheckBoolOpOperand(x->left);
       CheckBoolOpOperand(x->right);
     } else {
