@@ -34,7 +34,7 @@ module Compiler
          | ParenExpr(expr value)
          -- expression as condition in Grammar, added for type_check.
          -- there is no implicit char2int conversion in this context.
-         | BoolOp(expr value)
+         | BoolOp(expr value, int has_cmpop)
          | UnaryOp(unaryop op, expr operand)
          | Call(identifier func, expr* args)
          | Num(int n)

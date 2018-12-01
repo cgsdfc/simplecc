@@ -212,7 +212,8 @@ class TransformerVisitor(VisitorBase):
         return AST.If(test, body, orelse, node.context)
 
     def visit_condition(self, node):
-        return AST.BoolOp(self.visit_expr(node), node.context)
+        has_cmpop = len(node.children) == 3
+        return AST.BoolOp(self.visit_expr(node), has_cmpop, node.context)
 
     def visit_for_stmt(self, node):
         # initial: stmt

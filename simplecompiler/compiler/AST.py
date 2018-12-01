@@ -173,10 +173,11 @@ class ParenExpr(expr):
 
 
 class BoolOp(expr):
-    __slots__ = ('value','loc',)
+    __slots__ = ('value','has_cmpop','loc',)
 
-    def __init__(self, value, loc):
+    def __init__(self, value, has_cmpop, loc):
         self.value = value
+        self.has_cmpop = has_cmpop
         self.loc = loc
 
 
