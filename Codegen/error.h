@@ -51,8 +51,8 @@ public:
   }
 
   template <typename... Args>
-  [[noreturn]] void InternalError(const Location &loc, Args &&... args) {
-    ErrorWithLocation("InternalError", loc, std::forward<Args>(args)...);
+  [[noreturn]] void InternalError(Args &&... args) {
+    WriteLine("InternalError", std::forward<Args>(args)...);
     std::abort();
   }
 

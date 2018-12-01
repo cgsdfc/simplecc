@@ -15,6 +15,7 @@ class FunctionCompiler : public VisitorBase<FunctionCompiler> {
   FuncDef *function;
   std::vector<SymbolEntry> formal_arguments;
   std::vector<SymbolEntry> local_objects;
+  ErrorManager e;
 
   // add one piece of ByteCode to buffer, return the the offset
   // of it in buffer
@@ -41,7 +42,7 @@ class FunctionCompiler : public VisitorBase<FunctionCompiler> {
 public:
   FunctionCompiler(FuncDef *fun, const SymbolTable &symtable)
       : current_lineno(1), buffer(), local(symtable.GetLocal(fun)),
-        symtable(symtable), function(fun) {}
+        symtable(symtable), function(fun), e() {}
 
   void visitFuncDef(FuncDef *node) {
     for (auto arg : node->args) {
@@ -58,18 +59,18 @@ public:
   // public interface
   CompiledFunction Compile() {
     visitFuncDef(function);
-    // XXX: this is wrong. the last instruction in the buffer is **not**
-    // the last instruction of the last **basic block**.
-    // until the real basic block implementation comes out, no test code
-    // should reveal this bug -- they must end each function that returns
-    // with a explicit outter most return
-    if (buffer.empty() ||
-        (GetLastByteCode().GetOpcode() != Opcode::RETURN_VALUE &&
-         GetLastByteCode().GetOpcode() != Opcode::RETURN_NONE)) {
-      // A missing reutrn_stmt, insert one.
-      Add(ByteCode(Opcode::RETURN_NONE));
-    }
+    // some jump will target a out-of-range offset
+    // this return handles this issue
+    Add(ByteCode(Opcode::RETURN_NONE));
     const auto &entry = symtable.GetGlobal(function->name);
+    // Check jump target
+    for (auto &&code: buffer) {
+      if (IsJumpXXX(code.GetOpcode())) {
+        if (code.GetOffset() >= buffer.size()) {
+          e.InternalError("jump target out of range:", code);
+        }
+      }
+    }
     return CompiledFunction(local, std::move(buffer), entry,
                             std::move(formal_arguments),
                             std::move(local_objects));
