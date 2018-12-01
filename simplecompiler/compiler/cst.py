@@ -272,22 +272,13 @@ class TransformerVisitor(VisitorBase):
     def visit_expr(self, node, context=expr_context.Load):
         # be careful for the default Load!
         # handle all range of expression.
-        unaryop = None
-        # optional unaryop in expr
-        if node.type == sym.expr:
-            if node.first_child.value in ('-', '+'):
-                unaryop = AST.string2unaryop[node.first_child.value]
-                node = node.children[1]
 
         if node.type in (sym.term, sym.expr, sym.condition):
-            result = self.visit_binop(node, context)
+            return self.visit_binop(node, context)
         else:
             # basic case: factor
-            assert node.type == sym.factor
-            result = self.visit(node, context)
-        if unaryop:
-            return AST.UnaryOp(unaryop, result, node.context)
-        return result
+            assert node.type in (sym.atom, sym.factor)
+            return self.visit(node, context)
 
     def visit_binop(self, node, context):
         # this function must call visit_expr() instead of visit()!
@@ -303,7 +294,15 @@ class TransformerVisitor(VisitorBase):
         return result
 
     def visit_factor(self, node, context):
-        # STRING is not a kind of factor
+        if len(node.children) == 1:
+            # atom
+            return self.visit(node.first_child, context)
+        else:
+            op = AST.string2unaryop[node.first_child.value]
+            operand = self.visit(node.children[1], context)
+            return AST.UnaryOp(op, operand, node.first_child.context)
+
+    def visit_atom(self, node, context):
         first = node.first_child
         if first.type == sym.NAME:
             if len(node.children) == 1:
@@ -323,7 +322,7 @@ class TransformerVisitor(VisitorBase):
             value = self.visit(node.children[1], context)
             return AST.ParenExpr(value, first.context)
 
-    def visit_factor_trailer(self, node, name, context):
+    def visit_atom_trailer(self, node, name, context):
         first = node.first_child
         if first.type == sym.arglist:
             args = self.visit(first)  # no empty arglist

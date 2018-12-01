@@ -29,13 +29,15 @@ write_stmt: 'printf' '(' (expr|STRING [',' expr]) ')'
 compound_stmt: '{' const_decl* var_decl* stmt* '}'
 
 # expression
-expr: ['+'|'-'] term (('+'|'-') term)*
+expr: term (('+'|'-') term)*
 
 term: factor (('*'|'/') factor)*
 
-factor: NAME [ factor_trailer ] | NUMBER | CHAR | '(' expr ')'
+factor: ('+'|'-') factor | atom
 
-factor_trailer: '[' expr ']' | arglist
+atom: NAME [ atom_trailer ] | NUMBER | CHAR | '(' expr ')'
+
+atom_trailer: '[' expr ']' | arglist
 
 # declaration
 var_decl: type_name var_item (',' var_item)* ';'

@@ -22,8 +22,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 def load_grammar():
-    """Load Grammar.pickle from simplecompiler/"""
-    with (Path(__file__).parent.parent / "Grammar.pickle").open('rb') as f:
+    """Load Grammar.pickle from simplecompiler/compiler"""
+    with (Path(__file__).parent / "Grammar.pickle").open('rb') as f:
         return pickle.load(f)
 
 
