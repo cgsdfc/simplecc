@@ -8,21 +8,12 @@
 
 namespace {
 using namespace simplecompiler;
-// Location(lineno, col_offset) => "lineno,col_offset"
-String LocationToString(const Location &loc) {
-  std::ostringstream os;
-  os << loc.lineno << ',' << loc.col_offset;
-  return os.str();
-}
-
-String LocationRangeToString(const Location &start) {
-  std::ostringstream os;
-  os << LocationToString(start) << ':';
-  return os.str();
-}
 
 void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
-  String &&token_range = LocationRangeToString(token.start);
+  auto &&loc = token.start;
+  std::ostringstream oss;
+  oss << loc.lineno << ',' << loc.col_offset << ":";
+  auto &&token_range = oss.str();
 
   os << std::left << std::setw(20) << token_range;
   os << std::left << std::setw(15) << GetSymName(token.type);
