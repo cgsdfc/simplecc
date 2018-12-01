@@ -7,9 +7,6 @@
 
 namespace simplecompiler {
 enum class Scope { Global, Local };
-class SymbolTable;
-
-bool BuildSymbolTable(Program *prog, SymbolTable &table);
 
 class FuncType {
   FuncDef *fun;
@@ -191,8 +188,6 @@ public:
 };
 
 class SymbolTable {
-  friend bool BuildSymbolTable(Program *prog, SymbolTable &table);
-
   TableType global;
   NestedTableType locals;
   StringLiteralTable string_literals;
@@ -201,6 +196,9 @@ class SymbolTable {
 public:
   /// Construct an empty SymbolTable
   SymbolTable() : global(), locals(), string_literals() {}
+
+  /// Build itself from a program
+  bool Build(Program *program);
 
   // Use only by TypeChecker
   void SetExprType(Expr *expr, BasicTypeKind type) {

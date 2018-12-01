@@ -52,7 +52,7 @@ bool CompilerInstance::Invoke() {
     return true;
   }
 
-  if (!BuildSymbolTable(ast_node, symbolTable)) {
+  if (!symbolTable.Build(ast_node)) {
     return false;
   }
   symbolTable.Check();

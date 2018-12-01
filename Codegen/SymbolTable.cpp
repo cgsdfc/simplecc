@@ -254,15 +254,12 @@ void SymbolTable::Check() const {
 }
 
 // public interface
-bool simplecompiler::BuildSymbolTable(Program *prog, SymbolTable &table) {
+bool SymbolTable::Build(Program *prog) {
   ErrorManager e;
   // build global table first
-  auto &global = table.global;
-  // no early return to check more errors
   MakeGlobal(prog, global, e);
 
   // visit all FuncDef and build their local tables
-  auto &locals = table.locals;
   for (auto decl : prog->decls) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       TableType local;
@@ -273,7 +270,7 @@ bool simplecompiler::BuildSymbolTable(Program *prog, SymbolTable &table) {
     }
   }
   if (e.IsOk()) {
-    StringLiteralVisitor(table.string_literals).visitProgram(prog);
+    StringLiteralVisitor(string_literals).visitProgram(prog);
   }
   return e.IsOk();
 }
