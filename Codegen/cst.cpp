@@ -331,30 +331,27 @@ public:
 
   Expr *visit_expr(Node *node,
                    ExprContextKind context = ExprContextKind::Load) {
-    std::optional<UnaryopKind> unaryop;
 
-    if (node->type == Symbol::expr) {
-      auto first = node->FirstChild();
-      if (first->type == Symbol::OP &&
-          (first->value == "-" || first->value == "+")) {
-        unaryop = String2UnaryopKind(first->value);
-        // skip the unaryop
-        node = node->children[1];
-      }
-    }
-
-    Expr *result;
     if (node->type == Symbol::term || node->type == Symbol::expr ||
         node->type == Symbol::condition) {
-      result = visit_binop(node, context);
+      return visit_binop(node, context);
     } else {
+      // factor
       assert(node->type == Symbol::factor);
-      result = visit_factor(node, context);
+      return visit_factor(node, context);
     }
+  }
 
-    if (unaryop.has_value())
-      return new UnaryOp(unaryop.value(), result, node->location);
-    return result;
+  /// factor: atom | unaryop factor
+  Expr *visit_factor(Node *node, ExprContextKind context) {
+    if (node->children.size() == 1) {
+      return visit_atom(node->FirstChild(), context);
+    } else {
+      auto first = node->FirstChild();
+      auto op = String2UnaryopKind(first->value);
+      auto operand = visit_factor(node->children[1], context);
+      return new UnaryOp(op, operand, first->location);
+    }
   }
 
   Expr *visit_binop(Node *node, ExprContextKind context) {
@@ -371,7 +368,7 @@ public:
     return result;
   }
 
-  Expr *visit_factor(Node *node, ExprContextKind context) {
+  Expr *visit_atom(Node *node, ExprContextKind context) {
     auto first = node->FirstChild();
     if (first->type == Symbol::NAME) {
       if (node->children.size() == 1) {
@@ -380,7 +377,7 @@ public:
       }
       // name with trailer: visit_trailer
       auto trailer = node->children[1];
-      return visit_factor_trailer(trailer, first->value, context);
+      return visit_atom_trailer(trailer, first->value, context);
     }
     if (first->type == Symbol::NUMBER) {
       return MakeNum(first);
@@ -394,7 +391,7 @@ public:
     }
   }
 
-  Expr *visit_factor_trailer(Node *node, const String &name,
+  Expr *visit_atom_trailer(Node *node, const String &name,
                              ExprContextKind context) {
     auto first = node->FirstChild();
     if (first->type == Symbol::arglist) {

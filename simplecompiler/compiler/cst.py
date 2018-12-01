@@ -277,7 +277,7 @@ class TransformerVisitor(VisitorBase):
             return self.visit_binop(node, context)
         else:
             # basic case: factor
-            assert node.type in (sym.atom, sym.factor)
+            assert node.type == sym.factor
             return self.visit(node, context)
 
     def visit_binop(self, node, context):
