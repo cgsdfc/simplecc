@@ -4,7 +4,7 @@
 #include "SymbolTable.h"
 
 namespace simplecompiler {
-using ObjectList = std::vector<SymbolEntry>;
+using SymbolEntryList = std::vector<SymbolEntry>;
 
 class CompiledFunction {
   // Local symbols
@@ -14,14 +14,14 @@ class CompiledFunction {
   // Self identity
   SymbolEntry entry;
   // Formal arguments
-  ObjectList formal_arguments;
+  SymbolEntryList formal_arguments;
   // Local non-constants
-  ObjectList local_objects;
+  SymbolEntryList local_objects;
 
 public:
-  CompiledFunction(SymbolTableView local, std::vector<ByteCode> &&code,
-                   SymbolEntry entry, ObjectList &&formal_arguments,
-                   ObjectList &&local_objects);
+  CompiledFunction(SymbolTableView local, std::vector<ByteCode> code,
+                   SymbolEntry entry, SymbolEntryList formal_arguments,
+                   SymbolEntryList local_objects);
 
   CompiledFunction(CompiledFunction &&other);
 
@@ -33,27 +33,23 @@ public:
 
   const String &GetName() const { return entry.GetName(); }
 
-  const ObjectList &GetFormalArguments() const { return formal_arguments; }
+  const SymbolEntryList &GetFormalArguments() const { return formal_arguments; }
 
   unsigned GetFormalArgumentCount() const { return formal_arguments.size(); }
 
-  const ObjectList &GetLocalObjects() const { return local_objects; }
+  const SymbolEntryList &GetLocalObjects() const { return local_objects; }
 };
 
 class CompiledModule {
   std::vector<CompiledFunction> functions;
   const StringLiteralTable &strings;
-  ObjectList global_objects;
+  SymbolEntryList global_objects;
 
 public:
-  CompiledModule(std::vector<CompiledFunction> &&functions,
-                 const StringLiteralTable &strings, ObjectList &&global_objects)
-      : functions(std::move(functions)), strings(strings),
-        global_objects(std::move(global_objects)) {}
+  CompiledModule(std::vector<CompiledFunction> functions,
+                 const StringLiteralTable &strings, SymbolEntryList global_objects);
 
-  CompiledModule(CompiledModule &&other)
-      : functions(std::move(other.functions)), strings(other.strings),
-        global_objects(std::move(other.global_objects)) {}
+  CompiledModule(CompiledModule &&other);
 
   const std::vector<CompiledFunction> &GetFunctions() const {
     return functions;
@@ -63,7 +59,7 @@ public:
 
   const StringLiteralTable &GetStringLiteralTable() const { return strings; }
 
-  const ObjectList &GetGlobalObjects() const { return global_objects; }
+  const SymbolEntryList &GetGlobalObjects() const { return global_objects; }
 };
 
 CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable);

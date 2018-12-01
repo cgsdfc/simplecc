@@ -383,7 +383,7 @@ public:
 
 CompiledModule simplecompiler::CompileProgram(Program *prog,
                                               const SymbolTable &symtable) {
-  ObjectList global_objects;
+  SymbolEntryList global_objects;
   std::vector<CompiledFunction> functions;
 
   for (auto decl : prog->decls) {
@@ -399,10 +399,10 @@ CompiledModule simplecompiler::CompileProgram(Program *prog,
 }
 
 CompiledFunction::CompiledFunction(SymbolTableView local,
-                                   std::vector<ByteCode> &&code,
+                                   std::vector<ByteCode> code,
                                    SymbolEntry entry,
-                                   ObjectList &&formal_arguments,
-                                   ObjectList &&local_objects)
+                                   SymbolEntryList formal_arguments,
+                                   SymbolEntryList local_objects)
     : local(local), code(std::move(code)), entry(entry),
       formal_arguments(std::move(formal_arguments)),
       local_objects(std::move(local_objects)) {
@@ -435,6 +435,15 @@ void CompiledFunction::Format(std::ostream &os) const {
     lineno++;
   }
 }
+
+CompiledModule::CompiledModule(std::vector<CompiledFunction> functions,
+    const StringLiteralTable &strings, SymbolEntryList global_objects)
+  : functions(std::move(functions)), strings(strings),
+  global_objects(std::move(global_objects)) {}
+
+CompiledModule::CompiledModule(CompiledModule &&other)
+  : functions(std::move(other.functions)), strings(other.strings),
+  global_objects(std::move(other.global_objects)) {}
 
 void CompiledModule::Format(std::ostream &os) const {
   os << "global_objects:\n";
