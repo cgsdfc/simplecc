@@ -12,12 +12,10 @@
 namespace simplecompiler {
 class AST {
 public:
+  virtual ~AST() {}
+  virtual const char *GetClassName() const = 0;
   virtual void Format(std::ostream &os) const = 0;
-  virtual ~AST() = 0;
-  virtual const char *ClassName() const = 0;
 };
-
-inline AST::~AST() {}
 
 inline std::ostream &operator<<(std::ostream &os, const AST *ast) {
   if (ast == nullptr)
@@ -79,37 +77,41 @@ std::ostream &operator<<(std::ostream &os, BasicTypeKind val);
 // AbstractNode
 
 class Decl : public AST {
+  int Kind;
+
 public:
-  int subclass_tag;
+  int GetKind() const { return Kind; }
   std::string name;
   Location loc;
 
-  Decl(int subclass_tag, const std::string &name, const Location &loc)
-      : AST(), subclass_tag(subclass_tag), name(name), loc(loc) {}
+  Decl(int Kind, const std::string &name, const Location &loc)
+      : AST(), Kind(Kind), name(name), loc(loc) {}
 
-  enum { ConstDecl, VarDecl, FuncDef };
+  enum DeclKind { ConstDecl, VarDecl, FuncDef };
 };
 
 class Stmt : public AST {
+  int Kind;
+
 public:
-  int subclass_tag;
+  int GetKind() const { return Kind; }
   Location loc;
 
-  Stmt(int subclass_tag, const Location &loc)
-      : AST(), subclass_tag(subclass_tag), loc(loc) {}
+  Stmt(int Kind, const Location &loc) : AST(), Kind(Kind), loc(loc) {}
 
-  enum { Read, Write, Assign, For, While, Return, If, ExprStmt };
+  enum StmtKind { Read, Write, Assign, For, While, Return, If, ExprStmt };
 };
 
 class Expr : public AST {
+  int Kind;
+
 public:
-  int subclass_tag;
+  int GetKind() const { return Kind; }
   Location loc;
 
-  Expr(int subclass_tag, const Location &loc)
-      : AST(), subclass_tag(subclass_tag), loc(loc) {}
+  Expr(int Kind, const Location &loc) : AST(), Kind(Kind), loc(loc) {}
 
-  enum {
+  enum ExprKind {
     BinOp,
     ParenExpr,
     BoolOp,
@@ -136,13 +138,11 @@ public:
 
   ~ConstDecl() override;
 
-  const char *ClassName() const override { return "ConstDecl"; }
+  const char *GetClassName() const override { return "ConstDecl"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) {
-    return x->subclass_tag == Decl::ConstDecl;
-  }
+  static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::ConstDecl; }
 };
 
 class VarDecl : public Decl {
@@ -158,13 +158,11 @@ public:
 
   ~VarDecl() override;
 
-  const char *ClassName() const override { return "VarDecl"; }
+  const char *GetClassName() const override { return "VarDecl"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) {
-    return x->subclass_tag == Decl::VarDecl;
-  }
+  static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::VarDecl; }
 };
 
 class FuncDef : public Decl {
@@ -182,13 +180,11 @@ public:
 
   ~FuncDef() override;
 
-  const char *ClassName() const override { return "FuncDef"; }
+  const char *GetClassName() const override { return "FuncDef"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) {
-    return x->subclass_tag == Decl::FuncDef;
-  }
+  static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::FuncDef; }
 };
 
 class Read : public Stmt {
@@ -200,11 +196,11 @@ public:
 
   ~Read() override;
 
-  const char *ClassName() const override { return "Read"; }
+  const char *GetClassName() const override { return "Read"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->subclass_tag == Stmt::Read; }
+  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Read; }
 };
 
 class Write : public Stmt {
@@ -217,11 +213,11 @@ public:
 
   ~Write() override;
 
-  const char *ClassName() const override { return "Write"; }
+  const char *GetClassName() const override { return "Write"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->subclass_tag == Stmt::Write; }
+  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Write; }
 };
 
 class Assign : public Stmt {
@@ -234,11 +230,11 @@ public:
 
   ~Assign() override;
 
-  const char *ClassName() const override { return "Assign"; }
+  const char *GetClassName() const override { return "Assign"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->subclass_tag == Stmt::Assign; }
+  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Assign; }
 };
 
 class For : public Stmt {
@@ -255,11 +251,11 @@ public:
 
   ~For() override;
 
-  const char *ClassName() const override { return "For"; }
+  const char *GetClassName() const override { return "For"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->subclass_tag == Stmt::For; }
+  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::For; }
 };
 
 class While : public Stmt {
@@ -272,11 +268,11 @@ public:
 
   ~While() override;
 
-  const char *ClassName() const override { return "While"; }
+  const char *GetClassName() const override { return "While"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->subclass_tag == Stmt::While; }
+  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::While; }
 };
 
 class Return : public Stmt {
@@ -288,11 +284,11 @@ public:
 
   ~Return() override;
 
-  const char *ClassName() const override { return "Return"; }
+  const char *GetClassName() const override { return "Return"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->subclass_tag == Stmt::Return; }
+  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Return; }
 };
 
 class If : public Stmt {
@@ -307,11 +303,11 @@ public:
 
   ~If() override;
 
-  const char *ClassName() const override { return "If"; }
+  const char *GetClassName() const override { return "If"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->subclass_tag == Stmt::If; }
+  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::If; }
 };
 
 class ExprStmt : public Stmt {
@@ -323,13 +319,11 @@ public:
 
   ~ExprStmt() override;
 
-  const char *ClassName() const override { return "ExprStmt"; }
+  const char *GetClassName() const override { return "ExprStmt"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) {
-    return x->subclass_tag == Stmt::ExprStmt;
-  }
+  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::ExprStmt; }
 };
 
 class BinOp : public Expr {
@@ -343,11 +337,11 @@ public:
 
   ~BinOp() override;
 
-  const char *ClassName() const override { return "BinOp"; }
+  const char *GetClassName() const override { return "BinOp"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::BinOp; }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::BinOp; }
 };
 
 class ParenExpr : public Expr {
@@ -359,13 +353,11 @@ public:
 
   ~ParenExpr() override;
 
-  const char *ClassName() const override { return "ParenExpr"; }
+  const char *GetClassName() const override { return "ParenExpr"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
-    return x->subclass_tag == Expr::ParenExpr;
-  }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::ParenExpr; }
 };
 
 class BoolOp : public Expr {
@@ -378,11 +370,11 @@ public:
 
   ~BoolOp() override;
 
-  const char *ClassName() const override { return "BoolOp"; }
+  const char *GetClassName() const override { return "BoolOp"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::BoolOp; }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::BoolOp; }
 };
 
 class UnaryOp : public Expr {
@@ -395,13 +387,11 @@ public:
 
   ~UnaryOp() override;
 
-  const char *ClassName() const override { return "UnaryOp"; }
+  const char *GetClassName() const override { return "UnaryOp"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
-    return x->subclass_tag == Expr::UnaryOp;
-  }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::UnaryOp; }
 };
 
 class Call : public Expr {
@@ -415,11 +405,11 @@ public:
 
   ~Call() override;
 
-  const char *ClassName() const override { return "Call"; }
+  const char *GetClassName() const override { return "Call"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::Call; }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Call; }
 };
 
 class Num : public Expr {
@@ -430,11 +420,11 @@ public:
 
   ~Num() override;
 
-  const char *ClassName() const override { return "Num"; }
+  const char *GetClassName() const override { return "Num"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::Num; }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Num; }
 };
 
 class Str : public Expr {
@@ -445,11 +435,11 @@ public:
 
   ~Str() override;
 
-  const char *ClassName() const override { return "Str"; }
+  const char *GetClassName() const override { return "Str"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::Str; }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Str; }
 };
 
 class Char : public Expr {
@@ -460,11 +450,11 @@ public:
 
   ~Char() override;
 
-  const char *ClassName() const override { return "Char"; }
+  const char *GetClassName() const override { return "Char"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::Char; }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Char; }
 };
 
 class Subscript : public Expr {
@@ -479,13 +469,11 @@ public:
 
   ~Subscript() override;
 
-  const char *ClassName() const override { return "Subscript"; }
+  const char *GetClassName() const override { return "Subscript"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
-    return x->subclass_tag == Expr::Subscript;
-  }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Subscript; }
 };
 
 class Name : public Expr {
@@ -498,11 +486,11 @@ public:
 
   ~Name() override;
 
-  const char *ClassName() const override { return "Name"; }
+  const char *GetClassName() const override { return "Name"; }
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->subclass_tag == Expr::Name; }
+  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Name; }
 };
 
 // LeafNode
@@ -515,7 +503,7 @@ public:
 
   ~Program() override;
 
-  const char *ClassName() const override { return "Program"; }
+  const char *GetClassName() const override { return "Program"; }
 
   void Format(std::ostream &os) const override;
 };
@@ -531,7 +519,7 @@ public:
 
   ~Arg() override;
 
-  const char *ClassName() const override { return "Arg"; }
+  const char *GetClassName() const override { return "Arg"; }
 
   void Format(std::ostream &os) const override;
 };

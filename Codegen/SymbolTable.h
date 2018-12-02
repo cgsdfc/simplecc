@@ -161,7 +161,7 @@ public:
   // location of this expression
   const Location &GetLocation() const { return expr->loc; }
   // reflect the real class name of the underlying Expr
-  const char *GetExprClassName() const { return expr->ClassName(); }
+  const char *GetExprClassName() const { return expr->GetClassName(); }
 };
 
 using ExprTypeTable = std::unordered_map<uintptr_t, TypeEntry>;

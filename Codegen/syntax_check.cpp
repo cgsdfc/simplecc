@@ -35,7 +35,7 @@ public:
 
     if (decl_iter != end) {
       auto decl = *decl_iter;
-      e.SyntaxError(decl->loc, "unexpected", decl->ClassName(),
+      e.SyntaxError(decl->loc, "unexpected", decl->GetClassName(),
                     Quote(decl->name));
     }
 

@@ -106,20 +106,13 @@ class Primitive(CppType):
 class AbstractNode(AstNode):
     """Direct subclasses of AST, virtual base class for ConcreteNode"""
 
-    extra_members = [(Primitive('int', True), 'subclass_tag'), ]
-
     def __init__(self, name):
         super().__init__(name)
         self.subclasses = None
 
     @property
     def members(self):
-        """All members, including subclass_tag"""
-        return self.extra_members + self._members
-
-    @property
-    def members_notag(self):
-        """Members excluding subclass_tag"""
+        """All members"""
         return self._members
 
     @members.setter
@@ -137,7 +130,7 @@ class ConcreteNode(AstNode):
 
     @property
     def format_members(self):
-        return self.members + self.base.members_notag
+        return self.members + self.base.members
 
 
 class LeafNode(AstNode):
@@ -391,12 +384,10 @@ class HeaderTemplate:
 namespace simplecompiler {
 class AST {
 public:
+    virtual ~AST() {}
+    virtual const char *GetClassName() const = 0;
     virtual void Format(std::ostream &os) const = 0;
-    virtual ~AST() = 0;
-    virtual const char *ClassName() const = 0;
 };
-
-inline AST::~AST() {}
 
 inline std::ostream &operator<<(std::ostream &os, const AST *ast) {
     if (ast == nullptr)
@@ -527,12 +518,14 @@ $string2enum_impls
 class AbstractNodeTemplate:
     decl = Template("""
 class $class_name: public AST {
+    int Kind;
 public:
+    int GetKind() const { return Kind; }
     $member_declaration
 
-    $class_name($constructor_args): AST(), $member_init {}
+    $class_name(int Kind, $constructor_args): AST(), Kind(Kind), $member_init {}
 
-    enum {$enumitems};
+    enum $enum_name {$enumitems};
 };""")
 
     def substitute(self, x):
@@ -541,6 +534,7 @@ public:
             member_declaration=make_member_decls(x.members),
             constructor_args=make_formal_args(x.members),
             member_init=make_init(x.members),
+            enum_name=x.name + "Kind",
             enumitems=self.make_enumitems(x.subclasses),
         )
 
@@ -602,14 +596,14 @@ public:
 
     ~$class_name() override;
 
-    const char *ClassName() const override {
+    const char *GetClassName() const override {
         return "$class_name";
     }
 
     void Format(std::ostream &os) const override;
 
     static bool InstanceCheck($base *x) {
-        return x->subclass_tag == $base::$class_name;
+        return x->GetKind() == $base::$class_name;
     }
 };""")
 
@@ -619,9 +613,8 @@ public:
             class_name=x.name,
             base=x.base.name,
             member_declaration=make_member_decls(x.members),
-            constructor_args=make_formal_args(
-                x.members + x.base.members_notag),
-            base_init=make_actual_args(x.base.members_notag),
+            constructor_args=make_formal_args(x.members + x.base.members),
+            base_init=make_actual_args(x.base.members),
             member_init=make_init(x.members),
         )
 
@@ -636,7 +629,7 @@ public:
 
     ~$class_name() override;
 
-    const char *ClassName() const override {
+    const char *GetClassName() const override {
         return "$class_name";
     }
 
