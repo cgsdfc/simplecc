@@ -46,15 +46,16 @@ class LocalContext {
     // $ra and $fp. $ra is at 0($fp), $fp is at -4($fp)
     auto offset = BytesFromEntries(-2);
     for (const auto &arg : fun.GetFormalArguments()) {
-      local_offsets.emplace(arg.GetName().data(), offset);
+      local_offsets.emplace(arg.GetName(), offset);
       offset -= BytesFromEntries(1);
     }
     for (const auto &obj : fun.GetLocalObjects()) {
-      local_offsets.emplace(obj.GetName().data(), offset);
       if (obj.IsArray()) {
         offset -= BytesFromEntries(obj.AsArray().GetSize());
+        local_offsets.emplace(obj.GetName(), offset + BytesFromEntries(1));
       } else {
         assert(obj.IsVariable());
+        local_offsets.emplace(obj.GetName(), offset);
         offset -= BytesFromEntries(1);
       }
     }
@@ -312,7 +313,7 @@ public:
     POP("$t0");                       // index
     POP("$t1");                       // base
     w.WriteLine("sll $t0, $t0, 2");   // offset = index * 4
-    w.WriteLine("sub $t2, $t1, $t0"); // address = base - offset
+    w.WriteLine("add $t2, $t1, $t0"); // address = base + offset
     w.WriteLine("lw $t3, 0($t2)");    // t3 = array[index]
     PUSH("$t3");
   }
@@ -322,7 +323,7 @@ public:
     POP("$t1");
     POP("$t3");
     w.WriteLine("sll $t0, $t0, 2");
-    w.WriteLine("sub $t2, $t1, $t0");
+    w.WriteLine("add $t2, $t1, $t0");
     w.WriteLine("sw $t3, 0($t2)");
   }
 

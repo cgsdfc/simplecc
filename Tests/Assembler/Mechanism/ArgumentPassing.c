@@ -1,12 +1,11 @@
-void Function(int I1, int I2, char C1, char C2) {
+void TestArgumnentPassing(int I1, int I2, char C1, char C2) {
   Printf("Dump Arguments:");
-  Printf("I1: ", I1);
-  Printf("I2: ", I2);
-  Printf("C1: ", C1);
-  Printf("C2: ", C2);
-  Printf("End of Dump");
+  Printf("Expect 1: ", I1);
+  Printf("Expect 2: ", I2);
+  Printf("Expect a: ", C1);
+  Printf("Expect b: ", C2);
 }
 
 void main() {
-  Function(1, 2, 'a', 'b');
+  TestArgumnentPassing(1, 2, 'a', 'b');
 }
