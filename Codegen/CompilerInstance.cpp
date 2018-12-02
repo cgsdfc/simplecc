@@ -1,4 +1,5 @@
 #include "CompilerInstance.h"
+#include "Node.h"
 #include "ByteCodePrinter.h"
 #include "assemble.h"
 #include "compile.h"

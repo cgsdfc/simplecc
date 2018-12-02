@@ -1,5 +1,7 @@
 #include "cst.h"
 #include "error.h"
+#include "Node.h"
+#include "AST.h"
 
 #include <sstream>
 

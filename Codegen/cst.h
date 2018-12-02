@@ -1,9 +1,9 @@
 #ifndef CST_H
 #define CST_H
-#include "AST.h"
-#include "parser.h"
 
 namespace simplecompiler {
+class Program;
+class Node;
 Program *NodeToAst(Node *node);
 }
 

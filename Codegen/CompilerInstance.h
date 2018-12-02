@@ -2,10 +2,10 @@
 #define COMPILER_INSTANCE
 
 #include "error.h"
-#include "parser.h"
 #include "SymbolTable.h"
 
 namespace simplecompiler {
+class Node;
 enum class CompilationPhrase {
   Tokenize,
   BuildCst,

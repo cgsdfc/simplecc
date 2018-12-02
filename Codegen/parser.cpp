@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "error.h"
+#include "Node.h"
 
 #include <cstdio>
 #include <sstream>
