@@ -350,7 +350,7 @@ Subscript::~Subscript() { delete index; }
 
 Name::~Name() {}
 
-OperatorKind String2OperatorKind(const String &s) {
+OperatorKind OperatorKindFromString(const String &s) {
 
   if (s == "+")
     return OperatorKind::Add;
@@ -420,7 +420,7 @@ const char *CStringFromOperatorKind(OperatorKind val) {
   }
 }
 
-UnaryopKind String2UnaryopKind(const String &s) {
+UnaryopKind UnaryopKindFromString(const String &s) {
 
   if (s == "+")
     return UnaryopKind::UAdd;
@@ -442,7 +442,7 @@ const char *CStringFromUnaryopKind(UnaryopKind val) {
   }
 }
 
-BasicTypeKind String2BasicTypeKind(const String &s) {
+BasicTypeKind BasicTypeKindFromString(const String &s) {
 
   if (s == "int")
     return BasicTypeKind::Int;

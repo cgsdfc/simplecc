@@ -258,7 +258,7 @@ class TypeVisitor(asdl.VisitorBase):
         self.typemap[name] = LeafNode(name)
 
 
-class String2Enum:
+class EnumFromString:
     """Namespace for string2enum hard-coded constants"""
     # make sure these names match those in asdl!
     operator = {
@@ -313,7 +313,7 @@ class TypeVisitor2(asdl.VisitorBase):
             type = self.typemap[name]
             assert isinstance(type, EnumClass)
             type.values = [cons.name for cons in sum.types]
-            type.strings = getattr(String2Enum, name, None)
+            type.strings = getattr(EnumFromString, name, None)
             return
 
         # LeafNode
@@ -408,7 +408,7 @@ $concrete_classes
 // LeafNode
 $leafnode_classes
 
-// String2Enum
+// EnumFromString
 $string2enum_decls
 
 template<typename T, typename U>
@@ -442,7 +442,7 @@ inline T *subclass_cast(U *x) {
             concrete_classes="\n".join(substitute_all(typemap, ConcreteNode)),
             leafnode_classes="\n".join(substitute_all(typemap, LeafNode)),
             string2enum_decls="\n".join(
-                String2EnumTempalte().substitute_decls(typemap)),
+                EnumFromStringTempalte().substitute_decls(typemap)),
         )
 
 
@@ -504,7 +504,7 @@ $string2enum_impls
                 'make_destructor',
             )),
             string2enum_impls="\n".join(
-                String2EnumTempalte().substitute_impls(typemap)
+                EnumFromStringTempalte().substitute_impls(typemap)
             ),
         )
 
@@ -678,19 +678,19 @@ std::ostream &operator<<(std::ostream &os, $class_name val) {
             item=item) for item in x.values)
 
 
-class String2EnumTempalte:
+class EnumFromStringTempalte:
     decl = Template("""
-$class_name String2$class_name(const String &s);
-const char *CStringFrom$class_name($class_name val);
+$class_name $enum_from_string(const String &s);
+const char *$cstring_from_enum($class_name val);
 """)
 
     impl = Template("""
-$class_name String2$class_name(const String &s) {
+$class_name $enum_from_string(const String &s) {
     $conditions
     assert(false && "not a member of $class_name");
 }
 
-const char *CStringFrom$class_name($class_name val) {
+const char *$cstring_from_enum($class_name val) {
     switch (val) {
     $cases
     }
@@ -706,6 +706,9 @@ if (s == "$string")
 case $class_name::$item:
     return "$string"; """)
 
+    cstring_from_enum = lambda self, name: "CStringFrom" + name
+    enum_from_string = lambda self, name: name + "FromString"
+
     @staticmethod
     def make_string2enums(typemap):
         """Filter the enums that needs string2enum()"""
@@ -714,7 +717,11 @@ case $class_name::$item:
 
     def substitute_decls(self, typemap):
         for x in self.make_string2enums(typemap):
-            yield self.decl.substitute(class_name=x.name)
+            yield self.decl.substitute(
+                class_name=x.name,
+                enum_from_string=self.enum_from_string(x.name),
+                cstring_from_enum=self.cstring_from_enum(x.name),
+            )
 
     def make_code(self, template, x):
         # condition and case are similar
@@ -728,6 +735,8 @@ case $class_name::$item:
     def substitute_impls(self, typemap):
         for x in self.make_string2enums(typemap):
             yield self.impl.substitute(
+                enum_from_string=self.enum_from_string(x.name),
+                cstring_from_enum=self.cstring_from_enum(x.name),
                 class_name=x.name,
                 cases="\n".join(self.make_code(self.case, x)),
                 conditions="\n".join(self.make_code(self.condition, x)),

@@ -517,15 +517,15 @@ public:
   void Format(std::ostream &os) const override;
 };
 
-// String2Enum
+// EnumFromString
 
-OperatorKind String2OperatorKind(const String &s);
+OperatorKind OperatorKindFromString(const String &s);
 const char *CStringFromOperatorKind(OperatorKind val);
 
-UnaryopKind String2UnaryopKind(const String &s);
+UnaryopKind UnaryopKindFromString(const String &s);
 const char *CStringFromUnaryopKind(UnaryopKind val);
 
-BasicTypeKind String2BasicTypeKind(const String &s);
+BasicTypeKind BasicTypeKindFromString(const String &s);
 const char *CStringFromBasicTypeKind(BasicTypeKind val);
 
 template <typename T, typename U> inline bool IsInstance(U *x) {

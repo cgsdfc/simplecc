@@ -141,7 +141,7 @@ public:
   }
 
   BasicTypeKind visit_type_name(Node *node) {
-    return String2BasicTypeKind(node->FirstChild()->value);
+    return BasicTypeKindFromString(node->FirstChild()->value);
   }
 
   void visit_compound_stmt(Node *node, std::vector<Decl *> &fn_decls,
@@ -276,7 +276,7 @@ public:
     assert(num->type == Symbol::NUMBER);
     auto expr1 = new Name(name2->value, ExprContextKind::Load, name2->location);
     auto expr2 = MakeNum(num);
-    auto expr3 = new BinOp(expr1, String2OperatorKind(op->value), expr2,
+    auto expr3 = new BinOp(expr1, OperatorKindFromString(op->value), expr2,
                            name2->location);
     auto step = new Assign(
         new Name(target->value, ExprContextKind::Store, target->location),
@@ -349,7 +349,7 @@ public:
       return visit_atom(node->FirstChild(), context);
     } else {
       auto first = node->FirstChild();
-      auto op = String2UnaryopKind(first->value);
+      auto op = UnaryopKindFromString(first->value);
       auto operand = visit_factor(node->children[1], context);
       return new UnaryOp(op, operand, first->location);
     }
@@ -361,7 +361,7 @@ public:
 
     for (int i = 0; i < nops; i++) {
       auto next_oper = node->children[i * 2 + 1];
-      auto op = String2OperatorKind(next_oper->value);
+      auto op = OperatorKindFromString(next_oper->value);
       auto tmp = visit_expr(node->children[i * 2 + 2], context);
       auto tmp_result = new BinOp(result, op, tmp, next_oper->location);
       result = tmp_result;
