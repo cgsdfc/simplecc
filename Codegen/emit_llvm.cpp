@@ -27,6 +27,11 @@ class LLVMIRCompiler : public VisitorBase<LLVMIRCompiler> {
 
   const SymbolTable &ST;
   ErrorManager Err;
+  /* SymbolTableView local; */
+
+  /* void SetLocal(FuncDef *FD) { */
+  /*   local = ST.GetLocal(FD); */
+  /* } */
 
   /// Convert a BasicTypeKind to corresponding llvm Type
   llvm::Type *LLVMTypeFromBasicKindType(BasicTypeKind T) {
@@ -50,12 +55,12 @@ class LLVMIRCompiler : public VisitorBase<LLVMIRCompiler> {
     return llvm::FunctionType::get(RT, ArgTypes, false);
   }
 
-  llvm::Value *LLVMConstantIntFromNum(Num *node) {
-    return llvm::ConstantInt::get(Context, llvm::APInt(32, node->n));
+  llvm::Value *I32FromInt(int I) {
+    return llvm::ConstantInt::get(Context, llvm::APInt(32, I));
   }
 
-  llvm::Value *LLVMConstantIntFromChar(Char *node) {
-    return llvm::ConstantInt::get(Context, llvm::APInt(8, node->c));
+  llvm::Value *I8FromInt(int I) {
+    return llvm::ConstantInt::get(Context, llvm::APInt(8, I));
   }
 
 public:
@@ -70,11 +75,11 @@ public:
   }
 
   llvm::Value *visitNum(Num *node) {
-    return LLVMConstantIntFromNum(node);
+    return I32FromInt(node->n);
   }
 
   llvm::Value *visitChar(Char *node) {
-    return LLVMConstantIntFromChar(node);
+    return I8FromInt(node->c);
   }
 
   llvm::Value *visitBinOp(BinOp *node) {
@@ -115,6 +120,64 @@ public:
     }
   }
 
+  llvm::Value *visitParenExpr(ParenExpr *node) {
+    return visitExpr(node->value);
+  }
+
+  llvm::Value *visitBoolOp(BoolOp *node) {
+    return visitExpr(node->value);
+  }
+
+  void visitIf(If *node) {
+    auto &&CondV = visitExpr(node->test);
+    CondV = Builder.CreateICmpNE(
+        CondV, llvm::ConstantInt::get(Context, llvm::APInt(1, 0)), "ifcond");
+    auto &&TheFunction = Builder.GetInsertBlock()->getParent();
+
+    auto &&ThenBB = llvm::BasicBlock::Create(Context, "then", TheFunction);
+    auto &&ElseBB = llvm::BasicBlock::Create(Context, "else");
+    auto &&MergeBB = llvm::BasicBlock::Create(Context, "ifcont");
+
+    Builder.CreateCondBr(CondV, ThenBB, ElseBB);
+    Builder.SetInsertPoint(ThenBB);
+    for (auto &&S : node->body) {
+      visitStmt(S);
+    }
+    Builder.CreateBr(MergeBB);
+
+    TheFunction->getBasicBlockList().push_back(ElseBB);
+    Builder.SetInsertPoint(ElseBB);
+    for (auto &&S : node->orelse) {
+      visitStmt(S);
+    }
+    Builder.CreateBr(MergeBB);
+
+    TheFunction->getBasicBlockList().push_back(MergeBB);
+  }
+
+  void visitWhile(While *node) {
+    auto &&CondV = visitExpr(node->condition);
+    auto &&BodyBB = llvm::BasicBlock::Create(Context, "body");
+    auto &&EndBB = llvm::BasicBlock::Create(Context, "endWhile");
+    Builder.CreateCondBr(CondV, BodyBB, EndBB);
+    Builder.SetInsertPoint(BodyBB);
+    for (auto &&S: node->body) {
+      visitStmt(S);
+    }
+    Builder.SetInsertPoint(EndBB);
+  }
+
+
+  /* llvm::Value *visitName(Name *node) { */
+  /*   auto &&Entry = local[node->id]; */
+  /*   if (Entry.IsConstant()) { */
+  /*     auto &&CT = Entry.AsConstant(); */
+  /*     return CT.GetType() == BasicTypeKind::Int ? I32FromInt(CT.GetValue()) */
+  /*                                               : I8FromInt(CT.GetValue()); */
+  /*   } */
+
+  /* } */
+
   llvm::Value *visitCall(Call *node) {
     auto &&Callee = Module.getFunction(node->func);
     assert(Callee);
@@ -141,6 +204,7 @@ public:
   }
 
   llvm::Function *visitFuncDef(FuncDef *node) {
+    /* SetLocal(node); */
     /// Build the FunctionType
     auto &&FT = LLVMFunctionTypeFromFuncDef(node);
     auto &&F = llvm::Function::Create(

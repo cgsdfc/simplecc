@@ -18,8 +18,10 @@ else (NOT WIN32)
   set(MAIN_CPP "windows_main.cpp")
 endif (NOT WIN32)
 
+set(USE_LLVM OFF)
+
 # Find LLVM infrustrament
-if (NOT WIN32)
+if (NOT WIN32 AND ${USE_LLVM})
   find_package(LLVM REQUIRED CONFIG)
 
   message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")

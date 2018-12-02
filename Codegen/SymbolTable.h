@@ -172,19 +172,20 @@ using StringLiteralTable = std::unordered_map<String, int>;
 // Provide a safe const view to a sub-symbol table
 class SymbolTableView {
   friend class SymbolTable;
-  const TableType &subtable;
-  SymbolTableView(const TableType &subtable) : subtable(subtable) {}
+  const TableType *subtable;
+  SymbolTableView(const TableType &subtable) : subtable(&subtable) {}
 
 public:
+
   // Sane operator[]
   const SymbolEntry &operator[](const String &name) const {
-    assert(subtable.count(name));
-    return subtable.find(name)->second;
+    assert(subtable->count(name));
+    return subtable->find(name)->second;
   }
 
-  TableType::const_iterator begin() const { return subtable.begin(); }
+  TableType::const_iterator begin() const { return subtable->begin(); }
 
-  TableType::const_iterator end() const { return subtable.end(); }
+  TableType::const_iterator end() const { return subtable->end(); }
 };
 
 class SymbolTable {
