@@ -71,6 +71,7 @@ add_executable(codegen
   ./cst.cpp
   ./parser.cpp
   ./gramdef.cpp
+  ./Node.cpp
   ./tokenize.cpp)
 
 if (NOT WIN32)

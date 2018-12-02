@@ -5,20 +5,20 @@
 
 namespace simplecompiler {
 class Node {
+  String FormatValue() const;
+
 public:
   Symbol type;
   String value;
   std::vector<Node *> children;
   Location location;
 
-  Node(Symbol type, const String &value, Location location)
+  Node(Symbol type, const String &value, const Location &location)
       : type(type), value(value), children(), location(location) {}
 
   ~Node();
 
   void AddChild(Node *child) { children.push_back(child); }
-
-  String FormatValue() const;
 
   Node *FirstChild() { return children[0]; }
 
