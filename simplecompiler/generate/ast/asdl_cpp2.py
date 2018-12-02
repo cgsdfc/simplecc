@@ -378,7 +378,6 @@ class HeaderTemplate:
 
 #include <vector>
 #include <iostream>
-#include <optional>
 #include <cassert>
 
 namespace simplecompiler {
@@ -389,15 +388,9 @@ public:
     virtual void Format(std::ostream &os) const = 0;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const AST *ast) {
-    if (ast == nullptr)
-        return os << "None";
-    ast->Format(os);
-    return os;
-}
-
 inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
-    return os << &ast;
+    ast.Format(os);
+    return os;
 }
 
 // ForwardDecl
@@ -470,7 +463,16 @@ class ImplTemplate:
 #include "AST.h"
 
 namespace simplecompiler {
-template<class T>
+
+// Format Optional Ast
+std::ostream &operator<<(std::ostream &os, const AST *ast) {
+    if (ast == nullptr)
+        return os << "None";
+    return os << *ast;
+}
+
+// Format Sequential Ast
+template <typename T>
 std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
     os << "[";
     for (auto b = v.begin(), e = v.end(); b != e; ++b) {
@@ -481,14 +483,6 @@ std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
     }
     os << "]";
     return os;
-}
-
-template<class T>
-std::ostream &operator<<(std::ostream &os, const std::optional<T> &v) {
-    if (v.has_value())
-        return os << v.value();
-    else
-        return os << "None";
 }
 
 $formatter_impls

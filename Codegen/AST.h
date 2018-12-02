@@ -6,7 +6,6 @@
 
 #include <cassert>
 #include <iostream>
-#include <optional>
 #include <vector>
 
 namespace simplecompiler {
@@ -17,15 +16,9 @@ public:
   virtual void Format(std::ostream &os) const = 0;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const AST *ast) {
-  if (ast == nullptr)
-    return os << "None";
-  ast->Format(os);
-  return os;
-}
-
 inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
-  return os << &ast;
+  ast.Format(os);
+  return os;
 }
 
 // ForwardDecl
