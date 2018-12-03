@@ -25,6 +25,10 @@ public:
   Node *LastChild() { return *(children.end() - 1); }
 
   void Format(std::ostream &os) const;
+
+  const char *GetTypeName() const { return GetSymbolName(type); }
+  const Location &GetLocation() const { return location; }
+  const String &GetValue() const { return value; }
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Node &node) {

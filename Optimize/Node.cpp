@@ -13,9 +13,8 @@ String Node::FormatValue() const {
 }
 
 void Node::Format(std::ostream &os) const {
-  const char *type_str = GetSymName(type);
   os << "Node(";
-  os << "type=" << type_str << ", ";
+  os << "type=" << GetTypeName() << ", ";
   os << "value=" << FormatValue() << ", ";
   os << "context=" << location << ", ";
   os << "children=";

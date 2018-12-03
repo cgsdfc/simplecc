@@ -16,7 +16,7 @@ void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
   auto &&token_range = oss.str();
 
   os << std::left << std::setw(20) << token_range;
-  os << std::left << std::setw(15) << GetSymName(token.type);
+  os << std::left << std::setw(15) << token.GetTypeName();
   os << std::left << std::setw(15) << Quote(token.string) << "\n";
 }
 
@@ -57,7 +57,7 @@ void ToLowerInplace(String &string) {
 
 void TokenInfo::Format(std::ostream &os) const {
   os << "TokenInfo("
-     << "type=" << GetSymName(type) << ", "
+     << "type=" << GetTypeName() << ", "
      << "string=" << Quote(string) << ", "
      << "start=" << start << ", "
      << "line=" << Quote(line) << ")";

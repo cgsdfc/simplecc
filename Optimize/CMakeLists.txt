@@ -18,7 +18,7 @@ else (NOT WIN32)
   set(MAIN_CPP "windows_main.cpp")
 endif (NOT WIN32)
 
-set(USE_LLVM OFF)
+set(USE_LLVM ON)
 
 # Find LLVM infrustrament
 if (NOT WIN32 AND ${USE_LLVM})
@@ -53,6 +53,7 @@ endif (NOT WIN32)
 # )
 # endif()
 
+set(EMIT_LLVM_CPP "")
 # All executables added hereby
 add_executable(optimize
   ${MAIN_CPP}

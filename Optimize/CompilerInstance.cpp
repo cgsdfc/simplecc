@@ -8,6 +8,7 @@
 #include "parser.h"
 #include "syntax_check.h"
 #include "type_check.h"
+#include "CSTGraph.h"
 
 using namespace simplecompiler;
 CompilerInstance::CompilerInstance(std::istream &input, std::ostream &output,
@@ -32,7 +33,8 @@ bool CompilerInstance::Invoke() {
     return false;
   }
   if (phrase == CompilationPhrase::BuildCst) {
-    output << *cst_node << "\n";
+    // output << *cst_node << "\n";
+    NodeIteratorImpl::PrintAllNodes(cst_node);
     return true;
   }
 

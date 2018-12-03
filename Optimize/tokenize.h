@@ -18,7 +18,7 @@ inline bool IsTerminal(Symbol type) {
 
 inline bool IsNonterminal(Symbol type) { return !IsTerminal(type); }
 
-inline const char *GetSymName(Symbol s) {
+inline const char *GetSymbolName(Symbol s) {
   auto sym = static_cast<int>(s);
   return IsTerminal(s) ? TokenNames[sym] : SymbolNames[sym - NT_OFFSET];
 }
@@ -58,6 +58,10 @@ public:
         line(std::move(other.line)) {}
 
   void Format(std::ostream &os) const;
+  const char *GetTypeName() const { return GetSymbolName(type); }
+  const Location &GetLocation() const { return start; }
+  const String &GetString() const { return string; }
+  const String &GetLine() const { return line; }
 };
 
 using TokenBuffer = std::vector<TokenInfo>;
