@@ -26,6 +26,7 @@ public:
 
   void Format(std::ostream &os) const;
 
+  Symbol GetType() const { return type; }
   const char *GetTypeName() const { return GetSymbolName(type); }
   const Location &GetLocation() const { return location; }
   const String &GetValue() const { return value; }

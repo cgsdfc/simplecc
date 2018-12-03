@@ -133,7 +133,7 @@ struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
     return "Concrete Syntax Tree";
   }
 
-  static std::string getNodeLabel(const void *NodeRef, const CSTGraphTy &) {
+  std::string getNodeLabel(const void *NodeRef, const CSTGraphTy &) {
     auto N = static_cast<simplecompiler::Node*>(const_cast<void*>(NodeRef));
     return N->GetTypeName();
   }
@@ -155,7 +155,7 @@ void PrintAllNodes(Node *Root) {
 }
 
 void WriteCSTGraph(Node *Root, llvm::raw_ostream &os) {
-  llvm::WriteGraph(os, Root, "CSTGraph");
+  llvm::WriteGraph(os, Root);
 }
 
 } // namespace simplecompiler
