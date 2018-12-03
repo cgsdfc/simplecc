@@ -1,6 +1,5 @@
 #include "CompilerInstance.h"
 #include "ByteCodePrinter.h"
-#include "CSTGraph.h"
 #include "Node.h"
 #include "assemble.h"
 #include "compile.h"
@@ -9,6 +8,9 @@
 #include "parser.h"
 #include "syntax_check.h"
 #include "type_check.h"
+
+#include "CSTGraph.h"
+#include "ASTGraph.h"
 
 #include <llvm/Support/raw_ostream.h>
 
@@ -51,7 +53,8 @@ bool CompilerInstance::Invoke() {
   }
 
   if (phrase == CompilationPhrase::BuildAst) {
-    output << *ast_node << "\n";
+    PrintAllAstNodes(ast_node, output);
+    /* output << *ast_node << "\n"; */
     return true;
   }
 
