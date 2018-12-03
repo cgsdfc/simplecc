@@ -11,6 +11,8 @@
 #include <stack>
 
 namespace simplecompiler {
+using CSTGraphTy = const Node *;
+
 class NodeIteratorImpl {
   /// Keep track of Node to visit
   std::stack<Node *> Stack;
@@ -98,17 +100,19 @@ inline NodeChildIterator NodeChildEnd(Node *N) { return std::end(N->children); }
 } // namespace simplecompiler
 
 namespace llvm {
+using CSTGraphTy = simplecompiler::Node *;
+
 /// Specialized GraphTraits
-template <> struct GraphTraits<simplecompiler::Node *> {
-  using NodeRef = simplecompiler::Node *;
+template <> struct GraphTraits<CSTGraphTy> {
+  using NodeRef = CSTGraphTy;
   using nodes_iterator = simplecompiler::NodeIterator;
   using ChildIteratorType = simplecompiler::NodeChildIterator;
 
-  static nodes_iterator nodes_begin(simplecompiler::Node *N) {
-    return simplecompiler::NodeIterator::begin(N);
+  static nodes_iterator nodes_begin(const CSTGraphTy &G) {
+    return simplecompiler::NodeIterator::begin(G);
   }
 
-  static nodes_iterator nodes_end(simplecompiler::Node *) {
+  static nodes_iterator nodes_end(const CSTGraphTy &) {
     return simplecompiler::NodeIterator::end();
   }
 
@@ -122,8 +126,23 @@ template <> struct GraphTraits<simplecompiler::Node *> {
 };
 
 template <>
-struct DOTGraphTraits<simplecompiler::Node *> : DefaultDOTGraphTraits {
+struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
   DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
+
+  static std::string getGraphName(const CSTGraphTy &) {
+    return "Concrete Syntax Tree";
+  }
+
+  static std::string getNodeLabel(const void *NodeRef, const CSTGraphTy &) {
+    auto N = static_cast<simplecompiler::Node*>(const_cast<void*>(NodeRef));
+    return N->GetTypeName();
+  }
+
+  static std::string getNodeDescription(const void *NodeRef, const CSTGraphTy &) {
+    auto N = static_cast<simplecompiler::Node*>(const_cast<void*>(NodeRef));
+    return N->GetValue();
+  }
+
 };
 
 } // namespace llvm
