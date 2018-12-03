@@ -1,4 +1,4 @@
-project(Codegen)
+project(Optimize)
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 set(CMAKE_BUILD_TYPE Debug)
@@ -54,7 +54,7 @@ endif (NOT WIN32)
 # endif()
 
 # All executables added hereby
-add_executable(codegen
+add_executable(optimize
   ${MAIN_CPP}
   ${EMIT_LLVM_CPP}
   ./CompilerInstance.cpp
@@ -76,5 +76,5 @@ add_executable(codegen
 
 if (NOT WIN32)
   # Link against LLVM libraries
-  target_link_libraries(codegen ${llvm_libs})
+  target_link_libraries(optimize ${llvm_libs})
 endif (NOT WIN32)
