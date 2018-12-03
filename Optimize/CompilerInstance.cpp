@@ -34,7 +34,7 @@ bool CompilerInstance::Invoke() {
   }
   if (phrase == CompilationPhrase::BuildCst) {
     // output << *cst_node << "\n";
-    NodeIteratorImpl::PrintAllNodes(cst_node);
+    PrintAllNodes(cst_node);
     return true;
   }
 
