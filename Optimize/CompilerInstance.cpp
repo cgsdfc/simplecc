@@ -10,6 +10,8 @@
 #include "type_check.h"
 #include "CSTGraph.h"
 
+#include <llvm/Support/raw_ostream.h>
+
 using namespace simplecompiler;
 CompilerInstance::CompilerInstance(std::istream &input, std::ostream &output)
     : input(input), output(output), Options(), tokens(), symbolTable(),
