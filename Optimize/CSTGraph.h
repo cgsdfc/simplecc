@@ -6,6 +6,8 @@
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/ADT/iterator.h>
+#include <llvm/Support/raw_ostream.h>
+
 #include <stack>
 #include <cassert>
 
@@ -44,6 +46,7 @@ class NodeIterator:
 
 public:
     using pointer = Node *;
+    using const_pointer = const Node *;
     using reference = Node &;
     using const_reference = const Node &;
 
@@ -55,13 +58,13 @@ public:
 
   bool operator==(const Self &O) const { return NodeRef == O.NodeRef; }
 
-  const_reference operator*() const {
+  const_pointer operator*() const {
     assert(NodeRef);
-    return *NodeRef;
+    return NodeRef;
   }
 
-  reference operator*() {
-    return const_cast<reference>(
+  pointer operator*() {
+    return const_cast<pointer>(
         const_cast<const Self*>(this)->operator*());
   }
 
@@ -90,12 +93,44 @@ private:
 
 };
 
-inline void PrintAllNodes(Node *Root) {
-  for (const Node &N : NodeIterator::GetIter(Root)) {
-    Print(std::cout, N.GetTypeName(), N.GetValue(), N.GetLocation());
-  }
+void PrintAllNodes(Node *Root);
+void WriteCSTGraph(Node *Root, llvm::raw_ostream &os);
+
+using NodeChildIterator = decltype(Node::children)::iterator;
+
+inline NodeChildIterator NodeChildBegin(Node *N) {
+  return std::begin(N->children);
 }
 
+inline NodeChildIterator NodeChildEnd(Node *N) {
+  return std::end(N->children);
 }
+
+} // namespace simplecompiler
+
+namespace llvm {
+/// Specialized GraphTraits
+template <> struct GraphTraits<simplecompiler::Node*> {
+  using NodeRef = simplecompiler::Node *;
+  using nodes_iterator = simplecompiler::NodeIterator;
+  using ChildIteratorType = simplecompiler::NodeChildIterator;
+
+  static nodes_iterator nodes_begin(simplecompiler::Node *N) {
+    return simplecompiler::NodeIterator::begin(N);
+  }
+
+  static nodes_iterator nodes_end(simplecompiler::Node *) {
+    return simplecompiler::NodeIterator::end();
+  }
+
+  static ChildIteratorType child_begin(NodeRef N) {
+    return simplecompiler::NodeChildBegin(N);
+  }
+
+  static ChildIteratorType child_end(NodeRef N) {
+    return simplecompiler::NodeChildBegin(N);
+  }
+};
+} // namespace llvm
 
 #endif

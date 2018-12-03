@@ -73,6 +73,7 @@ add_executable(optimize
   ./parser.cpp
   ./gramdef.cpp
   ./Node.cpp
+  ./CSTGraph.cpp
   ./tokenize.cpp)
 
 if (NOT WIN32)
