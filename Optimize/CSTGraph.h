@@ -9,6 +9,6 @@ namespace simplecompiler {
 class Node;
 void PrintAllNodes(Node *Root);
 void WriteCSTGraph(Node *Root, llvm::raw_ostream &os);
-}
+} // namespace simplecompiler
 
 #endif

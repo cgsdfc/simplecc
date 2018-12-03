@@ -82,8 +82,8 @@ int main(int argc, char **argv) {
   ValueArg<String> output_arg("o", "output", "output file (default to stdout)",
                               false, "", "output-file", parser);
 
-  ValueArg<String> format_arg("f", "format", "output format",
-                              false, "", "format", parser);
+  ValueArg<String> format_arg("f", "format", "output format", false, "",
+                              "format", parser);
   try {
     parser.parse(argc, argv);
   } catch (TCLAP::ArgException &exception) {

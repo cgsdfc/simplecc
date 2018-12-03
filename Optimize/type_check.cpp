@@ -229,7 +229,7 @@ public:
 
   BasicTypeKind visitBoolOp(BoolOp *node) {
     if (node->has_cmpop) {
-      auto x = static_cast<BinOp*>(node->value);
+      auto x = static_cast<BinOp *>(node->value);
       CheckBoolOpOperand(x->left);
       CheckBoolOpOperand(x->right);
     } else {

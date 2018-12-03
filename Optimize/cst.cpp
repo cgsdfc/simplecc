@@ -1,7 +1,7 @@
 #include "cst.h"
-#include "error.h"
-#include "Node.h"
 #include "AST.h"
+#include "Node.h"
+#include "error.h"
 
 #include <sstream>
 
@@ -395,7 +395,7 @@ public:
   }
 
   Expr *visit_atom_trailer(Node *node, const String &name,
-                             ExprContextKind context) {
+                           ExprContextKind context) {
     auto first = node->FirstChild();
     if (first->type == Symbol::arglist) {
       // no empty arglist

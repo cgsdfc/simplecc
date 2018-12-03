@@ -35,6 +35,6 @@ inline std::ostream &operator<<(std::ostream &os, const Node &node) {
   node.Format(os);
   return os;
 }
-}
+} // namespace simplecompiler
 
 #endif

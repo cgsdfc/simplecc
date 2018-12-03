@@ -1,8 +1,8 @@
 #ifndef COMPILER_INSTANCE
 #define COMPILER_INSTANCE
 
-#include "error.h"
 #include "SymbolTable.h"
+#include "error.h"
 
 namespace simplecompiler {
 class Node;
@@ -28,8 +28,9 @@ class CompilerOptions {
   OutputFormat F;
 
 public:
-  CompilerOptions(): P(CompilationPhrase::Assemble), F(OutputFormat::RawDump) {}
-  CompilerOptions(CompilationPhrase P, OutputFormat F): P(P), F(F) {}
+  CompilerOptions()
+      : P(CompilationPhrase::Assemble), F(OutputFormat::RawDump) {}
+  CompilerOptions(CompilationPhrase P, OutputFormat F) : P(P), F(F) {}
   CompilerOptions(const CompilerOptions &) = default;
   CompilationPhrase getPhrase() const { return P; }
   OutputFormat getOutputFormat() const { return F; }
@@ -54,9 +55,7 @@ public:
   CompilerInstance(CompilerInstance &&) = delete;
 
   bool Invoke();
-  void setOptions(const CompilerOptions &O) {
-    Options = O;
-  }
+  void setOptions(const CompilerOptions &O) { Options = O; }
 };
 } // namespace simplecompiler
 #endif

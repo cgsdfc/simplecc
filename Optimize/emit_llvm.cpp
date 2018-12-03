@@ -1,6 +1,6 @@
 #include "emit_llvm.h"
-#include "Visitor.h"
 #include "SymbolTable.h"
+#include "Visitor.h"
 #include "error.h"
 
 #include <llvm/ADT/APSInt.h>
@@ -36,19 +36,19 @@ class LLVMIRCompiler : public VisitorBase<LLVMIRCompiler> {
   /// Convert a BasicTypeKind to corresponding llvm Type
   llvm::Type *LLVMTypeFromBasicKindType(BasicTypeKind T) {
     switch (T) {
-      case BasicTypeKind::Character:
-        return llvm::Type::getInt8Ty(Context);
-      case BasicTypeKind::Int:
-        return llvm::Type::getInt32Ty(Context);
-      case BasicTypeKind::Void:
-        return llvm::Type::getVoidTy(Context);
+    case BasicTypeKind::Character:
+      return llvm::Type::getInt8Ty(Context);
+    case BasicTypeKind::Int:
+      return llvm::Type::getInt32Ty(Context);
+    case BasicTypeKind::Void:
+      return llvm::Type::getVoidTy(Context);
     }
   }
 
   /// Convert a FuncDef node to corresponding llvm FunctionType
   llvm::FunctionType *LLVMFunctionTypeFromFuncDef(FuncDef *node) {
     auto &&RT = LLVMTypeFromBasicKindType(node->return_type);
-    std::vector<llvm::Type*> ArgTypes(node->args.size());
+    std::vector<llvm::Type *> ArgTypes(node->args.size());
     for (int i = 0, e = node->args.size(); i != e; ++i) {
       ArgTypes[i] = LLVMTypeFromBasicKindType(node->args[i]->type);
     }
@@ -71,16 +71,12 @@ public:
   void visitArg(Arg *node) {}
 
   llvm::Value *visitExpr(Expr *node) {
-    return VisitorBase::visitExpr<llvm::Value*>(node);
+    return VisitorBase::visitExpr<llvm::Value *>(node);
   }
 
-  llvm::Value *visitNum(Num *node) {
-    return I32FromInt(node->n);
-  }
+  llvm::Value *visitNum(Num *node) { return I32FromInt(node->n); }
 
-  llvm::Value *visitChar(Char *node) {
-    return I8FromInt(node->c);
-  }
+  llvm::Value *visitChar(Char *node) { return I8FromInt(node->c); }
 
   llvm::Value *visitBinOp(BinOp *node) {
     auto L = visitExpr(node->left);
@@ -124,9 +120,7 @@ public:
     return visitExpr(node->value);
   }
 
-  llvm::Value *visitBoolOp(BoolOp *node) {
-    return visitExpr(node->value);
-  }
+  llvm::Value *visitBoolOp(BoolOp *node) { return visitExpr(node->value); }
 
   void visitIf(If *node) {
     auto &&CondV = visitExpr(node->test);
@@ -161,19 +155,20 @@ public:
     auto &&EndBB = llvm::BasicBlock::Create(Context, "endWhile");
     Builder.CreateCondBr(CondV, BodyBB, EndBB);
     Builder.SetInsertPoint(BodyBB);
-    for (auto &&S: node->body) {
+    for (auto &&S : node->body) {
       visitStmt(S);
     }
     Builder.SetInsertPoint(EndBB);
   }
 
-
   /* llvm::Value *visitName(Name *node) { */
   /*   auto &&Entry = local[node->id]; */
   /*   if (Entry.IsConstant()) { */
   /*     auto &&CT = Entry.AsConstant(); */
-  /*     return CT.GetType() == BasicTypeKind::Int ? I32FromInt(CT.GetValue()) */
-  /*                                               : I8FromInt(CT.GetValue()); */
+  /*     return CT.GetType() == BasicTypeKind::Int ? I32FromInt(CT.GetValue())
+   */
+  /*                                               : I8FromInt(CT.GetValue());
+   */
   /*   } */
 
   /* } */
@@ -182,7 +177,7 @@ public:
     auto &&Callee = Module.getFunction(node->func);
     assert(Callee);
 
-    std::vector<llvm::Value*> ArgsV;
+    std::vector<llvm::Value *> ArgsV;
     ArgsV.reserve(node->args.size());
     for (auto &&arg : node->args) {
       auto &&V = visitExpr(arg);
@@ -207,8 +202,8 @@ public:
     /* SetLocal(node); */
     /// Build the FunctionType
     auto &&FT = LLVMFunctionTypeFromFuncDef(node);
-    auto &&F = llvm::Function::Create(
-        FT, llvm::Function::ExternalLinkage, node->name, Module);
+    auto &&F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage,
+                                      node->name, Module);
 
     /// Create entry point
     auto &&BB = llvm::BasicBlock::Create(Context, "entry", F);
@@ -236,9 +231,9 @@ public:
   }
 
 public:
-  LLVMIRCompiler(const SymbolTable &ST):
-    Context(), Module("simplecompiler", Context), Builder(Context),
-    ST(ST), Err() {}
+  LLVMIRCompiler(const SymbolTable &ST)
+      : Context(), Module("simplecompiler", Context), Builder(Context), ST(ST),
+        Err() {}
 };
 
-}
+} // namespace

@@ -1,6 +1,7 @@
 #include "CompilerInstance.h"
-#include "Node.h"
 #include "ByteCodePrinter.h"
+#include "CSTGraph.h"
+#include "Node.h"
 #include "assemble.h"
 #include "compile.h"
 #include "cst.h"
@@ -8,7 +9,6 @@
 #include "parser.h"
 #include "syntax_check.h"
 #include "type_check.h"
-#include "CSTGraph.h"
 
 #include <llvm/Support/raw_ostream.h>
 
@@ -36,12 +36,12 @@ bool CompilerInstance::Invoke() {
   }
   if (phrase == CompilationPhrase::BuildCst) {
     switch (Options.getOutputFormat()) {
-      case OutputFormat::DOT:
-        WriteCSTGraph(cst_node, llvm::outs());
-        return true;
-      case OutputFormat::RawDump:
-        output << *cst_node << "\n";
-        return true;
+    case OutputFormat::DOT:
+      WriteCSTGraph(cst_node, llvm::outs());
+      return true;
+    case OutputFormat::RawDump:
+      output << *cst_node << "\n";
+      return true;
     }
   }
 

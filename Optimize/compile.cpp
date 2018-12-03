@@ -119,7 +119,7 @@ Opcode MakeJump(OperatorKind oper) {
     assert(false);
   }
 }
-}
+} // namespace
 
 namespace {
 class FunctionCompiler : public VisitorBase<FunctionCompiler> {
@@ -179,7 +179,7 @@ public:
     Add(ByteCode(Opcode::RETURN_NONE));
     const auto &entry = symtable.GetGlobal(function->name);
     // Check jump target
-    for (auto &&code: buffer) {
+    for (auto &&code : buffer) {
       if (IsJumpXXX(code.GetOpcode())) {
         if (code.GetOffset() >= buffer.size()) {
           e.InternalError("jump target out of range:", code);
@@ -437,13 +437,14 @@ void CompiledFunction::Format(std::ostream &os) const {
 }
 
 CompiledModule::CompiledModule(std::vector<CompiledFunction> functions,
-    const StringLiteralTable &strings, SymbolEntryList global_objects)
-  : functions(std::move(functions)), strings(strings),
-  global_objects(std::move(global_objects)) {}
+                               const StringLiteralTable &strings,
+                               SymbolEntryList global_objects)
+    : functions(std::move(functions)), strings(strings),
+      global_objects(std::move(global_objects)) {}
 
 CompiledModule::CompiledModule(CompiledModule &&other)
-  : functions(std::move(other.functions)), strings(other.strings),
-  global_objects(std::move(other.global_objects)) {}
+    : functions(std::move(other.functions)), strings(other.strings),
+      global_objects(std::move(other.global_objects)) {}
 
 void CompiledModule::Format(std::ostream &os) const {
   os << "global_objects:\n";

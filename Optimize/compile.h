@@ -47,7 +47,8 @@ class CompiledModule {
 
 public:
   CompiledModule(std::vector<CompiledFunction> functions,
-                 const StringLiteralTable &strings, SymbolEntryList global_objects);
+                 const StringLiteralTable &strings,
+                 SymbolEntryList global_objects);
 
   CompiledModule(CompiledModule &&other);
 

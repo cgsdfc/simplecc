@@ -176,7 +176,6 @@ class SymbolTableView {
   SymbolTableView(const TableType &subtable) : subtable(&subtable) {}
 
 public:
-
   // Sane operator[]
   const SymbolEntry &operator[](const String &name) const {
     assert(subtable->count(name));

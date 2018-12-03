@@ -5,6 +5,6 @@ namespace simplecompiler {
 class Program;
 class Node;
 Program *NodeToAst(Node *node);
-}
+} // namespace simplecompiler
 
 #endif

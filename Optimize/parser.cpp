@@ -1,12 +1,12 @@
 #include "parser.h"
-#include "error.h"
 #include "Node.h"
+#include "error.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <sstream>
 #include <stack>
 #include <vector>
-#include <algorithm>
 
 using namespace simplecompiler;
 
@@ -24,7 +24,6 @@ struct StackEntry {
     printf("dfa: %s\n", dfa->name);
   }
 };
-
 
 class Parser {
   std::stack<StackEntry> stack;
@@ -55,11 +54,11 @@ public:
 } // namespace
 
 Parser::Parser(Grammar *grammar)
-  : stack(), grammar(grammar), rootnode(nullptr), e() {
-    auto start = grammar->start;
-    Node *newnode = new Node(static_cast<Symbol>(start), "", Location(0, 0));
-    stack.push(StackEntry(grammar->dfas[start - NT_OFFSET], 0, newnode));
-  }
+    : stack(), grammar(grammar), rootnode(nullptr), e() {
+  auto start = grammar->start;
+  Node *newnode = new Node(static_cast<Symbol>(start), "", Location(0, 0));
+  stack.push(StackEntry(grammar->dfas[start - NT_OFFSET], 0, newnode));
+}
 
 int Parser::Classify(const TokenInfo &token) {
   if (token.type == Symbol::NAME || token.type == Symbol::OP) {
@@ -86,8 +85,8 @@ void Parser::Shift(const TokenInfo &token, int newstate) {
   tos.state = newstate;
 }
 
-void Parser::Push(Symbol type,
-                  DFA *newdfa, int newstate, const Location &location) {
+void Parser::Push(Symbol type, DFA *newdfa, int newstate,
+                  const Location &location) {
   /* printf("push %s\n", GetSymName(type)); */
   StackEntry &tos = stack.top();
   Node *newnode = new Node(type, "", location);
