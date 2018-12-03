@@ -18,25 +18,45 @@ enum class CompilationPhrase {
   Assemble,
 };
 
+enum class OutputFormat {
+  RawDump,
+  DOT,
+};
+
+class CompilerOptions {
+  CompilationPhrase P;
+  OutputFormat F;
+
+public:
+  CompilerOptions(): P(CompilationPhrase::Assemble), F(OutputFormat::RawDump) {}
+  CompilerOptions(CompilationPhrase P, OutputFormat F): P(P), F(F) {}
+  CompilerOptions(const CompilerOptions &) = default;
+  CompilationPhrase getPhrase() const { return P; }
+  OutputFormat getOutputFormat() const { return F; }
+  void setPhrase(CompilationPhrase Phrase) { P = Phrase; }
+  void setFormat(OutputFormat Format) { F = Format; }
+};
+
 class CompilerInstance {
   std::istream &input;
   std::ostream &output;
-  CompilationPhrase phrase;
+  CompilerOptions Options;
   TokenBuffer tokens;
   SymbolTable symbolTable;
   Node *cst_node;
   Program *ast_node;
 
 public:
-  CompilerInstance(std::istream &input, std::ostream &output,
-                   CompilationPhrase phrase);
-
+  CompilerInstance(std::istream &input, std::ostream &output);
   ~CompilerInstance();
 
   CompilerInstance(const CompilerInstance &) = delete;
   CompilerInstance(CompilerInstance &&) = delete;
 
   bool Invoke();
+  void setOptions(const CompilerOptions &O) {
+    Options = O;
+  }
 };
 } // namespace simplecompiler
 #endif

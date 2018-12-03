@@ -82,6 +82,8 @@ int main(int argc, char **argv) {
   ValueArg<String> output_arg("o", "output", "output file (default to stdout)",
                               false, "", "output-file", parser);
 
+  ValueArg<String> format_arg("f", "format", "output format",
+                              false, "", "format", parser);
   try {
     parser.parse(argc, argv);
   } catch (TCLAP::ArgException &exception) {
@@ -119,9 +121,19 @@ int main(int argc, char **argv) {
     output_stream = &output_file;
   }
 
-  // Determine the phrase to run
-  auto phrase = FindSelectedPhrase(args_phrase_map);
+  // Determine CompilerOptions
+  CompilerOptions Options;
+  Options.setPhrase(FindSelectedPhrase(args_phrase_map));
+
+  if (format_arg.isSet()) {
+    if (format_arg.getValue() == "dot")
+      Options.setFormat(OutputFormat::DOT);
+    else
+      e.Error("Unknown output format:", format_arg.getValue());
+  }
+
   auto instance =
-      std::make_unique<CompilerInstance>(*input_stream, *output_stream, phrase);
+      std::make_unique<CompilerInstance>(*input_stream, *output_stream);
+  instance->setOptions(Options);
   return !instance->Invoke();
 }

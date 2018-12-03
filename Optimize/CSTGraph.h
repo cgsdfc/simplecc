@@ -128,7 +128,7 @@ template <> struct GraphTraits<simplecompiler::Node*> {
   }
 
   static ChildIteratorType child_end(NodeRef N) {
-    return simplecompiler::NodeChildBegin(N);
+    return simplecompiler::NodeChildEnd(N);
   }
 };
 } // namespace llvm

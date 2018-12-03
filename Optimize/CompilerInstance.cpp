@@ -11,9 +11,8 @@
 #include "CSTGraph.h"
 
 using namespace simplecompiler;
-CompilerInstance::CompilerInstance(std::istream &input, std::ostream &output,
-                                   CompilationPhrase phrase)
-    : input(input), output(output), phrase(phrase), tokens(), symbolTable(),
+CompilerInstance::CompilerInstance(std::istream &input, std::ostream &output)
+    : input(input), output(output), Options(), tokens(), symbolTable(),
       cst_node(nullptr), ast_node(nullptr) {}
 
 CompilerInstance::~CompilerInstance() {
@@ -22,6 +21,7 @@ CompilerInstance::~CompilerInstance() {
 }
 
 bool CompilerInstance::Invoke() {
+  CompilationPhrase phrase = Options.getPhrase();
   Tokenize(input, tokens);
   if (phrase == CompilationPhrase::Tokenize) {
     PrintTokens(tokens, output);
@@ -33,9 +33,14 @@ bool CompilerInstance::Invoke() {
     return false;
   }
   if (phrase == CompilationPhrase::BuildCst) {
-    // output << *cst_node << "\n";
-    PrintAllNodes(cst_node);
-    return true;
+    switch (Options.getOutputFormat()) {
+      case OutputFormat::DOT:
+        WriteCSTGraph(cst_node, llvm::outs());
+        return true;
+      case OutputFormat::RawDump:
+        output << *cst_node << "\n";
+        return true;
+    }
   }
 
   ast_node = NodeToAst(cst_node);
