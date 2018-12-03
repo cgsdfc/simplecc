@@ -13,6 +13,6 @@ class Program;
 namespace simplecompiler {
 void PrintAllAstNodes(Program *P, std::ostream &os);
 void WriteASTGraph(Program *P, llvm::raw_ostream &os);
-}
+} // namespace simplecompiler
 
 #endif
