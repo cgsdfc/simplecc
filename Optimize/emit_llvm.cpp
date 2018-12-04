@@ -18,12 +18,22 @@
 using namespace simplecompiler;
 
 namespace {
+using llvm::Value;
+using llvm::LLVMContext;
+using llvm::Module;
+using llvm::IRBuilder;
+using llvm::Type;
+using llvm::Function;
+using llvm::BasicBlock;
+using llvm::FunctionType;
+using llvm::ConstantInt;
+using llvm::APInt;
 
 class LLVMIRCompiler : public VisitorBase<LLVMIRCompiler> {
   /// llvm specific members
-  llvm::LLVMContext Context;
-  llvm::Module Module;
-  llvm::IRBuilder<> Builder;
+  LLVMContext Context;
+  Module TheModule;
+  IRBuilder<> Builder;
 
   const SymbolTable &ST;
   ErrorManager Err;
@@ -34,33 +44,33 @@ class LLVMIRCompiler : public VisitorBase<LLVMIRCompiler> {
   /* } */
 
   /// Convert a BasicTypeKind to corresponding llvm Type
-  llvm::Type *LLVMTypeFromBasicKindType(BasicTypeKind T) {
+  Type *LLVMTypeFromBasicKindType(BasicTypeKind T) {
     switch (T) {
     case BasicTypeKind::Character:
-      return llvm::Type::getInt8Ty(Context);
+      return Type::getInt8Ty(Context);
     case BasicTypeKind::Int:
-      return llvm::Type::getInt32Ty(Context);
+      return Type::getInt32Ty(Context);
     case BasicTypeKind::Void:
-      return llvm::Type::getVoidTy(Context);
+      return Type::getVoidTy(Context);
     }
   }
 
   /// Convert a FuncDef node to corresponding llvm FunctionType
-  llvm::FunctionType *LLVMFunctionTypeFromFuncDef(FuncDef *node) {
+  FunctionType *LLVMFunctionTypeFromFuncDef(FuncDef *node) {
     auto &&RT = LLVMTypeFromBasicKindType(node->return_type);
-    std::vector<llvm::Type *> ArgTypes(node->args.size());
+    std::vector<Type *> ArgTypes(node->args.size());
     for (int i = 0, e = node->args.size(); i != e; ++i) {
       ArgTypes[i] = LLVMTypeFromBasicKindType(node->args[i]->type);
     }
-    return llvm::FunctionType::get(RT, ArgTypes, false);
+    return FunctionType::get(RT, ArgTypes, false);
   }
 
-  llvm::Value *I32FromInt(int I) {
-    return llvm::ConstantInt::get(Context, llvm::APInt(32, I));
+  Value *I32FromInt(int I) {
+    return ConstantInt::get(Context, llvm::APInt(32, I));
   }
 
-  llvm::Value *I8FromInt(int I) {
-    return llvm::ConstantInt::get(Context, llvm::APInt(8, I));
+  Value *I8FromInt(int I) {
+    return ConstantInt::get(Context, APInt(8, I));
   }
 
 public:
@@ -70,15 +80,15 @@ public:
 
   void visitArg(Arg *node) {}
 
-  llvm::Value *visitExpr(Expr *node) {
-    return VisitorBase::visitExpr<llvm::Value *>(node);
+  Value *visitExpr(Expr *node) {
+    return VisitorBase::visitExpr<Value *>(node);
   }
 
-  llvm::Value *visitNum(Num *node) { return I32FromInt(node->n); }
+  Value *visitNum(Num *node) { return I32FromInt(node->n); }
 
-  llvm::Value *visitChar(Char *node) { return I8FromInt(node->c); }
+  Value *visitChar(Char *node) { return I8FromInt(node->c); }
 
-  llvm::Value *visitBinOp(BinOp *node) {
+  Value *visitBinOp(BinOp *node) {
     auto L = visitExpr(node->left);
     auto R = visitExpr(node->right);
     assert(L && R);
@@ -106,7 +116,7 @@ public:
     }
   }
 
-  llvm::Value *visitUnaryOp(UnaryOp *node) {
+  Value *visitUnaryOp(UnaryOp *node) {
     auto &&Operand = visitExpr(node->operand);
     switch (node->op) {
     case UnaryopKind::USub:
@@ -116,21 +126,21 @@ public:
     }
   }
 
-  llvm::Value *visitParenExpr(ParenExpr *node) {
+  Value *visitParenExpr(ParenExpr *node) {
     return visitExpr(node->value);
   }
 
-  llvm::Value *visitBoolOp(BoolOp *node) { return visitExpr(node->value); }
+  Value *visitBoolOp(BoolOp *node) { return visitExpr(node->value); }
 
   void visitIf(If *node) {
     auto &&CondV = visitExpr(node->test);
     CondV = Builder.CreateICmpNE(
-        CondV, llvm::ConstantInt::get(Context, llvm::APInt(1, 0)), "ifcond");
+        CondV, ConstantInt::get(Context, APInt(1, 0)), "ifcond");
     auto &&TheFunction = Builder.GetInsertBlock()->getParent();
 
-    auto &&ThenBB = llvm::BasicBlock::Create(Context, "then", TheFunction);
-    auto &&ElseBB = llvm::BasicBlock::Create(Context, "else");
-    auto &&MergeBB = llvm::BasicBlock::Create(Context, "ifcont");
+    auto &&ThenBB = BasicBlock::Create(Context, "then", TheFunction);
+    auto &&ElseBB = BasicBlock::Create(Context, "else");
+    auto &&MergeBB = BasicBlock::Create(Context, "ifcont");
 
     Builder.CreateCondBr(CondV, ThenBB, ElseBB);
     Builder.SetInsertPoint(ThenBB);
@@ -151,8 +161,8 @@ public:
 
   void visitWhile(While *node) {
     auto &&CondV = visitExpr(node->condition);
-    auto &&BodyBB = llvm::BasicBlock::Create(Context, "body");
-    auto &&EndBB = llvm::BasicBlock::Create(Context, "endWhile");
+    auto &&BodyBB = BasicBlock::Create(Context, "body");
+    auto &&EndBB = BasicBlock::Create(Context, "endWhile");
     Builder.CreateCondBr(CondV, BodyBB, EndBB);
     Builder.SetInsertPoint(BodyBB);
     for (auto &&S : node->body) {
@@ -161,7 +171,7 @@ public:
     Builder.SetInsertPoint(EndBB);
   }
 
-  /* llvm::Value *visitName(Name *node) { */
+  /* Value *visitName(Name *node) { */
   /*   auto &&Entry = local[node->id]; */
   /*   if (Entry.IsConstant()) { */
   /*     auto &&CT = Entry.AsConstant(); */
@@ -173,11 +183,11 @@ public:
 
   /* } */
 
-  llvm::Value *visitCall(Call *node) {
-    auto &&Callee = Module.getFunction(node->func);
+  Value *visitCall(Call *node) {
+    auto &&Callee = TheModule.getFunction(node->func);
     assert(Callee);
 
-    std::vector<llvm::Value *> ArgsV;
+    std::vector<Value *> ArgsV;
     ArgsV.reserve(node->args.size());
     for (auto &&arg : node->args) {
       auto &&V = visitExpr(arg);
@@ -188,25 +198,66 @@ public:
     return Builder.CreateCall(Callee, ArgsV, "calltmp");
   }
 
-  llvm::Value *visitReturn(Return *node) {
+  void visitReturn(Return *node) {
     if (node->value) {
       auto &&Val = visitExpr(node->value);
       assert(Val);
-      return Builder.CreateRet(Val);
+      Builder.CreateRet(Val);
     } else {
-      return Builder.CreateRetVoid();
+      Builder.CreateRetVoid();
     }
   }
 
-  llvm::Function *visitFuncDef(FuncDef *node) {
+  Value *visitStr(Str *S) {
+    return nullptr;
+  }
+
+  Value *visitName(Name *N) {
+    return nullptr;
+  }
+
+  void visitAssign(Assign *A) {
+
+  }
+
+  Value *visitSubscript(Subscript *SB) {
+    return nullptr;
+  }
+
+  void visitExprStmt(ExprStmt *ES) {}
+
+  void visitRead(Read *RD) {
+
+
+  }
+
+  void visitWrite(Write *WR) {
+
+  }
+
+  void visitVarDecl(VarDecl *VD) {
+
+
+  }
+
+  void visitConstDecl(ConstDecl *CD) {
+
+  }
+
+  void visitFor(For *F) {
+
+
+  }
+
+  void visitFuncDef(FuncDef *node) {
     /* SetLocal(node); */
     /// Build the FunctionType
     auto &&FT = LLVMFunctionTypeFromFuncDef(node);
-    auto &&F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage,
-                                      node->name, Module);
+    auto &&F = Function::Create(FT, Function::ExternalLinkage,
+                                      node->name, TheModule);
 
     /// Create entry point
-    auto &&BB = llvm::BasicBlock::Create(Context, "entry", F);
+    auto &&BB = BasicBlock::Create(Context, "entry", F);
     Builder.SetInsertPoint(BB);
 
     for (auto &&Arg : node->args) {
@@ -225,14 +276,12 @@ public:
     if (llvm::verifyFunction(*F, &OS)) {
       Err.Error(ErrorMsg);
       F->eraseFromParent();
-      return nullptr;
     }
-    return F;
   }
 
 public:
   LLVMIRCompiler(const SymbolTable &ST)
-      : Context(), Module("simplecompiler", Context), Builder(Context), ST(ST),
+      : Context(), TheModule("simplecompiler", Context), Builder(Context), ST(ST),
         Err() {}
 };
 

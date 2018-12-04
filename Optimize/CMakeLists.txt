@@ -78,7 +78,8 @@ set(EXTRA_LIBRARIES "")
 if (USE_LLVM)
   list(APPEND SOURCE_FILES
     ./CSTGraph.cpp
-    ./ASTGraph.cpp)
+    ./ASTGraph.cpp
+    ./emit_llvm.cpp)
   list(APPEND EXTRA_LIBRARIES ${llvm_libs})
   add_definitions(-DSIMPLE_COMPILER_USE_LLVM)
   include_directories(${LLVM_INCLUDE_DIRS})
