@@ -53,9 +53,14 @@ bool CompilerInstance::Invoke() {
   }
 
   if (phrase == CompilationPhrase::BuildAst) {
-    PrintAllAstNodes(*ast_node, output);
-    /* output << *ast_node << "\n"; */
-    return true;
+    switch (Options.getOutputFormat()) {
+    case OutputFormat::DOT:
+      WriteASTGraph(*ast_node, llvm::outs());
+      return true;
+    case OutputFormat::RawDump:
+      output << *ast_node << "\n";
+      return true;
+    }
   }
 
   if (!CheckSyntax(ast_node)) {

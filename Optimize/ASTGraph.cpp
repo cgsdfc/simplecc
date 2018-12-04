@@ -3,9 +3,11 @@
 #include "Visitor.h"
 
 #include <llvm/ADT/GraphTraits.h>
-#include <llvm/Support/GraphWriter.h>
 #include <llvm/ADT/iterator.h>
+#include <llvm/Support/GraphWriter.h>
+
 #include <map>
+#include <sstream>
 #include <stack>
 
 namespace simplecompiler {
@@ -42,6 +44,7 @@ DEFINE_AST_TRAITS(Expr)
 /// A wrapper around AST* that records its real type.
 /// Stand in place of A cheap reference to Ast Nodes.
 class AstRef {
+  friend class AstGraph;
   AST *Ref;
   AstKind Kind;
   /// Pointer to enclosing AstGraph. This is required since
@@ -50,6 +53,7 @@ class AstRef {
 
 public:
   /// Construct from one of the known subclasses of AST.
+  /// Only AstGraph is allowed to create it.
   template <typename AstT>
   AstRef(AstT *Ptr, AstGraph *P)
       : Ref(Ptr), Kind(AstTraits<AstT>::Kind), Parent(P) {}
@@ -57,7 +61,8 @@ public:
   /// Construct an empty AstRef, like nullptr to AST*.
   AstRef() : Ref(nullptr), Kind(), Parent() {}
 
-  /* AstRef(const AstRef &) = delete; */
+  /// Prevent accidentally having 2 AstRef pointing to the same AST
+  AstRef(const AstRef &) = delete;
 
   AstKind getKind() const { return Kind; }
 
@@ -107,7 +112,7 @@ public:
 /// Collect children of an AstRef into a vector for later use.
 class ChildrenCollector : public ChildrenVisitor<ChildrenCollector> {
   /// Keep a reference to the output vector.
-  std::vector<AstRef*> &Children;
+  std::vector<AstRef *> &Children;
   /// Used to construct an AstRef.
   AstGraph *Parent;
 
@@ -119,7 +124,7 @@ public:
   using ChildrenIterator =
       std::remove_reference<decltype(Children)>::type::const_iterator;
 
-  ChildrenCollector(std::vector<AstRef*> &Vec, AstGraph *G)
+  ChildrenCollector(std::vector<AstRef *> &Vec, AstGraph *G)
       : Children(Vec), Parent(G) {}
 
   /// Call this to do the collecting. Otherwise, nothing will happen.
@@ -143,10 +148,9 @@ public:
   void visitStmt(Stmt *S) { AddChild(S); }
 };
 
-
 /// Implementation of AstIterator
 class AstIteratorImpl {
-  std::vector<AstRef*> Stack;
+  std::vector<AstRef *> Stack;
   AstGraph *Parent;
 
 public:
@@ -159,17 +163,14 @@ public:
   AstRef *getNext();
 };
 
-
 /// Iterator to all nodes of a graph.
 class AstIterator
     : private AstIteratorImpl,
       public llvm::iterator_facade_base<AstIterator, std::forward_iterator_tag,
-                                        AstRef*> {
+                                        AstRef *> {
 
 public:
-  AstIterator(Program *P, AstGraph *G) : AstIteratorImpl(P, G) {
-    operator++();
-  }
+  AstIterator(Program *P, AstGraph *G) : AstIteratorImpl(P, G) { operator++(); }
 
   AstIterator() : AstIteratorImpl(), Ref() {}
 
@@ -194,43 +195,45 @@ public:
   using ChildIteratorType = ChildrenCollector::ChildrenIterator;
 
   /// Iterate over all nodes.
-  NodeIterator nodes_begin() { return NodeIterator(Prog, this); }
+  NodeIterator nodes_begin() const {
+    return NodeIterator(Prog, const_cast<AstGraph *>(this));
+  }
 
-  NodeIterator nodes_end() { return NodeIterator(); }
+  NodeIterator nodes_end() const { return NodeIterator(); }
 
   llvm::iterator_range<NodeIterator> nodes() {
     return llvm::make_range(nodes_begin(), nodes_end());
   }
 
   /// Iterate all children of one node.
-  ChildIteratorType child_begin(AstRef R) {
+  ChildIteratorType child_begin(const AstRef &R) {
     return std::begin(getEdgeOrCreate(R));
   }
 
-  ChildIteratorType child_end(AstRef R) {
+  ChildIteratorType child_end(const AstRef &R) {
     return std::end(getEdgeOrCreate(R));
   }
 
-  llvm::iterator_range<ChildIteratorType> children(AstRef R) {
+  llvm::iterator_range<ChildIteratorType> children(const AstRef &R) {
     return llvm::make_range(child_begin(R), child_end(R));
   }
 
   /// For use in GraphTraits.
-  static ChildIteratorType ChildBegin(AstRef N) {
+  static ChildIteratorType ChildBegin(const AstRef &N) {
     return N.getParent()->child_begin(N);
   }
 
-  static ChildIteratorType ChildEnd(AstRef N) {
+  static ChildIteratorType ChildEnd(const AstRef &N) {
     return N.getParent()->child_end(N);
   }
 
   /// Lazily create edges for a Node.
-  const std::vector<AstRef*> &getEdgeOrCreate(const AstRef &R) {
+  const std::vector<AstRef *> &getEdgeOrCreate(const AstRef &R) {
     auto iter = Edges.find(R.get());
     if (iter != Edges.end())
       return iter->second;
 
-    std::vector<AstRef*> E;
+    std::vector<AstRef *> E;
     ChildrenCollector CC(E, this);
     CC.collect(R);
 
@@ -240,8 +243,7 @@ public:
   }
 
   /// Lazily create a node, namely an AstRef
-  template <typename AstT>
-  AstRef *getNodeOrCreate(AstT *Ptr) {
+  template <typename AstT> AstRef *getNodeOrCreate(AstT *Ptr) {
     auto iter = Nodes.find(Ptr);
     if (iter != Nodes.end())
       return iter->second.get();
@@ -254,11 +256,13 @@ private:
   /// Root of AST.
   Program *Prog;
   /// Lazily created edges for each node.
-  std::map<AST *, std::vector<AstRef*>> Edges;
+  std::map<AST *, std::vector<AstRef *>> Edges;
+  /// Lazily created nodes.
   std::map<AST *, std::unique_ptr<AstRef>> Nodes;
 };
 
-AstIteratorImpl::AstIteratorImpl(Program *Ptr, AstGraph *G) : Stack(), Parent(G) {
+AstIteratorImpl::AstIteratorImpl(Program *Ptr, AstGraph *G)
+    : Stack(), Parent(G) {
   auto AR = Parent->getNodeOrCreate(Ptr);
   Stack.push_back(AR);
 }
@@ -280,6 +284,7 @@ template <typename AstT> void ChildrenCollector::AddChild(AstT *Ptr) {
   Children.push_back(AR);
 }
 
+/// Print all ast nodes from a root.
 void PrintAllAstNodes(Program &P, std::ostream &os) {
   AstGraph Graph(P);
   for (auto AR : Graph.nodes()) {
@@ -287,10 +292,122 @@ void PrintAllAstNodes(Program &P, std::ostream &os) {
   }
 }
 
-/* void WriteASTGraph(Program &P, llvm::raw_ostream &os) { */
-/*   AstGraph Graph(P); */
-/*   llvm::WriteGraph(os, Graph); */
-/* } */
+/// Write an AstGraph to dot format.
+void WriteASTGraph(Program &P, llvm::raw_ostream &os) {
+  AstGraph Graph(P);
+  llvm::WriteGraph(os, Graph);
+}
+
+} // namespace simplecompiler
+
+namespace simplecompiler {
+
+/// This class generates a description for each AST node.
+class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
+public:
+  /// Return a descriptive string for AR.
+  String makeDescription(const AstRef &AR) {
+    switch (AR.getKind()) {
+#define DEFINE_AST_TRAITS(NAME)                                                \
+  case AstKind::NAME:                                                          \
+    return visit##NAME(static_cast<NAME *>(AR.get()));
+      DEFINE_AST_TRAITS(Decl)
+      DEFINE_AST_TRAITS(Expr)
+      DEFINE_AST_TRAITS(Stmt)
+      DEFINE_AST_TRAITS(Arg)
+#undef DEFINE_AST_TRAITS
+    default:
+      return "";
+    }
+  }
+
+  /// VisitorBase boilderplate code.
+  String visitDecl(Decl *D) { return VisitorBase::visitDecl<String>(D); }
+  String visitExpr(Expr *E) { return VisitorBase::visitExpr<String>(E); }
+  String visitStmt(Stmt *S) { return VisitorBase::visitStmt<String>(S); }
+
+  String visitConstDecl(ConstDecl *CD) {
+    std::ostringstream O;
+    /// lambda to extract the numeric value of a Num or Char.
+    auto MakeCV = [](Expr *E) {
+      if (auto x = subclass_cast<Char>(E))
+        return x->c;
+      if (auto x = subclass_cast<Num>(E))
+        return x->n;
+      assert(false && "Unknown Expr class");
+    };
+
+    O << "const " << CStringFromBasicTypeKind(CD->type) << " " << CD->name
+      << " = " << MakeCV(CD->value);
+    return O.str();
+  }
+
+  String visitVarDecl(VarDecl *VD) {
+    std::ostringstream O;
+    O << CStringFromBasicTypeKind(VD->type) << " " << VD->name;
+    if (VD->is_array) {
+      O << "[" << VD->size << "]";
+    }
+    return O.str();
+  }
+
+  String visitFuncDef(FuncDef *FD) {
+    std::ostringstream O;
+    Print(O, CStringFromBasicTypeKind(FD->return_type), FD->name);
+    return O.str();
+  }
+
+  String visitArg(Arg *A) {
+    std::ostringstream O;
+    Print(O, CStringFromBasicTypeKind(A->type), A->name);
+    return O.str();
+  }
+
+  String visitBinOp(BinOp *BO) { return CStringFromOperatorKind(BO->op); }
+
+  String visitUnaryOp(UnaryOp *UO) { return CStringFromUnaryopKind(UO->op); }
+
+  String visitBoolOp(BoolOp *BO) { return ""; }
+
+  String visitParenExpr(ParenExpr *PE) { return "()"; }
+
+  String visitName(Name *N) { return N->id; }
+
+  String visitNum(Num *N) {
+    std::ostringstream O;
+    O << N->n;
+    return O.str();
+  }
+
+  String visitChar(Char *C) {
+    std::ostringstream O;
+    O << "'" << C->c << "'";
+    return O.str();
+  }
+
+  String visitStr(Str *S) {
+    std::ostringstream O;
+    O << S->s;
+    return O.str();
+  }
+
+  String visitCall(Call *C) { return C->func; }
+
+  String visitRead(Read *) { return "scanf"; }
+
+  String visitWrite(Write *) { return "printf"; }
+
+  String visitAssign(Assign *) { return "="; }
+
+  String visitSubscript(Subscript *) { return "[]"; }
+
+  String visitExprStmt(ExprStmt *ES) { return visitExpr(ES->value); }
+
+  String visitFor(For *) { return ""; }
+  String visitIf(If *) { return ""; }
+  String visitWhile(While *) { return ""; }
+  String visitReturn(Return *) { return ""; }
+};
 
 } // namespace simplecompiler
 
@@ -298,23 +415,44 @@ namespace llvm {
 using simplecompiler::AstGraph;
 using simplecompiler::AstRef;
 
-template <> struct GraphTraits<simplecompiler::AstGraph> {
-  using NodeRef = AstRef;
+/// Specialized GraphTraits for AstGraph
+template <> struct GraphTraits<AstGraph> {
+  using NodeRef = AstRef *;
   using nodes_iterator = AstGraph::NodeIterator;
   using ChildIteratorType = AstGraph::ChildIteratorType;
 
-  static nodes_iterator nodes_begin(AstGraph &G) {
+  static nodes_iterator nodes_begin(const AstGraph &G) {
     return G.nodes_begin();
   }
 
-  static nodes_iterator nodes_end(AstGraph &G) { return G.nodes_end(); }
+  static nodes_iterator nodes_end(const AstGraph &G) { return G.nodes_end(); }
 
   static ChildIteratorType child_begin(NodeRef N) {
-    return AstGraph::ChildBegin(N);
+    return AstGraph::ChildBegin(*N);
   }
 
   static ChildIteratorType child_end(NodeRef N) {
-    return AstGraph::ChildEnd(N);
+    return AstGraph::ChildEnd(*N);
+  }
+};
+
+/// Specialized DOTGraphTraits for AstGraph.
+template <> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
+  DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
+
+  static std::string getGraphName(const AstGraph &) {
+    return "Abstract Syntax Tree";
+  }
+
+  std::string getNodeLabel(const void *NodeRef, const AstGraph &) {
+    auto N = static_cast<AstRef *>(const_cast<void *>(NodeRef));
+    return N->getClassName();
+  }
+
+  static std::string getNodeDescription(const void *NodeRef, const AstGraph &) {
+    auto N = static_cast<AstRef *>(const_cast<void *>(NodeRef));
+    simplecompiler::DescriptionVisitor DV;
+    return DV.makeDescription(*N);
   }
 };
 
