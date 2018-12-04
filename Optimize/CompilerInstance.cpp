@@ -53,7 +53,7 @@ bool CompilerInstance::Invoke() {
   }
 
   if (phrase == CompilationPhrase::BuildAst) {
-    PrintAllAstNodes(ast_node, output);
+    PrintAllAstNodes(*ast_node, output);
     /* output << *ast_node << "\n"; */
     return true;
   }

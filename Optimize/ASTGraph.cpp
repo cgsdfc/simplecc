@@ -3,22 +3,27 @@
 #include "Visitor.h"
 
 #include <llvm/ADT/GraphTraits.h>
+#include <llvm/Support/GraphWriter.h>
 #include <llvm/ADT/iterator.h>
 #include <map>
 #include <stack>
 
 namespace simplecompiler {
 
+class AstGraph;
+
+/// Kind discriminator for direct AST subclasses.
 enum class AstKind {
   Program,
   Decl,
   Stmt,
-  Arg,
   Expr,
+  Arg,
 };
 
-/// Automatically extracted AstKind
+/// Template magic to map type to AstKind enum.
 template <typename AstT> struct AstTraits {
+  /// Issue an error if unspecialized AstTraits was used.
   static const AstKind Kind = AstT::UnknownAstKindError;
 };
 
@@ -34,44 +39,53 @@ DEFINE_AST_TRAITS(Arg)
 DEFINE_AST_TRAITS(Expr)
 #undef DEFINE_AST_TRAITS
 
-class AstGraph;
-
+/// A wrapper around AST* that records its real type.
+/// Stand in place of A cheap reference to Ast Nodes.
 class AstRef {
   AST *Ref;
   AstKind Kind;
-  const AstGraph *Parent;
+  /// Pointer to enclosing AstGraph. This is required since
+  /// GraphTraits::child_XXX() takes **only** a NodeRef.
+  AstGraph *Parent;
 
 public:
+  /// Construct from one of the known subclasses of AST.
   template <typename AstT>
-  AstRef(AstT *Ptr, const AstGraph *P)
+  AstRef(AstT *Ptr, AstGraph *P)
       : Ref(Ptr), Kind(AstTraits<AstT>::Kind), Parent(P) {}
 
+  /// Construct an empty AstRef, like nullptr to AST*.
   AstRef() : Ref(nullptr), Kind(), Parent() {}
+
+  /* AstRef(const AstRef &) = delete; */
 
   AstKind getKind() const { return Kind; }
 
   bool operator==(const AstRef &O) const { return Ref == O.Ref; }
 
+  /// Empiness test. !empty() === bool().
   bool empty() const { return nullptr == Ref; }
-
-  AST *get() const { return Ref; }
-
   operator bool() const { return !empty(); }
 
-  /// Checked downcast
+  /// get() without a type argument returns the **raw** AST pointer.
+  AST *get() const { return Ref; }
+
+  /// get<Type>() is like dynamic_cast<Type>() that tries to cast
+  /// the raw AST* to Type* using the Kind indicator and fails back to nullptr.
   template <typename AstT> AstT *get() const {
-    if (empty())
-      return nullptr;
+    // non-empty most of the time.
     if (AstTraits<AstT>::Kind != getKind())
       return nullptr;
     return static_cast<AstT *>(Ref);
   }
 
+  /// Wrap AST::GetClassName().
   const char *getClassName() const {
     assert(Ref);
     return Ref->GetClassName();
   }
 
+  /// Return the Location of the wrapped AST node.
   Location getLocation() const {
     switch (Kind) {
     default:
@@ -87,25 +101,29 @@ public:
     }
   }
 
-  const AstGraph *getParent() const { return Parent; }
+  AstGraph *getParent() const { return Parent; }
 };
 
 /// Collect children of an AstRef into a vector for later use.
 class ChildrenCollector : public ChildrenVisitor<ChildrenCollector> {
-  std::vector<AstRef> &Children;
-  const AstGraph *Parent;
+  /// Keep a reference to the output vector.
+  std::vector<AstRef*> &Children;
+  /// Used to construct an AstRef.
+  AstGraph *Parent;
 
-  template <typename AstT> void AddChild(AstT *Ptr) {
-    Children.emplace_back(Ptr, Parent);
-  }
+  /// Add a child.
+  template <typename AstT> void AddChild(AstT *Ptr);
 
 public:
+  /// The type used to iterate all the children of a node.
   using ChildrenIterator =
       std::remove_reference<decltype(Children)>::type::const_iterator;
-  ChildrenCollector(std::vector<AstRef> &Vec, const AstGraph *G)
+
+  ChildrenCollector(std::vector<AstRef*> &Vec, AstGraph *G)
       : Children(Vec), Parent(G) {}
 
-  void collect(AstRef R) {
+  /// Call this to do the collecting. Otherwise, nothing will happen.
+  void collect(const AstRef &R) {
     if (auto D = R.get<Decl>())
       return VisitorBase::visitDecl<void>(D);
     if (auto S = R.get<Stmt>())
@@ -125,31 +143,37 @@ public:
   void visitStmt(Stmt *S) { AddChild(S); }
 };
 
-class ASTIteratorImpl : public ChildrenVisitor<ASTIteratorImpl> {
-  std::vector<AstRef> Stack;
-  const AstGraph *Parent;
+
+/// Implementation of AstIterator
+class AstIteratorImpl {
+  std::vector<AstRef*> Stack;
+  AstGraph *Parent;
 
 public:
-  ASTIteratorImpl(Program *Ptr, const AstGraph *G) : Stack(), Parent(G) {
-    Stack.emplace_back(Ptr, G);
-  }
+  /// Begin Iterator.
+  AstIteratorImpl(Program *Ptr, AstGraph *G);
 
-  ASTIteratorImpl() : Stack() {}
-  AstRef getNext();
+  /// End Iterator.
+  AstIteratorImpl() : Stack() {}
+  /// Return the next node in the graph.
+  AstRef *getNext();
 };
 
+
+/// Iterator to all nodes of a graph.
 class AstIterator
-    : private ASTIteratorImpl,
+    : private AstIteratorImpl,
       public llvm::iterator_facade_base<AstIterator, std::forward_iterator_tag,
-                                        AstRef> {
+                                        AstRef*> {
 
 public:
-  AstIterator(Program *P, const AstGraph *G) : ASTIteratorImpl(P, G) {
+  AstIterator(Program *P, AstGraph *G) : AstIteratorImpl(P, G) {
     operator++();
   }
-  AstIterator() : ASTIteratorImpl(), Ref() {}
 
-  AstRef operator*() const { return Ref; }
+  AstIterator() : AstIteratorImpl(), Ref() {}
+
+  AstRef *operator*() const { return Ref; }
   bool operator==(const AstIterator &O) const { return O.Ref == Ref; }
 
   AstIterator &operator++() {
@@ -158,26 +182,55 @@ public:
   }
 
 private:
-  AstRef Ref;
+  AstRef *Ref;
 };
-
-void PrintAllAstNodes(Program *P, std::ostream &os) {
-  /* for (auto AR : AstNodes(P)) { */
-  /*   Print(os, AR.getClassName(), AR.getLocation()); */
-  /* } */
-}
 
 // A class that keeps all the edges of an AstRef
 class AstGraph {
-  // For use of getEdgeOrCreate()
-  friend class ASTIteratorImpl;
+public:
+  AstGraph(Program &P) : Prog(&P), Edges(), Nodes() {}
 
-  const std::vector<AstRef> &getEdgeOrCreate(AstRef R) const {
+  using NodeIterator = AstIterator;
+  using ChildIteratorType = ChildrenCollector::ChildrenIterator;
+
+  /// Iterate over all nodes.
+  NodeIterator nodes_begin() { return NodeIterator(Prog, this); }
+
+  NodeIterator nodes_end() { return NodeIterator(); }
+
+  llvm::iterator_range<NodeIterator> nodes() {
+    return llvm::make_range(nodes_begin(), nodes_end());
+  }
+
+  /// Iterate all children of one node.
+  ChildIteratorType child_begin(AstRef R) {
+    return std::begin(getEdgeOrCreate(R));
+  }
+
+  ChildIteratorType child_end(AstRef R) {
+    return std::end(getEdgeOrCreate(R));
+  }
+
+  llvm::iterator_range<ChildIteratorType> children(AstRef R) {
+    return llvm::make_range(child_begin(R), child_end(R));
+  }
+
+  /// For use in GraphTraits.
+  static ChildIteratorType ChildBegin(AstRef N) {
+    return N.getParent()->child_begin(N);
+  }
+
+  static ChildIteratorType ChildEnd(AstRef N) {
+    return N.getParent()->child_end(N);
+  }
+
+  /// Lazily create edges for a Node.
+  const std::vector<AstRef*> &getEdgeOrCreate(const AstRef &R) {
     auto iter = Edges.find(R.get());
     if (iter != Edges.end())
       return iter->second;
 
-    std::vector<AstRef> E;
+    std::vector<AstRef*> E;
     ChildrenCollector CC(E, this);
     CC.collect(R);
 
@@ -186,39 +239,58 @@ class AstGraph {
     return Result.first->second;
   }
 
-public:
-  AstGraph(Program &P) : Prog(&P), Edges() {}
-
-  using NodeIterator = AstIterator;
-  using ChildIteratorType = ChildrenCollector::ChildrenIterator;
-
-  NodeIterator nodes_begin() const { return NodeIterator(Prog, this); }
-
-  NodeIterator nodes_end() const { return NodeIterator(); }
-
-  ChildIteratorType child_begin(AstRef R) const {
-    return std::begin(getEdgeOrCreate(R));
-  }
-
-  ChildIteratorType child_end(AstRef R) const {
-    return std::end(getEdgeOrCreate(R));
+  /// Lazily create a node, namely an AstRef
+  template <typename AstT>
+  AstRef *getNodeOrCreate(AstT *Ptr) {
+    auto iter = Nodes.find(Ptr);
+    if (iter != Nodes.end())
+      return iter->second.get();
+    auto Result = Nodes.emplace(Ptr, std::make_unique<AstRef>(Ptr, this));
+    assert(Result.second && "Emplace must succeed");
+    return Result.first->second.get();
   }
 
 private:
+  /// Root of AST.
   Program *Prog;
-  mutable std::map<AST *, std::vector<AstRef>> Edges;
+  /// Lazily created edges for each node.
+  std::map<AST *, std::vector<AstRef*>> Edges;
+  std::map<AST *, std::unique_ptr<AstRef>> Nodes;
 };
 
-AstRef ASTIteratorImpl::getNext() {
+AstIteratorImpl::AstIteratorImpl(Program *Ptr, AstGraph *G) : Stack(), Parent(G) {
+  auto AR = Parent->getNodeOrCreate(Ptr);
+  Stack.push_back(AR);
+}
+
+AstRef *AstIteratorImpl::getNext() {
   if (Stack.empty()) {
-    return AstRef();
+    return nullptr;
   }
   auto TOS = Stack.back();
   Stack.pop_back();
-  const auto &LazyEdges = Parent->getEdgeOrCreate(TOS);
-  std::copy(LazyEdges.begin(), LazyEdges.end(), Stack.begin());
+  const auto &LazyEdges = Parent->getEdgeOrCreate(*TOS);
+  std::copy(LazyEdges.begin(), LazyEdges.end(), std::back_inserter(Stack));
   return TOS;
 }
+
+/// Add a child.
+template <typename AstT> void ChildrenCollector::AddChild(AstT *Ptr) {
+  AstRef *AR = Parent->getNodeOrCreate(Ptr);
+  Children.push_back(AR);
+}
+
+void PrintAllAstNodes(Program &P, std::ostream &os) {
+  AstGraph Graph(P);
+  for (auto AR : Graph.nodes()) {
+    Print(os, AR->getClassName(), AR->getLocation());
+  }
+}
+
+/* void WriteASTGraph(Program &P, llvm::raw_ostream &os) { */
+/*   AstGraph Graph(P); */
+/*   llvm::WriteGraph(os, Graph); */
+/* } */
 
 } // namespace simplecompiler
 
@@ -231,18 +303,18 @@ template <> struct GraphTraits<simplecompiler::AstGraph> {
   using nodes_iterator = AstGraph::NodeIterator;
   using ChildIteratorType = AstGraph::ChildIteratorType;
 
-  static nodes_iterator nodes_begin(const AstGraph &G) {
+  static nodes_iterator nodes_begin(AstGraph &G) {
     return G.nodes_begin();
   }
 
-  static nodes_iterator nodes_end(const AstGraph &G) { return G.nodes_end(); }
+  static nodes_iterator nodes_end(AstGraph &G) { return G.nodes_end(); }
 
   static ChildIteratorType child_begin(NodeRef N) {
-    return N.getParent()->child_begin(N);
+    return AstGraph::ChildBegin(N);
   }
 
   static ChildIteratorType child_end(NodeRef N) {
-    return N.getParent()->child_end(N);
+    return AstGraph::ChildEnd(N);
   }
 };
 
