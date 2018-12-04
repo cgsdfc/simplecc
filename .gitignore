@@ -40,3 +40,7 @@ MANIFEST
 README.txt
 *.pickle
 compile_commands.json
+
+# graph's
+*.png
+*.dot
