@@ -20,7 +20,9 @@ enum class CompilationPhrase {
 
 enum class OutputFormat {
   RawDump,
+#ifdef SIMPLE_COMPILER_USE_LLVM
   DOT,
+#endif
 };
 
 class CompilerOptions {

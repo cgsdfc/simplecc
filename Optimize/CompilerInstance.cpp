@@ -9,8 +9,10 @@
 #include "syntax_check.h"
 #include "type_check.h"
 
+#ifdef SIMPLE_COMPILER_USE_LLVM
 #include "CSTGraph.h"
 #include "ASTGraph.h"
+#endif
 
 #include <llvm/Support/raw_ostream.h>
 
@@ -38,9 +40,11 @@ bool CompilerInstance::Invoke() {
   }
   if (phrase == CompilationPhrase::BuildCst) {
     switch (Options.getOutputFormat()) {
+#ifdef SIMPLE_COMPILER_USE_LLVM
     case OutputFormat::DOT:
       WriteCSTGraph(cst_node, llvm::outs());
       return true;
+#endif
     case OutputFormat::RawDump:
       output << *cst_node << "\n";
       return true;
@@ -54,9 +58,11 @@ bool CompilerInstance::Invoke() {
 
   if (phrase == CompilationPhrase::BuildAst) {
     switch (Options.getOutputFormat()) {
+#ifdef SIMPLE_COMPILER_USE_LLVM
     case OutputFormat::DOT:
       WriteASTGraph(*ast_node, llvm::outs());
       return true;
+#endif
     case OutputFormat::RawDump:
       output << *ast_node << "\n";
       return true;

@@ -81,9 +81,10 @@ int main(int argc, char **argv) {
 
   ValueArg<String> output_arg("o", "output", "output file (default to stdout)",
                               false, "", "output-file", parser);
-
+#ifdef SIMPLE_COMPILER_USE_LLVM
   ValueArg<String> format_arg("f", "format", "output format", false, "",
                               "format", parser);
+#endif
   try {
     parser.parse(argc, argv);
   } catch (TCLAP::ArgException &exception) {
@@ -125,12 +126,14 @@ int main(int argc, char **argv) {
   CompilerOptions Options;
   Options.setPhrase(FindSelectedPhrase(args_phrase_map));
 
+#ifdef SIMPLE_COMPILER_USE_LLVM
   if (format_arg.isSet()) {
     if (format_arg.getValue() == "dot")
       Options.setFormat(OutputFormat::DOT);
     else
       e.Error("Unknown output format:", format_arg.getValue());
   }
+#endif
 
   auto instance =
       std::make_unique<CompilerInstance>(*input_stream, *output_stream);
