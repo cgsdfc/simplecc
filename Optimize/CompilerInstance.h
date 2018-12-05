@@ -16,6 +16,7 @@ enum class CompilationPhrase {
   PrintByteCode,
   Compile,
   Assemble,
+  EmitLLVM,
 };
 
 enum class OutputFormat {

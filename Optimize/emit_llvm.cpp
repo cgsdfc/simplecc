@@ -575,3 +575,17 @@ public:
 };
 
 } // namespace
+
+namespace simplecompiler {
+
+bool CompileToLLVMIR(Program *P, const SymbolTable &S) {
+  LLVMCompiler LC("", S, P);
+  if (bool Result = LC.Compile(); !Result) {
+    return false;
+  }
+  llvm::Module &M = LC.getModule();
+  M.print(llvm::errs(), nullptr);
+  return true;
+}
+
+}

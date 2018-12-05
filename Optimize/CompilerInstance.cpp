@@ -12,6 +12,7 @@
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "CSTGraph.h"
 #include "ASTGraph.h"
+#include "emit_llvm.h"
 #endif
 
 #include <llvm/Support/raw_ostream.h>
@@ -96,6 +97,10 @@ bool CompilerInstance::Invoke() {
   if (phrase == CompilationPhrase::PrintByteCode) {
     PrintByteCode(ast_node, output);
     return true;
+  }
+
+  if (phrase == CompilationPhrase::EmitLLVM) {
+    return CompileToLLVMIR(ast_node, symbolTable);
   }
 
   auto &&module = CompileProgram(ast_node, symbolTable);

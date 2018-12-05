@@ -50,12 +50,13 @@ int main(int argc, char **argv) {
                     false);
   SwitchArg assemble("", "assemble",
                      "assemble the compiled program to MIPS assembly", false);
+  SwitchArg emit_llvm("", "emit-llvm", "emit LLVM IR, dump to stderr", false);
 
   // XXX: If any option is added to the list above, you **must** add an entry
   // here!
   std::vector<TCLAP::Arg *> xor_list{
       &tokenize,   &build_cst,      &build_ast, &syntax_check, &build_symtable,
-      &type_check, &print_bytecode, &compile,   &assemble,
+      &type_check, &print_bytecode, &compile,   &assemble, &emit_llvm,
   };
 
   parser.xorAdd(xor_list);
@@ -71,6 +72,7 @@ int main(int argc, char **argv) {
       {&print_bytecode, CompilationPhrase::PrintByteCode},
       {&compile, CompilationPhrase::Compile},
       {&assemble, CompilationPhrase::Assemble},
+      {&emit_llvm, CompilationPhrase::EmitLLVM},
   };
 
   assert(xor_list.size() == args_phrase_map.size());
