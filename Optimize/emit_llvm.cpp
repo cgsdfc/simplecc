@@ -3,7 +3,6 @@
 #include "Visitor.h"
 #include "error.h"
 
-#include <llvm/ADT/APSInt.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
@@ -20,7 +19,6 @@ using namespace simplecompiler;
 
 namespace {
 using llvm::AllocaInst;
-using llvm::APInt;
 using llvm::BasicBlock;
 using llvm::Constant;
 using llvm::ConstantDataArray; /// For string literal
@@ -34,6 +32,8 @@ using llvm::Type;
 using llvm::Value;
 
 /// A class that translates simplecompiler's type system to LLVM's type system.
+/// Provides helpers to convert objects of different types to their LLVM
+/// counterparts.
 class LLVMTypeMap {
   LLVMContext &TheContext;
 
@@ -43,9 +43,9 @@ protected:
 public:
   LLVMTypeMap(LLVMContext &Context) : TheContext(Context) {}
 
-  /// Helpers to convert objects of different types to their LLVM counterparts.
-  Type *getType(BasicTypeKind BKT) const {
-    switch (BKT) {
+  /// Convert a basic type.
+  Type *getType(BasicTypeKind Type) const {
+    switch (Type) {
     case BasicTypeKind::Character:
       return Type::getInt8Ty(TheContext);
     case BasicTypeKind::Int:
@@ -55,12 +55,15 @@ public:
     }
   }
 
+  /// Convert an ArrayType.
   Type *getType(const ArrayType &A) const {
     return llvm::ArrayType::get(getType(A.GetElementType()), A.GetSize());
   }
 
+  /// Convert a VarType.
   Type *getType(const VarType &V) const { return getType(V.GetType()); }
 
+  /// Convert a FuncType.
   Type *getType(const FuncType &F) const {
     Type *ReturnType = getType(F.GetReturnType());
     std::vector<Type *> ArgTypes(F.GetArgCount());
@@ -71,6 +74,7 @@ public:
   }
 };
 
+/// A class that convert values of different types to LLVM counterparts.
 class LLVMValueMap : private LLVMTypeMap {
   llvm::Module &TheModule;
 
@@ -94,10 +98,12 @@ public:
   LLVMValueMap(llvm::Module &M, LLVMContext &Context)
       : LLVMTypeMap(Context), TheModule(M) {}
 
+  /// Convert a Constant value.
   Value *getConstant(const ConstType &C) const {
     return ConstantInt::get(getType(C.GetType()), C.GetValue(), true);
   }
 
+  /// Convert a Variable value.
   Value *getVariable(Scope S, const String &Name, const VarType &V) const {
     switch (S) {
     case Scope::Global:
@@ -107,6 +113,7 @@ public:
     }
   }
 
+  /// Convert an Array value.
   Value *getArray(Scope S, const String &Name, const ArrayType &V) const {
     switch (S) {
     case Scope::Global:
@@ -116,6 +123,7 @@ public:
     }
   }
 
+  /// Convert a Function value. Only prototype is created.
   Value *getFunction(const String &Name, const FuncType &F) const {
     Type *ReturnType = getType(F.GetReturnType());
     std::vector<Type *> ArgTypes(F.GetArgCount());
@@ -126,22 +134,31 @@ public:
     return TheModule.getOrInsertGlobal(Name, FT);
   }
 
+  Value *getFunction(FuncDef *FD) const {
+    return getFunction(FD->name, FuncType(FD));
+  }
+
+  /// Convert a Num node to int value.
   Value *getInt(Num *N) const {
     return ConstantInt::get(getType(BasicTypeKind::Int), N->n, false);
   }
 
+  /// Convert a Char node to char value.
   Value *getChar(Char *C) const {
     return ConstantInt::get(getType(BasicTypeKind::Character), C->c, false);
   }
 
+  /// Convert a Str node to string literal value.
   Value *getString(Str *S) const {
     return ConstantDataArray::getString(getContext(), S->s);
   }
 
+  /// Convert a const C string to string literal value.
   Value *getString(const char *S) const {
     return ConstantDataArray::getString(getContext(), S);
   }
 
+  /// Convert a bool value.
   Value *getBool(bool B) const {
     return B ? ConstantInt::getTrue(getContext())
              : ConstantInt::getFalse(getContext());
@@ -150,8 +167,10 @@ public:
 
 /// A class that translates one SymbolTableView of names to their LLVM Values.
 class LLVMLocalValueTable {
+  /// Map names in one local namespace to their LLVM Value's.
   std::unordered_map<String, Value *> NamedValues;
 
+  /// Get the LLVM Value corresponding to a SymbolEntry.
   Value *ValueFromSymbolEntry(const SymbolEntry &SE,
                               const LLVMValueMap &VM) const {
     if (SE.IsConstant()) {
@@ -167,6 +186,7 @@ class LLVMLocalValueTable {
   }
 
 public:
+  /// Construct the Mapping eagerly.
   LLVMLocalValueTable(SymbolTableView Local, LLVMContext &Context,
                       Module &TheModule)
       : NamedValues() {
@@ -177,31 +197,42 @@ public:
     }
   }
 
+  /// Get the Value corresponding to a name. Assert on absent key.
   Value *getValue(const String &Name) const {
     assert(NamedValues.count(Name) && "Undefined Name");
     return NamedValues.find(Name)->second;
   }
 };
 
+/// A class that emits LLVM IR from an AST. This class concretely
+/// implements the LLVM IR code generation.
 class LLVMIRCompilerImpl : public VisitorBase<LLVMIRCompilerImpl> {
+  /// Used for getting types of an Expr.
   const SymbolTable &Symbols;
 
+  /// Keep a reference to core LLVM data structures
   LLVMContext &TheContext;
   llvm::Module &TheModule;
+
+  /// Major tool for emitting instructions.
   IRBuilder<> Builder;
 
+  /// Used to translate literal value on the fly.
   LLVMValueMap ValueMap;
-  /// This mapping changes from function to function.
+
+  /// This mapping changes function to function.
   std::unique_ptr<LLVMLocalValueTable> LocalValues;
   ErrorManager EM;
 
+  /// Declare builtin functions (external really, but let's call it builtin).
   void DeclareBuiltinFunctions() {
+    /* declare i32 @printf(i8*, ...) */
     DeclareIOBuiltins("printf");
+    /* declare i32 @__isoc99_scanf(i8*, ...) */
     DeclareIOBuiltins("scanf");
   }
 
-  /* declare i32 @printf(i8*, ...) */
-  /* declare i32 @__isoc99_scanf(i8*, ...) */
+  /// Helper of DeclareBuiltinFunctions() since their prototypes is similar.
   Function *DeclareIOBuiltins(const char *Name) {
     FunctionType *FT = FunctionType::get(
         /* Result */ Type::getInt32PtrTy(TheContext),
@@ -222,8 +253,10 @@ public:
   void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
   Value *visitExpr(Expr *E) { return VisitorBase::visitExpr<Value *>(E); }
 
-  void visitConstDecl(ConstDecl *CD) {}
-  void visitVarDecl(VarDecl *VD) {}
+  /// Not used since these declaratioins are already taken care of by the
+  /// SymbolTable pass. Required by instantiation though.
+  void visitConstDecl(ConstDecl *) {}
+  void visitVarDecl(VarDecl *) {}
 
   /// Simple atom nodes.
   Value *visitNum(Num *N) { return ValueMap.getInt(N); }
@@ -248,8 +281,8 @@ public:
   }
 
   Value *visitBinOp(BinOp *node) {
-    auto L = visitExpr(node->left);
-    auto R = visitExpr(node->right);
+    Value *L = visitExpr(node->left);
+    Value *R = visitExpr(node->right);
     assert(L && R);
     switch (node->op) {
     case OperatorKind::Add:
@@ -276,7 +309,7 @@ public:
   }
 
   Value *visitUnaryOp(UnaryOp *node) {
-    auto &&Operand = visitExpr(node->operand);
+    Value *Operand = visitExpr(node->operand);
     switch (node->op) {
     case UnaryopKind::USub:
       return Builder.CreateNeg(Operand, "negtmp");
@@ -430,6 +463,7 @@ public:
     assert(Scanf && "scanf() must be declared");
     llvm::SmallVector<Value *, 2> Args;
 
+    /// Select appropriate format specifier by type.
     auto SelectFmtSpc = [this](Expr *Name) {
       TypeEntry T = Symbols.GetExprType(Name);
       switch (T.GetType()) {
@@ -450,7 +484,7 @@ public:
       Args.clear();
       Args.push_back(FmtV);
       Args.push_back(Var);
-      Builder.CreateCall(Scanf, Args, "readtmp");
+      Builder.CreateCall(Scanf, Args, "scanf");
     }
   }
 
@@ -476,6 +510,8 @@ public:
     };
     Function *Printf = TheModule.getFunction("printf");
     assert(Printf && "printf() must be declared");
+
+    /// Take a maximum of 3 arguments.
     llvm::SmallVector<Value *, 3> Args;
     Value *FmtV = ValueMap.getString(SelectFmtSpc());
     Args.push_back(FmtV);
@@ -488,14 +524,16 @@ public:
 
   /// Generate body for a Function.
   void visitFuncDef(FuncDef *FD) {
-    Function *Fn = llvm::dyn_cast<Function>(LocalValues->getValue(FD->name));
-    assert(Fn && "FuncDef must define a Function");
+    Function *Fn = llvm::dyn_cast<Function>(ValueMap.getFunction(FD));
+    assert(Fn && "function must be declared");
+    /// Our source code never link with others.
     Fn->setLinkage(Function::InternalLinkage);
 
-    /// Create entry point
+    /// Create the entry point (Function body).
     BasicBlock *EntryBlock = BasicBlock::Create(TheContext, "entry", Fn);
     Builder.SetInsertPoint(EntryBlock);
 
+    /// Setup arguments.
     assert(FD->args.size() == Fn->arg_size());
     for (llvm::Argument &Val : Fn->args()) {
       auto Idx = Val.getArgNo();
@@ -545,6 +583,7 @@ public:
   LLVMIRCompilerImpl(LLVMIRCompilerImpl &&) = delete;
 };
 
+/// Wrapper around LLVMIRCompilerImpl to provide a clearer interface.
 class LLVMCompiler {
   llvm::LLVMContext TheContext;
   llvm::Module TheModule;
@@ -559,6 +598,7 @@ public:
   LLVMCompiler(const LLVMCompiler &) = delete;
   LLVMCompiler(LLVMCompiler &&) = delete;
 
+  /// Compile the program, return true for success.
   bool Compile() { return Impl.visitProgram(TheProgram); }
 
   /// Access the compiled Module.
@@ -578,7 +618,10 @@ public:
 
 namespace simplecompiler {
 
+/// Compile a program to LLVM IR, dump resultant code to stderr.
+/// Return true for success.
 bool CompileToLLVMIR(Program *P, const SymbolTable &S) {
+  /// Currently no name for a Module.
   LLVMCompiler LC("", S, P);
   if (bool Result = LC.Compile(); !Result) {
     return false;
@@ -588,4 +631,4 @@ bool CompileToLLVMIR(Program *P, const SymbolTable &S) {
   return true;
 }
 
-}
+} // namespace simplecompiler
