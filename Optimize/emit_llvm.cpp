@@ -18,6 +18,7 @@
 using namespace simplecompiler;
 
 namespace {
+using llvm::Instruction;
 using llvm::AllocaInst;
 using llvm::BasicBlock;
 using llvm::Constant;
@@ -131,7 +132,7 @@ public:
       ArgTypes[i] = getType(F.GetArgTypeAt(i));
     }
     FunctionType *FT = FunctionType::get(ReturnType, ArgTypes, false);
-    return TheModule.getOrInsertGlobal(Name, FT);
+    return TheModule.getOrInsertFunction(Name, FT);
   }
 
   Value *getFunction(FuncDef *FD) const {
@@ -549,6 +550,23 @@ public:
       visitStmt(S);
     }
 
+    /// Check for well-formness of all BBs. In particular, look for
+    /// any unterminated BB and try to add a Return to it.
+    for (BasicBlock &BB : *Fn) {
+      Instruction *Terminator = BB.getTerminator();
+      if (Terminator != nullptr) continue; /// Well-formed
+      if (Fn->getReturnType()->isVoidTy()) {
+        /// Make implicit return of void Function explicit.
+        Builder.SetInsertPoint(&BB);
+        Builder.CreateRetVoid();
+      } else {
+        // How to attach source location?
+        EM.Error("control flow reaches end of non-void function");
+        // No source location, make errors short
+        return;
+      }
+    }
+
     /// Verify the function body
     String ErrorMsg;
     llvm::raw_string_ostream OS(ErrorMsg);
@@ -567,6 +585,12 @@ public:
             /* Module */ TheModule);
         visitFuncDef(FD);
       }
+    }
+    /// Verify the Module.
+    String ErrorMsg;
+    llvm::raw_string_ostream OS(ErrorMsg);
+    if (llvm::verifyModule(TheModule, &OS)) {
+      EM.Error(ErrorMsg);
     }
     return EM.IsOk();
   }
