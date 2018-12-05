@@ -36,10 +36,9 @@ using llvm::Value;
 /// A class that translates simplecompiler's type system to LLVM's type system.
 class LLVMTypeMap {
   LLVMContext &TheContext;
+
 protected:
-  LLVMContext &getContext() const {
-    return TheContext;
-  }
+  LLVMContext &getContext() const { return TheContext; }
 
 public:
   LLVMTypeMap(LLVMContext &Context) : TheContext(Context) {}
@@ -144,9 +143,9 @@ public:
   }
 
   Value *getBool(bool B) const {
-    return B ? ConstantInt::getTrue(getContext()) : ConstantInt::getFalse(getContext());
+    return B ? ConstantInt::getTrue(getContext())
+             : ConstantInt::getFalse(getContext());
   }
-
 };
 
 /// A class that translates one SymbolTableView of names to their LLVM Values.
@@ -185,16 +184,16 @@ public:
 };
 
 class LLVMIRCompilerImpl : public VisitorBase<LLVMIRCompilerImpl> {
-  /// llvm specific members
-  IRBuilder<> Builder;
+  const SymbolTable &Symbols;
+
   LLVMContext &TheContext;
   llvm::Module &TheModule;
+  IRBuilder<> Builder;
 
-  ErrorManager EM;
   LLVMValueMap ValueMap;
   /// This mapping changes from function to function.
   std::unique_ptr<LLVMLocalValueTable> LocalValues;
-  const SymbolTable &Symbols;
+  ErrorManager EM;
 
   void DeclareBuiltinFunctions() {
     DeclareIOBuiltins("printf");
@@ -247,7 +246,6 @@ public:
     Value *Val = visitExpr(node->value);
     return Builder.CreateICmpNE(Val, ValueMap.getBool(false), "condtmp");
   }
-
 
   Value *visitBinOp(BinOp *node) {
     auto L = visitExpr(node->left);
@@ -358,7 +356,7 @@ public:
     BasicBlock *Body = BasicBlock::Create(TheContext, "body", TheFunction);
     BasicBlock *Loop = BasicBlock::Create(TheContext, "loop", TheFunction);
     BasicBlock *End = BasicBlock::Create(TheContext, "end", TheFunction);
-  
+
     /// Execute initial stmt in the current BB.
     visitStmt(node->initial);
     /// End of initial BB: Immediately jump to the Body.
@@ -382,7 +380,6 @@ public:
     /// End of For.
     Builder.SetInsertPoint(End);
   }
-
 
   Value *visitCall(Call *node) {
     Value *Callee = LocalValues->getValue(node->func);
@@ -415,7 +412,7 @@ public:
   Value *visitSubscript(Subscript *SB) {
     Value *Array = LocalValues->getValue(SB->name);
     assert(Array && "Array Value must exist");
-    Value *Index = visitExpr(SB->index);  
+    Value *Index = visitExpr(SB->index);
     Value *GEP = Builder.CreateGEP(Array, Index, "elemptr");
     if (SB->ctx == ExprContextKind::Load) {
       /// If this is a Load, emit a load.
@@ -431,7 +428,7 @@ public:
     /// depending on the type of Var.
     Function *Scanf = TheModule.getFunction("scanf");
     assert(Scanf && "scanf() must be declared");
-    llvm::SmallVector<Value*, 2> Args;
+    llvm::SmallVector<Value *, 2> Args;
 
     auto SelectFmtSpc = [this](Expr *Name) {
       TypeEntry T = Symbols.GetExprType(Name);
@@ -472,23 +469,25 @@ public:
       }
       TypeEntry T = Symbols.GetExprType(WR->value);
       if (!WR->str) {
-        // No string. 
+        // No string.
         return T.GetType() == BasicTypeKind::Character ? "%c\n" : "%d\n";
       }
       return T.GetType() == BasicTypeKind::Character ? "%s%c\n" : "%s%d\n";
     };
     Function *Printf = TheModule.getFunction("printf");
     assert(Printf && "printf() must be declared");
-    llvm::SmallVector<Value*, 3> Args;
+    llvm::SmallVector<Value *, 3> Args;
     Value *FmtV = ValueMap.getString(SelectFmtSpc());
     Args.push_back(FmtV);
-    if (WR->str) Args.push_back(visitExpr(WR->str));
-    if (WR->value) Args.push_back(visitExpr(WR->value));
+    if (WR->str)
+      Args.push_back(visitExpr(WR->str));
+    if (WR->value)
+      Args.push_back(visitExpr(WR->value));
     Builder.CreateCall(Printf, Args, "printf");
   }
 
   /// Generate body for a Function.
-   void visitFuncDef(FuncDef *FD) {
+  void visitFuncDef(FuncDef *FD) {
     Function *Fn = llvm::dyn_cast<Function>(LocalValues->getValue(FD->name));
     assert(Fn && "FuncDef must define a Function");
     Fn->setLinkage(Function::InternalLinkage);
@@ -520,24 +519,26 @@ public:
     }
   }
 
-   /// Public interface.
-   bool visitProgram(Program *P) {
-     for (Decl *D : P->decls) {
-       if (auto FD = subclass_cast<FuncDef>(D)) {
-         LocalValues = std::make_unique<LLVMLocalValueTable>(
-             /* Local */ Symbols.GetLocal(FD),
-             /* Context */ TheContext,
-             /* Module */ TheModule);
-         visitFuncDef(FD);
-       }
-     }
-     return EM.IsOk();
-   }
+  /// Public interface.
+  bool visitProgram(Program *P) {
+    for (Decl *D : P->decls) {
+      if (auto FD = subclass_cast<FuncDef>(D)) {
+        LocalValues = std::make_unique<LLVMLocalValueTable>(
+            /* Local */ Symbols.GetLocal(FD),
+            /* Context */ TheContext,
+            /* Module */ TheModule);
+        visitFuncDef(FD);
+      }
+    }
+    return EM.IsOk();
+  }
 
 public:
-  LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C, llvm::Module &M)
-  : Symbols(S), TheContext(C), TheModule(M), Builder(C), ValueMap(M, C), LocalValues() {
-     DeclareBuiltinFunctions();
+  LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C,
+                     llvm::Module &M)
+      : Symbols(S), TheContext(C), TheModule(M), Builder(C), ValueMap(M, C),
+        LocalValues(), EM() {
+    DeclareBuiltinFunctions();
   }
 
   LLVMIRCompilerImpl(const LLVMIRCompilerImpl &) = delete;
@@ -552,21 +553,20 @@ class LLVMCompiler {
 
 public:
   LLVMCompiler(const String &Name, const SymbolTable &S, Program *P)
-   : TheContext(), TheModule(Name, TheContext), TheProgram(P), Impl(S, TheContext, TheModule) {}
+      : TheContext(), TheModule(Name, TheContext), TheProgram(P),
+        Impl(S, TheContext, TheModule) {}
 
   LLVMCompiler(const LLVMCompiler &) = delete;
   LLVMCompiler(LLVMCompiler &&) = delete;
 
-  bool Compile() {
-    return Impl.visitProgram(TheProgram);
-  }
+  bool Compile() { return Impl.visitProgram(TheProgram); }
 
   /// Access the compiled Module.
-        llvm::Module &getModule()       { return TheModule; }
+  llvm::Module &getModule() { return TheModule; }
   const llvm::Module &getModule() const { return TheModule; }
 
   /// Access the Context.
-        llvm::LLVMContext &getContext()       { return TheContext; }
+  llvm::LLVMContext &getContext() { return TheContext; }
   const llvm::LLVMContext &getContext() const { return TheContext; }
 
   /// Access the Program being compiled.
