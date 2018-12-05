@@ -19,67 +19,30 @@
 using namespace simplecompiler;
 
 namespace {
-using llvm::Value;
+using llvm::AllocaInst;
+using llvm::APInt;
+using llvm::BasicBlock;
+using llvm::Constant;
+using llvm::ConstantDataArray; /// For string literal
+using llvm::ConstantInt;
+using llvm::Function;
+using llvm::FunctionType;
+using llvm::IRBuilder;
 using llvm::LLVMContext;
 using llvm::Module;
-using llvm::IRBuilder;
 using llvm::Type;
-using llvm::Function;
-using llvm::BasicBlock;
-using llvm::FunctionType;
-using llvm::ConstantInt;
-using llvm::ConstantDataArray; /// For string literal
-using llvm::APInt;
-using llvm::AllocaInst;
-using llvm::Constant;
-
-/// A class that map value or ID of a string literal to its llvm representation.
-class LLVMStringLiteralTable {
-  std::vector<Constant*> IDToValue;
-  const StringLiteralTable &StringToID;
-
-  /// StringLiteralTable[String, int] => IDToValue[int, Constant*]
-  void InsertLLVMString(LLVMContext &Context) {
-    for (const std::pair<String, int> &item : StringToID) {
-      auto Val = ConstantDataArray::getString(Context, item.first);
-      assert(0 <= item.second && item.second < getStringCount());
-      IDToValue[item.second] = Val;
-    }
-  }
-
-public:
-  LLVMStringLiteralTable(const StringLiteralTable &ST, LLVMContext &Context)
-    : IDToValue(ST.size()), StringToID(ST) {
-    InsertLLVMString(Context);
-  }
-
-  /// No copy
-  LLVMStringLiteralTable(const LLVMStringLiteralTable &) = delete;
-  /// No move
-  LLVMStringLiteralTable(LLVMStringLiteralTable &&) = delete;
-
-  unsigned getStringCount() const {
-    return StringToID.size();
-  }
-
-  /// Return the llvm representation from the ID of a string literal.
-  Constant *getFromID(int ID) const {
-    assert(0 <= ID && ID < getStringCount() && "StringLiteral ID out of range");
-    return IDToValue[ID];
-  }
-
-  /// Return the llvm representation from the value of a string literal.
-  Constant *getFromValue(const String &Str) const {
-    assert(StringToID.count(Str) && "Undefined StringLiteral");
-    return getFromID(StringToID.find(Str)->second);
-  }
-};
+using llvm::Value;
 
 /// A class that translates simplecompiler's type system to LLVM's type system.
 class LLVMTypeMap {
   LLVMContext &TheContext;
+protected:
+  LLVMContext &getContext() const {
+    return TheContext;
+  }
+
 public:
-  LLVMTypeMap(LLVMContext &Context): TheContext(Context) {}
+  LLVMTypeMap(LLVMContext &Context) : TheContext(Context) {}
 
   /// Helpers to convert objects of different types to their LLVM counterparts.
   Type *getType(BasicTypeKind BKT) const {
@@ -97,9 +60,7 @@ public:
     return llvm::ArrayType::get(getType(A.GetElementType()), A.GetSize());
   }
 
-  Type *getType(const VarType &V) const {
-    return getType(V.GetType());
-  }
+  Type *getType(const VarType &V) const { return getType(V.GetType()); }
 
   Type *getType(const FuncType &F) const {
     Type *ReturnType = getType(F.GetReturnType());
@@ -131,27 +92,32 @@ class LLVMValueMap : private LLVMTypeMap {
   }
 
 public:
-  LLVMValueMap(llvm::Module &M, LLVMContext &Context): LLVMTypeMap(Context), TheModule(M) {}
+  LLVMValueMap(llvm::Module &M, LLVMContext &Context)
+      : LLVMTypeMap(Context), TheModule(M) {}
 
-  Value *getValue(const ConstType &C) const {
+  Value *getConstant(const ConstType &C) const {
     return ConstantInt::get(getType(C.GetType()), C.GetValue(), true);
   }
 
-  Value *getValue(Scope S, const String &Name, const VarType &V) const {
+  Value *getVariable(Scope S, const String &Name, const VarType &V) const {
     switch (S) {
-    case Scope::Global: return getValueGlobal(Name, V);
-    case Scope::Local: return getValueLocal(Name, V);
+    case Scope::Global:
+      return getValueGlobal(Name, V);
+    case Scope::Local:
+      return getValueLocal(Name, V);
     }
   }
 
-  Value *getValue(Scope S, const String &Name, const ArrayType &V) const {
+  Value *getArray(Scope S, const String &Name, const ArrayType &V) const {
     switch (S) {
-    case Scope::Global: return getValueGlobal(Name, V);
-    case Scope::Local: return getValueLocal(Name, V);
+    case Scope::Global:
+      return getValueGlobal(Name, V);
+    case Scope::Local:
+      return getValueLocal(Name, V);
     }
   }
 
-  Value *getValue(const String &Name, const FuncType &F) const {
+  Value *getFunction(const String &Name, const FuncType &F) const {
     Type *ReturnType = getType(F.GetReturnType());
     std::vector<Type *> ArgTypes(F.GetArgCount());
     for (int i = 0; i < F.GetArgCount(); i++) {
@@ -161,34 +127,54 @@ public:
     return TheModule.getOrInsertGlobal(Name, FT);
   }
 
+  Value *getInt(Num *N) const {
+    return ConstantInt::get(getType(BasicTypeKind::Int), N->n, false);
+  }
+
+  Value *getChar(Char *C) const {
+    return ConstantInt::get(getType(BasicTypeKind::Character), C->c, false);
+  }
+
+  Value *getString(Str *S) const {
+    return ConstantDataArray::getString(getContext(), S->s);
+  }
+
+  Value *getString(const char *S) const {
+    return ConstantDataArray::getString(getContext(), S);
+  }
+
+  Value *getBool(bool B) const {
+    return B ? ConstantInt::getTrue(getContext()) : ConstantInt::getFalse(getContext());
+  }
+
 };
 
 /// A class that translates one SymbolTableView of names to their LLVM Values.
 class LLVMLocalValueTable {
-  std::unordered_map<String, Value*> NamedValues;
+  std::unordered_map<String, Value *> NamedValues;
 
-  Value *ValueFromSymbolEntry(const SymbolEntry &SE, const LLVMValueMap &VM) const {
+  Value *ValueFromSymbolEntry(const SymbolEntry &SE,
+                              const LLVMValueMap &VM) const {
     if (SE.IsConstant()) {
-      return VM.getValue(SE.AsConstant());
-    }
-    else if (SE.IsArray()) {
-      return VM.getValue(SE.GetScope(), SE.GetName(), SE.AsArray());
-    }
-    else if (SE.IsVariable()) {
-      return VM.getValue(SE.GetScope(), SE.GetName(), SE.AsVariable());
-    }
-    else if (SE.IsFunction()) {
-      return VM.getValue(SE.GetName(), SE.AsFunction());
+      return VM.getConstant(SE.AsConstant());
+    } else if (SE.IsArray()) {
+      return VM.getArray(SE.GetScope(), SE.GetName(), SE.AsArray());
+    } else if (SE.IsVariable()) {
+      return VM.getVariable(SE.GetScope(), SE.GetName(), SE.AsVariable());
+    } else if (SE.IsFunction()) {
+      return VM.getFunction(SE.GetName(), SE.AsFunction());
     }
     llvm_unreachable("Unknown SymbolEntry type");
   }
 
 public:
-  LLVMLocalValueTable(SymbolTableView Local, LLVMContext &Context, Module &TheModule)
-    : NamedValues() {
-     LLVMValueMap ValueMap(TheModule, Context);
+  LLVMLocalValueTable(SymbolTableView Local, LLVMContext &Context,
+                      Module &TheModule)
+      : NamedValues() {
+    LLVMValueMap ValueMap(TheModule, Context);
     for (const std::pair<String, SymbolEntry> &item : Local) {
-      NamedValues.emplace(item.first, ValueFromSymbolEntry(item.second, ValueMap));
+      NamedValues.emplace(item.first,
+                          ValueFromSymbolEntry(item.second, ValueMap));
     }
   }
 
@@ -196,70 +182,72 @@ public:
     assert(NamedValues.count(Name) && "Undefined Name");
     return NamedValues.find(Name)->second;
   }
-
 };
 
-class LLVMIRCompiler : public VisitorBase<LLVMIRCompiler> {
+class LLVMIRCompilerImpl : public VisitorBase<LLVMIRCompilerImpl> {
   /// llvm specific members
-  LLVMContext TheContext;
-  Module TheModule;
   IRBuilder<> Builder;
-  std::unordered_map<String, AllocaInst*> NamedValues;
-  SymbolTableView LocalTable;
+  LLVMContext &TheContext;
+  llvm::Module &TheModule;
 
-  const SymbolTable &ST;
-  ErrorManager Err;
-  /* SymbolTableView local; */
+  ErrorManager EM;
+  LLVMValueMap ValueMap;
+  /// This mapping changes from function to function.
+  std::unique_ptr<LLVMLocalValueTable> LocalValues;
+  const SymbolTable &Symbols;
 
-  /* void SetLocal(FuncDef *FD) { */
-  /*   local = ST.GetLocal(FD); */
-  /* } */
-
-  /// Convert a BasicTypeKind to corresponding llvm Type
-  Type *LLVMTypeFromBasicKindType(BasicTypeKind T) {
-    switch (T) {
-    case BasicTypeKind::Character:
-      return Type::getInt8Ty(TheContext);
-    case BasicTypeKind::Int:
-      return Type::getInt32Ty(TheContext);
-    case BasicTypeKind::Void:
-      return Type::getVoidTy(TheContext);
-    }
+  void DeclareBuiltinFunctions() {
+    DeclareIOBuiltins("printf");
+    DeclareIOBuiltins("scanf");
   }
 
-  /// Convert a FuncDef node to corresponding llvm FunctionType
-  FunctionType *LLVMFunctionTypeFromFuncDef(FuncDef *node) {
-    auto &&RT = LLVMTypeFromBasicKindType(node->return_type);
-    std::vector<Type *> ArgTypes(node->args.size());
-    for (int i = 0, e = node->args.size(); i != e; ++i) {
-      ArgTypes[i] = LLVMTypeFromBasicKindType(node->args[i]->type);
-    }
-    return FunctionType::get(RT, ArgTypes, false);
-  }
-
-  Value *I32FromInt(int I) {
-    return ConstantInt::get(TheContext, llvm::APInt(32, I));
-  }
-
-  Value *I8FromInt(int I) {
-    return ConstantInt::get(TheContext, APInt(8, I));
+  /* declare i32 @printf(i8*, ...) */
+  /* declare i32 @__isoc99_scanf(i8*, ...) */
+  Function *DeclareIOBuiltins(const char *Name) {
+    FunctionType *FT = FunctionType::get(
+        /* Result */ Type::getInt32PtrTy(TheContext),
+        /* Params */ Type::getInt8PtrTy(TheContext),
+        /* IsVarArg */ true);
+    Function *Fn = Function::Create(
+        /* FunctionType */ FT,
+        /* Linkage */ Function::ExternalLinkage,
+        /* AddressSpace */ 0,
+        /* Name */ Name,
+        /* Module */ &TheModule);
+    return Fn;
   }
 
 public:
+  /// VisitorBase boilderplate.
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
-
   void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
+  Value *visitExpr(Expr *E) { return VisitorBase::visitExpr<Value *>(E); }
 
-  void visitArg(Arg *node) {
+  void visitConstDecl(ConstDecl *CD) {}
+  void visitVarDecl(VarDecl *VD) {}
+
+  /// Simple atom nodes.
+  Value *visitNum(Num *N) { return ValueMap.getInt(N); }
+  Value *visitChar(Char *C) { return ValueMap.getChar(C); }
+  Value *visitStr(Str *S) { return ValueMap.getString(S); }
+  Value *visitName(Name *Nn) {
+    Value *Ptr = LocalValues->getValue(Nn->id);
+    if (Nn->ctx == ExprContextKind::Load) {
+      return Builder.CreateLoad(Ptr, Nn->id);
+    }
+    return Ptr;
   }
 
-  Value *visitExpr(Expr *node) {
-    return VisitorBase::visitExpr<Value *>(node);
+  /// Simple wrapper nodes.
+  Value *visitParenExpr(ParenExpr *node) { return visitExpr(node->value); }
+  void visitExprStmt(ExprStmt *ES) { visitExpr(ES->value); }
+
+  /// Convert the condition value to non-zeroness.
+  Value *visitBoolOp(BoolOp *node) {
+    Value *Val = visitExpr(node->value);
+    return Builder.CreateICmpNE(Val, ValueMap.getBool(false), "condtmp");
   }
 
-  Value *visitNum(Num *node) { return I32FromInt(node->n); }
-
-  Value *visitChar(Char *node) { return I8FromInt(node->c); }
 
   Value *visitBinOp(BinOp *node) {
     auto L = visitExpr(node->left);
@@ -299,74 +287,113 @@ public:
     }
   }
 
-  Value *visitParenExpr(ParenExpr *node) {
-    return visitExpr(node->value);
-  }
-
-  Value *visitBoolOp(BoolOp *node) { return visitExpr(node->value); }
-
   void visitIf(If *node) {
-    Value *CondV = visitExpr(node->test);
-    CondV = Builder.CreateICmpNE(
-        CondV, ConstantInt::get(TheContext, APInt(1, 0)), "ifcond");
     Function *TheFunction = Builder.GetInsertBlock()->getParent();
+    /// Emit the condition evalation, which continues in the current BasicBlock.
+    Value *CondV = visitExpr(node->test);
+    /// Create the targets for the conditional branch that ends the current
+    /// BasicBlock.
+    BasicBlock *Then = BasicBlock::Create(TheContext, "then", TheFunction);
+    BasicBlock *Else = BasicBlock::Create(TheContext, "else", TheFunction);
+    BasicBlock *End = BasicBlock::Create(TheContext, "end", TheFunction);
+    /// If true, goto Then; else goto Else (Always here).
+    Builder.CreateCondBr(CondV, Then, Else);
 
-    BasicBlock *ThenBB = BasicBlock::Create(TheContext, "then", TheFunction);
-    BasicBlock *ElseBB = BasicBlock::Create(TheContext, "else");
-    BasicBlock *MergeBB = BasicBlock::Create(TheContext, "ifcont");
-
-    Builder.CreateCondBr(CondV, ThenBB, ElseBB);
-    Builder.SetInsertPoint(ThenBB);
-    for (auto &&S : node->body) {
+    /// Begin to emit the body into Then BB.
+    Builder.SetInsertPoint(Then);
+    for (Stmt *S : node->body) {
       visitStmt(S);
     }
-    Builder.CreateBr(MergeBB);
+    /// Ends with an unconditional branch to End.
+    Builder.CreateBr(End);
 
-    TheFunction->getBasicBlockList().push_back(ElseBB);
-    Builder.SetInsertPoint(ElseBB);
-    for (auto &&S : node->orelse) {
+    /// Begin to emit the orelse into Else BB.
+    Builder.SetInsertPoint(Else);
+    for (Stmt *S : node->orelse) {
       visitStmt(S);
     }
-    Builder.CreateBr(MergeBB);
+    /// Ends with an unconditional branch to End.
+    Builder.CreateBr(End);
 
-    TheFunction->getBasicBlockList().push_back(MergeBB);
+    Builder.SetInsertPoint(End);
   }
 
   void visitWhile(While *node) {
-    auto &&CondV = visitExpr(node->condition);
-    auto &&BodyBB = BasicBlock::Create(TheContext, "body");
-    auto &&EndBB = BasicBlock::Create(TheContext, "endWhile");
-    Builder.CreateCondBr(CondV, BodyBB, EndBB);
-    Builder.SetInsertPoint(BodyBB);
-    for (auto &&S : node->body) {
+    /// Get the Parent to put BasicBlock's in it.
+    Function *TheFunction = Builder.GetInsertBlock()->getParent();
+    /// Create the BB for `loop`, which contains evalation the condition
+    // and ends with a conditional branch.
+    BasicBlock *Loop = BasicBlock::Create(TheContext, "loop", TheFunction);
+    /// Create an unconditional branch to the loop in the current BB.
+    Builder.CreateBr(Loop);
+    /// Begin to emit instructions of the loop BB.
+    Builder.SetInsertPoint(Loop);
+    /// Emit the condition evalation.
+    Value *CondV = visitExpr(node->condition);
+
+    /// Create the targets of a conditional branch that ends loop BB.
+    BasicBlock *End = BasicBlock::Create(TheContext, "end", TheFunction);
+    BasicBlock *Body = BasicBlock::Create(TheContext, "body", TheFunction);
+    /// If true, goto the BodyBB, else goto the EndBB.
+    Builder.CreateCondBr(CondV, Body, End);
+
+    /// Begin to emit the Body, which is ``while { body }``.
+    Builder.SetInsertPoint(Body);
+    for (Stmt *S : node->body) {
       visitStmt(S);
     }
-    Builder.SetInsertPoint(EndBB);
+    /// The body ends with an unconditional branch to the beginning of loop.
+    Builder.CreateBr(Loop);
+
+    /// While ends here. subsequent instructions go by.
+    Builder.SetInsertPoint(End);
   }
 
-  /* Value *visitName(Name *node) { */
-  /*   auto &&Entry = local[node->id]; */
-  /*   if (Entry.IsConstant()) { */
-  /*     auto &&CT = Entry.AsConstant(); */
-  /*     return CT.GetType() == BasicTypeKind::Int ? I32FromInt(CT.GetValue())
-   */
-  /*                                               : I8FromInt(CT.GetValue());
-   */
-  /*   } */
+  /// For is the most complicated beast, and with the requirement to
+  /// execute the body **before** the evaluation of condition at first
+  /// make it no like ordinary for.
+  void visitFor(For *node) {
+    Function *TheFunction = Builder.GetInsertBlock()->getParent();
+    /// Create all the BasicBlock's involved all at once.
+    BasicBlock *Body = BasicBlock::Create(TheContext, "body", TheFunction);
+    BasicBlock *Loop = BasicBlock::Create(TheContext, "loop", TheFunction);
+    BasicBlock *End = BasicBlock::Create(TheContext, "end", TheFunction);
+  
+    /// Execute initial stmt in the current BB.
+    visitStmt(node->initial);
+    /// End of initial BB: Immediately jump to the Body.
+    Builder.CreateBr(Body);
 
-  /* } */
+    /// Begin Loop: step; condition => (Body, End).
+    Builder.SetInsertPoint(Loop);
+    visitStmt(node->step);
+    Value *CondV = visitExpr(node->condition);
+    /// End of Loop
+    Builder.CreateCondBr(CondV, /* true */ Body, /* false */ End);
+
+    /// Begin Body:
+    Builder.SetInsertPoint(Body);
+    for (Stmt *S : node->body) {
+      visitStmt(S);
+    }
+    /// End of Body: jump back to Loop.
+    Builder.CreateBr(Loop);
+
+    /// End of For.
+    Builder.SetInsertPoint(End);
+  }
+
 
   Value *visitCall(Call *node) {
-    Value *Callee = TheModule.getFunction(node->func);
+    Value *Callee = LocalValues->getValue(node->func);
     assert(Callee && "Callee must be a created Function");
 
     std::vector<Value *> ArgsV;
     ArgsV.reserve(node->args.size());
-    for (Expr *A: node->args) {
+    for (Expr *A : node->args) {
       Value *Val = visitExpr(A);
       ArgsV.push_back(Val);
     }
-
     return Builder.CreateCall(Callee, ArgsV, "calltmp");
   }
 
@@ -379,104 +406,172 @@ public:
     }
   }
 
-  Value *visitStr(Str *S) {
-    /* return ConstantDataArray::getString(TheContext, S->s); */
-  }
-
-  Value *visitName(Name *N) {
-    return nullptr;
-  }
-
   void visitAssign(Assign *A) {
-
+    Value *RHS = visitExpr(A->value);
+    Value *LHS = visitExpr(A->target);
+    Builder.CreateStore(RHS, LHS);
   }
 
   Value *visitSubscript(Subscript *SB) {
-    return nullptr;
+    Value *Array = LocalValues->getValue(SB->name);
+    assert(Array && "Array Value must exist");
+    Value *Index = visitExpr(SB->index);  
+    Value *GEP = Builder.CreateGEP(Array, Index, "elemptr");
+    if (SB->ctx == ExprContextKind::Load) {
+      /// If this is a Load, emit a load.
+      return Builder.CreateLoad(GEP, "elemtmp");
+    }
+    /// If this is a Store, just return the ptr to the elememt
+    /// to be stored by an Assign.
+    return GEP;
   }
-
-  void visitExprStmt(ExprStmt *ES) {}
 
   void visitRead(Read *RD) {
     /// Emit a scanf("%c", &Var) or scanf("%d", &Var)
     /// depending on the type of Var.
     Function *Scanf = TheModule.getFunction("scanf");
-    assert(Scanf && "scanf must be declared");
-    std::vector<Value*> Args(2);
+    assert(Scanf && "scanf() must be declared");
+    llvm::SmallVector<Value*, 2> Args;
+
+    auto SelectFmtSpc = [this](Expr *Name) {
+      TypeEntry T = Symbols.GetExprType(Name);
+      switch (T.GetType()) {
+      case BasicTypeKind::Int:
+        return "%d";
+      case BasicTypeKind::Character:
+        return "%c";
+      default:
+        llvm_unreachable("Impossible type of Variable");
+      }
+    };
 
     for (Expr *E : RD->names) {
-      Name *Nn = static_cast<Name*>(E);
-      Value *Var = NamedValues[Nn->id];
+      Name *Nn = static_cast<Name *>(E);
+      Value *FmtV = ValueMap.getString(SelectFmtSpc(Nn));
+      Value *Var = LocalValues->getValue(Nn->id);
       assert(Var && "Var must be created");
-      // do some check here
-      const char *Fmt = nullptr;
-      if (Var->getType() == Type::getInt8Ty(TheContext)) {
-        Fmt = "%c";
-      }
-      else {
-        assert(Var->getType() == Type::getInt32Ty(TheContext));
-        Fmt = "%d";
-      }
       Args.clear();
-      Args.push_back(ConstantDataArray::getString(TheContext, Fmt));
+      Args.push_back(FmtV);
       Args.push_back(Var);
       Builder.CreateCall(Scanf, Args, "readtmp");
     }
   }
 
   void visitWrite(Write *WR) {
-    /// Emit a printf("%
+    /// Emit a printf("%d\n", Var) for printf(<int-expr>);
+    //       a printf("%c\n", Var) for printf(<char-expr>);
+    //       a printf("%s\n", Str) for printf(<string>);
+    //       a printf("%s%d\n", Str, Var) for printf(<string>, <int-expr>);
+    //       a printf("%s%c\n", Str, Var) for printf(<string>, <char-expr>);
 
+    /// A small lambda to select the appropriate format specifier.
+    auto SelectFmtSpc = [WR, this]() {
+      if (!WR->value) {
+        // No expr, no need to consult SymbolTable
+        return "%s\n";
+      }
+      TypeEntry T = Symbols.GetExprType(WR->value);
+      if (!WR->str) {
+        // No string. 
+        return T.GetType() == BasicTypeKind::Character ? "%c\n" : "%d\n";
+      }
+      return T.GetType() == BasicTypeKind::Character ? "%s%c\n" : "%s%d\n";
+    };
+    Function *Printf = TheModule.getFunction("printf");
+    assert(Printf && "printf() must be declared");
+    llvm::SmallVector<Value*, 3> Args;
+    Value *FmtV = ValueMap.getString(SelectFmtSpc());
+    Args.push_back(FmtV);
+    if (WR->str) Args.push_back(visitExpr(WR->str));
+    if (WR->value) Args.push_back(visitExpr(WR->value));
+    Builder.CreateCall(Printf, Args, "printf");
   }
 
-  void visitVarDecl(VarDecl *VD) {
-
-
-  }
-
-  void visitConstDecl(ConstDecl *CD) {
-
-  }
-
-  void visitFor(For *F) {
-
-
-  }
-
-  void visitFuncDef(FuncDef *node) {
-    /* SetLocal(node); */
-    /// Build the FunctionType
-    auto &&FT = LLVMFunctionTypeFromFuncDef(node);
-    auto &&F = Function::Create(FT, Function::ExternalLinkage,
-                                      node->name, TheModule);
+  /// Generate body for a Function.
+   void visitFuncDef(FuncDef *FD) {
+    Function *Fn = llvm::dyn_cast<Function>(LocalValues->getValue(FD->name));
+    assert(Fn && "FuncDef must define a Function");
+    Fn->setLinkage(Function::InternalLinkage);
 
     /// Create entry point
-    auto &&BB = BasicBlock::Create(TheContext, "entry", F);
-    Builder.SetInsertPoint(BB);
+    BasicBlock *EntryBlock = BasicBlock::Create(TheContext, "entry", Fn);
+    Builder.SetInsertPoint(EntryBlock);
 
-    for (auto &&Arg : node->args) {
-      visitArg(Arg);
+    assert(FD->args.size() == Fn->arg_size());
+    for (llvm::Argument &Val : Fn->args()) {
+      auto Idx = Val.getArgNo();
+      Arg *V = FD->args[Idx];
+      Val.setName(V->name);
+      auto Ptr = LocalValues->getValue(V->name);
+      /// Store the initial value of an argument.
+      Builder.CreateStore(&Val, Ptr);
     }
-    for (auto &&Decl : node->decls) {
-      visitDecl(Decl);
-    }
-    for (auto &&Stmt : node->stmts) {
-      visitStmt(Stmt);
+
+    /// Generate the body
+    for (Stmt *S : FD->stmts) {
+      visitStmt(S);
     }
 
     /// Verify the function body
     String ErrorMsg;
     llvm::raw_string_ostream OS(ErrorMsg);
-    if (llvm::verifyFunction(*F, &OS)) {
-      Err.Error(ErrorMsg);
-      F->eraseFromParent();
+    if (llvm::verifyFunction(*Fn, &OS)) {
+      EM.Error(ErrorMsg);
     }
   }
 
+   /// Public interface.
+   bool visitProgram(Program *P) {
+     for (Decl *D : P->decls) {
+       if (auto FD = subclass_cast<FuncDef>(D)) {
+         LocalValues = std::make_unique<LLVMLocalValueTable>(
+             /* Local */ Symbols.GetLocal(FD),
+             /* Context */ TheContext,
+             /* Module */ TheModule);
+         visitFuncDef(FD);
+       }
+     }
+     return EM.IsOk();
+   }
+
 public:
-  LLVMIRCompiler(const SymbolTable &ST)
-      : TheContext(), TheModule("simplecompiler", TheContext), Builder(TheContext), ST(ST),
-        Err() {}
+  LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C, llvm::Module &M)
+  : Symbols(S), TheContext(C), TheModule(M), Builder(C), ValueMap(M, C), LocalValues() {
+     DeclareBuiltinFunctions();
+  }
+
+  LLVMIRCompilerImpl(const LLVMIRCompilerImpl &) = delete;
+  LLVMIRCompilerImpl(LLVMIRCompilerImpl &&) = delete;
+};
+
+class LLVMCompiler {
+  llvm::LLVMContext TheContext;
+  llvm::Module TheModule;
+  Program *TheProgram;
+  LLVMIRCompilerImpl Impl;
+
+public:
+  LLVMCompiler(const String &Name, const SymbolTable &S, Program *P)
+   : TheContext(), TheModule(Name, TheContext), TheProgram(P), Impl(S, TheContext, TheModule) {}
+
+  LLVMCompiler(const LLVMCompiler &) = delete;
+  LLVMCompiler(LLVMCompiler &&) = delete;
+
+  bool Compile() {
+    return Impl.visitProgram(TheProgram);
+  }
+
+  /// Access the compiled Module.
+        llvm::Module &getModule()       { return TheModule; }
+  const llvm::Module &getModule() const { return TheModule; }
+
+  /// Access the Context.
+        llvm::LLVMContext &getContext()       { return TheContext; }
+  const llvm::LLVMContext &getContext() const { return TheContext; }
+
+  /// Access the Program being compiled.
+  const Program *getProgram() const { return TheProgram; }
+  Program *getProgram() { return TheProgram; }
 };
 
 } // namespace
