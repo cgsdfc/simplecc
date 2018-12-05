@@ -1,4 +1,5 @@
 #include "assemble.h"
+#include "compile.h"
 #include "OpcodeDispatcher.h"
 #include "Print.h"
 
