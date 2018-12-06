@@ -18,6 +18,7 @@
 using namespace simplecompiler;
 
 namespace {
+using llvm::StringRef;
 using llvm::Instruction;
 using llvm::AllocaInst;
 using llvm::BasicBlock;
@@ -140,23 +141,13 @@ public:
   }
 
   /// Convert a Num node to int value.
-  Value *getInt(Num *N) const {
-    return ConstantInt::get(getType(BasicTypeKind::Int), N->n, false);
+  Value *getInt(int N) const {
+    return ConstantInt::get(getType(BasicTypeKind::Int), N, false);
   }
 
   /// Convert a Char node to char value.
-  Value *getChar(Char *C) const {
-    return ConstantInt::get(getType(BasicTypeKind::Character), C->c, false);
-  }
-
-  /// Convert a Str node to string literal value.
-  Value *getString(Str *S) const {
-    return ConstantDataArray::getString(getContext(), S->s);
-  }
-
-  /// Convert a const C string to string literal value.
-  Value *getString(const char *S) const {
-    return ConstantDataArray::getString(getContext(), S);
+  Value *getChar(char C) const {
+    return ConstantInt::get(getType(BasicTypeKind::Character), C, false);
   }
 
   /// Convert a bool value.
@@ -248,6 +239,10 @@ class LLVMIRCompilerImpl : public VisitorBase<LLVMIRCompilerImpl> {
     return Fn;
   }
 
+  Value *getString(StringRef Str) {
+    return Builder.CreateGlobalStringPtr(Str);
+  }
+
 public:
   /// VisitorBase boilderplate.
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
@@ -260,9 +255,11 @@ public:
   void visitVarDecl(VarDecl *) {}
 
   /// Simple atom nodes.
-  Value *visitNum(Num *N) { return ValueMap.getInt(N); }
-  Value *visitChar(Char *C) { return ValueMap.getChar(C); }
-  Value *visitStr(Str *S) { return ValueMap.getString(S); }
+  Value *visitNum(Num *N) { return ValueMap.getInt(N->n); }
+  Value *visitChar(Char *C) { return ValueMap.getChar(C->c); }
+  Value *visitStr(Str *S) {
+    return getString(S->s);
+  }
   Value *visitName(Name *Nn) {
     Value *Ptr = LocalValues->getValue(Nn->id);
     if (Nn->ctx == ExprContextKind::Load) {
@@ -479,7 +476,7 @@ public:
 
     for (Expr *E : RD->names) {
       Name *Nn = static_cast<Name *>(E);
-      Value *FmtV = ValueMap.getString(SelectFmtSpc(Nn));
+      Value *FmtV = getString(SelectFmtSpc(Nn));
       Value *Var = LocalValues->getValue(Nn->id);
       assert(Var && "Var must be created");
       Args.clear();
@@ -514,7 +511,7 @@ public:
 
     /// Take a maximum of 3 arguments.
     llvm::SmallVector<Value *, 3> Args;
-    Value *FmtV = ValueMap.getString(SelectFmtSpc());
+    Value *FmtV = getString(SelectFmtSpc());
     Args.push_back(FmtV);
     if (WR->str)
       Args.push_back(visitExpr(WR->str));
@@ -566,13 +563,7 @@ public:
         return;
       }
     }
-
-    /// Verify the function body
-    String ErrorMsg;
-    llvm::raw_string_ostream OS(ErrorMsg);
-    if (llvm::verifyFunction(*Fn, &OS)) {
-      EM.Error(ErrorMsg);
-    }
+    /// No need to call verifyFunction() since verifyModule() does that.
   }
 
   /// Public interface.
@@ -651,7 +642,7 @@ bool CompileToLLVMIR(Program *P, const SymbolTable &S) {
     return false;
   }
   llvm::Module &M = LC.getModule();
-  M.print(llvm::errs(), nullptr);
+  M.print(llvm::outs(), nullptr);
   return true;
 }
 
