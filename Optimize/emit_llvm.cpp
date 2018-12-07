@@ -517,7 +517,7 @@ public:
       Args.push_back(visitExpr(WR->str));
     if (WR->value)
       Args.push_back(visitExpr(WR->value));
-    Builder.CreateCall(Printf, Args, "printf");
+    Builder.CreateCall(Printf, Args);
   }
 
   /// Generate body for a Function.
@@ -540,6 +540,15 @@ public:
       auto Ptr = LocalValues->getValue(V->name);
       /// Store the initial value of an argument.
       Builder.CreateStore(&Val, Ptr);
+    }
+    
+    /// Setup alloca for local storage.
+    for (Decl *D : FD->decls) {
+      if (auto VD = subclass_cast<VarDecl>(D)) {
+        auto Alloca = llvm::dyn_cast<Instruction>(
+            LocalValues->getValue(VD->name));
+        Builder.Insert(Alloca, VD->name);
+      }
     }
 
     /// Generate the body
@@ -586,6 +595,9 @@ public:
     return EM.IsOk();
   }
 
+  void Test() {
+
+  }
 public:
   LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C,
                      llvm::Module &M)
@@ -638,9 +650,7 @@ namespace simplecompiler {
 bool CompileToLLVMIR(Program *P, const SymbolTable &S) {
   /// Currently no name for a Module.
   LLVMCompiler LC("", S, P);
-  if (bool Result = LC.Compile(); !Result) {
-    return false;
-  }
+  LC.Compile();
   llvm::Module &M = LC.getModule();
   M.print(llvm::outs(), nullptr);
   return true;

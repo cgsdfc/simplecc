@@ -172,6 +172,7 @@ public:
 
   void visitRead(Read *node) {
     for (auto expr : node->names) {
+      visitExpr(expr); // Collect type info.
       auto name = subclass_cast<Name>(expr);
       const auto &entry = local[name->id];
       if (!entry.IsVariable()) {
