@@ -28,12 +28,12 @@ public:
   NodeIteratorImpl() : Stack() {}
 
   /// Return the next Node or nullptr.
-  Node *GetNext() {
+  Node *getNext() {
     if (Stack.empty())
       return nullptr;
     Node *Tos = Stack.top();
     Stack.pop();
-    for (Node *Child : Tos->children) {
+    for (Node *Child : Tos->getChildren()) {
       Stack.push(Child);
     }
     return Tos;
@@ -70,7 +70,7 @@ public:
   }
 
   Self &operator++() {
-    NodeRef = Impl.GetNext();
+    NodeRef = Impl.getNext();
     return *this;
   }
 
@@ -80,7 +80,7 @@ public:
   // Return end iterator
   static Self end() { return Self(); }
 
-  static llvm::iterator_range<Self> GetIter(pointer NodeRef) {
+  static llvm::iterator_range<Self> getIter(pointer NodeRef) {
     return llvm::make_range(begin(NodeRef), end());
   }
 
@@ -89,24 +89,17 @@ private:
   pointer NodeRef;
 };
 
-using NodeChildIterator = decltype(Node::children)::iterator;
-
-inline NodeChildIterator NodeChildBegin(Node *N) {
-  return std::begin(N->children);
-}
-
-inline NodeChildIterator NodeChildEnd(Node *N) { return std::end(N->children); }
-
 } // namespace simplecompiler
 
 namespace llvm {
-using CSTGraphTy = simplecompiler::Node *;
+using simplecompiler::Node;
+using CSTGraphTy = Node *;
 
 /// Specialized GraphTraits
 template <> struct GraphTraits<CSTGraphTy> {
   using NodeRef = CSTGraphTy;
   using nodes_iterator = simplecompiler::NodeIterator;
-  using ChildIteratorType = simplecompiler::NodeChildIterator;
+  using ChildIteratorType = Node::const_iterator;
 
   static nodes_iterator nodes_begin(const CSTGraphTy &G) {
     return simplecompiler::NodeIterator::begin(G);
@@ -116,17 +109,12 @@ template <> struct GraphTraits<CSTGraphTy> {
     return simplecompiler::NodeIterator::end();
   }
 
-  static ChildIteratorType child_begin(NodeRef N) {
-    return simplecompiler::NodeChildBegin(N);
-  }
+  static ChildIteratorType child_begin(NodeRef N) { return N->begin(); }
 
-  static ChildIteratorType child_end(NodeRef N) {
-    return simplecompiler::NodeChildEnd(N);
-  }
+  static ChildIteratorType child_end(NodeRef N) { return N->end(); }
 };
 
-template <>
-struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
+template <> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
   DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
 
   static std::string getGraphName(const CSTGraphTy &) {
@@ -134,23 +122,23 @@ struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
   }
 
   std::string getNodeLabel(const void *NodeRef, const CSTGraphTy &) {
-    auto N = static_cast<simplecompiler::Node*>(const_cast<void*>(NodeRef));
-    return N->GetTypeName();
+    auto N = static_cast<Node *>(const_cast<void *>(NodeRef));
+    return N->getTypeName();
   }
 
-  static std::string getNodeDescription(const void *NodeRef, const CSTGraphTy &) {
-    auto N = static_cast<simplecompiler::Node*>(const_cast<void*>(NodeRef));
-    return N->GetValue();
+  static std::string getNodeDescription(const void *NodeRef,
+                                        const CSTGraphTy &) {
+    auto N = static_cast<Node *>(const_cast<void *>(NodeRef));
+    return N->getValue();
   }
-
 };
 
 } // namespace llvm
 
 namespace simplecompiler {
 void PrintAllNodes(Node *Root) {
-  for (const Node *N : NodeIterator::GetIter(Root)) {
-    Print(std::cout, N->GetTypeName(), N->GetValue(), N->GetLocation());
+  for (const Node *N : NodeIterator::getIter(Root)) {
+    Print(std::cout, N->getTypeName(), N->getValue(), N->getLocation());
   }
 }
 

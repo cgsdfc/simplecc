@@ -6,6 +6,6 @@ class Program;
 class SymbolTable;
 
 bool CompileToLLVMIR(Program *P, const SymbolTable &S);
-}
+} // namespace simplecompiler
 
 #endif

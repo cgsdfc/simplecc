@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
   // here!
   std::vector<TCLAP::Arg *> xor_list{
       &tokenize,   &build_cst,      &build_ast, &syntax_check, &build_symtable,
-      &type_check, &print_bytecode, &compile,   &assemble, &emit_llvm,
+      &type_check, &print_bytecode, &compile,   &assemble,     &emit_llvm,
   };
 
   parser.xorAdd(xor_list);

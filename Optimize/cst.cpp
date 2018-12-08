@@ -91,16 +91,17 @@ public:
     auto type = visit_type_name(type_name);
 
     if (first->getValue() == ";") {
-      decls.push_back(
-          new VarDecl(type, false, 0, name->getValue(), type_name->getLocation()));
+      decls.push_back(new VarDecl(type, false, 0, name->getValue(),
+                                  type_name->getLocation()));
     } else if (first->getType() == Symbol::paralist ||
                first->getType() == Symbol::compound_stmt) {
-      visit_funcdef(type, name->getValue(), node, type_name->getLocation(), decls);
+      visit_funcdef(type, name->getValue(), node, type_name->getLocation(),
+                    decls);
     } else {
       if (first->getType() == Symbol::subscript2) {
         auto size = visit_subscript2(first);
-        decls.push_back(
-            new VarDecl(type, true, size, name->getValue(), node->getLocation()));
+        decls.push_back(new VarDecl(type, true, size, name->getValue(),
+                                    node->getLocation()));
       } else {
         decls.push_back(
             new VarDecl(type, false, 0, name->getValue(), node->getLocation()));
@@ -177,7 +178,8 @@ public:
       return new VarDecl(type, false, 0, name->getValue(), name->getLocation());
     } else {
       auto size = visit_subscript2(node->getChild(1));
-      return new VarDecl(type, true, size, name->getValue(), name->getLocation());
+      return new VarDecl(type, true, size, name->getValue(),
+                         name->getLocation());
     }
   }
 
@@ -213,14 +215,14 @@ public:
     } else if (first->getValue() == "[") {
       auto index = visit_expr(node->getChild(1));
       auto value = visit_expr(node->LastChild());
-      auto subscript = new Subscript(name->getValue(), index, ExprContextKind::Store,
-                                     node->getLocation());
+      auto subscript = new Subscript(
+          name->getValue(), index, ExprContextKind::Store, node->getLocation());
       return new Assign(subscript, value, name->getLocation());
     } else {
       assert(first->getValue() == "=");
       auto value = visit_expr(node->LastChild());
-      auto target =
-          new Name(name->getValue(), ExprContextKind::Store, name->getLocation());
+      auto target = new Name(name->getValue(), ExprContextKind::Store,
+                             name->getLocation());
       return new Assign(target, value, name->getLocation());
     }
   }
@@ -276,13 +278,14 @@ public:
     auto op = node->getChild(11);
     auto num = node->getChild(12);
     assert(num->getType() == Symbol::NUMBER);
-    auto expr1 = new Name(name2->getValue(), ExprContextKind::Load, name2->getLocation());
+    auto expr1 = new Name(name2->getValue(), ExprContextKind::Load,
+                          name2->getLocation());
     auto expr2 = MakeNum(num);
     auto expr3 = new BinOp(expr1, OperatorKindFromString(op->getValue()), expr2,
                            name2->getLocation());
-    auto step = new Assign(
-        new Name(target->getValue(), ExprContextKind::Store, target->getLocation()),
-        expr3, target->getLocation());
+    auto step = new Assign(new Name(target->getValue(), ExprContextKind::Store,
+                                    target->getLocation()),
+                           expr3, target->getLocation());
 
     // body: stmt*
     std::vector<Stmt *> body;
@@ -310,8 +313,8 @@ public:
     for (int i = 1, len = node->getNumChildren(); i < len; i++) {
       auto child = node->getChild(i);
       if (child->getType() == Symbol::NAME) {
-        names.push_back(
-            new Name(child->getValue(), ExprContextKind::Store, child->getLocation()));
+        names.push_back(new Name(child->getValue(), ExprContextKind::Store,
+                                 child->getLocation()));
       }
     }
     return new Read(names, node->getLocation());

@@ -4,5 +4,5 @@
 namespace simplecompiler {
 class Program;
 bool CheckSyntax(Program *node);
-}
+} // namespace simplecompiler
 #endif

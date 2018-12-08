@@ -5,5 +5,5 @@
 namespace simplecompiler {
 class CompiledModule;
 void AssembleMips(const CompiledModule &module, std::ostream &os);
-}
+} // namespace simplecompiler
 #endif

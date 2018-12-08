@@ -19,9 +19,16 @@ public:
 
   ~Node();
 
-  const std::vector<Node*> getChildren() const {
-    return children;
-  }
+  using iterator = decltype(children)::iterator;
+  using const_iterator = decltype(children)::const_iterator;
+
+  iterator begin() { return std::begin(children); }
+  iterator end() { return std::end(children); }
+
+  const_iterator begin() const { return std::begin(children); }
+  const_iterator end() const { return std::end(children); }
+
+  const std::vector<Node *> getChildren() const { return children; }
 
   void AddChild(Node *child) { children.push_back(child); }
 
@@ -36,13 +43,11 @@ public:
     return children[pos];
   }
 
-  unsigned getNumChildren() const {
-    return children.size();
-  }
+  unsigned getNumChildren() const { return children.size(); }
 
   Symbol GetType() const { return type; }
   Symbol getType() const { return type; }
-  const char *GetTypeName() const { return GetSymbolName(type); }
+  const char *getTypeName() const { return GetSymbolName(type); }
   const Location &GetLocation() const { return location; }
   const Location &getLocation() const { return location; }
   const String &GetValue() const { return value; }

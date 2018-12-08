@@ -10,8 +10,8 @@
 #include "type_check.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
-#include "CSTGraph.h"
 #include "ASTGraph.h"
+#include "CSTGraph.h"
 #include "emit_llvm.h"
 #endif
 

@@ -18,8 +18,6 @@
 using namespace simplecompiler;
 
 namespace {
-using llvm::StringRef;
-using llvm::Instruction;
 using llvm::AllocaInst;
 using llvm::BasicBlock;
 using llvm::Constant;
@@ -27,9 +25,11 @@ using llvm::ConstantDataArray; /// For string literal
 using llvm::ConstantInt;
 using llvm::Function;
 using llvm::FunctionType;
+using llvm::Instruction;
 using llvm::IRBuilder;
 using llvm::LLVMContext;
 using llvm::Module;
+using llvm::StringRef;
 using llvm::Type;
 using llvm::Value;
 
@@ -239,9 +239,7 @@ class LLVMIRCompilerImpl : public VisitorBase<LLVMIRCompilerImpl> {
     return Fn;
   }
 
-  Value *getString(StringRef Str) {
-    return Builder.CreateGlobalStringPtr(Str);
-  }
+  Value *getString(StringRef Str) { return Builder.CreateGlobalStringPtr(Str); }
 
 public:
   /// VisitorBase boilderplate.
@@ -257,9 +255,7 @@ public:
   /// Simple atom nodes.
   Value *visitNum(Num *N) { return ValueMap.getInt(N->n); }
   Value *visitChar(Char *C) { return ValueMap.getChar(C->c); }
-  Value *visitStr(Str *S) {
-    return getString(S->s);
-  }
+  Value *visitStr(Str *S) { return getString(S->s); }
   Value *visitName(Name *Nn) {
     Value *Ptr = LocalValues->getValue(Nn->id);
     if (Nn->ctx == ExprContextKind::Load) {
@@ -451,9 +447,9 @@ public:
     assert(Array && "Array Value must exist");
     Value *Index = visitExpr(SB->index);
     /// Always remember Array values are represented by **ptr to array**
-    /// and to get an address to its element, it **must** be stepped through first
-    /// using a zero index in getelementptr and then the desired index.
-    Value *IdxList[2] = { ValueMap.getInt(0), Index };
+    /// and to get an address to its element, it **must** be stepped through
+    /// first using a zero index in getelementptr and then the desired index.
+    Value *IdxList[2] = {ValueMap.getInt(0), Index};
     Value *GEP = Builder.CreateInBoundsGEP(Array, IdxList, "subscr");
     if (SB->ctx == ExprContextKind::Load) {
       /// If this is a Load, emit a load.
@@ -555,8 +551,8 @@ public:
     /// Setup alloca for local storage.
     for (Decl *D : FD->decls) {
       if (auto VD = subclass_cast<VarDecl>(D)) {
-        auto Alloca = llvm::dyn_cast<Instruction>(
-            LocalValues->getValue(VD->name));
+        auto Alloca =
+            llvm::dyn_cast<Instruction>(LocalValues->getValue(VD->name));
         Builder.Insert(Alloca, VD->name);
       }
     }
@@ -570,7 +566,8 @@ public:
     /// any unterminated BB and try to add a Return to it.
     for (BasicBlock &BB : *Fn) {
       Instruction *Terminator = BB.getTerminator();
-      if (Terminator != nullptr) continue; /// Well-formed
+      if (Terminator != nullptr)
+        continue; /// Well-formed
       if (Fn->getReturnType()->isVoidTy()) {
         /// Make implicit return of void Function explicit.
         Builder.SetInsertPoint(&BB);
@@ -605,9 +602,8 @@ public:
     return EM.IsOk();
   }
 
-  void Test() {
+  void Test() {}
 
-  }
 public:
   LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C,
                      llvm::Module &M)

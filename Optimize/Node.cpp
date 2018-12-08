@@ -14,7 +14,7 @@ String Node::FormatValue() const {
 
 void Node::Format(std::ostream &os) const {
   os << "Node(";
-  os << "type=" << GetTypeName() << ", ";
+  os << "type=" << getTypeName() << ", ";
   os << "value=" << FormatValue() << ", ";
   os << "context=" << location << ", ";
   os << "children=";
