@@ -432,6 +432,12 @@ public:
     } else {
       Builder.CreateRetVoid();
     }
+    /// Return is a Terminator. End this BB and create a new one.
+    /// Normally one should not write code after a return because these
+    /// code obviously dead. But is is possible and a good chance for DCE.
+    auto TheFunction = Builder.GetInsertBlock()->getParent();
+    BasicBlock *NextBB = BasicBlock::Create(TheContext, "next", TheFunction);
+    Builder.SetInsertPoint(NextBB);
   }
 
   void visitAssign(Assign *A) {
@@ -444,7 +450,11 @@ public:
     Value *Array = LocalValues->getValue(SB->name);
     assert(Array && "Array Value must exist");
     Value *Index = visitExpr(SB->index);
-    Value *GEP = Builder.CreateGEP(Array, Index, "elemptr");
+    /// Always remember Array values are represented by **ptr to array**
+    /// and to get an address to its element, it **must** be stepped through first
+    /// using a zero index in getelementptr and then the desired index.
+    Value *IdxList[2] = { ValueMap.getInt(0), Index };
+    Value *GEP = Builder.CreateInBoundsGEP(Array, IdxList, "subscr");
     if (SB->ctx == ExprContextKind::Load) {
       /// If this is a Load, emit a load.
       return Builder.CreateLoad(GEP, "elemtmp");
@@ -541,7 +551,7 @@ public:
       /// Store the initial value of an argument.
       Builder.CreateStore(&Val, Ptr);
     }
-    
+
     /// Setup alloca for local storage.
     for (Decl *D : FD->decls) {
       if (auto VD = subclass_cast<VarDecl>(D)) {
