@@ -7,7 +7,6 @@
 
 namespace {
 using namespace simplecompiler;
-
 Expr *MakeChar(Node *node) {
   return new Char(static_cast<int>(node->getValue()[1]), node->getLocation());
 }
@@ -15,6 +14,9 @@ Expr *MakeChar(Node *node) {
 Expr *MakeNum(Node *node) {
   return new Num(std::stoi(node->getValue()), node->getLocation());
 }
+} // namespace
+
+namespace simplecompiler {
 
 class AstBuilder {
   Program *visit_program(Node *node) {
@@ -424,12 +426,10 @@ class AstBuilder {
   }
 
 public:
-  Program *Build(const Node *N) {
-    return visit_program(const_cast<Node*>(N));
-  }
+  Program *Build(const Node *N) { return visit_program(const_cast<Node *>(N)); }
 };
-} // namespace
+} // namespace simplecompiler
 
-Program *simplecompiler::NodeToAst(const Node *node) {
+Program *simplecompiler::BuildAstFromNode(const Node *node) {
   return AstBuilder().Build(node);
 }

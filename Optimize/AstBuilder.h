@@ -4,7 +4,8 @@
 namespace simplecompiler {
 class Program;
 class Node;
-Program *NodeToAst(const Node *node);
+
+Program *BuildAstFromNode(const Node *node);
 } // namespace simplecompiler
 
 #endif

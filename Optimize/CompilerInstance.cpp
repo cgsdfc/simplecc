@@ -52,7 +52,7 @@ bool CompilerInstance::Invoke() {
     }
   }
 
-  ast_node = NodeToAst(cst_node);
+  ast_node = BuildAstFromNode(cst_node);
   if (!ast_node) {
     return false;
   }
