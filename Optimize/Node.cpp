@@ -1,11 +1,11 @@
 #include "Node.h"
 #include "error.h"
+#include <algorithm>
 
 using namespace simplecompiler;
 
 Node::~Node() {
-  for (auto child : children)
-    delete child;
+  std::for_each(children.begin(), children.end(), [](Node *N) { delete N; });
 }
 
 String Node::FormatValue() const {

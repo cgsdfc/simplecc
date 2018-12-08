@@ -68,10 +68,10 @@ set(SOURCE_FILES
   ./SymbolTable.cpp
   ./syntax_check.cpp
   ./AstBuilder.cpp
-  ./parser.cpp
+  ./Parser.cpp
   ./gramdef.cpp
   ./Node.cpp
-  ./tokenize.cpp)
+  ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")
 
