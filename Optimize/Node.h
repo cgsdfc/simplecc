@@ -2,21 +2,26 @@
 #define NODE_H
 
 #include "tokenize.h"
+#include <cassert>
 
 namespace simplecompiler {
 class Node {
-  String FormatValue() const;
-
-public:
   Symbol type;
   String value;
   std::vector<Node *> children;
   Location location;
 
+  String FormatValue() const;
+
+public:
   Node(Symbol type, const String &value, const Location &location)
       : type(type), value(value), children(), location(location) {}
 
   ~Node();
+
+  const std::vector<Node*> getChildren() const {
+    return children;
+  }
 
   void AddChild(Node *child) { children.push_back(child); }
 
@@ -26,10 +31,22 @@ public:
 
   void Format(std::ostream &os) const;
 
+  Node *getChild(unsigned pos) const {
+    assert(0 <= pos && pos < getNumChildren());
+    return children[pos];
+  }
+
+  unsigned getNumChildren() const {
+    return children.size();
+  }
+
   Symbol GetType() const { return type; }
+  Symbol getType() const { return type; }
   const char *GetTypeName() const { return GetSymbolName(type); }
   const Location &GetLocation() const { return location; }
+  const Location &getLocation() const { return location; }
   const String &GetValue() const { return value; }
+  const String &getValue() const { return value; }
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Node &node) {
