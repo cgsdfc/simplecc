@@ -2,8 +2,8 @@
 #define NODE_H
 
 #include "TokenInfo.h"
-#include <vector>
 #include <cassert>
+#include <vector>
 
 namespace simplecompiler {
 class Node {

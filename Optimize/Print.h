@@ -17,11 +17,11 @@ inline void Print(std::ostream &os, First &&first, Rest &&... rest) {
   Print(os, rest...);
 }
 
-template <typename... Args> void PrintOuts(Args&&... args) {
+template <typename... Args> void PrintOuts(Args &&... args) {
   Print(std::cout, std::forward<Args>(args)...);
 }
 
-template <typename... Args> void PrintErrs(Args&&... args) {
+template <typename... Args> void PrintErrs(Args &&... args) {
   Print(std::cerr, std::forward<Args>(args)...);
 }
 

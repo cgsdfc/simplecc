@@ -64,5 +64,5 @@ public:
   Symbol getType() const { return type; }
 };
 
-}
+} // namespace simplecompiler
 #endif

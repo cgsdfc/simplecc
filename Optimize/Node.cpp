@@ -31,6 +31,4 @@ void Node::Format(std::ostream &os) const {
   }
 }
 
-const char *Node::getTypeName() const {
-  return GetSymbolName(type);
-}
+const char *Node::getTypeName() const { return GetSymbolName(type); }

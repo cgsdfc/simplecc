@@ -80,7 +80,8 @@ int Parser::Classify(const TokenInfo &token) {
 
 void Parser::Shift(const TokenInfo &token, int newstate) {
   StackEntry &tos = stack.top();
-  tos.node->AddChild(new Node(token.getType(), token.getString(), token.getLocation()));
+  tos.node->AddChild(
+      new Node(token.getType(), token.getString(), token.getLocation()));
   tos.state = newstate;
 }
 
@@ -154,7 +155,8 @@ bool Parser::AddToken(const TokenInfo &token) {
           return -1;
         }
       } else {
-        e.SyntaxError(token.getLocation(), "unexpected", Quote(token.getLine()));
+        e.SyntaxError(token.getLocation(), "unexpected",
+                      Quote(token.getLine()));
         return -1;
       }
     }
@@ -164,7 +166,8 @@ bool Parser::AddToken(const TokenInfo &token) {
 Node *Parser::ParseTokens(const std::vector<TokenInfo> &tokens) {
   for (const auto &token : tokens) {
     if (token.getType() == Symbol::ERRORTOKEN) {
-      e.SyntaxError(token.getLocation(), "error token", Quote(token.getString()));
+      e.SyntaxError(token.getLocation(), "error token",
+                    Quote(token.getString()));
       return nullptr;
     }
     int ret = AddToken(token);
