@@ -1,12 +1,12 @@
-#include "syntax_check.h"
+#include "SyntaxChecker.h"
 #include "Visitor.h"
 #include "error.h"
 
 namespace {
 using namespace simplecompiler;
+
 class SyntaxChecker : public VisitorBase<SyntaxChecker> {
   ErrorManager e;
-
 public:
   SyntaxChecker() : VisitorBase(), e() {}
 

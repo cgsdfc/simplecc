@@ -1,5 +1,5 @@
-#ifndef SYNTAX_CHECK_H
-#define SYNTAX_CHECK_H
+#ifndef SYNTAX_CHECKER_H
+#define SYNTAX_CHECKER_H
 
 namespace simplecompiler {
 class Program;

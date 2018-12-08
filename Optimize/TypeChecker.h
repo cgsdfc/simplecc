@@ -1,5 +1,5 @@
-#ifndef TYPE_CHECK
-#define TYPE_CHECK
+#ifndef TYPE_CHECKER
+#define TYPE_CHECKER
 
 namespace simplecompiler {
 class Program;

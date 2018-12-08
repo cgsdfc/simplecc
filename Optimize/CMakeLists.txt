@@ -64,9 +64,9 @@ set(SOURCE_FILES
   ./Opcode.cpp
   ./AST.cpp
   ./Grammar.cpp
-  ./type_check.cpp
+  ./TypeChecker.cpp
   ./SymbolTable.cpp
-  ./syntax_check.cpp
+  ./SyntaxChecker.cpp
   ./AstBuilder.cpp
   ./Parser.cpp
   ./gramdef.cpp

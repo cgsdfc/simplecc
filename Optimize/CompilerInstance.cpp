@@ -7,8 +7,8 @@
 #include "assemble.h"
 #include "compile.h"
 #include "error.h"
-#include "syntax_check.h"
-#include "type_check.h"
+#include "SyntaxChecker.h"
+#include "TypeChecker.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "ASTGraph.h"
