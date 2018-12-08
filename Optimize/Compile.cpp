@@ -1,4 +1,4 @@
-#include "compile.h"
+#include "Compile.h"
 #include "Visitor.h"
 #include "error.h"
 

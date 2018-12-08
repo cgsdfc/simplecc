@@ -58,9 +58,9 @@ endif (NOT WIN32)
 set(SOURCE_FILES
   ./CompilerInstance.cpp
   ./ByteCodePrinter.cpp
-  ./assemble.cpp
+  ./Assemble.cpp
   ./ByteCode.cpp
-  ./compile.cpp
+  ./Compile.cpp
   ./Opcode.cpp
   ./AST.cpp
   ./Grammar.cpp
