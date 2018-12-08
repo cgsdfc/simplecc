@@ -12,7 +12,7 @@ using namespace simplecompiler;
 void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
   auto &&loc = token.getLocation();
   std::ostringstream oss;
-  oss << loc.lineno << ',' << loc.col_offset << ":";
+  oss << loc.getLineNo() << ',' << loc.getColOffset() << ":";
   auto &&token_range = oss.str();
 
   os << std::left << std::setw(20) << token_range;
@@ -134,7 +134,7 @@ void simplecompiler::Tokenize(std::istream &Input, TokenBuffer &Output) {
       } else {
         ++pos; // ERRORTOKEN
       }
-      String token(line.begin() + start.col_offset, line.begin() + pos);
+      String token(line.begin() + start.getColOffset(), line.begin() + pos);
       if (type == Symbol::NAME) {
         ToLowerInplace(token);
       }

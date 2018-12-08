@@ -3,6 +3,7 @@
 
 #include "Print.h"
 #include "TokenInfo.h"
+#include <sstream>
 
 namespace simplecompiler {
 inline String Quote(const String &string) { return '\'' + string + '\''; }
@@ -13,7 +14,9 @@ class ErrorManager : private Printer {
   template <typename... Args>
   void ErrorWithLocation(const char *etype, const Location &loc,
                          Args &&... args) {
-    WriteLine(etype, "at", loc.lineno, ":", std::forward<Args>(args)...);
+    std::ostringstream os;
+    loc.FormatCompact(os);
+    WriteLine(etype, "at", os.str(), std::forward<Args>(args)...);
     ++error_count;
   }
 

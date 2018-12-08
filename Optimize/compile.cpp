@@ -194,12 +194,12 @@ public:
   void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
 
   void visitExpr(Expr *node) {
-    current_lineno = node->loc.lineno;
+    current_lineno = node->loc.getLineNo();
     VisitorBase::visitExpr<void>(node);
   }
 
   void visitStmt(Stmt *node) {
-    current_lineno = node->loc.lineno;
+    current_lineno = node->loc.getLineNo();
     VisitorBase::visitStmt<void>(node);
   }
 

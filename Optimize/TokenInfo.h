@@ -20,10 +20,10 @@ inline const char *GetSymbolName(Symbol s) {
 }
 
 class Location {
-public:
   unsigned lineno;
   unsigned col_offset;
 
+public:
   Location() : lineno(0), col_offset(0) {}
   Location(unsigned lineno, unsigned col_offset)
       : lineno(lineno), col_offset(col_offset) {}
@@ -34,6 +34,11 @@ public:
   void Format(std::ostream &os) const {
     os << "Location(" << lineno << ", " << col_offset << ")";
   }
+
+  void FormatCompact(std::ostream &os) const {
+    os << lineno << ":" << col_offset << ":";
+  }
+
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
