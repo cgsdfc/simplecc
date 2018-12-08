@@ -1,14 +1,14 @@
 #include "CompilerInstance.h"
+#include "Assemble.h"
 #include "AstBuilder.h"
 #include "ByteCodePrinter.h"
+#include "Compile.h"
 #include "Node.h"
 #include "Parser.h"
-#include "Tokenize.h"
-#include "Assemble.h"
-#include "Compile.h"
-#include "error.h"
 #include "SyntaxChecker.h"
+#include "Tokenize.h"
 #include "TypeChecker.h"
+#include "error.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "ASTGraph.h"

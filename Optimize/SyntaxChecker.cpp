@@ -7,6 +7,7 @@ using namespace simplecompiler;
 
 class SyntaxChecker : public VisitorBase<SyntaxChecker> {
   ErrorManager e;
+
 public:
   SyntaxChecker() : VisitorBase(), e() {}
 

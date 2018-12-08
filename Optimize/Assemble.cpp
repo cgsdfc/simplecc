@@ -1,7 +1,7 @@
 #include "Assemble.h"
+#include "Compile.h"
 #include "OpcodeDispatcher.h"
 #include "Print.h"
-#include "Compile.h"
 
 #include <sstream>
 #include <unordered_set>

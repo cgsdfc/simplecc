@@ -38,7 +38,6 @@ public:
   void FormatCompact(std::ostream &os) const {
     os << lineno << ":" << col_offset << ":";
   }
-
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
