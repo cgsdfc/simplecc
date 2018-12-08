@@ -374,7 +374,7 @@ class HeaderTemplate:
 #ifndef AST_H
 #define AST_H
 
-#include "tokenize.h"
+#include "TokenInfo.h"
 
 #include <vector>
 #include <iostream>

@@ -45,7 +45,7 @@ class CompilerInstance {
   std::istream &input;
   std::ostream &output;
   CompilerOptions Options;
-  TokenBuffer tokens;
+  std::vector<TokenInfo> tokens;
   SymbolTable symbolTable;
   Node *cst_node;
   Program *ast_node;

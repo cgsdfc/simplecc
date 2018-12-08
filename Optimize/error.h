@@ -2,7 +2,7 @@
 #define ERROR_H
 
 #include "Print.h"
-#include "tokenize.h"
+#include "TokenInfo.h"
 
 namespace simplecompiler {
 inline String Quote(const String &string) { return '\'' + string + '\''; }

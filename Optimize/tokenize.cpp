@@ -149,3 +149,5 @@ void simplecompiler::PrintTokens(const TokenBuffer &tokens, std::ostream &os) {
     DumpTokenInfo(os, token);
   }
 }
+
+const char *TokenInfo::GetTypeName() const { return GetSymbolName(type); }

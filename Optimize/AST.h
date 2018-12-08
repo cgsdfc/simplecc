@@ -2,7 +2,7 @@
 #ifndef AST_H
 #define AST_H
 
-#include "tokenize.h"
+#include "TokenInfo.h"
 
 #include <cassert>
 #include <iostream>

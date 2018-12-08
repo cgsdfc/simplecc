@@ -1,7 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "tokenize.h"
+#include "TokenInfo.h"
+#include <vector>
 #include <cassert>
 
 namespace simplecompiler {
@@ -47,7 +48,7 @@ public:
 
   Symbol GetType() const { return type; }
   Symbol getType() const { return type; }
-  const char *getTypeName() const { return GetSymbolName(type); }
+  const char *getTypeName() const;
   const Location &GetLocation() const { return location; }
   const Location &getLocation() const { return location; }
   const String &GetValue() const { return value; }

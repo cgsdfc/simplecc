@@ -30,3 +30,7 @@ void Node::Format(std::ostream &os) const {
     os << "])";
   }
 }
+
+const char *Node::getTypeName() const {
+  return GetSymbolName(type);
+}

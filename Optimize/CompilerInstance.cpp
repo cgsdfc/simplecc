@@ -1,4 +1,5 @@
 #include "CompilerInstance.h"
+#include "tokenize.h"
 #include "ByteCodePrinter.h"
 #include "Node.h"
 #include "assemble.h"

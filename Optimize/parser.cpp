@@ -48,7 +48,7 @@ class Parser {
 
 public:
   explicit Parser(Grammar *grammar);
-  Node *ParseTokens(const TokenBuffer &tokens);
+  Node *ParseTokens(const std::vector<TokenInfo> &tokens);
 };
 
 } // namespace
@@ -170,7 +170,7 @@ bool Parser::AddToken(const TokenInfo &token) {
   }
 }
 
-Node *Parser::ParseTokens(const TokenBuffer &tokens) {
+Node *Parser::ParseTokens(const std::vector<TokenInfo> &tokens) {
   for (const auto &token : tokens) {
     if (token.type == Symbol::ERRORTOKEN) {
       e.SyntaxError(token.start, "error token", Quote(token.string));
@@ -189,7 +189,7 @@ Node *Parser::ParseTokens(const TokenBuffer &tokens) {
   return nullptr;
 }
 
-Node *simplecompiler::ParseTokens(const TokenBuffer &tokens) {
+Node *simplecompiler::ParseTokens(const std::vector<TokenInfo> &tokens) {
   Parser parser(&CompilerGrammar);
   return parser.ParseTokens(tokens);
 }
