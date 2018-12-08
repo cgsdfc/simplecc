@@ -20,8 +20,8 @@ struct StackEntry {
       : dfa(dfa), state(state), node(node) {}
 
   void Dump() const {
-    printf("state: %d\n", state);
-    printf("dfa: %s\n", dfa->name);
+    PrintErrs("state:", state);
+    PrintErrs("dfa", dfa->name);
   }
 };
 
@@ -61,33 +61,31 @@ Parser::Parser(Grammar *grammar)
 }
 
 int Parser::Classify(const TokenInfo &token) {
-  if (token.type == Symbol::NAME || token.type == Symbol::OP) {
+  if (token.getType() == Symbol::NAME || token.getType() == Symbol::OP) {
     for (int i = 1; i < grammar->n_labels; i++) {
       const Label &l = grammar->labels[i];
-      if (l.string && l.string == token.string)
+      if (l.string && l.string == token.getString())
         return i;
     }
   }
   for (int i = 1; i < grammar->n_labels; i++) {
     const Label &l = grammar->labels[i];
-    if (l.type == static_cast<int>(token.type) && l.string == nullptr) {
+    if (l.type == static_cast<int>(token.getType()) && l.string == nullptr) {
       return i;
     }
   }
-  e.SyntaxError(token.start, "unexpected", Quote(token.string));
+  e.SyntaxError(token.getLocation(), "unexpected", Quote(token.getString()));
   return -1;
 }
 
 void Parser::Shift(const TokenInfo &token, int newstate) {
-  /* printf("shift %s\n", GetSymName(token.type)); */
   StackEntry &tos = stack.top();
-  tos.node->AddChild(new Node(token.type, token.string, token.start));
+  tos.node->AddChild(new Node(token.getType(), token.getString(), token.getLocation()));
   tos.state = newstate;
 }
 
 void Parser::Push(Symbol type, DFA *newdfa, int newstate,
                   const Location &location) {
-  /* printf("push %s\n", GetSymName(type)); */
   StackEntry &tos = stack.top();
   Node *newnode = new Node(type, "", location);
   tos.state = newstate;
@@ -95,7 +93,6 @@ void Parser::Push(Symbol type, DFA *newdfa, int newstate,
 }
 
 void Parser::Pop() {
-  /* printf("pop\n"); */
   StackEntry tos = stack.top();
   stack.pop();
   Node *newnode = tos.node;
@@ -112,7 +109,6 @@ bool Parser::AddToken(const TokenInfo &token) {
   if (label < 0) {
     return -1;
   }
-  /* token.Format(stdout); */
 
   while (true) {
     StackEntry &tos = stack.top();
@@ -121,8 +117,6 @@ bool Parser::AddToken(const TokenInfo &token) {
     DFAState *state = &states[tos.state];
     bool flag = true;
 
-    /* tos.Dump(); */
-
     for (int i = 0; i < state->n_arcs; ++i) {
       Arc &arc = state->arcs[i];
       auto type = static_cast<Symbol>(grammar->labels[arc.label].type);
@@ -130,10 +124,8 @@ bool Parser::AddToken(const TokenInfo &token) {
 
       if (label == arc.label) {
         Shift(token, newstate);
-        /* printf("shift %s\n", GetSymName(type)); */
 
         while (IsAcceptOnlyState(&states[newstate])) {
-          /* printf("pop\n"); */
           Pop();
           if (stack.empty()) {
             return true;
@@ -147,8 +139,7 @@ bool Parser::AddToken(const TokenInfo &token) {
       else if (IsNonterminal(type)) {
         DFA *itsdfa = grammar->dfas[static_cast<int>(type) - NT_OFFSET];
         if (IsInFirst(itsdfa, label)) {
-          /* printf("push %s\n", GetSymName(type)); */
-          Push(type, itsdfa, newstate, token.start);
+          Push(type, itsdfa, newstate, token.getLocation());
           flag = false;
           break;
         }
@@ -159,11 +150,11 @@ bool Parser::AddToken(const TokenInfo &token) {
       if (state->is_final) {
         Pop();
         if (stack.empty()) {
-          e.SyntaxError(token.start, "too much input");
+          e.SyntaxError(token.getLocation(), "too much input");
           return -1;
         }
       } else {
-        e.SyntaxError(token.start, "unexpected", Quote(token.line));
+        e.SyntaxError(token.getLocation(), "unexpected", Quote(token.getLine()));
         return -1;
       }
     }
@@ -172,8 +163,8 @@ bool Parser::AddToken(const TokenInfo &token) {
 
 Node *Parser::ParseTokens(const std::vector<TokenInfo> &tokens) {
   for (const auto &token : tokens) {
-    if (token.type == Symbol::ERRORTOKEN) {
-      e.SyntaxError(token.start, "error token", Quote(token.string));
+    if (token.getType() == Symbol::ERRORTOKEN) {
+      e.SyntaxError(token.getLocation(), "error token", Quote(token.getString()));
       return nullptr;
     }
     int ret = AddToken(token);
@@ -185,7 +176,7 @@ Node *Parser::ParseTokens(const std::vector<TokenInfo> &tokens) {
     }
   }
   auto last = tokens.end() - 1;
-  e.SyntaxError(last->start, "incomplete input");
+  e.SyntaxError(last->getLocation(), "incomplete input");
   return nullptr;
 }
 

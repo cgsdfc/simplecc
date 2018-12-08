@@ -42,12 +42,12 @@ inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
 }
 
 class TokenInfo {
-public:
   Symbol type;
   String string;
   Location start;
   String line;
 
+public:
   TokenInfo(Symbol type, const String &string, const Location &start,
             const String &line)
       : type(type), string(string), start(start), line(line) {}
@@ -58,9 +58,10 @@ public:
 
   void Format(std::ostream &os) const;
   const char *GetTypeName() const;
-  const Location &GetLocation() const { return start; }
-  const String &GetString() const { return string; }
-  const String &GetLine() const { return line; }
+  const Location &getLocation() const { return start; }
+  const String &getString() const { return string; }
+  const String &getLine() const { return line; }
+  Symbol getType() const { return type; }
 };
 
 }

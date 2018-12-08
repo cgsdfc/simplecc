@@ -10,14 +10,14 @@ namespace {
 using namespace simplecompiler;
 
 void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
-  auto &&loc = token.start;
+  auto &&loc = token.getLocation();
   std::ostringstream oss;
   oss << loc.lineno << ',' << loc.col_offset << ":";
   auto &&token_range = oss.str();
 
   os << std::left << std::setw(20) << token_range;
   os << std::left << std::setw(15) << token.GetTypeName();
-  os << std::left << std::setw(15) << Quote(token.string) << "\n";
+  os << std::left << std::setw(15) << Quote(token.getString()) << "\n";
 }
 
 bool IsBlank(const String &line) {
