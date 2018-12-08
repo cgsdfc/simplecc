@@ -1,4 +1,4 @@
-#include "cst.h"
+#include "AstBuilder.h"
 #include "AST.h"
 #include "Node.h"
 #include "error.h"
@@ -16,8 +16,7 @@ Expr *MakeNum(Node *node) {
   return new Num(std::stoi(node->getValue()), node->getLocation());
 }
 
-class TransformerVisitor {
-public:
+class AstBuilder {
   Program *visit_program(Node *node) {
     assert(node->getType() == Symbol::program);
     std::vector<Decl *> decls;
@@ -423,9 +422,14 @@ public:
   int visit_subscript2(Node *node) {
     return std::stoi(node->getChild(1)->getValue());
   }
+
+public:
+  Program *Build(const Node *N) {
+    return visit_program(const_cast<Node*>(N));
+  }
 };
 } // namespace
 
-Program *simplecompiler::NodeToAst(Node *node) {
-  return TransformerVisitor().visit_program(node);
+Program *simplecompiler::NodeToAst(const Node *node) {
+  return AstBuilder().Build(node);
 }

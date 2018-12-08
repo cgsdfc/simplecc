@@ -67,7 +67,7 @@ set(SOURCE_FILES
   ./type_check.cpp
   ./SymbolTable.cpp
   ./syntax_check.cpp
-  ./cst.cpp
+  ./AstBuilder.cpp
   ./parser.cpp
   ./gramdef.cpp
   ./Node.cpp

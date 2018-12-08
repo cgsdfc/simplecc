@@ -3,7 +3,7 @@
 #include "Node.h"
 #include "assemble.h"
 #include "compile.h"
-#include "cst.h"
+#include "AstBuilder.h"
 #include "error.h"
 #include "parser.h"
 #include "syntax_check.h"
