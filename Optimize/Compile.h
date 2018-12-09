@@ -42,15 +42,23 @@ public:
 
 class CompiledModule {
   std::vector<CompiledFunction> functions;
-  const StringLiteralTable &strings;
+  StringLiteralTable strings;
   SymbolEntryList global_objects;
 
 public:
+  CompiledModule() = default;
   CompiledModule(std::vector<CompiledFunction> functions,
                  const StringLiteralTable &strings,
                  SymbolEntryList global_objects);
 
   CompiledModule(CompiledModule &&other);
+
+  CompiledModule &operator=(CompiledModule &&O) {
+    using std::swap;
+    CompiledModule T(std::move(O));
+    swap(*this, T);
+    return *this;
+  }
 
   const std::vector<CompiledFunction> &GetFunctions() const {
     return functions;

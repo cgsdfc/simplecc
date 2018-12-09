@@ -71,6 +71,7 @@ set(SOURCE_FILES
   ./Parser.cpp
   ./gramdef.cpp
   ./Node.cpp
+  ./Pass.cpp
   ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")

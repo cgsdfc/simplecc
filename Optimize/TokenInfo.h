@@ -56,9 +56,8 @@ public:
             const String &line)
       : type(type), string(string), start(start), line(line) {}
 
-  TokenInfo(TokenInfo &&other)
-      : type(other.type), string(std::move(other.string)), start(other.start),
-        line(std::move(other.line)) {}
+  TokenInfo(const TokenInfo &) = default;
+  TokenInfo(TokenInfo &&) = default;
 
   void Format(std::ostream &os) const;
   const char *GetTypeName() const;
