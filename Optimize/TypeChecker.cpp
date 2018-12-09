@@ -340,7 +340,6 @@ public:
       visitStmt(stmt);
     }
   }
-
 };
 } // namespace
 

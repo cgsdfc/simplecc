@@ -94,7 +94,6 @@ public:
     visitProgram(node);
     return e.IsOk();
   }
-
 };
 } // namespace
 

@@ -168,7 +168,6 @@ class StringLiteralVisitor : public ChildrenVisitor<StringLiteralVisitor> {
 public:
   StringLiteralVisitor(StringLiteralTable &table) : table(table) {}
   using ChildrenVisitor::visitProgram;
-
 };
 
 void CheckTable(const TableType &table) {

@@ -380,7 +380,6 @@ public:
                             std::move(formal_arguments),
                             std::move(local_objects));
   }
-
 };
 
 } // namespace
