@@ -110,7 +110,10 @@ public:
 };
 
 /// Collect children of an AstRef into a vector for later use.
-class ChildrenCollector : public ChildrenVisitor<ChildrenCollector> {
+class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
+  friend class ChildrenVisitor<ChildrenCollector>;
+  friend class VisitorBase<ChildrenCollector>;
+
   /// Keep a reference to the output vector.
   std::vector<AstRef *> &Children;
   /// Used to construct an AstRef.
@@ -118,6 +121,11 @@ class ChildrenCollector : public ChildrenVisitor<ChildrenCollector> {
 
   /// Add a child.
   template <typename AstT> void AddChild(AstT *Ptr);
+
+  /// For ChildrenVisitor to hook in
+  void visitExpr(Expr *E) { AddChild(E); }
+  void visitDecl(Decl *D) { AddChild(D); }
+  void visitStmt(Stmt *S) { AddChild(S); }
 
 public:
   /// The type used to iterate all the children of a node.
@@ -140,12 +148,6 @@ public:
     // Arg has no children
     return visitArg(R.get<Arg>());
   }
-
-public:
-  /// For ChildrenVisitor to hook in
-  void visitExpr(Expr *E) { AddChild(E); }
-  void visitDecl(Decl *D) { AddChild(D); }
-  void visitStmt(Stmt *S) { AddChild(S); }
 };
 
 /// Implementation of AstIterator

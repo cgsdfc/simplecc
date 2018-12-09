@@ -122,7 +122,9 @@ Opcode MakeJump(OperatorKind oper) {
 } // namespace
 
 namespace {
-class FunctionCompiler : public VisitorBase<FunctionCompiler> {
+class FunctionCompiler : VisitorBase<FunctionCompiler> {
+  friend class VisitorBase<FunctionCompiler>;
+
   unsigned current_lineno;
   std::vector<ByteCode> buffer;
   SymbolTableView local;
@@ -154,11 +156,6 @@ class FunctionCompiler : public VisitorBase<FunctionCompiler> {
     buffer.at(offset).SetTarget(target);
   }
 
-public:
-  FunctionCompiler(FuncDef *fun, const SymbolTable &symtable)
-      : current_lineno(1), buffer(), local(symtable.GetLocal(fun)),
-        symtable(symtable), function(fun), e() {}
-
   void visitFuncDef(FuncDef *node) {
     for (auto arg : node->args) {
       visitArg(arg);
@@ -169,26 +166,6 @@ public:
     for (auto s : node->stmts) {
       visitStmt(s);
     }
-  }
-
-  // public interface
-  CompiledFunction Compile() {
-    visitFuncDef(function);
-    // some jump will target a out-of-range offset
-    // this return handles this issue
-    Add(ByteCode(Opcode::RETURN_NONE));
-    const auto &entry = symtable.GetGlobal(function->name);
-    // Check jump target
-    for (auto &&code : buffer) {
-      if (IsJumpXXX(code.GetOpcode())) {
-        if (code.GetOffset() >= buffer.size()) {
-          e.InternalError("jump target out of range:", code);
-        }
-      }
-    }
-    return CompiledFunction(local, std::move(buffer), entry,
-                            std::move(formal_arguments),
-                            std::move(local_objects));
   }
 
   void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
@@ -378,7 +355,34 @@ public:
       Add(ByteCode(opcode, node->id.data()));
     }
   }
+
+public:
+  FunctionCompiler(FuncDef *fun, const SymbolTable &symtable)
+      : current_lineno(1), buffer(), local(symtable.GetLocal(fun)),
+        symtable(symtable), function(fun), e() {}
+
+  // public interface
+  CompiledFunction Compile() {
+    visitFuncDef(function);
+    // some jump will target a out-of-range offset
+    // this return handles this issue
+    Add(ByteCode(Opcode::RETURN_NONE));
+    const auto &entry = symtable.GetGlobal(function->name);
+    // Check jump target
+    for (auto &&code : buffer) {
+      if (IsJumpXXX(code.GetOpcode())) {
+        if (code.GetOffset() >= buffer.size()) {
+          e.InternalError("jump target out of range:", code);
+        }
+      }
+    }
+    return CompiledFunction(local, std::move(buffer), entry,
+                            std::move(formal_arguments),
+                            std::move(local_objects));
+  }
+
 };
+
 } // namespace
 
 CompiledModule simplecompiler::CompileProgram(Program *prog,

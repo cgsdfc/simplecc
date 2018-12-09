@@ -107,6 +107,8 @@ public:
 /// Visitor that simply visits children recursively and return no value.
 template <class Derived> class ChildrenVisitor : public VisitorBase<Derived> {
 public:
+  friend class VisitorBase<Derived>;
+
   void visitProgram(Program *node) {
 
     for (auto s : node->decls) {

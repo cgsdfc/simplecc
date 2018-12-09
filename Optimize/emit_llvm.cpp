@@ -198,7 +198,9 @@ public:
 
 /// A class that emits LLVM IR from an AST. This class concretely
 /// implements the LLVM IR code generation.
-class LLVMIRCompilerImpl : public VisitorBase<LLVMIRCompilerImpl> {
+class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
+  friend class VisitorBase<LLVMIRCompilerImpl>;
+
   /// Used for getting types of an Expr.
   const SymbolTable &Symbols;
 
@@ -241,7 +243,6 @@ class LLVMIRCompilerImpl : public VisitorBase<LLVMIRCompilerImpl> {
 
   Value *getString(StringRef Str) { return Builder.CreateGlobalStringPtr(Str); }
 
-public:
   /// VisitorBase boilderplate.
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
   void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
@@ -583,7 +584,7 @@ public:
   }
 
   /// Public interface.
-  bool visitProgram(Program *P) {
+  void visitProgram(Program *P) {
     for (Decl *D : P->decls) {
       if (auto FD = subclass_cast<FuncDef>(D)) {
         LocalValues = std::make_unique<LLVMLocalValueTable>(
@@ -599,10 +600,7 @@ public:
     if (llvm::verifyModule(TheModule, &OS)) {
       EM.Error(ErrorMsg);
     }
-    return EM.IsOk();
   }
-
-  void Test() {}
 
 public:
   LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C,
@@ -610,6 +608,11 @@ public:
       : Symbols(S), TheContext(C), TheModule(M), Builder(C), ValueMap(M, C),
         LocalValues(), EM() {
     DeclareBuiltinFunctions();
+  }
+
+  bool Compile(Program *P) {
+    visitProgram(P);
+    return EM.IsOk();
   }
 
   LLVMIRCompilerImpl(const LLVMIRCompilerImpl &) = delete;
@@ -632,7 +635,7 @@ public:
   LLVMCompiler(LLVMCompiler &&) = delete;
 
   /// Compile the program, return true for success.
-  bool Compile() { return Impl.visitProgram(TheProgram); }
+  bool Compile() { return Impl.Compile(TheProgram); }
 
   /// Access the compiled Module.
   llvm::Module &getModule() { return TheModule; }

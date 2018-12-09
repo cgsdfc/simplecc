@@ -7,13 +7,10 @@ namespace {
 using namespace simplecompiler;
 // Transform Name to Call if it is a function and it is in the context
 // of Expr or ExprStmt (Call really).
-class ImplicitCallTransformer : public VisitorBase<ImplicitCallTransformer> {
+class ImplicitCallTransformer : VisitorBase<ImplicitCallTransformer> {
+  friend class VisitorBase<ImplicitCallTransformer>;
   FuncDef *funcDef;
   SymbolTableView local;
-
-public:
-  ImplicitCallTransformer(const SymbolTable &symtable, FuncDef *fun)
-      : funcDef(fun), local(symtable.GetLocal(fun)) {}
 
   void visitStmt(Stmt *node) { VisitorBase::visitStmt<void>(node); }
 
@@ -120,6 +117,10 @@ public:
 
   void visitSubscript(Subscript *node) { VISIT(index); }
 
+public:
+  ImplicitCallTransformer(const SymbolTable &symtable, FuncDef *fun)
+      : funcDef(fun), local(symtable.GetLocal(fun)) {}
+
   // public interface
   void Transform() {
     for (auto stmt : funcDef->stmts) {
@@ -131,8 +132,10 @@ public:
 };
 
 // Check type for a function
-class TypeCheker : public ChildrenVisitor<TypeCheker> {
+class TypeCheker : ChildrenVisitor<TypeCheker> {
   // use visitFor, visitWhile of ChildrenVisitor
+  friend class ChildrenVisitor<TypeCheker>;
+  friend class VisitorBase<TypeCheker>;
 
   // set expression type of symbolTable
   SymbolTable &symbolTable;
@@ -148,18 +151,6 @@ class TypeCheker : public ChildrenVisitor<TypeCheker> {
 
   // name of the function being checked
   const String &GetFuncName() const { return funcDef->name; }
-
-public:
-  TypeCheker(SymbolTable &symbolTable, FuncDef *fun, ErrorManager &e)
-      : symbolTable(symbolTable), local(symbolTable.GetLocal(fun)),
-        funcDef(fun), e(e) {}
-
-  // public interface
-  void Check() {
-    for (auto stmt : funcDef->stmts) {
-      visitStmt(stmt);
-    }
-  }
 
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
 
@@ -337,6 +328,19 @@ public:
     e.InternalError(x->loc, "TypeCheker::visitStr() shall not be called");
   }
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
+
+public:
+  TypeCheker(SymbolTable &symbolTable, FuncDef *fun, ErrorManager &e)
+      : symbolTable(symbolTable), local(symbolTable.GetLocal(fun)),
+        funcDef(fun), e(e) {}
+
+  // public interface
+  void Check() {
+    for (auto stmt : funcDef->stmts) {
+      visitStmt(stmt);
+    }
+  }
+
 };
 } // namespace
 

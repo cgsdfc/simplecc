@@ -81,7 +81,9 @@ std::ostream &operator<<(std::ostream &os, const LineLabel &c) {
 }
 
 // A class that prints a program in the quarternary form
-class ByteCodePrinter : public VisitorBase<ByteCodePrinter> {
+class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
+  friend class VisitorBase<ByteCodePrinter>;
+
   Program *program;
   Printer w;
   // temporaries counter
@@ -93,7 +95,6 @@ class ByteCodePrinter : public VisitorBase<ByteCodePrinter> {
 
   LineLabel MakeLineLabel() { return LineLabel(labels++); }
 
-public:
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
 
   ExprValue visitExpr(Expr *s) { return VisitorBase::visitExpr<ExprValue>(s); }

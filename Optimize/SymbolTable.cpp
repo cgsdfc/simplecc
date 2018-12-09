@@ -45,8 +45,10 @@ void MakeGlobal(Program *prog, TableType &dict, ErrorManager &e) {
 }
 
 // Visitor that resolves local names for a function
-class LocalResolver : public ChildrenVisitor<LocalResolver> {
-public:
+class LocalResolver : ChildrenVisitor<LocalResolver> {
+  friend class ChildrenVisitor<LocalResolver>;
+  friend class VisitorBase<LocalResolver>;
+
   // The Ast of the function
   FuncDef *fun;
   // Global namespace to fail back
@@ -55,10 +57,6 @@ public:
   TableType &local;
   // Report errors
   ErrorManager &e;
-
-  LocalResolver(FuncDef *fun, const TableType &global, TableType &local,
-                ErrorManager &e)
-      : fun(fun), global(global), local(local), e(e) {}
 
   // Resolve one name
   void ResolveName(const String &name, const Location &loc) {
@@ -94,6 +92,11 @@ public:
   }
 
   void visitName(Name *x) { ResolveName(x->id, x->loc); }
+
+public:
+  LocalResolver(FuncDef *fun, const TableType &global, TableType &local,
+                ErrorManager &e)
+      : fun(fun), global(global), local(local), e(e) {}
 
   // public interface
   void Resolve() {
@@ -141,10 +144,10 @@ String DoubleBackslashes(const String &string) {
 
 // Visitor that build string table.
 class StringLiteralVisitor : public ChildrenVisitor<StringLiteralVisitor> {
-  StringLiteralTable &table;
+  friend class ChildrenVisitor<StringLiteralVisitor>;
+  friend class VisitorBase<StringLiteralVisitor>;
 
-public:
-  StringLiteralVisitor(StringLiteralTable &table) : table(table) {}
+  StringLiteralTable &table;
 
   void visitStr(Str *node) {
     assert(node->s.size() >= 2);
@@ -161,6 +164,11 @@ public:
   void visitStmt(Stmt *node) { return VisitorBase::visitStmt<void>(node); }
 
   void visitExpr(Expr *node) { return VisitorBase::visitExpr<void>(node); }
+
+public:
+  StringLiteralVisitor(StringLiteralTable &table) : table(table) {}
+  using ChildrenVisitor::visitProgram;
+
 };
 
 void CheckTable(const TableType &table) {

@@ -5,11 +5,9 @@
 namespace {
 using namespace simplecompiler;
 
-class SyntaxChecker : public VisitorBase<SyntaxChecker> {
+class SyntaxChecker : private VisitorBase<SyntaxChecker> {
   ErrorManager e;
-
-public:
-  SyntaxChecker() : VisitorBase(), e() {}
+  friend class VisitorBase<SyntaxChecker>;
 
   void visitProgram(Program *node) {
     if (node->decls.size() == 0) {
@@ -90,10 +88,13 @@ public:
     }
   }
 
+public:
+  SyntaxChecker() : VisitorBase(), e() {}
   bool Check(Program *node) {
     visitProgram(node);
     return e.IsOk();
   }
+
 };
 } // namespace
 

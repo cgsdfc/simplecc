@@ -786,6 +786,7 @@ class ChildrenVisitorTemplate:
 template <class Derived>
 class ChildrenVisitor : public VisitorBase<Derived> {
 public:
+    friend class VisitorBase<Derived>;
 $methods
 $downcasts
 };""")
