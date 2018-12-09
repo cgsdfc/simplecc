@@ -470,8 +470,8 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 
     /// Select appropriate format specifier by type.
     auto SelectFmtSpc = [this](Expr *Name) {
-      TypeEntry T = Symbols.GetExprType(Name);
-      switch (T.GetType()) {
+      auto T = Symbols.GetExprType(Name);
+      switch (T) {
       case BasicTypeKind::Int:
         return "%d";
       case BasicTypeKind::Character:
@@ -506,12 +506,12 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
         // No expr, no need to consult SymbolTable
         return "%s\n";
       }
-      TypeEntry T = Symbols.GetExprType(WR->value);
+      auto T = Symbols.GetExprType(WR->value);
       if (!WR->str) {
         // No string.
-        return T.GetType() == BasicTypeKind::Character ? "%c\n" : "%d\n";
+        return T == BasicTypeKind::Character ? "%c\n" : "%d\n";
       }
-      return T.GetType() == BasicTypeKind::Character ? "%s%c\n" : "%s%d\n";
+      return T == BasicTypeKind::Character ? "%s%c\n" : "%s%d\n";
     };
     Function *Printf = TheModule.getFunction("printf");
     assert(Printf && "printf() must be declared");

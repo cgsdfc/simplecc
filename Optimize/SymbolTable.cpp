@@ -207,10 +207,6 @@ std::ostream &operator<<(std::ostream &os,
   return os << "}";
 }
 
-std::ostream &operator<<(std::ostream &os, const TypeEntry &t) {
-  return os << "TypeEntry(" << t.GetType() << ", " << t.GetLocation() << ")";
-}
-
 // Specialized version for String key
 template <typename Value>
 std::ostream &operator<<(std::ostream &os,

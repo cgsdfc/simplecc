@@ -204,7 +204,7 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
     }
     if (node->value) {
       visitExpr(node->value);
-      auto type = symtable.GetExprType(node->value).GetType();
+      auto type = symtable.GetExprType(node->value);
       Add(ByteCode(MakePrint(type)));
     }
     Add(ByteCode(Opcode::PRINT_NEWLINE));

@@ -149,24 +149,7 @@ inline std::ostream &operator<<(std::ostream &os, const SymbolEntry &e) {
   return os;
 }
 
-// Binding type of an expression to its address
-class TypeEntry {
-  Expr *expr;
-  BasicTypeKind type;
-
-public:
-  TypeEntry(Expr *expr, BasicTypeKind type) : expr(expr), type(type) {}
-  // computed type of this expression
-  BasicTypeKind GetType() const { return type; }
-  // location of this expression
-  const Location &GetLocation() const { return expr->loc; }
-  // reflect the real class name of the underlying Expr
-  const char *GetExprClassName() const { return expr->GetClassName(); }
-};
-
-using ExprTypeTable = std::unordered_map<uintptr_t, TypeEntry>;
 using TableType = std::unordered_map<String, SymbolEntry>;
-using NestedTableType = std::unordered_map<uintptr_t, TableType>;
 using StringLiteralTable = std::unordered_map<String, int>;
 
 // Provide a safe const view to a sub-symbol table
@@ -188,10 +171,12 @@ public:
 };
 
 class SymbolTable {
+  using NestedTableType = std::unordered_map<uintptr_t, TableType>;
+
   TableType global;
   NestedTableType locals;
   StringLiteralTable string_literals;
-  ExprTypeTable expr_types;
+  std::unordered_map<Expr*, BasicTypeKind> expr_types;
 
 public:
   /// Construct an empty SymbolTable
@@ -202,8 +187,7 @@ public:
 
   // Use only by TypeChecker
   void SetExprType(Expr *expr, BasicTypeKind type) {
-    expr_types.emplace(reinterpret_cast<uintptr_t>(expr),
-                       TypeEntry(expr, type));
+    expr_types.emplace(expr, type);
   }
 
   // Return local symbol table for a function
@@ -229,9 +213,10 @@ public:
     return string_literals;
   }
 
-  // Return the TypeEntry for an expression
-  TypeEntry GetExprType(Expr *expr) const {
-    return expr_types.at(reinterpret_cast<uintptr_t>(expr));
+  // Return the BasicTypeKind for an expression
+  BasicTypeKind GetExprType(Expr *expr) const {
+    assert(expr_types.count(expr) && "Absent Expr Type");
+    return expr_types.find(expr)->second;
   }
 
   // Self-check
