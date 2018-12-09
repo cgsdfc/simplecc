@@ -277,3 +277,87 @@ bool SymbolTable::Build(Program *prog) {
   }
   return e.IsOk();
 }
+
+ConstType::ConstType(ConstDecl *decl) : type(decl->type) {
+  if (auto x = subclass_cast<Char>(decl->value)) {
+    value = x->c;
+  } else if (auto x = subclass_cast<Num>(decl->value)) {
+    value = x->n;
+  } else {
+    assert(false && "value of ConstDecl wrong type");
+  }
+}
+
+const char *SymbolEntry::GetTypeName() const {
+  if (IsFunction())
+    return "Function";
+  if (IsArray())
+    return "Array";
+  if (IsConstant())
+    return "Constant";
+  assert(IsVariable());
+  return "Variable";
+}
+
+VarType SymbolEntry::AsVariable() const {
+  assert(IsVariable());
+  if (arg) {
+    return VarType(arg->type);
+  }
+  assert(decl);
+  return VarType(static_cast<VarDecl *>(decl)->type);
+}
+
+BasicTypeKind FuncType::GetArgTypeAt(int pos) const {
+  assert(pos >= 0 && pos < fun->args.size() && "pos out of range");
+  return fun->args[pos]->type;
+}
+
+bool SymbolEntry::IsFormalArgument() const {
+  if (arg) {
+    assert(scope == Scope::Local);
+    return true;
+  }
+  return false;
+}
+
+FuncType SymbolEntry::AsFunction() const {
+  assert(IsFunction());
+  return FuncType(static_cast<FuncDef *>(decl));
+}
+
+ArrayType SymbolEntry::AsArray() const {
+  assert(IsArray());
+  return ArrayType(static_cast<VarDecl *>(decl));
+}
+
+ConstType SymbolEntry::AsConstant() const {
+  assert(IsConstant());
+  return ConstType(static_cast<ConstDecl *>(decl));
+}
+
+bool SymbolEntry::IsArray() const {
+  return decl && IsInstance<VarDecl>(decl) &&
+         static_cast<VarDecl *>(decl)->is_array;
+}
+
+bool SymbolEntry::IsVariable() const {
+  return arg ||
+         (IsInstance<VarDecl>(decl) && !static_cast<VarDecl *>(decl)->is_array);
+}
+
+bool SymbolEntry::IsConstant() const {
+  return decl && IsInstance<ConstDecl>(decl);
+}
+
+bool SymbolEntry::IsFunction() const {
+  return decl && IsInstance<FuncDef>(decl);
+}
+
+Location SymbolEntry::GetLocation() const {
+  return decl ? decl->loc : arg->loc;
+}
+
+const String &SymbolEntry::GetName() const {
+  return decl ? decl->name : arg->name;
+}
