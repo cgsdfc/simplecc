@@ -6,10 +6,43 @@
 #include <iomanip>
 #include <sstream>
 
-namespace {
 using namespace simplecompiler;
 
-void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
+static bool IsBlank(const String &line) {
+  for (auto ch : line)
+    if (!std::isspace(ch))
+      return false;
+  return true;
+}
+
+static bool IsValidChar(char ch) {
+  static const String valid_chars("+-*/_");
+  return valid_chars.find(ch) != String::npos || std::isalnum(ch);
+}
+
+static bool IsValidStrChar(char ch) {
+  return ch == 32 || ch == 33 || (35 <= ch && ch <= 126);
+}
+
+static bool IsNameBegin(char ch) { return ch == '_' || std::isalpha(ch); }
+
+static bool IsNameMiddle(char ch) { return ch == '_' || std::isalnum(ch); }
+
+static bool IsSpecial(char ch) {
+  static String special("[](){};:,");
+  return special.find(ch) != String::npos;
+}
+
+static bool IsOperator(char ch) {
+  static String operators("+-*/<>!=");
+  return operators.find(ch) != String::npos;
+}
+
+static void ToLowerInplace(String &string) {
+  std::transform(string.begin(), string.end(), string.begin(), ::tolower);
+}
+
+static void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
   auto &&loc = token.getLocation();
   std::ostringstream oss;
   oss << loc.getLineNo() << ',' << loc.getColOffset() << ":";
@@ -20,54 +53,12 @@ void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
   os << std::left << std::setw(15) << Quote(token.getString()) << "\n";
 }
 
-bool IsBlank(const String &line) {
-  for (auto ch : line)
-    if (!std::isspace(ch))
-      return false;
-  return true;
-}
-
-bool IsValidChar(char ch) {
-  static const String valid_chars("+-*/_");
-  return valid_chars.find(ch) != String::npos || std::isalnum(ch);
-}
-
-bool IsValidStrChar(char ch) {
-  return ch == 32 || ch == 33 || (35 <= ch && ch <= 126);
-}
-
-bool IsNameBegin(char ch) { return ch == '_' || std::isalpha(ch); }
-
-bool IsNameMiddle(char ch) { return ch == '_' || std::isalnum(ch); }
-
-bool IsSpecial(char ch) {
-  static String special("[](){};:,");
-  return special.find(ch) != String::npos;
-}
-
-bool IsOperator(char ch) {
-  static String operators("+-*/<>!=");
-  return operators.find(ch) != String::npos;
-}
-
-void ToLowerInplace(String &string) {
-  std::transform(string.begin(), string.end(), string.begin(), ::tolower);
-}
-} // namespace
-
-void TokenInfo::Format(std::ostream &os) const {
-  os << "TokenInfo("
-     << "type=" << GetTypeName() << ", "
-     << "string=" << Quote(string) << ", "
-     << "start=" << start << ", "
-     << "line=" << Quote(line) << ")";
-}
-
-void simplecompiler::Tokenize(std::istream &Input, TokenBuffer &Output) {
-  assert(Output.empty());
+namespace simplecompiler {
+void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
   unsigned lnum = 0;
   String line;
 
+  Output.clear();
   while (std::getline(Input, line)) {
     ++lnum;
     if (IsBlank(line))
@@ -144,10 +135,19 @@ void simplecompiler::Tokenize(std::istream &Input, TokenBuffer &Output) {
   Output.emplace_back(Symbol::ENDMARKER, "", Location(lnum, 0), "");
 }
 
-void simplecompiler::PrintTokens(const TokenBuffer &tokens, std::ostream &os) {
+void PrintTokens(const std::vector<TokenInfo> &tokens, std::ostream &os) {
   for (auto &&token : tokens) {
     DumpTokenInfo(os, token);
   }
+}
+} // namespace simplecompiler
+
+void TokenInfo::Format(std::ostream &os) const {
+  os << "TokenInfo("
+     << "type=" << GetTypeName() << ", "
+     << "string=" << Quote(string) << ", "
+     << "start=" << start << ", "
+     << "line=" << Quote(line) << ")";
 }
 
 const char *TokenInfo::GetTypeName() const { return GetSymbolName(type); }

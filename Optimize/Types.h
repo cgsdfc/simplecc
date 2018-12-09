@@ -51,5 +51,5 @@ public:
   BasicTypeKind GetType() const { return type; }
 };
 
-}
+} // namespace simplecompiler
 #endif

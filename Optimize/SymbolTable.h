@@ -6,6 +6,7 @@
 
 namespace simplecompiler {
 enum class Scope { Global, Local };
+std::ostream &operator<<(std::ostream &os, Scope s);
 
 // An entry in the SymbolTable with type and scope information about
 // a name within a block (global or local).

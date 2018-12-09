@@ -8,11 +8,7 @@
 #include <vector>
 
 namespace simplecompiler {
-
-using TokenBuffer = std::vector<TokenInfo>;
-
-void Tokenize(std::istream &Input, TokenBuffer &Output);
-void PrintTokens(const TokenBuffer &tokens, std::ostream &os);
-
+void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output);
+void PrintTokens(const std::vector<TokenInfo> &tokens, std::ostream &os);
 } // namespace simplecompiler
 #endif
