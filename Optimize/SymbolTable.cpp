@@ -268,7 +268,7 @@ bool SymbolTable::Build(Program *prog) {
       TableType local;
       MakeLocal(fun, global, local, e);
       if (e.IsOk()) {
-        locals.emplace(reinterpret_cast<uintptr_t>(fun), std::move(local));
+        locals.emplace(fun, std::move(local));
       }
     }
   }

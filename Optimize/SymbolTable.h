@@ -2,7 +2,6 @@
 #define SYMBOL_TABLE_H
 
 #include "AST.h"
-#include <cstdint>
 #include <unordered_map>
 
 namespace simplecompiler {
@@ -171,7 +170,7 @@ public:
 };
 
 class SymbolTable {
-  using NestedTableType = std::unordered_map<uintptr_t, TableType>;
+  using NestedTableType = std::unordered_map<FuncDef*, TableType>;
 
   TableType global;
   NestedTableType locals;
@@ -192,9 +191,8 @@ public:
 
   // Return local symbol table for a function
   SymbolTableView GetLocal(FuncDef *fun) const {
-    auto key = reinterpret_cast<uintptr_t>(fun);
-    assert(locals.count(key));
-    return SymbolTableView(locals.find(key)->second);
+    assert(locals.count(fun));
+    return SymbolTableView(locals.find(fun)->second);
   }
 
   // Return a SymbolEntry for a global name
