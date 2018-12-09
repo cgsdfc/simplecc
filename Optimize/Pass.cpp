@@ -10,127 +10,61 @@
 #include "SyntaxChecker.h"
 #include "Tokenize.h"
 #include "TypeChecker.h"
-#include <memory>
-#include <unordered_map>
 
-/// A Pass represents a single runnable unit of the compiler.
-/// It can run some input data structures, produces some output data
-/// structures or write to some stream and a flag about whether it succeeded.
-/// If the a Pass return a failure flag, the compiler stops immediately.
 namespace simplecompiler {
-using PassID = const void *;
-class Pass;
-class PassRegistry;
 
-static PassRegistry &getGlobalRegistry();
-
-class PassManager {
-  String Filename;
-  std::unordered_map<PassID, std::unique_ptr<Pass>> PassCache;
-
-  Pass *getPassOrCreate(PassID ID);
-
-public:
-  PassManager(String Filename = "") : Filename(std::move(Filename)) {}
-
-  /// Lazily run a Pass and return the result if Pass is OK. Or returns
-  /// nullptr if the Pass failed.
-  template <typename PassT> PassT *getPass();
-
-  /// Lazily run a Pass, which must succeed and retrieve its result.
-  template <typename PassT> typename PassT::ResultT getResult() {
-    auto P = getPass<PassT>();
-    assert(P && "getResult() should never fail");
-    return P->getResult();
-  }
-
-  template <typename StreamT> StreamT &getInputStream() const {}
-  template <typename StreamT> StreamT &getOutputStream() const {}
-
-  /* template <typename PassT> */
-  /* bool run() { */
-  /*   getResult<PassT>(); */
-  /* } */
-};
-
-template <typename PassT> static PassT *callDefaultCtor() {
-  return new PassT();
+std::istream &PassManager::getInputStream() {
+  return IFilename.empty() ? std::cin : IFileStream;
 }
 
-/// This class holds metadata about a Pass.
-class PassInfo {
-  /// The type that creates a Pass instance.
-  using PassCtr_t = Pass *(*)();
-  const char *Name;
-  const char *Description;
-  PassID ID;
-  PassCtr_t PassCtr;
+std::ostream &PassManager::getOutputStream() {
+  return OFilename.empty() ? std::cout : OFileStream;
+}
 
-  /// private ctr. Use PassInfo::Create().
-  PassInfo(const char *Name, const char *Description, PassID ID,
-           PassCtr_t PassCtr)
-      : Name(Name), Description(Description), ID(ID), PassCtr(PassCtr) {}
+Pass *PassManager::getPassOrCreate(PassID ID) {
+  auto I = PassCache.find(ID);
+  if (I != PassCache.end())
+    return I->second.get();
+  PassInfo *PI = getGlobalRegistry().getPassInfo(ID);
+  std::unique_ptr<Pass> P(PI->createPass());
+  bool OK = P->run(*this);
+  if (!OK)
+    return nullptr;
+  auto Result = PassCache.emplace(ID, std::move(P));
+  assert(Result.second);
+  return Result.first->second.get();
+}
 
-public:
-  PassInfo(PassInfo &&) = delete;
-  PassInfo(const PassInfo &) = delete;
-
-  /// Create a PassInfo.
-  template <typename PassT>
-  static PassInfo *Create(const char *N, const char *D) {
-    return new PassInfo(N, D, &PassT::ID, PassCtr_t(callDefaultCtor<PassT>));
+/// Set Input filename to Filename.
+/// \param Filename if it is empty, use stdin.
+/// if it cannot be opened, false is returned and the object
+/// retains old state.
+bool PassManager::setInputFile(String Filename) {
+  // Set to stdin.
+  if (Filename.empty()) {
+    IFilename.clear();
+    return true;
   }
+  std::ifstream File(Filename);
+  if (File.fail())
+    return false;
+  IFileStream = std::move(File);
+  IFilename = std::move(Filename);
+  return true;
+}
 
-  Pass *createPass() {
-    assert(PassCtr && "PassCtr must be installed");
-    return PassCtr();
+bool PassManager::setOutputFile(String Filename) {
+  if (Filename.empty()) {
+    OFilename.clear();
+    return true;
   }
-
-  const char *getName() const { return Name; }
-  const char *getDescription() const { return Description; }
-  PassID getID() const { return ID; }
-};
-
-/// This class holds the registered Pass'es.
-class PassRegistry {
-  std::unordered_map<PassID, std::unique_ptr<PassInfo>> Passes;
-
-public:
-  PassRegistry() = default;
-  ~PassRegistry() = default;
-
-  PassRegistry(const PassRegistry &) = delete;
-  PassRegistry(PassRegistry &&) = delete;
-
-  /// Register a new Pass.
-  template <typename PassT>
-  void addPass(const char *Name, const char *Description) {
-    Passes.emplace(&PassT::ID, PassInfo::Create<PassT>(Name, Description));
-  };
-
-  PassInfo *getPassInfo(PassID ID) const {
-    assert(Passes.count(ID) && "Unregistered Pass");
-    return Passes.find(ID)->second.get();
-  }
-
-  template <typename PassT> PassInfo *getPassInfo() const {
-    getPassInfo(&PassT::ID);
-  }
-};
-
-/// Helper class template to register a Pass.
-template <typename PassT> struct RegisterPass {
-  RegisterPass(const char *Name, const char *Description) {
-    getGlobalRegistry().addPass<PassT>(Name, Description);
-  }
-};
-
-/// Abstract base class for a Pass.
-class Pass {
-public:
-  virtual ~Pass() = default;
-  virtual bool run(PassManager &PM) = 0;
-};
+  std::ofstream File(Filename);
+  if (File.fail())
+    return false;
+  OFileStream = std::move(File);
+  OFilename = std::move(Filename);
+  return true;
+}
 
 class TokenizePass : public Pass {
   std::vector<TokenInfo> Tokens;
@@ -140,12 +74,13 @@ public:
   using ResultT = std::vector<TokenInfo>;
 
   bool run(PassManager &PM) override {
-    Tokenize(PM.getInputStream<std::istream>(), Tokens);
+    Tokenize(PM.getInputStream(), Tokens);
     return true;
   }
 
   ResultT getResult() const { return Tokens; }
 };
+INITIALIZE_PASS(TokenizePass, "tokenize", "break input into tokens")
 
 class ParserPass : public Pass {
   std::unique_ptr<Node> ParseTree;
@@ -162,6 +97,8 @@ public:
 
   ResultT getResult() const { return ParseTree.get(); }
 };
+
+INITIALIZE_PASS(ParserPass, "parse", "parse tokens")
 
 /// Common base class for Pass'es that process the AST.
 class AstPass : public Pass {
@@ -192,6 +129,9 @@ public:
   }
 };
 
+INITIALIZE_PASS(BuildAstPass, "build-ast",
+                "create an abstract syntax tree from the concrete syntax tree")
+
 class SyntaxCheckerPass : public AstPass {
 public:
   static const char ID;
@@ -204,6 +144,9 @@ public:
     return CheckSyntax(TheProgram);
   }
 };
+
+INITIALIZE_PASS(SyntaxCheckerPass, "syntax-check",
+                "verify that the AST is syntactically correct")
 
 /// This pass builds the symbol table.
 class SymbolTablePass : public Pass {
@@ -223,6 +166,9 @@ public:
   const SymbolTable &getResult() const { return TheTable; }
 };
 
+INITIALIZE_PASS(SymbolTablePass, "symbol-table",
+                "build a symbol table from the abstract syntax tree")
+
 class TypeCheckerPass : public AstPass {
 public:
   static const char ID;
@@ -237,12 +183,17 @@ public:
   }
 };
 
+INITIALIZE_PASS(TypeCheckerPass, "type-check",
+                "run type-check for the input program")
+
 /// This is the pass that every backend pass should depened on.
 class AnalysisPass : public TypeCheckerPass {
 public:
   static const char ID;
   using TypeCheckerPass::run;
 };
+
+INITIALIZE_PASS(AnalysisPass, "", "")
 
 class PrintByteCodePass : public Pass {
 public:
@@ -251,10 +202,13 @@ public:
     auto AP = PM.getPass<AnalysisPass>();
     if (!AP)
       return false;
-    PrintByteCode(AP->getResult(), PM.getOutputStream<std::ostream>());
+    PrintByteCode(AP->getResult(), PM.getOutputStream());
     return true;
   }
 };
+
+INITIALIZE_PASS(PrintByteCodePass, "print-bytecode",
+                "print byte code in quarternary form")
 
 class CompilePass : public Pass {
   CompiledModule TheModule;
@@ -274,59 +228,23 @@ public:
   }
 };
 
+INITIALIZE_PASS(CompilePass, "compile",
+                "compile the input program to byte code")
 class AssemblePass : public Pass {
 public:
   static const char ID;
   bool run(PassManager &PM) override {
     const CompiledModule &CM = PM.getResult<CompilePass>();
-    AssembleMips(CM, PM.getOutputStream<std::ostream>());
+    AssembleMips(CM, PM.getOutputStream());
     return true;
   }
 };
 
-Pass *PassManager::getPassOrCreate(PassID ID) {
-  auto I = PassCache.find(ID);
-  if (I != PassCache.end())
-    return I->second.get();
-  PassInfo *PI = getGlobalRegistry().getPassInfo(ID);
-  std::unique_ptr<Pass> P(PI->createPass());
-  bool OK = P->run(*this);
-  if (!OK)
-    return nullptr;
-  auto Result = PassCache.emplace(ID, std::move(P));
-  assert(Result.second);
-  return Result.first->second.get();
-}
-
-template <typename PassT> PassT *PassManager::getPass() {
-  auto P = getPassOrCreate(&PassT::ID);
-  return static_cast<PassT *>(P);
-}
+INITIALIZE_PASS(AssemblePass, "assemble",
+                "assemble the compiled program to MIPS assembly")
 
 static PassRegistry ThePassRegistry;
 
-static PassRegistry &getGlobalRegistry() { return ThePassRegistry; }
+PassRegistry &getGlobalRegistry() { return ThePassRegistry; }
 
-#define INITIALIZE_PASS(Class, Name, Description)                              \
-  const char Class::ID = 0;                                                    \
-  static RegisterPass<Class> Class##Register(Name, Description);
-
-INITIALIZE_PASS(TokenizePass, "tokenize", "break input into tokens")
-INITIALIZE_PASS(ParserPass, "parse", "parse tokens")
-INITIALIZE_PASS(BuildAstPass, "build-ast",
-                "create an abstract syntax tree from the concrete syntax tree")
-INITIALIZE_PASS(SyntaxCheckerPass, "syntax-check",
-                "verify that the AST is syntactically correct")
-INITIALIZE_PASS(SymbolTablePass, "symbol-table",
-                "build a symbol table from the abstract syntax tree")
-INITIALIZE_PASS(TypeCheckerPass, "type-check",
-                "run type-check for the input program")
-INITIALIZE_PASS(AnalysisPass, "", "")
-
-INITIALIZE_PASS(PrintByteCodePass, "print-bytecode",
-                "print byte code in quarternary form")
-INITIALIZE_PASS(CompilePass, "compile",
-                "compile the input program to byte code")
-INITIALIZE_PASS(AssemblePass, "assemble",
-                "assemble the compiled program to MIPS assembly")
 } // namespace simplecompiler

@@ -1,4 +1,4 @@
-#include "CompilerInstance.h"
+#include "Pass.h"
 #include "error.h"
 
 #include <fstream>
@@ -7,75 +7,11 @@
 using namespace TCLAP;
 using namespace simplecompiler;
 
-using ArgToCompilationPhraseTable =
-    std::unordered_map<TCLAP::Arg *, CompilationPhrase>;
-
-// Find the selected argument -- isSet()'ed
-CompilationPhrase FindSelectedPhrase(const ArgToCompilationPhraseTable &map) {
-  auto iter =
-      std::find_if(map.begin(), map.end(),
-                   [](ArgToCompilationPhraseTable::const_reference item) {
-                     return item.first->isSet();
-                   });
-  assert(iter != map.end());
-  return iter->second;
-}
-
-// For debugging
-inline std::ostream &operator<<(std::ostream &os, CompilationPhrase phrase) {
-  return os << static_cast<int>(phrase);
-}
 
 int main(int argc, char **argv) {
   ErrorManager e;
   CmdLine parser("Simple Compiler Debugging helper", ' ', "0.0.1");
 
-  SwitchArg tokenize("", "tokenize", "break input into tokens", false);
-  SwitchArg build_cst("", "build-cst",
-                      "run the parser and construct a concrete syntax tree",
-                      false);
-  SwitchArg build_ast(
-      "", "build-ast",
-      "create an abstract syntax tree from the concrete syntax tree", false);
-  SwitchArg syntax_check("", "syntax-check",
-                         "verify that the AST is syntactically correct", false);
-  SwitchArg build_symtable("", "build-symtable",
-                           "build a symbol table from the abstract syntax tree",
-                           false);
-  SwitchArg type_check("", "type-check", "run type-check for the input program",
-                       false);
-  SwitchArg print_bytecode("", "print-bytecode",
-                           "print byte code in quarternary form", false);
-  SwitchArg compile("", "compile", "compile the input program to byte code",
-                    false);
-  SwitchArg assemble("", "assemble",
-                     "assemble the compiled program to MIPS assembly", false);
-  SwitchArg emit_llvm("", "emit-llvm", "emit LLVM IR, dump to stderr", false);
-
-  // XXX: If any option is added to the list above, you **must** add an entry
-  // here!
-  std::vector<TCLAP::Arg *> xor_list{
-      &tokenize,   &build_cst,      &build_ast, &syntax_check, &build_symtable,
-      &type_check, &print_bytecode, &compile,   &assemble,     &emit_llvm,
-  };
-
-  parser.xorAdd(xor_list);
-
-  // Hard-coded mapping from Arg to CompilationPhrase
-  ArgToCompilationPhraseTable args_phrase_map{
-      {&tokenize, CompilationPhrase::Tokenize},
-      {&build_cst, CompilationPhrase::BuildCst},
-      {&build_ast, CompilationPhrase::BuildAst},
-      {&syntax_check, CompilationPhrase::SyntaxCheck},
-      {&build_symtable, CompilationPhrase::BuildSymbolTable},
-      {&type_check, CompilationPhrase::TypeCheck},
-      {&print_bytecode, CompilationPhrase::PrintByteCode},
-      {&compile, CompilationPhrase::Compile},
-      {&assemble, CompilationPhrase::Assemble},
-      {&emit_llvm, CompilationPhrase::EmitLLVM},
-  };
-
-  assert(xor_list.size() == args_phrase_map.size());
 
   // Positional argument: input
   UnlabeledValueArg<String> input_arg("input", "input file (default to stdin)",
@@ -124,21 +60,4 @@ int main(int argc, char **argv) {
     output_stream = &output_file;
   }
 
-  // Determine CompilerOptions
-  CompilerOptions Options;
-  Options.setPhrase(FindSelectedPhrase(args_phrase_map));
-
-#ifdef SIMPLE_COMPILER_USE_LLVM
-  if (format_arg.isSet()) {
-    if (format_arg.getValue() == "dot")
-      Options.setFormat(OutputFormat::DOT);
-    else
-      e.Error("Unknown output format:", format_arg.getValue());
-  }
-#endif
-
-  auto instance =
-      std::make_unique<CompilerInstance>(*input_stream, *output_stream);
-  instance->setOptions(Options);
-  return !instance->Invoke();
 }
