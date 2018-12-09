@@ -95,3 +95,4 @@ endif (WIN32)
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
 target_link_libraries(${EXEC_NAME} ${EXTRA_LIBRARIES})
+add_definitions(-D_GLIBCXX_DEBUG)

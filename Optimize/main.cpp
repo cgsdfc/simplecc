@@ -1,63 +1,78 @@
 #include "Pass.h"
 #include "error.h"
 
+#include <cstring>
 #include <fstream>
 #include <tclap/CmdLine.h>
 
 using namespace TCLAP;
 using namespace simplecompiler;
 
+class CommandLine {
+  CmdLine Parser;
+  PassManager PM;
+  std::vector<Arg *> Args;
+  UnlabeledValueArg<String> InputArg;
+  ValueArg<String> OutputArg;
+  ErrorManager EM;
+
+public:
+  CommandLine()
+      : Parser("Simple Compiler Debugging helper", ' ', "0.0.1"),
+        InputArg("input", "input file (default to stdin)", false, "",
+                 "input-file", Parser),
+        OutputArg("o", "output", "output file (default to stdout)", false, "",
+                  "output-file", Parser) {
+
+    for (auto &&Pair : getGlobalRegistry()) {
+      auto &&PI = Pair.second;
+      if (!std::strlen(PI->getName()))
+        continue;
+      Args.push_back(
+          new SwitchArg("", PI->getName(), PI->getDescription(), false));
+    }
+    Parser.xorAdd(Args);
+  }
+
+  ~CommandLine() {
+    std::for_each(std::begin(Args), std::end(Args), [](Arg *A) { delete A; });
+  }
+
+  int run(int argc, char **argv) {
+    try {
+      Parser.parse(argc, argv);
+    } catch (TCLAP::ArgException &Exc) {
+      EM.Error(Exc.error(), "at argument", Exc.argId());
+      return 1;
+    }
+
+    String InputFile = InputArg.isSet() ? InputArg.getValue() : "";
+    String OutputFile = OutputArg.isSet() ? OutputArg.getValue() : "";
+
+    if (!PM.setInputFile(InputFile)) {
+      EM.FileReadError(InputFile);
+      return 1;
+    }
+
+    if (!PM.setOutputFile(OutputFile)) {
+      EM.FileWriteError(OutputFile);
+      return 1;
+    }
+
+    /// Find the argument selected by the user.
+    auto ArgIter = std::find_if(std::begin(Args), std::end(Args), [](Arg *V) { return V->isSet(); });
+    assert(ArgIter != Args.end() && "At one argument must be given");
+    Arg *SelectedArg = *ArgIter;
+
+    /// Find the PassInfo entry corresponding to the argument.
+    /// Run the specific Pass.
+    PassInfo *PI = getGlobalRegistry().getPassInfo(SelectedArg->getName());
+    return !PM.run(PI->getID());
+  }
+
+};
 
 int main(int argc, char **argv) {
-  ErrorManager e;
-  CmdLine parser("Simple Compiler Debugging helper", ' ', "0.0.1");
-
-
-  // Positional argument: input
-  UnlabeledValueArg<String> input_arg("input", "input file (default to stdin)",
-                                      false, "", "input-file", parser);
-
-  ValueArg<String> output_arg("o", "output", "output file (default to stdout)",
-                              false, "", "output-file", parser);
-#ifdef SIMPLE_COMPILER_USE_LLVM
-  ValueArg<String> format_arg("f", "format", "output format", false, "",
-                              "format", parser);
-#endif
-  try {
-    parser.parse(argc, argv);
-  } catch (TCLAP::ArgException &exception) {
-    e.Error(exception.error(), "at argument", exception.argId());
-    return 1;
-  }
-
-  // Prepare input stream
-  std::istream *input_stream;
-  std::ifstream input_file;
-
-  if (!input_arg.isSet()) {
-    input_stream = &std::cin;
-  } else {
-    input_file.open(input_arg.getValue());
-    if (input_file.fail()) {
-      e.FileReadError(input_arg.getValue());
-      return 1;
-    }
-    input_stream = &input_file;
-  }
-
-  // Prepare output stream
-  std::ostream *output_stream;
-  std::ofstream output_file;
-
-  if (!output_arg.isSet()) {
-    output_stream = &std::cout;
-  } else {
-    output_file.open(output_arg.getValue());
-    if (output_file.fail()) {
-      e.FileWriteError(output_arg.getValue());
-      return 1;
-    }
-    output_stream = &output_file;
-  }
-
+  getGlobalRegistry().dump();
+  return CommandLine().run(argc, argv);
 }

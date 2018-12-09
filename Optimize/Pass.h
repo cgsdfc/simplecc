@@ -1,10 +1,11 @@
 #ifndef PASS_H
 #define PASS_H
+#include <cassert>
 #include <fstream>
+#include <iterator>
 #include <memory>
 #include <unordered_map>
-#include <cassert>
-
+#include <map>
 
 namespace simplecompiler {
 using String = std::string;
@@ -18,15 +19,19 @@ namespace detail {
 template <typename PassT> static PassT *callDefaultCtor() {
   return new PassT();
 }
-}
+} // namespace detail
 
 /// This class holds metadata about a Pass.
 class PassInfo {
   /// The type that creates a Pass instance.
   using PassCtr_t = Pass *(*)();
+  /// The name of the Pass. Used as command line argument if non empty.
   const char *Name;
+  /// Description for the Pass. Used as help of command line argument.
   const char *Description;
+  /// Per class ID of the Pass.
   PassID ID;
+  /// Functoin ptr to default construct a Pass.
   PassCtr_t PassCtr;
 
   /// private ctr. Use PassInfo::Create().
@@ -41,7 +46,8 @@ public:
   /// Create a PassInfo.
   template <typename PassT>
   static PassInfo *Create(const char *N, const char *D) {
-    return new PassInfo(N, D, &PassT::ID, PassCtr_t(detail::callDefaultCtor<PassT>));
+    return new PassInfo(N, D, &PassT::ID,
+                        PassCtr_t(detail::callDefaultCtor<PassT>));
   }
 
   Pass *createPass() {
@@ -52,12 +58,17 @@ public:
   const char *getName() const { return Name; }
   const char *getDescription() const { return Description; }
   PassID getID() const { return ID; }
+  void Format(std::ostream &OS) const;
 };
 
+inline std::ostream &operator<<(std::ostream &OS, const PassInfo &PI) {
+  PI.Format(OS);
+  return OS;
+}
 
 /// This class holds the registered Pass'es.
 class PassRegistry {
-  std::unordered_map<PassID, std::unique_ptr<PassInfo>> Passes;
+  std::map<PassID, std::unique_ptr<PassInfo>> Passes;
 
 public:
   PassRegistry() = default;
@@ -80,6 +91,12 @@ public:
   template <typename PassT> PassInfo *getPassInfo() const {
     getPassInfo(&PassT::ID);
   }
+
+  PassInfo *getPassInfo(const String &Name) const;
+  using const_iterator = decltype(Passes)::const_iterator;
+  const_iterator begin() const { return std::begin(Passes); }
+  const_iterator end() const { return std::end(Passes); }
+  void dump() const;
 };
 
 /// Abstract base class for a Pass.
@@ -92,7 +109,6 @@ public:
   virtual bool run(PassManager &PM) = 0;
 };
 
-
 class PassManager {
   String IFilename;
   String OFilename;
@@ -104,7 +120,8 @@ class PassManager {
 
 public:
   PassManager() = default;
-  PassManager(PassManager &&) = default;
+  PassManager(PassManager &&) = delete;
+  PassManager(const PassManager &) = delete;
 
   /// Set Input filename to Filename.
   /// \param Filename if it is empty, use stdin.
@@ -129,26 +146,16 @@ public:
 
   std::istream &getInputStream();
 
-  std:: ostream &getOutputStream();
+  std::ostream &getOutputStream();
+
+  /// Run a specific pass.
+  template <typename PassT> bool run() { return getPass<PassT>() != nullptr; }
+  bool run(PassID ID) { return getPassOrCreate(ID) != nullptr; }
 
 };
-
 
 PassRegistry &getGlobalRegistry();
 
-
-/// Helper class template to register a Pass.
-template <typename PassT> struct RegisterPass {
-  RegisterPass(const char *Name, const char *Description) {
-    getGlobalRegistry().addPass<PassT>(Name, Description);
-  }
-};
-
-/// Helper macro of RegisterPass.
-#define INITIALIZE_PASS(Class, Name, Description)                              \
-  const char Class::ID = 0;                                                    \
-  static RegisterPass<Class> Class##Register(Name, Description);
-
-}
+} // namespace simplecompiler
 
 #endif

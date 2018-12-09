@@ -8,7 +8,6 @@
 
 using namespace simplecompiler;
 
-
 static bool IsBlank(const String &line) {
   for (auto ch : line)
     if (!std::isspace(ch))

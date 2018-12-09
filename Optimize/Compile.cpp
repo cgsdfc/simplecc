@@ -386,23 +386,6 @@ public:
 
 } // namespace
 
-CompiledModule simplecompiler::CompileProgram(Program *prog,
-                                              const SymbolTable &symtable) {
-  SymbolEntryList global_objects;
-  std::vector<CompiledFunction> functions;
-
-  for (auto decl : prog->decls) {
-    if (auto fun = subclass_cast<FuncDef>(decl)) {
-      FunctionCompiler functionCompiler(fun, symtable);
-      functions.push_back(functionCompiler.Compile());
-    } else if (auto var = subclass_cast<VarDecl>(decl)) {
-      global_objects.push_back(symtable.GetGlobal(var->name));
-    }
-  }
-  return CompiledModule(std::move(functions), symtable.GetStringLiteralTable(),
-                        std::move(global_objects));
-}
-
 CompiledFunction::CompiledFunction(SymbolTableView local,
                                    std::vector<ByteCode> code,
                                    SymbolEntry entry,
@@ -414,6 +397,17 @@ CompiledFunction::CompiledFunction(SymbolTableView local,
   assert(entry.IsFunction());
   for (auto &&code : code) {
     code.Check();
+  }
+}
+
+void CompiledModule::Build(Program *prog, const SymbolTable &symtable) {
+  for (auto decl : prog->decls) {
+    if (auto fun = subclass_cast<FuncDef>(decl)) {
+      FunctionCompiler functionCompiler(fun, symtable);
+      functions.push_back(functionCompiler.Compile());
+    } else if (auto var = subclass_cast<VarDecl>(decl)) {
+      global_objects.push_back(symtable.GetGlobal(var->name));
+    }
   }
 }
 
@@ -440,16 +434,6 @@ void CompiledFunction::Format(std::ostream &os) const {
     lineno++;
   }
 }
-
-CompiledModule::CompiledModule(std::vector<CompiledFunction> functions,
-                               const StringLiteralTable &strings,
-                               SymbolEntryList global_objects)
-    : functions(std::move(functions)), strings(strings),
-      global_objects(std::move(global_objects)) {}
-
-CompiledModule::CompiledModule(CompiledModule &&other)
-    : functions(std::move(other.functions)), strings(other.strings),
-      global_objects(std::move(other.global_objects)) {}
 
 void CompiledModule::Format(std::ostream &os) const {
   os << "global_objects:\n";

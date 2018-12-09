@@ -10,8 +10,25 @@
 #include "SyntaxChecker.h"
 #include "Tokenize.h"
 #include "TypeChecker.h"
+#include "Print.h"
+
+#include <algorithm>
+#include <cstring>
 
 namespace simplecompiler {
+
+/// Helper class template to register a Pass.
+template <typename PassT> struct RegisterPass {
+  RegisterPass(const char *Name, const char *Description) {
+    getGlobalRegistry().addPass<PassT>(Name, Description);
+  }
+};
+
+/// Helper macro of RegisterPass.
+#define INITIALIZE_PASS(Class, Name, Description)                              \
+  char Class::ID = 0;                                                    \
+  static RegisterPass<Class> Class##Register(Name, Description);
+
 
 std::istream &PassManager::getInputStream() {
   return IFilename.empty() ? std::cin : IFileStream;
@@ -66,11 +83,20 @@ bool PassManager::setOutputFile(String Filename) {
   return true;
 }
 
+PassInfo *PassRegistry::getPassInfo(const String &Name) const {
+  auto Iter = std::find_if(Passes.begin(), Passes.end(),
+                           [Name](decltype(Passes)::const_reference Pair) {
+                             return Name == Pair.second->getName();
+                           });
+  assert(Iter != Passes.end() && "Unregistered PassInfo");
+  return Iter->second.get();
+}
+
 class TokenizePass : public Pass {
   std::vector<TokenInfo> Tokens;
 
 public:
-  static const char ID;
+  static char ID;
   using ResultT = std::vector<TokenInfo>;
 
   bool run(PassManager &PM) override {
@@ -86,7 +112,7 @@ class ParserPass : public Pass {
   std::unique_ptr<Node> ParseTree;
 
 public:
-  static const char ID;
+  static char ID;
   using ResultT = Node *;
 
   bool run(PassManager &PM) override {
@@ -100,49 +126,41 @@ public:
 
 INITIALIZE_PASS(ParserPass, "parse", "parse tokens")
 
-/// Common base class for Pass'es that process the AST.
-class AstPass : public Pass {
-  std::unique_ptr<Program> TheAST;
-
-protected:
-  void setResult(Program *P) { TheAST.reset(P); }
-
+class BuildAstPass : public Pass {
+  std::unique_ptr<Program> TheProgram;
 public:
-  AstPass() = default;
+  static char ID;
   using ResultT = Program *;
-  ResultT getResult() { return TheAST.get(); }
-};
-
-class BuildAstPass : public AstPass {
-public:
-  static const char ID;
 
   bool run(PassManager &PM) override {
     auto PP = PM.getPass<ParserPass>();
     /// ParserPass failed.
     if (!PP)
       return false;
-    auto TheProgram = BuildAstFromNode(PP->getResult());
-    assert(TheProgram && "BuildAstFromNode() must succeed");
-    setResult(TheProgram);
+    TheProgram.reset(BuildAstFromNode(PP->getResult()));
     return true;
   }
+
+  Program *getResult() const { return TheProgram.get(); }
 };
 
 INITIALIZE_PASS(BuildAstPass, "build-ast",
                 "create an abstract syntax tree from the concrete syntax tree")
 
-class SyntaxCheckerPass : public AstPass {
+class SyntaxCheckerPass : public Pass {
+  Program *TheProgram;
 public:
-  static const char ID;
+  static char ID;
 
   bool run(PassManager &PM) override {
     auto BAP = PM.getPass<BuildAstPass>();
     if (!BAP)
       return false;
-    auto TheProgram = BAP->getResult();
+    TheProgram = BAP->getResult();
     return CheckSyntax(TheProgram);
   }
+
+  Program *getResult() const { return TheProgram; }
 };
 
 INITIALIZE_PASS(SyntaxCheckerPass, "syntax-check",
@@ -154,7 +172,7 @@ class SymbolTablePass : public Pass {
 
 public:
   using ResultT = const SymbolTable &;
-  static const char ID;
+  static char ID;
   bool run(PassManager &PM) override {
     auto SCP = PM.getPass<SyntaxCheckerPass>();
     if (!SCP)
@@ -169,18 +187,21 @@ public:
 INITIALIZE_PASS(SymbolTablePass, "symbol-table",
                 "build a symbol table from the abstract syntax tree")
 
-class TypeCheckerPass : public AstPass {
+class TypeCheckerPass : public Pass {
+  Program *TheProgram;
 public:
-  static const char ID;
+  static char ID;
 
   bool run(PassManager &PM) override {
     auto STP = PM.getPass<SymbolTablePass>();
     if (!STP)
       return false;
     /// The SymbolTablePass's success implies that of BuildAstPass.
-    auto TheProgram = PM.getResult<BuildAstPass>();
+    TheProgram = PM.getResult<BuildAstPass>();
     return CheckType(TheProgram, STP->getResult());
   }
+
+  Program *getResult() const { return TheProgram; }
 };
 
 INITIALIZE_PASS(TypeCheckerPass, "type-check",
@@ -189,7 +210,7 @@ INITIALIZE_PASS(TypeCheckerPass, "type-check",
 /// This is the pass that every backend pass should depened on.
 class AnalysisPass : public TypeCheckerPass {
 public:
-  static const char ID;
+  static char ID;
   using TypeCheckerPass::run;
 };
 
@@ -197,7 +218,7 @@ INITIALIZE_PASS(AnalysisPass, "", "")
 
 class PrintByteCodePass : public Pass {
 public:
-  static const char ID;
+  static char ID;
   bool run(PassManager &PM) override {
     auto AP = PM.getPass<AnalysisPass>();
     if (!AP)
@@ -214,7 +235,7 @@ class CompilePass : public Pass {
   CompiledModule TheModule;
 
 public:
-  static const char ID;
+  static char ID;
   using ResultT = const CompiledModule &;
   ResultT getResult() const { return TheModule; }
 
@@ -222,8 +243,7 @@ public:
     auto AP = PM.getPass<AnalysisPass>();
     if (!AP)
       return false;
-    TheModule =
-        CompileProgram(AP->getResult(), PM.getResult<SymbolTablePass>());
+    TheModule.Build(AP->getResult(), PM.getResult<SymbolTablePass>());
     return true;
   }
 };
@@ -232,7 +252,7 @@ INITIALIZE_PASS(CompilePass, "compile",
                 "compile the input program to byte code")
 class AssemblePass : public Pass {
 public:
-  static const char ID;
+  static char ID;
   bool run(PassManager &PM) override {
     const CompiledModule &CM = PM.getResult<CompilePass>();
     AssembleMips(CM, PM.getOutputStream());
@@ -243,8 +263,26 @@ public:
 INITIALIZE_PASS(AssemblePass, "assemble",
                 "assemble the compiled program to MIPS assembly")
 
-static PassRegistry ThePassRegistry;
+/// If we don't put that onto the heap, it breaks at runtime...
+/// See llvm::ManagedStatic<>.
+static std::unique_ptr<PassRegistry> ThePassRegistry;
 
-PassRegistry &getGlobalRegistry() { return ThePassRegistry; }
+PassRegistry &getGlobalRegistry() {
+  if (!ThePassRegistry) {
+    ThePassRegistry = std::make_unique<PassRegistry>();
+  }
+  return *ThePassRegistry;
+}
+
+void PassInfo::Format(std::ostream &OS) const {
+  OS << "PassInfo(ID=" << ID << ", " << "Name=" << Name;
+  OS << ", " << "Description=" << Description << ")";
+}
+
+void PassRegistry::dump() const {
+  for (auto &&Pair : Passes) {
+    PrintErrs(*Pair.second);
+  }
+}
 
 } // namespace simplecompiler

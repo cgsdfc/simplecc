@@ -47,18 +47,7 @@ class CompiledModule {
 
 public:
   CompiledModule() = default;
-  CompiledModule(std::vector<CompiledFunction> functions,
-                 const StringLiteralTable &strings,
-                 SymbolEntryList global_objects);
-
-  CompiledModule(CompiledModule &&other);
-
-  CompiledModule &operator=(CompiledModule &&O) {
-    using std::swap;
-    CompiledModule T(std::move(O));
-    swap(*this, T);
-    return *this;
-  }
+  void Build(Program *P, const SymbolTable &S);
 
   const std::vector<CompiledFunction> &GetFunctions() const {
     return functions;
@@ -70,8 +59,6 @@ public:
 
   const SymbolEntryList &GetGlobalObjects() const { return global_objects; }
 };
-
-CompiledModule CompileProgram(Program *prog, const SymbolTable &symtable);
 
 inline std::ostream &operator<<(std::ostream &os, const CompiledFunction &c) {
   c.Format(os);

@@ -104,14 +104,15 @@ bool CompilerInstance::Invoke() {
     return CompileToLLVMIR(ast_node, symbolTable);
   }
 
-  auto &&module = CompileProgram(ast_node, symbolTable);
+  CompiledModule TheModule;
+  TheModule.Build(ast_node, symbolTable);
   if (phrase == CompilationPhrase::Compile) {
-    output << module << "\n";
+    output << TheModule << "\n";
     return true;
   }
 
   if (phrase == CompilationPhrase::Assemble) {
-    AssembleMips(module, output);
+    AssembleMips(TheModule, output);
     return true;
   }
 
