@@ -139,8 +139,9 @@ class AstBuilder {
       auto type_name = node->getChild(1 + i * 3);
       auto name = node->getChild(2 + i * 3);
 
-      paralist.push_back(new ArgDecl(visit_type_name(type_name), name->getValue(),
-                                 type_name->getLocation()));
+      paralist.push_back(new ArgDecl(visit_type_name(type_name),
+                                     name->getValue(),
+                                     type_name->getLocation()));
     }
   }
 

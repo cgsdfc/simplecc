@@ -180,7 +180,9 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
     VisitorBase::visitStmt<void>(node);
   }
 
-  void visitArgDecl(ArgDecl *node) { formal_arguments.push_back(local[node->name]); }
+  void visitArgDecl(ArgDecl *node) {
+    formal_arguments.push_back(local[node->name]);
+  }
 
   void visitVarDecl(VarDecl *node) {
     local_objects.push_back(local[node->name]);

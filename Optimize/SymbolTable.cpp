@@ -308,12 +308,10 @@ VarType SymbolEntry::AsVariable() const {
 
 BasicTypeKind FuncType::GetArgTypeAt(int pos) const {
   assert(pos >= 0 && pos < fun->args.size() && "pos out of range");
-  return static_cast<ArgDecl*>(fun->args[pos])->type;
+  return static_cast<ArgDecl *>(fun->args[pos])->type;
 }
 
-bool SymbolEntry::IsFormalArgument() const {
-  return IsInstance<ArgDecl>(decl);
-}
+bool SymbolEntry::IsFormalArgument() const { return IsInstance<ArgDecl>(decl); }
 
 FuncType SymbolEntry::AsFunction() const {
   assert(IsFunction());
@@ -348,10 +346,6 @@ bool SymbolEntry::IsFunction() const {
   return decl && IsInstance<FuncDef>(decl);
 }
 
-Location SymbolEntry::GetLocation() const {
-  return decl->loc;
-}
+Location SymbolEntry::GetLocation() const { return decl->loc; }
 
-const String &SymbolEntry::GetName() const {
-  return decl->name;
-}
+const String &SymbolEntry::GetName() const { return decl->name; }

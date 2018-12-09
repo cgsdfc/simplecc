@@ -15,8 +15,7 @@ class SymbolEntry {
   Decl *decl;
 
 public:
-  SymbolEntry(Scope scope, Decl *decl)
-      : scope(scope), decl(decl) {}
+  SymbolEntry(Scope scope, Decl *decl) : scope(scope), decl(decl) {}
 
   bool IsFunction() const;
   FuncType AsFunction() const;
