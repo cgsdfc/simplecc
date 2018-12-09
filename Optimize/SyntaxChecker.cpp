@@ -66,16 +66,15 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
     }
   }
 
-  void visitArg(Arg *node, const String &funname) {
+  void visitArgDecl(ArgDecl *node) {
     if (node->type == BasicTypeKind::Void) {
-      e.SyntaxError(node->loc, "cannot declare void argument",
-                    Quote(node->name), "of function", Quote(funname));
+      e.SyntaxError(node->loc, "cannot declare void argument");
     }
   }
 
   void visitFuncDef(FuncDef *node) {
     for (auto arg : node->args) {
-      visitArg(arg, node->name);
+      VisitorBase::visitDecl<void>(arg);
     }
     for (auto decl : node->decls) {
       VisitorBase::visitDecl<void>(decl);

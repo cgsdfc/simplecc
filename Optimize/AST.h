@@ -27,7 +27,7 @@ class Decl;
 class ConstDecl;
 class VarDecl;
 class FuncDef;
-class Arg;
+class ArgDecl;
 class Stmt;
 class Read;
 class Write;
@@ -80,7 +80,7 @@ public:
   Decl(int Kind, const std::string &name, const Location &loc)
       : AST(), Kind(Kind), name(name), loc(loc) {}
 
-  enum DeclKind { ConstDecl, VarDecl, FuncDef };
+  enum DeclKind { ConstDecl, VarDecl, FuncDef, ArgDecl };
 };
 
 class Stmt : public AST {
@@ -161,11 +161,11 @@ public:
 class FuncDef : public Decl {
 public:
   BasicTypeKind return_type;
-  std::vector<Arg *> args;
+  std::vector<Decl *> args;
   std::vector<Decl *> decls;
   std::vector<Stmt *> stmts;
 
-  FuncDef(BasicTypeKind return_type, const std::vector<Arg *> &args,
+  FuncDef(BasicTypeKind return_type, const std::vector<Decl *> &args,
           const std::vector<Decl *> &decls, const std::vector<Stmt *> &stmts,
           const std::string &name, const Location &loc)
       : Decl(Decl::FuncDef, name, loc), return_type(return_type), args(args),
@@ -178,6 +178,22 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::FuncDef; }
+};
+
+class ArgDecl : public Decl {
+public:
+  BasicTypeKind type;
+
+  ArgDecl(BasicTypeKind type, const std::string &name, const Location &loc)
+      : Decl(Decl::ArgDecl, name, loc), type(type) {}
+
+  ~ArgDecl() override;
+
+  const char *GetClassName() const override { return "ArgDecl"; }
+
+  void Format(std::ostream &os) const override;
+
+  static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::ArgDecl; }
 };
 
 class Read : public Stmt {
@@ -497,22 +513,6 @@ public:
   ~Program() override;
 
   const char *GetClassName() const override { return "Program"; }
-
-  void Format(std::ostream &os) const override;
-};
-
-class Arg : public AST {
-public:
-  BasicTypeKind type;
-  std::string name;
-  Location loc;
-
-  Arg(BasicTypeKind type, const std::string &name, const Location &loc)
-      : AST(), type(type), name(name), loc(loc) {}
-
-  ~Arg() override;
-
-  const char *GetClassName() const override { return "Arg"; }
 
   void Format(std::ostream &os) const override;
 };

@@ -20,7 +20,6 @@ enum class AstKind {
   Decl,
   Stmt,
   Expr,
-  Arg,
 };
 
 /// Template magic to map type to AstKind enum.
@@ -37,7 +36,6 @@ template <typename AstT> struct AstTraits {
 DEFINE_AST_TRAITS(Program)
 DEFINE_AST_TRAITS(Decl)
 DEFINE_AST_TRAITS(Stmt)
-DEFINE_AST_TRAITS(Arg)
 DEFINE_AST_TRAITS(Expr)
 #undef DEFINE_AST_TRAITS
 
@@ -100,7 +98,6 @@ public:
     return static_cast<NAME *>(Ref)->loc;
       DEFINE_AST_TRAITS(Decl)
       DEFINE_AST_TRAITS(Stmt)
-      DEFINE_AST_TRAITS(Arg)
       DEFINE_AST_TRAITS(Expr)
 #undef DEFINE_AST_TRAITS
     }
@@ -145,8 +142,7 @@ public:
       return VisitorBase::visitExpr<void>(E);
     if (auto P = R.get<Program>())
       return ChildrenVisitor::visitProgram(P);
-    // Arg has no children
-    return visitArg(R.get<Arg>());
+    // ArgDecl has no children
   }
 };
 
@@ -316,7 +312,6 @@ public:
       DEFINE_AST_TRAITS(Decl)
       DEFINE_AST_TRAITS(Expr)
       DEFINE_AST_TRAITS(Stmt)
-      DEFINE_AST_TRAITS(Arg)
 #undef DEFINE_AST_TRAITS
     default:
       return "";
@@ -359,7 +354,7 @@ public:
     return O.str();
   }
 
-  String visitArg(Arg *A) {
+  String visitArgDecl(ArgDecl *A) {
     std::ostringstream O;
     Print(O, CStringFromBasicTypeKind(A->type), A->name);
     return O.str();

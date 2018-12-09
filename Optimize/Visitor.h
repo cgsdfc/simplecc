@@ -20,6 +20,10 @@ public:
     if (auto x = subclass_cast<FuncDef>(node)) {
       return static_cast<Derived *>(this)->visitFuncDef(x);
     }
+
+    if (auto x = subclass_cast<ArgDecl>(node)) {
+      return static_cast<Derived *>(this)->visitArgDecl(x);
+    }
     assert(false && "Decl");
   }
 
@@ -123,7 +127,7 @@ public:
   void visitFuncDef(FuncDef *node) {
 
     for (auto s : node->args) {
-      visitArg(s);
+      visitDecl(s);
     }
 
     for (auto s : node->decls) {
@@ -135,7 +139,7 @@ public:
     }
   }
 
-  void visitArg(Arg *node) {}
+  void visitArgDecl(ArgDecl *node) {}
 
   void visitRead(Read *node) {
 

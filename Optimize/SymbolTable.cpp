@@ -17,8 +17,7 @@ void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
 
 // Define a declaration locally.
 // DeclLike takes Decl or Arg
-template <typename DeclLike>
-void DefineLocalDecl(DeclLike *decl, TableType &local, const TableType &global,
+void DefineLocalDecl(Decl *decl, TableType &local, const TableType &global,
                      ErrorManager &e, const String &funcname) {
   auto where = "in function " + Quote(funcname);
   if (local.count(decl->name)) {
@@ -301,24 +300,19 @@ const char *SymbolEntry::GetTypeName() const {
 
 VarType SymbolEntry::AsVariable() const {
   assert(IsVariable());
-  if (arg) {
-    return VarType(arg->type);
+  if (auto AD = subclass_cast<ArgDecl>(decl)) {
+    return VarType(AD->type);
   }
-  assert(decl);
   return VarType(static_cast<VarDecl *>(decl)->type);
 }
 
 BasicTypeKind FuncType::GetArgTypeAt(int pos) const {
   assert(pos >= 0 && pos < fun->args.size() && "pos out of range");
-  return fun->args[pos]->type;
+  return static_cast<ArgDecl*>(fun->args[pos])->type;
 }
 
 bool SymbolEntry::IsFormalArgument() const {
-  if (arg) {
-    assert(scope == Scope::Local);
-    return true;
-  }
-  return false;
+  return IsInstance<ArgDecl>(decl);
 }
 
 FuncType SymbolEntry::AsFunction() const {
@@ -342,7 +336,7 @@ bool SymbolEntry::IsArray() const {
 }
 
 bool SymbolEntry::IsVariable() const {
-  return arg ||
+  return IsInstance<ArgDecl>(decl) ||
          (IsInstance<VarDecl>(decl) && !static_cast<VarDecl *>(decl)->is_array);
 }
 
@@ -355,9 +349,9 @@ bool SymbolEntry::IsFunction() const {
 }
 
 Location SymbolEntry::GetLocation() const {
-  return decl ? decl->loc : arg->loc;
+  return decl->loc;
 }
 
 const String &SymbolEntry::GetName() const {
-  return decl ? decl->name : arg->name;
+  return decl->name;
 }

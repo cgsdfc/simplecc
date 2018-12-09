@@ -252,6 +252,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
   /// SymbolTable pass. Required by instantiation though.
   void visitConstDecl(ConstDecl *) {}
   void visitVarDecl(VarDecl *) {}
+  void visitArgDecl(ArgDecl *) {}
 
   /// Simple atom nodes.
   Value *visitNum(Num *N) { return ValueMap.getInt(N->n); }
@@ -542,7 +543,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     assert(FD->args.size() == Fn->arg_size());
     for (llvm::Argument &Val : Fn->args()) {
       auto Idx = Val.getArgNo();
-      Arg *V = FD->args[Idx];
+      Decl *V = FD->args[Idx];
       Val.setName(V->name);
       auto Ptr = LocalValues->getValue(V->name);
       /// Store the initial value of an argument.

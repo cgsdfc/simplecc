@@ -8,11 +8,9 @@ module Compiler
 
     decl = ConstDecl(basic_type type, expr value)
          | VarDecl(basic_type type, int is_array, int size)
-         | FuncDef(basic_type return_type, arg* args, decl* decls, stmt* stmts)
+         | FuncDef(basic_type return_type, decl* args, decl* decls, stmt* stmts)
+         | ArgDecl(basic_type type)
           attributes (identifier name, location loc)
-
-    arg = (basic_type type, identifier name)
-          attributes (location loc)
 
     stmt = Read(expr* names)
          | Write(expr? str, expr? value)

@@ -56,8 +56,8 @@ void FuncDef::Format(std::ostream &os) const {
      << "loc=" << loc << ")";
 }
 
-void Arg::Format(std::ostream &os) const {
-  os << "Arg("
+void ArgDecl::Format(std::ostream &os) const {
+  os << "ArgDecl("
      << "type=" << type << ", "
      << "name=" << name << ", "
      << "loc=" << loc << ")";
@@ -276,7 +276,7 @@ FuncDef::~FuncDef() {
     delete v;
 }
 
-Arg::~Arg() {}
+ArgDecl::~ArgDecl() {}
 
 Read::~Read() {
   for (auto v : names)

@@ -119,7 +119,7 @@ class AstBuilder {
   void visit_funcdef(BasicTypeKind return_type, const String &name,
                      Node *decl_trailer, const Location &location,
                      std::vector<Decl *> &decls) {
-    std::vector<Arg *> paralist;
+    std::vector<Decl *> paralist;
     std::vector<Decl *> fn_decls;
     std::vector<Stmt *> fn_stmts;
 
@@ -132,14 +132,14 @@ class AstBuilder {
         new FuncDef(return_type, paralist, fn_decls, fn_stmts, name, location));
   }
 
-  void visit_paralist(Node *node, std::vector<Arg *> &paralist) {
+  void visit_paralist(Node *node, std::vector<Decl *> &paralist) {
     int n_items = (node->getNumChildren() - 1) / 3;
 
     for (int i = 0; i < n_items; i++) {
       auto type_name = node->getChild(1 + i * 3);
       auto name = node->getChild(2 + i * 3);
 
-      paralist.push_back(new Arg(visit_type_name(type_name), name->getValue(),
+      paralist.push_back(new ArgDecl(visit_type_name(type_name), name->getValue(),
                                  type_name->getLocation()));
     }
   }

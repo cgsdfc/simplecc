@@ -13,12 +13,10 @@ std::ostream &operator<<(std::ostream &os, Scope s);
 class SymbolEntry {
   Scope scope;
   Decl *decl;
-  Arg *arg;
 
 public:
   SymbolEntry(Scope scope, Decl *decl)
-      : scope(scope), decl(decl), arg(nullptr) {}
-  SymbolEntry(Scope scope, Arg *arg) : scope(scope), decl(nullptr), arg(arg) {}
+      : scope(scope), decl(decl) {}
 
   bool IsFunction() const;
   FuncType AsFunction() const;

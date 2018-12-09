@@ -116,10 +116,14 @@ class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
     }
   }
 
+  void visitArgDecl(ArgDecl *AD) {
+      w.WriteLine("para", CStringFromBasicTypeKind(AD->type), AD->name);
+  }
+
   void visitFuncDef(FuncDef *node) {
     w.WriteLine(CStringFromBasicTypeKind(node->return_type), node->name, "()");
     for (auto arg : node->args) {
-      w.WriteLine("para", CStringFromBasicTypeKind(arg->type), arg->name);
+      visitDecl(arg);
     }
     for (auto decl : node->decls) {
       visitDecl(decl);
