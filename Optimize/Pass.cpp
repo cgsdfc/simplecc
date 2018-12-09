@@ -1,15 +1,15 @@
 #include "Pass.h"
-#include "Node.h"
 #include "AST.h"
 #include "Assemble.h"
-#include "Parser.h"
-#include "Tokenize.h"
-#include "SymbolTable.h"
-#include "TypeChecker.h"
-#include "Compile.h"
 #include "AstBuilder.h"
 #include "ByteCodePrinter.h"
+#include "Compile.h"
+#include "Node.h"
+#include "Parser.h"
+#include "SymbolTable.h"
 #include "SyntaxChecker.h"
+#include "Tokenize.h"
+#include "TypeChecker.h"
 #include <memory>
 #include <unordered_map>
 
@@ -29,6 +29,7 @@ class PassManager {
   std::unordered_map<PassID, std::unique_ptr<Pass>> PassCache;
 
   Pass *getPassOrCreate(PassID ID);
+
 public:
   PassManager(String Filename = "") : Filename(std::move(Filename)) {}
 
@@ -52,8 +53,7 @@ public:
   /* } */
 };
 
-template <typename PassT>
-static PassT *callDefaultCtor() {
+template <typename PassT> static PassT *callDefaultCtor() {
   return new PassT();
 }
 
@@ -166,10 +166,9 @@ public:
 /// Common base class for Pass'es that process the AST.
 class AstPass : public Pass {
   std::unique_ptr<Program> TheAST;
+
 protected:
-  void setResult(Program *P) {
-    TheAST.reset(P);
-  }
+  void setResult(Program *P) { TheAST.reset(P); }
 
 public:
   AstPass() = default;
@@ -184,7 +183,8 @@ public:
   bool run(PassManager &PM) override {
     auto PP = PM.getPass<ParserPass>();
     /// ParserPass failed.
-    if (!PP) return false;
+    if (!PP)
+      return false;
     auto TheProgram = BuildAstFromNode(PP->getResult());
     assert(TheProgram && "BuildAstFromNode() must succeed");
     setResult(TheProgram);
@@ -198,7 +198,8 @@ public:
 
   bool run(PassManager &PM) override {
     auto BAP = PM.getPass<BuildAstPass>();
-    if (!BAP) return false;
+    if (!BAP)
+      return false;
     auto TheProgram = BAP->getResult();
     return CheckSyntax(TheProgram);
   }
@@ -207,18 +208,19 @@ public:
 /// This pass builds the symbol table.
 class SymbolTablePass : public Pass {
   SymbolTable TheTable;
+
 public:
   using ResultT = const SymbolTable &;
   static const char ID;
   bool run(PassManager &PM) override {
     auto SCP = PM.getPass<SyntaxCheckerPass>();
-    if (!SCP) return false;
+    if (!SCP)
+      return false;
     return TheTable.Build(SCP->getResult());
   }
 
   SymbolTable &getResult() { return TheTable; }
   const SymbolTable &getResult() const { return TheTable; }
-
 };
 
 class TypeCheckerPass : public AstPass {
@@ -227,7 +229,8 @@ public:
 
   bool run(PassManager &PM) override {
     auto STP = PM.getPass<SymbolTablePass>();
-    if (!STP) return false;
+    if (!STP)
+      return false;
     /// The SymbolTablePass's success implies that of BuildAstPass.
     auto TheProgram = PM.getResult<BuildAstPass>();
     return CheckType(TheProgram, STP->getResult());
@@ -246,7 +249,8 @@ public:
   static const char ID;
   bool run(PassManager &PM) override {
     auto AP = PM.getPass<AnalysisPass>();
-    if (!AP) return false;
+    if (!AP)
+      return false;
     PrintByteCode(AP->getResult(), PM.getOutputStream<std::ostream>());
     return true;
   }
@@ -254,6 +258,7 @@ public:
 
 class CompilePass : public Pass {
   CompiledModule TheModule;
+
 public:
   static const char ID;
   using ResultT = const CompiledModule &;
@@ -261,8 +266,10 @@ public:
 
   bool run(PassManager &PM) override {
     auto AP = PM.getPass<AnalysisPass>();
-    if (!AP) return false;
-    TheModule = CompileProgram(AP->getResult(), PM.getResult<SymbolTablePass>());
+    if (!AP)
+      return false;
+    TheModule =
+        CompileProgram(AP->getResult(), PM.getResult<SymbolTablePass>());
     return true;
   }
 };
@@ -284,7 +291,8 @@ Pass *PassManager::getPassOrCreate(PassID ID) {
   PassInfo *PI = getGlobalRegistry().getPassInfo(ID);
   std::unique_ptr<Pass> P(PI->createPass());
   bool OK = P->run(*this);
-  if (!OK) return nullptr;
+  if (!OK)
+    return nullptr;
   auto Result = PassCache.emplace(ID, std::move(P));
   assert(Result.second);
   return Result.first->second.get();
@@ -292,32 +300,33 @@ Pass *PassManager::getPassOrCreate(PassID ID) {
 
 template <typename PassT> PassT *PassManager::getPass() {
   auto P = getPassOrCreate(&PassT::ID);
-  return static_cast<PassT*>(P);
+  return static_cast<PassT *>(P);
 }
 
 static PassRegistry ThePassRegistry;
 
 static PassRegistry &getGlobalRegistry() { return ThePassRegistry; }
 
-#define INITIALIZE_PASS(Class, Name, Description) \
-  const char Class::ID = 0; \
+#define INITIALIZE_PASS(Class, Name, Description)                              \
+  const char Class::ID = 0;                                                    \
   static RegisterPass<Class> Class##Register(Name, Description);
-
 
 INITIALIZE_PASS(TokenizePass, "tokenize", "break input into tokens")
 INITIALIZE_PASS(ParserPass, "parse", "parse tokens")
 INITIALIZE_PASS(BuildAstPass, "build-ast",
-    "create an abstract syntax tree from the concrete syntax tree")
+                "create an abstract syntax tree from the concrete syntax tree")
 INITIALIZE_PASS(SyntaxCheckerPass, "syntax-check",
-                         "verify that the AST is syntactically correct")
+                "verify that the AST is syntactically correct")
 INITIALIZE_PASS(SymbolTablePass, "symbol-table",
-                           "build a symbol table from the abstract syntax tree")
-INITIALIZE_PASS(TypeCheckerPass,  "type-check",  "run type-check for the input program")
+                "build a symbol table from the abstract syntax tree")
+INITIALIZE_PASS(TypeCheckerPass, "type-check",
+                "run type-check for the input program")
 INITIALIZE_PASS(AnalysisPass, "", "")
 
 INITIALIZE_PASS(PrintByteCodePass, "print-bytecode",
-                           "print byte code in quarternary form")
-INITIALIZE_PASS(CompilePass, "compile", "compile the input program to byte code")
+                "print byte code in quarternary form")
+INITIALIZE_PASS(CompilePass, "compile",
+                "compile the input program to byte code")
 INITIALIZE_PASS(AssemblePass, "assemble",
-                     "assemble the compiled program to MIPS assembly")
+                "assemble the compiled program to MIPS assembly")
 } // namespace simplecompiler
