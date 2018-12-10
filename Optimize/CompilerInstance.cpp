@@ -13,7 +13,7 @@
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "ASTGraph.h"
 #include "CSTGraph.h"
-#include "emit_llvm.h"
+#include "EmitLLVM.h"
 #endif
 
 #include <llvm/Support/raw_ostream.h>
