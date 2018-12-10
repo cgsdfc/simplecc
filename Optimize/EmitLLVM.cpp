@@ -192,48 +192,10 @@ public:
   }
 };
 
-/// A class that translates one SymbolTableView of names to their LLVM Values.
-class LLVMLocalValueTable {
-  /// Map names in one local namespace to their LLVM Value's.
-  std::unordered_map<String, Value *> NamedValues;
-
-  /// Get the LLVM Value corresponding to a SymbolEntry.
-  Value *ValueFromSymbolEntry(const SymbolEntry &SE,
-                              const LLVMValueMap &VM) const {
-    if (SE.IsConstant()) {
-      return VM.getConstant(SE.AsConstant());
-    } else if (SE.IsArray()) {
-      return VM.getArray(SE.GetScope(), SE.GetName(), SE.AsArray());
-    } else if (SE.IsVariable()) {
-      return VM.getVariable(SE.GetScope(), SE.GetName(), SE.AsVariable());
-    } else if (SE.IsFunction()) {
-      return VM.getFunction(SE.GetName(), SE.AsFunction());
-    }
-    llvm_unreachable("Unknown SymbolEntry type");
-  }
-
-public:
-  /// Construct the Mapping eagerly.
-  LLVMLocalValueTable(SymbolTableView Local, LLVMContext &Context,
-                      Module &TheModule)
-      : NamedValues() {
-    LLVMValueMap ValueMap(TheModule, Context);
-    for (const std::pair<String, SymbolEntry> &item : Local) {
-      NamedValues.emplace(item.first,
-                          ValueFromSymbolEntry(item.second, ValueMap));
-    }
-  }
-
-  /// Get the Value corresponding to a name. Assert on absent key.
-  Value *getValue(const String &Name) const {
-    assert(NamedValues.count(Name) && "Undefined Name");
-    return NamedValues.find(Name)->second;
-  }
-};
-
 /// A class that emits LLVM IR from an AST. This class concretely
 /// implements the LLVM IR code generation.
 class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
+
   /// Declare builtin functions (external really, but let's call it builtin).
   void DeclareBuiltinFunctions() {
     /* declare i32 @printf(i8*, ...) */
@@ -264,18 +226,14 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
   void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
   Value *visitExpr(Expr *E) { return VisitorBase::visitExpr<Value *>(E); }
 
-  /// Not used since these declaratioins are already taken care of by the
-  /// SymbolTable pass. Required by instantiation though.
-  void visitConstDecl(ConstDecl *) {}
-  void visitVarDecl(VarDecl *) {}
-  void visitArgDecl(ArgDecl *) {}
-
   /// Simple atom nodes.
-  Value *visitNum(Num *N) { return ValueMap.getInt(N->n); }
-  Value *visitChar(Char *C) { return ValueMap.getChar(C->c); }
+  Value *visitNum(Num *N) { return VM.getInt(N->n); }
+  Value *visitChar(Char *C) { return VM.getChar(C->c); }
   Value *visitStr(Str *S) { return getString(S->s); }
+
   Value *visitName(Name *Nn) {
-    Value *Ptr = LocalValues->getValue(Nn->id);
+    Value *Ptr = LocalValues_[Nn->id];
+    assert(Ptr);
     if (Nn->ctx == ExprContextKind::Load) {
       return Builder.CreateLoad(Ptr, Nn->id);
     }
@@ -283,20 +241,20 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
   }
 
   /// Simple wrapper nodes.
-  Value *visitParenExpr(ParenExpr *node) { return visitExpr(node->value); }
+  Value *visitParenExpr(ParenExpr *PE) { return visitExpr(PE->value); }
   void visitExprStmt(ExprStmt *ES) { visitExpr(ES->value); }
 
   /// Convert the condition value to non-zeroness.
-  Value *visitBoolOp(BoolOp *node) {
-    Value *Val = visitExpr(node->value);
-    return Builder.CreateICmpNE(Val, ValueMap.getBool(false), "condtmp");
+  Value *visitBoolOp(BoolOp *B) {
+    Value *Val = visitExpr(B->value);
+    return Builder.CreateICmpNE(Val, VM.getBool(false), "condtmp");
   }
 
-  Value *visitBinOp(BinOp *node) {
-    Value *L = visitExpr(node->left);
-    Value *R = visitExpr(node->right);
+  Value *visitBinOp(BinOp *B) {
+    Value *L = visitExpr(B->left);
+    Value *R = visitExpr(B->right);
     assert(L && R);
-    switch (node->op) {
+    switch (B->op) {
     case OperatorKind::Add:
       return Builder.CreateAdd(L, R, "addtmp");
     case OperatorKind::Sub:
@@ -320,9 +278,9 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     }
   }
 
-  Value *visitUnaryOp(UnaryOp *node) {
-    Value *Operand = visitExpr(node->operand);
-    switch (node->op) {
+  Value *visitUnaryOp(UnaryOp *U) {
+    Value *Operand = visitExpr(U->operand);
+    switch (U->op) {
     case UnaryopKind::USub:
       return Builder.CreateNeg(Operand, "negtmp");
     case UnaryopKind::UAdd:
@@ -330,10 +288,10 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     }
   }
 
-  void visitIf(If *node) {
+  void visitIf(If *I) {
     Function *TheFunction = Builder.GetInsertBlock()->getParent();
     /// Emit the condition evalation, which continues in the current BasicBlock.
-    Value *CondV = visitExpr(node->test);
+    Value *CondV = visitExpr(I->test);
     /// Create the targets for the conditional branch that ends the current
     /// BasicBlock.
     BasicBlock *Then = BasicBlock::Create(TheContext, "then", TheFunction);
@@ -344,7 +302,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 
     /// Begin to emit the body into Then BB.
     Builder.SetInsertPoint(Then);
-    for (Stmt *S : node->body) {
+    for (Stmt *S : I->body) {
       visitStmt(S);
     }
     /// Ends with an unconditional branch to End.
@@ -352,7 +310,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 
     /// Begin to emit the orelse into Else BB.
     Builder.SetInsertPoint(Else);
-    for (Stmt *S : node->orelse) {
+    for (Stmt *S : I->orelse) {
       visitStmt(S);
     }
     /// Ends with an unconditional branch to End.
@@ -361,7 +319,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     Builder.SetInsertPoint(End);
   }
 
-  void visitWhile(While *node) {
+  void visitWhile(While *W) {
     /// Get the Parent to put BasicBlock's in it.
     Function *TheFunction = Builder.GetInsertBlock()->getParent();
     /// Create the BB for `loop`, which contains evalation the condition
@@ -372,7 +330,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     /// Begin to emit instructions of the loop BB.
     Builder.SetInsertPoint(Loop);
     /// Emit the condition evalation.
-    Value *CondV = visitExpr(node->condition);
+    Value *CondV = visitExpr(W->condition);
 
     /// Create the targets of a conditional branch that ends loop BB.
     BasicBlock *End = BasicBlock::Create(TheContext, "end", TheFunction);
@@ -382,7 +340,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 
     /// Begin to emit the Body, which is ``while { body }``.
     Builder.SetInsertPoint(Body);
-    for (Stmt *S : node->body) {
+    for (Stmt *S : W->body) {
       visitStmt(S);
     }
     /// The body ends with an unconditional branch to the beginning of loop.
@@ -395,7 +353,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
   /// For is the most complicated beast, and with the requirement to
   /// execute the body **before** the evaluation of condition at first
   /// make it no like ordinary for.
-  void visitFor(For *node) {
+  void visitFor(For *F) {
     Function *TheFunction = Builder.GetInsertBlock()->getParent();
     /// Create all the BasicBlock's involved all at once.
     BasicBlock *Body = BasicBlock::Create(TheContext, "body", TheFunction);
@@ -403,20 +361,20 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     BasicBlock *End = BasicBlock::Create(TheContext, "end", TheFunction);
 
     /// Execute initial stmt in the current BB.
-    visitStmt(node->initial);
+    visitStmt(F->initial);
     /// End of initial BB: Immediately jump to the Body.
     Builder.CreateBr(Body);
 
     /// Begin Loop: step; condition => (Body, End).
     Builder.SetInsertPoint(Loop);
-    visitStmt(node->step);
-    Value *CondV = visitExpr(node->condition);
+    visitStmt(F->step);
+    Value *CondV = visitExpr(F->condition);
     /// End of Loop
     Builder.CreateCondBr(CondV, /* true */ Body, /* false */ End);
 
     /// Begin Body:
     Builder.SetInsertPoint(Body);
-    for (Stmt *S : node->body) {
+    for (Stmt *S : F->body) {
       visitStmt(S);
     }
     /// End of Body: jump back to Loop.
@@ -426,29 +384,28 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     Builder.SetInsertPoint(End);
   }
 
-  Value *visitCall(Call *node) {
-    Value *Callee = LocalValues->getValue(node->func);
-    assert(Callee && "Callee must be a created Function");
-
+  Value *visitCall(Call *C) {
+    Value *Callee = LocalValues_[C->func];
+    assert(Callee && "Callee must be created");
     std::vector<Value *> ArgsV;
-    ArgsV.reserve(node->args.size());
-    for (Expr *A : node->args) {
+    ArgsV.reserve(C->args.size());
+    for (Expr *A : C->args) {
       Value *Val = visitExpr(A);
       ArgsV.push_back(Val);
     }
     return Builder.CreateCall(Callee, ArgsV, "calltmp");
   }
 
-  void visitReturn(Return *node) {
-    if (node->value) {
-      Value *Val = visitExpr(node->value);
+  void visitReturn(Return *Ret) {
+    if (Ret->value) {
+      Value *Val = visitExpr(Ret->value);
       Builder.CreateRet(Val);
     } else {
       Builder.CreateRetVoid();
     }
     /// Return is a Terminator. End this BB and create a new one.
     /// Normally one should not write code after a return because these
-    /// code obviously dead. But is is possible and a good chance for DCE.
+    /// code obviously dead (without goto). But is is possible and a good chance for DCE.
     auto TheFunction = Builder.GetInsertBlock()->getParent();
     BasicBlock *NextBB = BasicBlock::Create(TheContext, "next", TheFunction);
     Builder.SetInsertPoint(NextBB);
@@ -460,22 +417,29 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     Builder.CreateStore(RHS, LHS);
   }
 
+  /// The logic varies depending on whether it is a load/store and whether
+  /// it is a global/local array.
   Value *visitSubscript(Subscript *SB) {
-    Value *Array = LocalValues->getValue(SB->name);
+    Value *Array = LocalValues_[SB->name];
+
     assert(Array && "Array Value must exist");
     Value *Index = visitExpr(SB->index);
+
     /// Always remember Array values are represented by **ptr to array**
     /// and to get an address to its element, it **must** be stepped through
     /// first using a zero index in getelementptr and then the desired index.
-    Value *IdxList[2] = {ValueMap.getInt(0), Index};
-    Value *GEP = Builder.CreateInBoundsGEP(Array, IdxList, "subscr");
-    if (SB->ctx == ExprContextKind::Load) {
+    Value *IdxList[2] = {VM.getInt(0), Index};
+    Value *ElemPtr = Builder.CreateInBoundsGEP(Array, IdxList, "subscr");
+
+    switch (SB->ctx) {
+    case ExprContextKind::Load:
       /// If this is a Load, emit a load.
-      return Builder.CreateLoad(GEP, "elemtmp");
+      return Builder.CreateLoad(ElemPtr, "elemtmp");
+    case ExprContextKind::Store:
+      /// If this is a Store, just return the ptr to the elememt
+      /// to be stored by an Assign.
+      return ElemPtr;
     }
-    /// If this is a Store, just return the ptr to the elememt
-    /// to be stored by an Assign.
-    return GEP;
   }
 
   void visitRead(Read *RD) {
@@ -487,7 +451,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 
     /// Select appropriate format specifier by type.
     auto SelectFmtSpc = [this](Expr *Name) {
-      auto T = Symbols.GetExprType(Name);
+      auto T = TheTable.GetExprType(Name);
       switch (T) {
       case BasicTypeKind::Int:
         return "%d";
@@ -501,7 +465,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     for (Expr *E : RD->names) {
       Name *Nn = static_cast<Name *>(E);
       Value *FmtV = getString(SelectFmtSpc(Nn));
-      Value *Var = LocalValues->getValue(Nn->id);
+      Value *Var = LocalValues_[Nn->id];
       assert(Var && "Var must be created");
       Args.clear();
       Args.push_back(FmtV);
@@ -510,20 +474,19 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     }
   }
 
+  /// Emit a printf("%d\n", Var) for printf(<int-expr>);
+  ///      a printf("%c\n", Var) for printf(<char-expr>);
+  ///      a printf("%s\n", Str) for printf(<string>);
+  ///      a printf("%s%d\n", Str, Var) for printf(<string>, <int-expr>);
+  ///      a printf("%s%c\n", Str, Var) for printf(<string>, <char-expr>);
   void visitWrite(Write *WR) {
-    /// Emit a printf("%d\n", Var) for printf(<int-expr>);
-    //       a printf("%c\n", Var) for printf(<char-expr>);
-    //       a printf("%s\n", Str) for printf(<string>);
-    //       a printf("%s%d\n", Str, Var) for printf(<string>, <int-expr>);
-    //       a printf("%s%c\n", Str, Var) for printf(<string>, <char-expr>);
-
     /// A small lambda to select the appropriate format specifier.
     auto SelectFmtSpc = [WR, this]() {
       if (!WR->value) {
         // No expr, no need to consult SymbolTable
         return "%s\n";
       }
-      auto T = Symbols.GetExprType(WR->value);
+      auto T = TheTable.GetExprType(WR->value);
       if (!WR->str) {
         // No string.
         return T == BasicTypeKind::Character ? "%c\n" : "%d\n";
@@ -546,8 +509,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 
   /// Generate body for a Function.
   void visitFuncDef(FuncDef *FD) {
-    LLVMTypeMap TM(TheContext);
-    LLVMValueMap VM(TheModule, TheContext);
+    /// Clear the Mapping.
     LocalValues_.clear();
 
     auto Fn = Function::Create(
@@ -587,10 +549,10 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     }
 
     /// Populate LocalValues with global objects.
-    SymbolTableView Local = Symbols.GetLocal(FD);
+    SymbolTableView Local = TheTable.GetLocal(FD);
     for (auto &&Pair : Local) {
       const SymbolEntry &E = Pair.second;
-      if (E.GetScope() == Scope::Local) {
+      if (E.IsLocal()) {
         assert(LocalValues_.count(E.GetName()) &&
                "Local Decl must have been handled");
         continue;
@@ -629,33 +591,36 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     /// No need to call verifyFunction() since verifyModule() does that.
   }
 
-  /// Public interface.
-  void visitProgram(Program *P) {
-    LLVMTypeMap TM(TheContext);
-    LLVMValueMap VM(TheModule, TheContext);
+  /// Create a global constant.
+  void visitConstDecl(ConstDecl *CD) {
+    // Create a global constant.
+    auto GV = new llvm::GlobalVariable(
+        /* Module */ TheModule,
+        /* Type */ TM.getTypeFromConstDecl(CD),
+        /* IsConstant */ true,
+        /* Linkage */ GlobalVariable::InternalLinkage,
+        /* Initializer */ VM.getConstantFromExpr(CD->value),
+        /* Name */ CD->name);
+    (void)GV;
+  }
 
+  /// Create a global variable.
+  void visitVarDecl(VarDecl *VD) {
+    auto GV = new llvm::GlobalVariable(
+        /* Module */ TheModule,
+        /* Type */ TM.getTypeFromVarDecl(VD),
+        /* IsConstant */ false,
+        /* Linkage */ GlobalVariable::InternalLinkage,
+        /* Initializer */ VM.getGlobalInitializer(VD),
+        /* Name */ VD->name);
+    (void)GV;
+  }
+
+  void visitArgDecl(ArgDecl *) {}
+
+  void visitProgram(Program *P) {
     for (Decl *D : P->decls) {
-      if (auto CD = subclass_cast<ConstDecl>(D)) {
-        // Create a global constant.
-        auto GV = new llvm::GlobalVariable(
-            /* Module */ TheModule,
-            /* Type */ TM.getTypeFromConstDecl(CD),
-            /* IsConstant */ true,
-            /* Linkage */ GlobalVariable::InternalLinkage,
-            /* Initializer */ VM.getConstantFromExpr(CD->value),
-            /* Name */ CD->name);
-        (void)GV;
-      } else if (auto VD = subclass_cast<VarDecl>(D)) {
-        auto GV = new llvm::GlobalVariable(
-            /* Module */ TheModule,
-            /* Type */ TM.getTypeFromVarDecl(VD),
-            /* IsConstant */ false,
-            /* Linkage */ GlobalVariable::InternalLinkage,
-            /* Initializer */ VM.getGlobalInitializer(VD),
-            /* Name */ VD->name);
-      } else if (auto FD = subclass_cast<FuncDef>(D)) {
-        visitFuncDef(FD);
-      }
+      visitDecl(D);
     }
     /// Verify the Module.
     String ErrorMsg;
@@ -668,8 +633,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 public:
   LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C,
                      llvm::Module &M)
-      : Symbols(S), TheContext(C), TheModule(M), Builder(C), ValueMap(M, C),
-        LocalValues(), EM() {
+      : TheTable(S), TheContext(C), TheModule(M), Builder(C), EM(), TM(C), VM(M, C) {
     DeclareBuiltinFunctions();
   }
 
@@ -685,7 +649,8 @@ private:
   friend class VisitorBase<LLVMIRCompilerImpl>;
 
   /// Used for getting types of an Expr.
-  const SymbolTable &Symbols;
+  const SymbolTable &TheTable;
+  SymbolTableView LocalTable;
 
   /// Keep a reference to core LLVM data structures
   LLVMContext &TheContext;
@@ -694,12 +659,10 @@ private:
   /// Major tool for emitting instructions.
   IRBuilder<> Builder;
 
-  /// Used to translate literal value on the fly.
-  LLVMValueMap ValueMap;
+  LLVMValueMap VM;
+  LLVMTypeMap TM;
   std::unordered_map<String, Value *> LocalValues_;
 
-  /// This mapping changes function to function.
-  std::unique_ptr<LLVMLocalValueTable> LocalValues;
   ErrorManager EM;
 };
 

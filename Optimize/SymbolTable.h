@@ -37,6 +37,9 @@ public:
 
   Scope GetScope() const { return scope; }
 
+  bool IsGlobal() const { return Scope::Global == GetScope(); }
+  bool IsLocal() const { return Scope::Local == GetScope(); }
+
   bool IsFormalArgument() const;
 
   void Format(std::ostream &os) const;
@@ -57,6 +60,11 @@ class SymbolTableView {
   SymbolTableView(const TableType &subtable) : subtable(&subtable) {}
 
 public:
+  SymbolTableView() = default;
+  SymbolTableView(const SymbolTableView &) = default;
+  SymbolTableView(SymbolTableView &&) = default;
+  ~SymbolTableView() = default;
+
   // Sane operator[]
   const SymbolEntry &operator[](const String &name) const {
     assert(subtable->count(name));
