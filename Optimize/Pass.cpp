@@ -6,11 +6,11 @@
 #include "Compile.h"
 #include "Node.h"
 #include "Parser.h"
+#include "Print.h"
 #include "SymbolTable.h"
 #include "SyntaxChecker.h"
 #include "Tokenize.h"
 #include "TypeChecker.h"
-#include "Print.h"
 
 #include <algorithm>
 #include <cstring>
@@ -26,9 +26,8 @@ template <typename PassT> struct RegisterPass {
 
 /// Helper macro of RegisterPass.
 #define INITIALIZE_PASS(Class, Name, Description)                              \
-  char Class::ID = 0;                                                    \
+  char Class::ID = 0;                                                          \
   static RegisterPass<Class> Class##Register(Name, Description);
-
 
 std::istream &PassManager::getInputStream() {
   return IFilename.empty() ? std::cin : IFileStream;
@@ -97,7 +96,7 @@ class TokenizePass : public Pass {
 
 public:
   static char ID;
-  using ResultT = std::vector<TokenInfo>;
+  using ResultT = const std::vector<TokenInfo> &;
 
   bool run(PassManager &PM) override {
     Tokenize(PM.getInputStream(), Tokens);
@@ -106,7 +105,7 @@ public:
 
   ResultT getResult() const { return Tokens; }
 };
-INITIALIZE_PASS(TokenizePass, "tokenize", "break input into tokens")
+INITIALIZE_PASS(TokenizePass, "", "")
 
 class ParserPass : public Pass {
   std::unique_ptr<Node> ParseTree;
@@ -118,16 +117,47 @@ public:
   bool run(PassManager &PM) override {
     auto &&Tokens = PM.getResult<TokenizePass>();
     ParseTree = std::unique_ptr<Node>(ParseTokens(Tokens));
-    return bool(ParseTree);
+    return ParseTree != nullptr;
   }
 
   ResultT getResult() const { return ParseTree.get(); }
 };
 
-INITIALIZE_PASS(ParserPass, "parse", "parse tokens")
+INITIALIZE_PASS(ParserPass, "", "")
+
+template <typename ResultT> struct PrinterTrait {
+  static void Print(std::ostream &OS, ResultT R) { OS << R << "\n"; }
+};
+
+/// Generic base class that prints out the result of some pass.
+/// Derived class can provide their own Print() or uses the default impl here.
+template <typename Base> class PrintPassMixin : public Base {
+  using TraitT = PrinterTrait<typename Base::ResultT>;
+
+public:
+  static char ID;
+  bool run(PassManager &PM) override {
+    if (Base::run(PM)) {
+      TraitT::Print(PM.getOutputStream(), Base::getResult());
+      return true;
+    }
+    return false;
+  }
+};
+
+template <> struct PrinterTrait<TokenizePass::ResultT> {
+  static void Print(std::ostream &OS, TokenizePass::ResultT R) {
+    PrintTokens(R, OS);
+  }
+};
+
+template <typename T> struct PrinterTrait<T *> {
+  static void Print(std::ostream &OS, T *R) { OS << *R << "\n"; }
+};
 
 class BuildAstPass : public Pass {
   std::unique_ptr<Program> TheProgram;
+
 public:
   static char ID;
   using ResultT = Program *;
@@ -144,11 +174,26 @@ public:
   Program *getResult() const { return TheProgram.get(); }
 };
 
-INITIALIZE_PASS(BuildAstPass, "build-ast",
-                "create an abstract syntax tree from the concrete syntax tree")
+INITIALIZE_PASS(BuildAstPass, "", "")
+
+using PrintTokensPass = PrintPassMixin<TokenizePass>;
+static RegisterPass<PrintTokensPass> PrintTokensPassRegister("print-tokens",
+                                                             "");
+template <> char PrintTokensPass::ID = 0;
+
+using PrintNodePass = PrintPassMixin<ParserPass>;
+static RegisterPass<PrintNodePass>
+    PrintNodePassRegister("print-nodes", "dump nodes of concrete syntax tree");
+template <> char PrintNodePass::ID = 0;
+
+using PrintAstPass = PrintPassMixin<BuildAstPass>;
+static RegisterPass<PrintAstPass>
+    PrintAstPassRegister("print-ast", "dump the nodes of abstract syntax tree");
+template <> char PrintAstPass::ID = 0;
 
 class SyntaxCheckerPass : public Pass {
   Program *TheProgram;
+
 public:
   static char ID;
 
@@ -184,11 +229,16 @@ public:
   const SymbolTable &getResult() const { return TheTable; }
 };
 
-INITIALIZE_PASS(SymbolTablePass, "symbol-table",
-                "build a symbol table from the abstract syntax tree")
+INITIALIZE_PASS(SymbolTablePass, "", "")
+
+using PrintSymbolTablePass = PrintPassMixin<SymbolTablePass>;
+static RegisterPass<PrintSymbolTablePass>
+    PrintSymbolTablePassRegister("print-symbol-table", "");
+template <> char PrintSymbolTablePass::ID = 0;
 
 class TypeCheckerPass : public Pass {
   Program *TheProgram;
+
 public:
   static char ID;
 
@@ -248,8 +298,14 @@ public:
   }
 };
 
-INITIALIZE_PASS(CompilePass, "compile",
-                "compile the input program to byte code")
+using PrintCompilePass = PrintPassMixin<CompilePass>;
+static RegisterPass<PrintCompilePass>
+    PrintCompilePassRegistry("compile",
+                             "compile the input program to byte code");
+template <> char PrintCompilePass::ID = 0;
+
+INITIALIZE_PASS(CompilePass, "", "")
+
 class AssemblePass : public Pass {
 public:
   static char ID;
@@ -275,8 +331,10 @@ PassRegistry &getGlobalRegistry() {
 }
 
 void PassInfo::Format(std::ostream &OS) const {
-  OS << "PassInfo(ID=" << ID << ", " << "Name=" << Name;
-  OS << ", " << "Description=" << Description << ")";
+  OS << "PassInfo(ID=" << ID << ", "
+     << "Name=" << Name;
+  OS << ", "
+     << "Description=" << Description << ")";
 }
 
 void PassRegistry::dump() const {

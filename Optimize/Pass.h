@@ -3,9 +3,9 @@
 #include <cassert>
 #include <fstream>
 #include <iterator>
+#include <map>
 #include <memory>
 #include <unordered_map>
-#include <map>
 
 namespace simplecompiler {
 using String = std::string;
@@ -144,14 +144,15 @@ public:
     return P->getResult();
   }
 
+  /// Return the input stream.
   std::istream &getInputStream();
 
+  /// Return the output stream.
   std::ostream &getOutputStream();
 
   /// Run a specific pass.
   template <typename PassT> bool run() { return getPass<PassT>() != nullptr; }
   bool run(PassID ID) { return getPassOrCreate(ID) != nullptr; }
-
 };
 
 PassRegistry &getGlobalRegistry();

@@ -60,19 +60,16 @@ public:
     }
 
     /// Find the argument selected by the user.
-    auto ArgIter = std::find_if(std::begin(Args), std::end(Args), [](Arg *V) { return V->isSet(); });
+    auto ArgIter = std::find_if(std::begin(Args), std::end(Args),
+                                [](Arg *V) { return V->isSet(); });
     assert(ArgIter != Args.end() && "At one argument must be given");
     Arg *SelectedArg = *ArgIter;
 
     /// Find the PassInfo entry corresponding to the argument.
-    /// Run the specific Pass.
     PassInfo *PI = getGlobalRegistry().getPassInfo(SelectedArg->getName());
+    /// Run the specific Pass.
     return !PM.run(PI->getID());
   }
-
 };
 
-int main(int argc, char **argv) {
-  getGlobalRegistry().dump();
-  return CommandLine().run(argc, argv);
-}
+int main(int argc, char **argv) { return CommandLine().run(argc, argv); }
