@@ -14,9 +14,8 @@
 #include "ASTGraph.h"
 #include "CSTGraph.h"
 #include "EmitLLVM.h"
-#endif
-
 #include <llvm/Support/raw_ostream.h>
+#endif
 
 using namespace simplecompiler;
 CompilerInstance::CompilerInstance(std::istream &input, std::ostream &output)

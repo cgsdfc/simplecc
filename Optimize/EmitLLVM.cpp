@@ -15,9 +15,7 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/ErrorHandling.h>
 
-using namespace simplecompiler;
-
-namespace {
+namespace simplecompiler {
 using llvm::AllocaInst;
 using llvm::BasicBlock;
 using llvm::Constant;
@@ -25,6 +23,7 @@ using llvm::ConstantDataArray; /// For string literal
 using llvm::ConstantInt;
 using llvm::Function;
 using llvm::FunctionType;
+using llvm::GlobalVariable;
 using llvm::Instruction;
 using llvm::IRBuilder;
 using llvm::LLVMContext;
@@ -57,6 +56,12 @@ public:
     }
   }
 
+  Type *getTypeFromVarDecl(VarDecl *VD) const {
+    if (VD->is_array)
+      return getType(ArrayType(VD));
+    return getType(VarType(VD->type));
+  }
+
   /// Convert an ArrayType.
   Type *getType(const ArrayType &A) const {
     return llvm::ArrayType::get(getType(A.GetElementType()), A.GetSize());
@@ -66,7 +71,7 @@ public:
   Type *getType(const VarType &V) const { return getType(V.GetType()); }
 
   /// Convert a FuncType.
-  Type *getType(const FuncType &F) const {
+  FunctionType *getType(const FuncType &F) const {
     Type *ReturnType = getType(F.GetReturnType());
     std::vector<Type *> ArgTypes(F.GetArgCount());
     for (int i = 0; i < F.GetArgCount(); i++) {
@@ -74,6 +79,10 @@ public:
     }
     return FunctionType::get(ReturnType, ArgTypes, false);
   }
+
+  Type *getType(const ConstType &C) const { return getType(C.GetType()); }
+
+  Type *getTypeFromConstDecl(ConstDecl *CD) const { return getType(CD->type); }
 };
 
 /// A class that convert values of different types to LLVM counterparts.
@@ -141,19 +150,45 @@ public:
   }
 
   /// Convert a Num node to int value.
-  Value *getInt(int N) const {
+  Constant *getInt(int N) const {
     return ConstantInt::get(getType(BasicTypeKind::Int), N, false);
   }
 
   /// Convert a Char node to char value.
-  Value *getChar(char C) const {
+  Constant *getChar(char C) const {
     return ConstantInt::get(getType(BasicTypeKind::Character), C, false);
   }
 
+  // Convert a constant expression.
+  Constant *getConstantFromExpr(Expr *E) const {
+    switch (E->GetKind()) {
+    case Expr::Num:
+      return getInt(static_cast<Num *>(E)->n);
+    case Expr::Char:
+      return getChar(static_cast<Char *>(E)->c);
+    default:
+      llvm_unreachable("Expr must be Num or Char");
+    }
+  }
+
   /// Convert a bool value.
-  Value *getBool(bool B) const {
+  Constant *getBool(bool B) const {
     return B ? ConstantInt::getTrue(getContext())
              : ConstantInt::getFalse(getContext());
+  }
+
+  Constant *getGlobalInitializer(VarDecl *VD) {
+    if (VD->is_array) {
+      return llvm::ConstantAggregateZero::get(getType(VD));
+    }
+    switch (VD->type) {
+    case BasicTypeKind::Int:
+      return getInt(0);
+    case BasicTypeKind::Character:
+      return getChar(0);
+    default:
+      llvm_unreachable("Void cannot be");
+    }
   }
 };
 
@@ -199,25 +234,6 @@ public:
 /// A class that emits LLVM IR from an AST. This class concretely
 /// implements the LLVM IR code generation.
 class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
-  friend class VisitorBase<LLVMIRCompilerImpl>;
-
-  /// Used for getting types of an Expr.
-  const SymbolTable &Symbols;
-
-  /// Keep a reference to core LLVM data structures
-  LLVMContext &TheContext;
-  llvm::Module &TheModule;
-
-  /// Major tool for emitting instructions.
-  IRBuilder<> Builder;
-
-  /// Used to translate literal value on the fly.
-  LLVMValueMap ValueMap;
-
-  /// This mapping changes function to function.
-  std::unique_ptr<LLVMLocalValueTable> LocalValues;
-  ErrorManager EM;
-
   /// Declare builtin functions (external really, but let's call it builtin).
   void DeclareBuiltinFunctions() {
     /* declare i32 @printf(i8*, ...) */
@@ -530,32 +546,61 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 
   /// Generate body for a Function.
   void visitFuncDef(FuncDef *FD) {
-    Function *Fn = llvm::dyn_cast<Function>(ValueMap.getFunction(FD));
-    assert(Fn && "function must be declared");
-    /// Our source code never link with others.
-    Fn->setLinkage(Function::InternalLinkage);
+    LLVMTypeMap TM(TheContext);
+    LLVMValueMap VM(TheModule, TheContext);
+    LocalValues_.clear();
+
+    auto Fn = Function::Create(
+        /* FunctionType */ TM.getType(FD),
+        /* Linkage */ Function::InternalLinkage,
+        /* Name */ FD->name,
+        /* Module */ &TheModule);
 
     /// Create the entry point (Function body).
     BasicBlock *EntryBlock = BasicBlock::Create(TheContext, "entry", Fn);
     Builder.SetInsertPoint(EntryBlock);
 
     /// Setup arguments.
-    assert(FD->args.size() == Fn->arg_size());
     for (llvm::Argument &Val : Fn->args()) {
       auto Idx = Val.getArgNo();
-      Decl *V = FD->args[Idx];
+      ArgDecl *V = static_cast<ArgDecl *>(FD->args[Idx]);
       Val.setName(V->name);
-      auto Ptr = LocalValues->getValue(V->name);
+      /// Argument is never array.
+      auto Ptr = Builder.CreateAlloca(TM.getType(V->type), nullptr, V->name);
       /// Store the initial value of an argument.
       Builder.CreateStore(&Val, Ptr);
+      LocalValues_.emplace(V->name, Ptr);
     }
 
     /// Setup alloca for local storage.
+    /// Setup local constants.
     for (Decl *D : FD->decls) {
       if (auto VD = subclass_cast<VarDecl>(D)) {
-        auto Alloca =
-            llvm::dyn_cast<Instruction>(LocalValues->getValue(VD->name));
-        Builder.Insert(Alloca, VD->name);
+        auto Alloca = Builder.CreateAlloca(
+            /* Type */ TM.getType(VD->type),
+            /* ArraySize */ VD->is_array ? VM.getInt(VD->size) : nullptr,
+            /* Name */ VD->name);
+        LocalValues_.emplace(VD->name, Alloca);
+      } else if (auto CD = subclass_cast<ConstDecl>(D)) {
+        LocalValues_.emplace(CD->name, VM.getConstantFromExpr(CD->value));
+      }
+    }
+
+    /// Populate LocalValues with global objects.
+    SymbolTableView Local = Symbols.GetLocal(FD);
+    for (auto &&Pair : Local) {
+      const SymbolEntry &E = Pair.second;
+      if (E.GetScope() == Scope::Local) {
+        assert(LocalValues_.count(E.GetName()) &&
+               "Local Decl must have been handled");
+        continue;
+      }
+      if (E.IsFunction()) {
+        LocalValues_.emplace(E.GetName(), TheModule.getFunction(E.GetName()));
+      } else {
+        /// GlobalVariable
+        LocalValues_.emplace(E.GetName(),
+                             TheModule.getGlobalVariable(E.GetName()));
       }
     }
 
@@ -586,12 +631,29 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 
   /// Public interface.
   void visitProgram(Program *P) {
+    LLVMTypeMap TM(TheContext);
+    LLVMValueMap VM(TheModule, TheContext);
+
     for (Decl *D : P->decls) {
-      if (auto FD = subclass_cast<FuncDef>(D)) {
-        LocalValues = std::make_unique<LLVMLocalValueTable>(
-            /* Local */ Symbols.GetLocal(FD),
-            /* Context */ TheContext,
-            /* Module */ TheModule);
+      if (auto CD = subclass_cast<ConstDecl>(D)) {
+        // Create a global constant.
+        auto GV = new llvm::GlobalVariable(
+            /* Module */ TheModule,
+            /* Type */ TM.getTypeFromConstDecl(CD),
+            /* IsConstant */ true,
+            /* Linkage */ GlobalVariable::InternalLinkage,
+            /* Initializer */ VM.getConstantFromExpr(CD->value),
+            /* Name */ CD->name);
+        (void)GV;
+      } else if (auto VD = subclass_cast<VarDecl>(D)) {
+        auto GV = new llvm::GlobalVariable(
+            /* Module */ TheModule,
+            /* Type */ TM.getTypeFromVarDecl(VD),
+            /* IsConstant */ false,
+            /* Linkage */ GlobalVariable::InternalLinkage,
+            /* Initializer */ VM.getGlobalInitializer(VD),
+            /* Name */ VD->name);
+      } else if (auto FD = subclass_cast<FuncDef>(D)) {
         visitFuncDef(FD);
       }
     }
@@ -618,6 +680,27 @@ public:
 
   LLVMIRCompilerImpl(const LLVMIRCompilerImpl &) = delete;
   LLVMIRCompilerImpl(LLVMIRCompilerImpl &&) = delete;
+
+private:
+  friend class VisitorBase<LLVMIRCompilerImpl>;
+
+  /// Used for getting types of an Expr.
+  const SymbolTable &Symbols;
+
+  /// Keep a reference to core LLVM data structures
+  LLVMContext &TheContext;
+  llvm::Module &TheModule;
+
+  /// Major tool for emitting instructions.
+  IRBuilder<> Builder;
+
+  /// Used to translate literal value on the fly.
+  LLVMValueMap ValueMap;
+  std::unordered_map<String, Value *> LocalValues_;
+
+  /// This mapping changes function to function.
+  std::unique_ptr<LLVMLocalValueTable> LocalValues;
+  ErrorManager EM;
 };
 
 /// Wrapper around LLVMIRCompilerImpl to provide a clearer interface.
@@ -651,7 +734,7 @@ public:
   Program *getProgram() { return TheProgram; }
 };
 
-} // namespace
+} // namespace simplecompiler
 
 namespace simplecompiler {
 
