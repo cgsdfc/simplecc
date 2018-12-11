@@ -2,6 +2,9 @@
 #include "error.h"
 
 #include <cstring>
+#include <vector>
+#include <iterator>
+#include <algorithm>
 #include <fstream>
 #include <tclap/CmdLine.h>
 

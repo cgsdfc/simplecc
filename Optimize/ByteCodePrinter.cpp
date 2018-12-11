@@ -2,6 +2,9 @@
 #include "Print.h"
 #include "Visitor.h"
 
+#include <iostream>
+#include <cassert>
+
 using namespace simplecompiler;
 
 namespace {

@@ -8,6 +8,9 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <cassert>
+#include <iostream>
+#include <string>
+#include <iterator>
 #include <stack>
 
 namespace simplecompiler {

@@ -1,10 +1,14 @@
 #include "SymbolTable.h"
 #include "Visitor.h"
 #include "error.h"
-#include <algorithm>
+
+#include <iostream>
+#include <unordered_map>
+#include <utility> // move
 
 namespace {
 using namespace simplecompiler;
+
 // Define a declaration globally.
 void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
   if (global.count(decl->name)) {

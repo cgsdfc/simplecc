@@ -5,6 +5,8 @@
 
 #include <sstream>
 #include <unordered_set>
+#include <iostream>
+#include <unordered_map>
 
 using namespace simplecompiler;
 namespace {

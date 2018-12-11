@@ -17,7 +17,10 @@
 #include <llvm/Support/raw_ostream.h>
 #endif
 
+#include <iostream>
+
 using namespace simplecompiler;
+
 CompilerInstance::CompilerInstance(std::istream &input, std::ostream &output)
     : input(input), output(output), Options(), tokens(), symbolTable(),
       cst_node(nullptr), ast_node(nullptr) {}

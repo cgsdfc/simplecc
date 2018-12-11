@@ -15,6 +15,9 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/ErrorHandling.h>
 
+#include <vector>
+#include <unordered_map>
+
 namespace simplecompiler {
 using llvm::AllocaInst;
 using llvm::BasicBlock;

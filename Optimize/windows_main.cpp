@@ -1,6 +1,7 @@
 #include "CompilerInstance.h"
 
 #include <fstream>
+#include <iostream>
 
 using namespace simplecompiler;
 
@@ -19,7 +20,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  CompilerInstance instance(input_file, std::cout, CompilationPhrase::Assemble);
+  CompilerInstance instance(input_file, std::cout);
   bool result = instance.Invoke();
   Print(std::clog, "Press any key to continue");
   std::getchar();

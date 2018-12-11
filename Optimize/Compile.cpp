@@ -2,8 +2,12 @@
 #include "Visitor.h"
 #include "error.h"
 
+#include <cassert>
+#include <iostream>
 #include <iomanip>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 using namespace simplecompiler;
 

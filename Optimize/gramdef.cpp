@@ -1,6 +1,8 @@
 #include "Grammar.h"
 #include <cstdio>
 
+using std::printf;
+
 void DumpDFA(DFA *dfa) {
   printf("DFA(%s)\n", dfa->name);
   for (int i = 0; i < dfa->n_states; i++) {

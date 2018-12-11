@@ -1,6 +1,9 @@
 #include "ByteCode.h"
 #include "error.h"
 
+#include <iostream>
+#include <cassert>
+
 namespace simplecompiler {
 
 bool IsJumpXXX(Opcode op) {

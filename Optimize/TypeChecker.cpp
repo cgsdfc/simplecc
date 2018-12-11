@@ -3,6 +3,8 @@
 #include "Visitor.h"
 #include "error.h"
 
+#include <algorithm>
+
 namespace {
 using namespace simplecompiler;
 // Transform Name to Call if it is a function and it is in the context

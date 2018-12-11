@@ -3,7 +3,10 @@
 #include "Node.h"
 #include "error.h"
 
+#include <cassert>
+#include <string>
 #include <sstream>
+#include <vector>
 
 namespace {
 using namespace simplecompiler;
