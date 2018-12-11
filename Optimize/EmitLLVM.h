@@ -7,8 +7,8 @@ using String = std::string;
 class Program;
 class SymbolTable;
 
-bool CompileToLLVMIR(String InputFilename, Program *P,
-                     const SymbolTable &S, String OutputFilename);
+bool CompileToLLVMIR(String InputFilename, Program *P, const SymbolTable &S,
+                     String OutputFilename);
 } // namespace simplecompiler
 
 #endif

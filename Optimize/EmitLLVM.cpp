@@ -709,20 +709,22 @@ namespace simplecompiler {
 
 /// Compile a program to LLVM IR, dump resultant code to stderr.
 /// Return true for success.
-bool CompileToLLVMIR(String InputFilename, Program *P,
-                     const SymbolTable &S, String OutputFilename) {
+bool CompileToLLVMIR(String InputFilename, Program *P, const SymbolTable &S,
+                     String OutputFilename) {
   /// Currently no name for a Module.
   LLVMCompiler LC(InputFilename, S, P);
 
   /// Compile to llvm::Module, fail fast.
   bool OK = LC.Compile();
-  if (!OK) return false;
+  if (!OK)
+    return false;
 
   /// Try to open the output file, fail fast.
   std::error_code EC;
   /// raw_fd_ostream treat "-" specially as opening stdout.
   /// We honor its behavior.
-  if (OutputFilename.empty()) OutputFilename = "-";
+  if (OutputFilename.empty())
+    OutputFilename = "-";
   llvm::raw_fd_ostream OS(OutputFilename, EC);
   if (EC) {
     llvm::errs() << EC.message() << "\n";

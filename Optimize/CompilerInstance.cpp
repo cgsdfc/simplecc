@@ -64,7 +64,7 @@ bool CompilerInstance::Invoke() {
     switch (Options.getOutputFormat()) {
 #ifdef SIMPLE_COMPILER_USE_LLVM
     case OutputFormat::DOT:
-      WriteASTGraph(*ast_node, llvm::outs());
+      WriteASTGraph(ast_node, llvm::outs());
       return true;
 #endif
     case OutputFormat::RawDump:

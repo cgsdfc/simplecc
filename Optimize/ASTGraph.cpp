@@ -196,7 +196,7 @@ private:
 // A class that keeps all the edges of an AstRef
 class AstGraph {
 public:
-  AstGraph(Program &P) : Prog(&P), Edges(), Nodes() {}
+  AstGraph(Program *P) : Prog(P), Edges(), Nodes() {}
 
   using NodeIterator = AstIterator;
   using ChildIteratorType = ChildrenCollector::ChildrenIterator;
@@ -292,7 +292,7 @@ template <typename AstT> void ChildrenCollector::AddChild(AstT *Ptr) {
 }
 
 /// Print all ast nodes from a root.
-void PrintAllAstNodes(Program &P, std::ostream &os) {
+void PrintAllAstNodes(Program *P, std::ostream &os) {
   AstGraph Graph(P);
   for (auto AR : Graph.nodes()) {
     Print(os, AR->getClassName(), AR->getLocation());
@@ -300,7 +300,7 @@ void PrintAllAstNodes(Program &P, std::ostream &os) {
 }
 
 /// Write an AstGraph to dot format.
-void WriteASTGraph(Program &P, llvm::raw_ostream &os) {
+void WriteASTGraph(Program *P, llvm::raw_ostream &os) {
   AstGraph Graph(P);
   llvm::WriteGraph(os, Graph);
 }

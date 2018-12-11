@@ -13,11 +13,17 @@
 #include "TypeChecker.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
+#include "ASTGraph.h"
+#include "CSTGraph.h"
 #include "EmitLLVM.h"
+
+#include <llvm/ADT/Optional.h>
+#include <llvm/Support/raw_ostream.h>
 #endif
 
 #include <algorithm>
 #include <cstring>
+#include <system_error>
 
 namespace simplecompiler {
 
@@ -324,22 +330,94 @@ INITIALIZE_PASS(AssemblePass, "assemble",
                 "assemble the compiled program to MIPS assembly")
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
+/* /// Helper to open a file in llvm::raw_fd_ostream. */
+/* /// It opens the file, print any error message and return the stream. */
+/* /// User can use the has_error() of a raw_fd_ostream to see if everything is
+ * OK. */
+/* static llvm::raw_fd_ostream LLVMOpenFile(String Filename, ) { */
+/*   if (Filename.empty()) Filename = "-"; */
+/*   std::error_code EC; */
+/*   llvm::raw_fd_ostream O(Filename, EC); */
+/*   if (EC) { */
+/*     llvm::errs() << EC.message() << "\n"; */
+/*   } */
+/*   return std::move(O); */
+/* }; */
+
 class EmitLLVMPass : public Pass {
 public:
   static char ID;
   EmitLLVMPass() = default;
   bool run(PassManager &PM) override {
     auto AP = PM.getPass<AnalysisPass>();
-    if (!AP) return false;
-    return CompileToLLVMIR(PM.getInputFilename(),
-                           AP->getResult(),
+    if (!AP)
+      return false;
+    return CompileToLLVMIR(PM.getInputFilename(), AP->getResult(),
                            PM.getResult<SymbolTablePass>(),
                            PM.getOutputFilename());
-
   }
 };
 
 INITIALIZE_PASS(EmitLLVMPass, "emit-llvm", "emit LLVM IR")
+
+/// Helper Mixin to simplify a Pass that print either CST or AST.
+/// Derived should provide a member type DependOnPass to access
+/// the tree to be printed and a static member function to do the actual
+/// printing.
+template <typename Derived, typename DependOnPass>
+class PrintSyntaxTreeGraphPass : public Pass {
+
+  void WriteGraph(DependOnPass *P, llvm::raw_ostream &O) {
+    Derived::WriteGraph(P->getResult(), O);
+  }
+
+public:
+  bool run(PassManager &PM) override {
+    auto P = PM.getPass<DependOnPass>();
+    if (!P)
+      return false;
+
+    String Filename(PM.getOutputFilename());
+    if (Filename.empty()) {
+      Filename = "-";
+    }
+
+    std::error_code EC;
+    llvm::raw_fd_ostream O(Filename, EC);
+    if (O.has_error()) {
+      llvm::errs() << EC.message() << "\n";
+      return false;
+    }
+    WriteGraph(P, O);
+    return true;
+  }
+};
+
+class PrintCSTGraphPass
+    : public PrintSyntaxTreeGraphPass<PrintCSTGraphPass, ParserPass> {
+public:
+  static char ID;
+  PrintCSTGraphPass() = default;
+  static void WriteGraph(Node *N, llvm::raw_ostream &O) { WriteCSTGraph(N, O); }
+};
+
+INITIALIZE_PASS(PrintCSTGraphPass, "print-cst-graph",
+                "print cst graph in dot format")
+
+class PrintASTGraphPass
+    : public PrintSyntaxTreeGraphPass<PrintASTGraphPass, BuildAstPass> {
+public:
+  static char ID;
+  PrintASTGraphPass() = default;
+
+  static void WriteGraph(Program *P, llvm::raw_ostream &O) {
+    WriteASTGraph(P, O);
+  }
+};
+
+INITIALIZE_PASS(PrintASTGraphPass, "print-ast-graph",
+                "print ast graph in dot format")
+
 #endif
 
 /// If we don't put that onto the heap, it breaks at runtime...
