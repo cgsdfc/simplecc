@@ -15,8 +15,8 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/ErrorHandling.h>
 
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace simplecompiler {
 using llvm::AllocaInst;
@@ -408,7 +408,8 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     }
     /// Return is a Terminator. End this BB and create a new one.
     /// Normally one should not write code after a return because these
-    /// code obviously dead (without goto). But is is possible and a good chance for DCE.
+    /// code obviously dead (without goto). But is is possible and a good chance
+    /// for DCE.
     auto TheFunction = Builder.GetInsertBlock()->getParent();
     BasicBlock *NextBB = BasicBlock::Create(TheContext, "next", TheFunction);
     Builder.SetInsertPoint(NextBB);
@@ -636,7 +637,8 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 public:
   LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C,
                      llvm::Module &M)
-      : TheTable(S), TheContext(C), TheModule(M), Builder(C), EM(), TM(C), VM(M, C) {
+      : TheTable(S), TheContext(C), TheModule(M), Builder(C), EM(), TM(C),
+        VM(M, C) {
     DeclareBuiltinFunctions();
   }
 

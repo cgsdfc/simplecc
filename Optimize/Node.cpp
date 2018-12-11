@@ -1,8 +1,8 @@
 #include "Node.h"
 #include "error.h"
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 using namespace simplecompiler;
 

@@ -1,13 +1,13 @@
 #ifndef PASS_H
 #define PASS_H
 
-#include <iostream>
-#include <string>
 #include <cassert>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 namespace simplecompiler {

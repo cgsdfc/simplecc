@@ -9,9 +9,9 @@
 
 #include <cassert>
 #include <iostream>
-#include <string>
 #include <iterator>
 #include <stack>
+#include <string>
 
 namespace simplecompiler {
 using CSTGraphTy = const Node *;

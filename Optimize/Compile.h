@@ -3,8 +3,8 @@
 #include "ByteCode.h"
 #include "SymbolTable.h"
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
 namespace simplecompiler {
 using SymbolEntryList = std::vector<SymbolEntry>;

@@ -1,8 +1,8 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include <utility>
 #include <iostream>
+#include <utility>
 
 namespace simplecompiler {
 template <typename... Args> void Print(std::ostream &os, Args &&... args);
@@ -29,6 +29,7 @@ template <typename... Args> void PrintErrs(Args &&... args) {
 
 class Printer {
   std::ostream &os;
+
 public:
   explicit Printer(std::ostream &os) : os(os) {}
 

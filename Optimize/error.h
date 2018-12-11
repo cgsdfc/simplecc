@@ -4,9 +4,9 @@
 #include "Print.h"
 #include "TokenInfo.h"
 
-#include <utility>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 namespace simplecompiler {
 inline String Quote(const String &string) { return '\'' + string + '\''; }

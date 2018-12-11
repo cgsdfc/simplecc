@@ -1,12 +1,12 @@
 #include "Tokenize.h"
 #include "error.h"
 
-#include <string>
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <iomanip>
 #include <sstream>
-#include <cctype>
+#include <string>
 
 using namespace simplecompiler;
 

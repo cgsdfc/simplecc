@@ -4,8 +4,8 @@
 #include "Opcode.h"
 
 #include <cassert>
-#include <optional>
 #include <iostream>
+#include <optional>
 
 namespace simplecompiler {
 class ByteCode {

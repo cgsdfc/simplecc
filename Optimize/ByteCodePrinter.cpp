@@ -2,8 +2,8 @@
 #include "Print.h"
 #include "Visitor.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 using namespace simplecompiler;
 

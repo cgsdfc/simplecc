@@ -1,11 +1,11 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "TokenInfo.h"
 #include "Grammar.h"
+#include "TokenInfo.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 namespace simplecompiler {

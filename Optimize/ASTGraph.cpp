@@ -1,23 +1,23 @@
 #include "ASTGraph.h"
 #include "Print.h"
-#include "Visitor.h"
 #include "TokenInfo.h" // for Location
+#include "Visitor.h"
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/ADT/iterator.h>
 #include <llvm/Support/GraphWriter.h>
 
-#include <string>
-#include <iostream>
 #include <algorithm>
-#include <memory> // for make_unique
-#include <utility> // for move
+#include <iostream>
 #include <iterator> // for forward_iterator_tag
-#include <type_traits> // for remove_reference
-#include <vector>
 #include <map>
+#include <memory> // for make_unique
 #include <sstream>
 #include <stack>
+#include <string>
+#include <type_traits> // for remove_reference
+#include <utility>     // for move
+#include <vector>
 
 namespace simplecompiler {
 

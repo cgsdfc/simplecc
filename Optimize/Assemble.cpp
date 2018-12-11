@@ -3,10 +3,10 @@
 #include "OpcodeDispatcher.h"
 #include "Print.h"
 
-#include <sstream>
-#include <unordered_set>
 #include <iostream>
+#include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 
 using namespace simplecompiler;
 namespace {

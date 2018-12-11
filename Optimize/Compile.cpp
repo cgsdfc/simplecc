@@ -3,8 +3,8 @@
 #include "error.h"
 
 #include <cassert>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <unordered_map>
 #include <utility>
 #include <vector>

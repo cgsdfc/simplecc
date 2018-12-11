@@ -1,12 +1,12 @@
 #include "Pass.h"
 #include "error.h"
 
-#include <cstring>
-#include <vector>
-#include <iterator>
 #include <algorithm>
+#include <cstring>
 #include <fstream>
+#include <iterator>
 #include <tclap/CmdLine.h>
+#include <vector>
 
 using namespace TCLAP;
 using namespace simplecompiler;

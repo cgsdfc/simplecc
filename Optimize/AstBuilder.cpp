@@ -4,8 +4,8 @@
 #include "error.h"
 
 #include <cassert>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace {

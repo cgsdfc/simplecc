@@ -1,8 +1,8 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 
-#include "Types.h"
 #include "AST.h"
+#include "Types.h"
 
 #include <cassert>
 #include <iostream>
