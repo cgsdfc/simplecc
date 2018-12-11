@@ -259,8 +259,9 @@ class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
 
   ExprValue visitParenExpr(ParenExpr *node) { return visitExpr(node->value); }
 
-  [[noreturn]] ExprValue visitBoolOp(BoolOp *node) {
+  ExprValue visitBoolOp(BoolOp *node) {
     assert(false && "BoolOp should be handled by CompileBoolOp()");
+    return ExprValue();
   }
 
   // XXX: result id should come after operands's
