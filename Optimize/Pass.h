@@ -113,11 +113,11 @@ public:
 };
 
 class PassManager {
-  String IFilename;
-  String OFilename;
+  String InputFilename;
+  String OutputFilename;
   std::unordered_map<PassID, std::unique_ptr<Pass>> PassCache;
-  std::ifstream IFileStream;
-  std::ofstream OFileStream;
+  std::ifstream InputFileStream;
+  std::ofstream OutputFileStream;
 
   Pass *getPassOrCreate(PassID ID);
 
@@ -131,8 +131,10 @@ public:
   /// if it cannot be opened, false is returned and the object
   /// retains old state.
   bool setInputFile(String Filename = "");
+  const String &getInputFilename() const { return InputFilename; }
 
   bool setOutputFile(String Filename = "");
+  const String &getOutputFilename() const { return OutputFilename; }
 
   /// Lazily run a Pass and return the result if Pass is OK. Or returns
   /// nullptr if the Pass failed.

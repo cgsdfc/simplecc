@@ -12,6 +12,10 @@
 #include "Tokenize.h"
 #include "TypeChecker.h"
 
+#ifdef SIMPLE_COMPILER_USE_LLVM
+#include "EmitLLVM.h"
+#endif
+
 #include <algorithm>
 #include <cstring>
 
@@ -30,11 +34,11 @@ template <typename PassT> struct RegisterPass {
   static RegisterPass<Class> Class##Register(Name, Description);
 
 std::istream &PassManager::getInputStream() {
-  return IFilename.empty() ? std::cin : IFileStream;
+  return InputFilename.empty() ? std::cin : InputFileStream;
 }
 
 std::ostream &PassManager::getOutputStream() {
-  return OFilename.empty() ? std::cout : OFileStream;
+  return OutputFilename.empty() ? std::cout : OutputFileStream;
 }
 
 Pass *PassManager::getPassOrCreate(PassID ID) {
@@ -58,27 +62,27 @@ Pass *PassManager::getPassOrCreate(PassID ID) {
 bool PassManager::setInputFile(String Filename) {
   // Set to stdin.
   if (Filename.empty()) {
-    IFilename.clear();
+    InputFilename.clear();
     return true;
   }
   std::ifstream File(Filename);
   if (File.fail())
     return false;
-  IFileStream = std::move(File);
-  IFilename = std::move(Filename);
+  InputFileStream = std::move(File);
+  InputFilename = std::move(Filename);
   return true;
 }
 
 bool PassManager::setOutputFile(String Filename) {
   if (Filename.empty()) {
-    OFilename.clear();
+    OutputFilename.clear();
     return true;
   }
   std::ofstream File(Filename);
   if (File.fail())
     return false;
-  OFileStream = std::move(File);
-  OFilename = std::move(Filename);
+  OutputFileStream = std::move(File);
+  OutputFilename = std::move(Filename);
   return true;
 }
 
@@ -318,6 +322,25 @@ public:
 
 INITIALIZE_PASS(AssemblePass, "assemble",
                 "assemble the compiled program to MIPS assembly")
+
+#ifdef SIMPLE_COMPILER_USE_LLVM
+class EmitLLVMPass : public Pass {
+public:
+  static char ID;
+  EmitLLVMPass() = default;
+  bool run(PassManager &PM) override {
+    auto AP = PM.getPass<AnalysisPass>();
+    if (!AP) return false;
+    return CompileToLLVMIR(PM.getInputFilename(),
+                           AP->getResult(),
+                           PM.getResult<SymbolTablePass>(),
+                           PM.getOutputFilename());
+
+  }
+};
+
+INITIALIZE_PASS(EmitLLVMPass, "emit-llvm", "emit LLVM IR")
+#endif
 
 /// If we don't put that onto the heap, it breaks at runtime...
 /// See llvm::ManagedStatic<>.

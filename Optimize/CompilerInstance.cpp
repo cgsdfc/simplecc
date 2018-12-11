@@ -102,12 +102,6 @@ bool CompilerInstance::Invoke() {
     return true;
   }
 
-#ifdef SIMPLE_COMPILER_USE_LLVM
-  if (phrase == CompilationPhrase::EmitLLVM) {
-    return CompileToLLVMIR(ast_node, symbolTable);
-  }
-#endif
-
   CompiledModule TheModule;
   TheModule.Build(ast_node, symbolTable);
   if (phrase == CompilationPhrase::Compile) {

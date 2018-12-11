@@ -15,6 +15,7 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/ErrorHandling.h>
 
+#include <system_error>
 #include <unordered_map>
 #include <vector>
 
@@ -708,12 +709,28 @@ namespace simplecompiler {
 
 /// Compile a program to LLVM IR, dump resultant code to stderr.
 /// Return true for success.
-bool CompileToLLVMIR(Program *P, const SymbolTable &S) {
+bool CompileToLLVMIR(String InputFilename, Program *P,
+                     const SymbolTable &S, String OutputFilename) {
   /// Currently no name for a Module.
-  LLVMCompiler LC("", S, P);
-  LC.Compile();
-  llvm::Module &M = LC.getModule();
-  M.print(llvm::outs(), nullptr);
+  LLVMCompiler LC(InputFilename, S, P);
+
+  /// Compile to llvm::Module, fail fast.
+  bool OK = LC.Compile();
+  if (!OK) return false;
+
+  /// Try to open the output file, fail fast.
+  std::error_code EC;
+  /// raw_fd_ostream treat "-" specially as opening stdout.
+  /// We honor its behavior.
+  if (OutputFilename.empty()) OutputFilename = "-";
+  llvm::raw_fd_ostream OS(OutputFilename, EC);
+  if (EC) {
+    llvm::errs() << EC.message() << "\n";
+    return false;
+  }
+
+  /// Write out the human-readable bitcode.
+  LC.getModule().print(OS, nullptr);
   return true;
 }
 
