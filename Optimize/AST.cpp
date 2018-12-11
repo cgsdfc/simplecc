@@ -268,7 +268,7 @@ Program::~Program() {
 
 ConstDecl::~ConstDecl() { delete value; }
 
-VarDecl::~VarDecl() {}
+VarDecl::~VarDecl() = default;
 
 FuncDef::~FuncDef() {
   for (auto v : args)
@@ -279,7 +279,7 @@ FuncDef::~FuncDef() {
     delete v;
 }
 
-ArgDecl::~ArgDecl() {}
+ArgDecl::~ArgDecl() = default;
 
 Read::~Read() {
   for (auto v : names)
@@ -287,10 +287,8 @@ Read::~Read() {
 }
 
 Write::~Write() {
-  if (str)
-    delete str;
-  if (value)
-    delete value;
+  delete str;
+  delete value;
 }
 
 Assign::~Assign() {
@@ -312,10 +310,7 @@ While::~While() {
     delete v;
 }
 
-Return::~Return() {
-  if (value)
-    delete value;
-}
+Return::~Return() { delete value; }
 
 If::~If() {
   delete test;
@@ -343,15 +338,13 @@ Call::~Call() {
     delete v;
 }
 
-Num::~Num() {}
-
-Str::~Str() {}
-
-Char::~Char() {}
+Num::~Num() = default;
+Str::~Str() = default;
+Char::~Char() = default;
 
 Subscript::~Subscript() { delete index; }
 
-Name::~Name() {}
+Name::~Name() = default;
 
 OperatorKind OperatorKindFromString(const String &s) {
 

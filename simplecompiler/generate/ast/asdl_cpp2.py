@@ -191,7 +191,7 @@ class Optional(CppType):
     """A optional item dealing with ? in asdl"""
 
     impl = 'std::optional<{}>'
-    delete_opt = Template("""if ($name) delete $name;""")
+    delete_opt = Template("""delete $name;""")
 
     def __init__(self, elemtype):
         self.elemtype = elemtype
@@ -383,7 +383,7 @@ class HeaderTemplate:
 namespace simplecompiler {
 class AST {
 public:
-    virtual ~AST() {}
+    virtual ~AST() = default;
     virtual const char *GetClassName() const = 0;
     virtual void Format(std::ostream &os) const = 0;
 };
@@ -554,6 +554,8 @@ $class_name::~$class_name() {
 }
 """)
 
+    default_destructor = Template("""$class_name::~$class_name() = default;""")
+
     format_item = Template(""" "$field_name=" << $expr """)
 
     os_joiner = """ << ", " << """
@@ -572,6 +574,8 @@ $class_name::~$class_name() {
     def make_destructor(self, x):
         delete_stmts = list(
             filter(None, [type.delete(name) for type, name in x.members]))
+        if not delete_stmts: # Empty dtr
+            return self.default_destructor.substitute(class_name=x.name)
         return self.destructor_impl.substitute(
             class_name=x.name,
             code="\n".join(delete_stmts)

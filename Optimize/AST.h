@@ -11,7 +11,7 @@
 namespace simplecompiler {
 class AST {
 public:
-  virtual ~AST() {}
+  virtual ~AST() = default;
   virtual const char *GetClassName() const = 0;
   virtual void Format(std::ostream &os) const = 0;
 };
