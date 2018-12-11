@@ -137,6 +137,12 @@ public:
             const Location &loc)
       : Decl(Decl::ConstDecl, name, loc), type(type), value(value) {}
 
+  // Disable copy and move.
+  ConstDecl(const ConstDecl &) = delete;
+  ConstDecl(ConstDecl &&) = delete;
+  ConstDecl &operator=(const ConstDecl &) = delete;
+  ConstDecl &operator=(ConstDecl &&) = delete;
+
   ~ConstDecl() override;
 
   const char *GetClassName() const override { return "ConstDecl"; }
@@ -159,6 +165,12 @@ public:
           const Location &loc)
       : Decl(Decl::VarDecl, name, loc), type(type), is_array(is_array),
         size(size) {}
+
+  // Disable copy and move.
+  VarDecl(const VarDecl &) = delete;
+  VarDecl(VarDecl &&) = delete;
+  VarDecl &operator=(const VarDecl &) = delete;
+  VarDecl &operator=(VarDecl &&) = delete;
 
   ~VarDecl() override;
 
@@ -188,6 +200,12 @@ public:
       : Decl(Decl::FuncDef, name, loc), return_type(return_type), args(args),
         decls(decls), stmts(stmts) {}
 
+  // Disable copy and move.
+  FuncDef(const FuncDef &) = delete;
+  FuncDef(FuncDef &&) = delete;
+  FuncDef &operator=(const FuncDef &) = delete;
+  FuncDef &operator=(FuncDef &&) = delete;
+
   ~FuncDef() override;
 
   const char *GetClassName() const override { return "FuncDef"; }
@@ -212,6 +230,12 @@ public:
   ArgDecl(BasicTypeKind type, const std::string &name, const Location &loc)
       : Decl(Decl::ArgDecl, name, loc), type(type) {}
 
+  // Disable copy and move.
+  ArgDecl(const ArgDecl &) = delete;
+  ArgDecl(ArgDecl &&) = delete;
+  ArgDecl &operator=(const ArgDecl &) = delete;
+  ArgDecl &operator=(ArgDecl &&) = delete;
+
   ~ArgDecl() override;
 
   const char *GetClassName() const override { return "ArgDecl"; }
@@ -229,6 +253,12 @@ public:
 
   Read(const std::vector<Expr *> &names, const Location &loc)
       : Stmt(Stmt::Read, loc), names(names) {}
+
+  // Disable copy and move.
+  Read(const Read &) = delete;
+  Read(Read &&) = delete;
+  Read &operator=(const Read &) = delete;
+  Read &operator=(Read &&) = delete;
 
   ~Read() override;
 
@@ -249,6 +279,12 @@ public:
   Write(Expr *str, Expr *value, const Location &loc)
       : Stmt(Stmt::Write, loc), str(str), value(value) {}
 
+  // Disable copy and move.
+  Write(const Write &) = delete;
+  Write(Write &&) = delete;
+  Write &operator=(const Write &) = delete;
+  Write &operator=(Write &&) = delete;
+
   ~Write() override;
 
   const char *GetClassName() const override { return "Write"; }
@@ -268,6 +304,12 @@ public:
 
   Assign(Expr *target, Expr *value, const Location &loc)
       : Stmt(Stmt::Assign, loc), target(target), value(value) {}
+
+  // Disable copy and move.
+  Assign(const Assign &) = delete;
+  Assign(Assign &&) = delete;
+  Assign &operator=(const Assign &) = delete;
+  Assign &operator=(Assign &&) = delete;
 
   ~Assign() override;
 
@@ -293,6 +335,12 @@ public:
       : Stmt(Stmt::For, loc), initial(initial), condition(condition),
         step(step), body(body) {}
 
+  // Disable copy and move.
+  For(const For &) = delete;
+  For(For &&) = delete;
+  For &operator=(const For &) = delete;
+  For &operator=(For &&) = delete;
+
   ~For() override;
 
   const char *GetClassName() const override { return "For"; }
@@ -316,6 +364,12 @@ public:
   While(Expr *condition, const std::vector<Stmt *> &body, const Location &loc)
       : Stmt(Stmt::While, loc), condition(condition), body(body) {}
 
+  // Disable copy and move.
+  While(const While &) = delete;
+  While(While &&) = delete;
+  While &operator=(const While &) = delete;
+  While &operator=(While &&) = delete;
+
   ~While() override;
 
   const char *GetClassName() const override { return "While"; }
@@ -335,6 +389,12 @@ public:
 
   Return(Expr *value, const Location &loc)
       : Stmt(Stmt::Return, loc), value(value) {}
+
+  // Disable copy and move.
+  Return(const Return &) = delete;
+  Return(Return &&) = delete;
+  Return &operator=(const Return &) = delete;
+  Return &operator=(Return &&) = delete;
 
   ~Return() override;
 
@@ -356,6 +416,12 @@ public:
   If(Expr *test, const std::vector<Stmt *> &body,
      const std::vector<Stmt *> &orelse, const Location &loc)
       : Stmt(Stmt::If, loc), test(test), body(body), orelse(orelse) {}
+
+  // Disable copy and move.
+  If(const If &) = delete;
+  If(If &&) = delete;
+  If &operator=(const If &) = delete;
+  If &operator=(If &&) = delete;
 
   ~If() override;
 
@@ -379,6 +445,12 @@ public:
   ExprStmt(Expr *value, const Location &loc)
       : Stmt(Stmt::ExprStmt, loc), value(value) {}
 
+  // Disable copy and move.
+  ExprStmt(const ExprStmt &) = delete;
+  ExprStmt(ExprStmt &&) = delete;
+  ExprStmt &operator=(const ExprStmt &) = delete;
+  ExprStmt &operator=(ExprStmt &&) = delete;
+
   ~ExprStmt() override;
 
   const char *GetClassName() const override { return "ExprStmt"; }
@@ -398,6 +470,12 @@ public:
 
   BinOp(Expr *left, OperatorKind op, Expr *right, const Location &loc)
       : Expr(Expr::BinOp, loc), left(left), op(op), right(right) {}
+
+  // Disable copy and move.
+  BinOp(const BinOp &) = delete;
+  BinOp(BinOp &&) = delete;
+  BinOp &operator=(const BinOp &) = delete;
+  BinOp &operator=(BinOp &&) = delete;
 
   ~BinOp() override;
 
@@ -419,6 +497,12 @@ public:
   ParenExpr(Expr *value, const Location &loc)
       : Expr(Expr::ParenExpr, loc), value(value) {}
 
+  // Disable copy and move.
+  ParenExpr(const ParenExpr &) = delete;
+  ParenExpr(ParenExpr &&) = delete;
+  ParenExpr &operator=(const ParenExpr &) = delete;
+  ParenExpr &operator=(ParenExpr &&) = delete;
+
   ~ParenExpr() override;
 
   const char *GetClassName() const override { return "ParenExpr"; }
@@ -437,6 +521,12 @@ public:
 
   BoolOp(Expr *value, int has_cmpop, const Location &loc)
       : Expr(Expr::BoolOp, loc), value(value), has_cmpop(has_cmpop) {}
+
+  // Disable copy and move.
+  BoolOp(const BoolOp &) = delete;
+  BoolOp(BoolOp &&) = delete;
+  BoolOp &operator=(const BoolOp &) = delete;
+  BoolOp &operator=(BoolOp &&) = delete;
 
   ~BoolOp() override;
 
@@ -459,6 +549,12 @@ public:
   UnaryOp(UnaryopKind op, Expr *operand, const Location &loc)
       : Expr(Expr::UnaryOp, loc), op(op), operand(operand) {}
 
+  // Disable copy and move.
+  UnaryOp(const UnaryOp &) = delete;
+  UnaryOp(UnaryOp &&) = delete;
+  UnaryOp &operator=(const UnaryOp &) = delete;
+  UnaryOp &operator=(UnaryOp &&) = delete;
+
   ~UnaryOp() override;
 
   const char *GetClassName() const override { return "UnaryOp"; }
@@ -480,6 +576,12 @@ public:
        const Location &loc)
       : Expr(Expr::Call, loc), func(func), args(args) {}
 
+  // Disable copy and move.
+  Call(const Call &) = delete;
+  Call(Call &&) = delete;
+  Call &operator=(const Call &) = delete;
+  Call &operator=(Call &&) = delete;
+
   ~Call() override;
 
   const char *GetClassName() const override { return "Call"; }
@@ -499,6 +601,12 @@ public:
 
   Num(int n, const Location &loc) : Expr(Expr::Num, loc), n(n) {}
 
+  // Disable copy and move.
+  Num(const Num &) = delete;
+  Num(Num &&) = delete;
+  Num &operator=(const Num &) = delete;
+  Num &operator=(Num &&) = delete;
+
   ~Num() override;
 
   const char *GetClassName() const override { return "Num"; }
@@ -516,6 +624,12 @@ public:
 
   Str(const std::string &s, const Location &loc) : Expr(Expr::Str, loc), s(s) {}
 
+  // Disable copy and move.
+  Str(const Str &) = delete;
+  Str(Str &&) = delete;
+  Str &operator=(const Str &) = delete;
+  Str &operator=(Str &&) = delete;
+
   ~Str() override;
 
   const char *GetClassName() const override { return "Str"; }
@@ -532,6 +646,12 @@ public:
   int c;
 
   Char(int c, const Location &loc) : Expr(Expr::Char, loc), c(c) {}
+
+  // Disable copy and move.
+  Char(const Char &) = delete;
+  Char(Char &&) = delete;
+  Char &operator=(const Char &) = delete;
+  Char &operator=(Char &&) = delete;
 
   ~Char() override;
 
@@ -554,6 +674,12 @@ public:
             const Location &loc)
       : Expr(Expr::Subscript, loc), name(name), index(index), ctx(ctx) {}
 
+  // Disable copy and move.
+  Subscript(const Subscript &) = delete;
+  Subscript(Subscript &&) = delete;
+  Subscript &operator=(const Subscript &) = delete;
+  Subscript &operator=(Subscript &&) = delete;
+
   ~Subscript() override;
 
   const char *GetClassName() const override { return "Subscript"; }
@@ -575,6 +701,12 @@ public:
   Name(const std::string &id, ExprContextKind ctx, const Location &loc)
       : Expr(Expr::Name, loc), id(id), ctx(ctx) {}
 
+  // Disable copy and move.
+  Name(const Name &) = delete;
+  Name(Name &&) = delete;
+  Name &operator=(const Name &) = delete;
+  Name &operator=(Name &&) = delete;
+
   ~Name() override;
 
   const char *GetClassName() const override { return "Name"; }
@@ -594,6 +726,12 @@ public:
   std::vector<Decl *> decls;
 
   Program(const std::vector<Decl *> &decls) : AST(), decls(decls) {}
+
+  // Disable copy and move.
+  Program(const Program &) = delete;
+  Program(Program &&) = delete;
+  Program &operator=(const Program &) = delete;
+  Program &operator=(Program &&) = delete;
 
   ~Program() override;
 

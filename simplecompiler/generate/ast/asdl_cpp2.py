@@ -636,6 +636,13 @@ public:
         return ", ".join(c.name for c in subclasses)
 
 
+DisableCopyAndMoveTemplate = Template(
+""" // Disable copy and move.
+    $class_name(const $class_name &) = delete;
+    $class_name($class_name &&) = delete;
+    $class_name &operator=(const $class_name &) = delete;
+    $class_name &operator=($class_name &&) = delete;""")
+
 
 class ConcreteNodeTemplate(ClassImplTemplate):
     """This class emit code for the interface of an ConcreteNode"""
@@ -647,6 +654,8 @@ public:
 
     $class_name($constructor_args):
         $base($base::$class_name, $base_init), $member_init {}
+
+    $disable_copy_and_move
 
     ~$class_name() override;
 
@@ -673,6 +682,7 @@ public:
             base_init=make_actual_args(x.base.members),
             member_init=make_init(x.members),
             getters=make_getters(x.members),
+            disable_copy_and_move=DisableCopyAndMoveTemplate.substitute(class_name=x.name),
         )
 
 
@@ -685,6 +695,8 @@ public:
     $member_declaration
 
     $class_name($constructor_args): AST(), $member_init {}
+
+    $disable_copy_and_move
 
     ~$class_name() override;
 
@@ -705,6 +717,7 @@ public:
             constructor_args=make_formal_args(x.members),
             member_init=make_init(x.members),
             getters=make_getters(x.members),
+            disable_copy_and_move=DisableCopyAndMoveTemplate.substitute(class_name=x.name),
         )
 
 
