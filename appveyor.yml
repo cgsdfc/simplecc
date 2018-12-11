@@ -16,7 +16,7 @@ before_build:
     mkdir build
     cd build
     cmake --version
-    cmake ../Codegen -G "Visual Studio 15 2017 Win64"
+    cmake ../Optimize -G "Visual Studio 15 2017 Win64"
 build:
   project: build\Optimize.sln
   verbosity: minimal
