@@ -25,6 +25,8 @@ class ExprValue {
   }
 
 public:
+  ExprValue() = default;
+
   explicit ExprValue(int temporary) : factor(nullptr), temporary(temporary) {
     assert(Check());
   }
@@ -257,7 +259,7 @@ class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
 
   ExprValue visitParenExpr(ParenExpr *node) { return visitExpr(node->value); }
 
-  ExprValue visitBoolOp(BoolOp *node) {
+  [[noreturn]] ExprValue visitBoolOp(BoolOp *node) {
     assert(false && "BoolOp should be handled by CompileBoolOp()");
   }
 

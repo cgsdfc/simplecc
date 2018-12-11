@@ -6,41 +6,37 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 17)
 
 # Find TCLAP comand line library (Required for *nix build)
-if (NOT WIN32)
+if (NOT MSVC)
   find_path(TCLAP_INCLUDE
     NAMES tclap/CmdLine.h
     PATHS "$ENV{HOME}/include"
     DOC "Tclap command line library's headers")
-
   if (NOT TCLAP_INCLUDE)
     message(FATAL_ERROR
       "Tclap is required for *nix build. Please install that from http://tclap.sourceforge.net/")
-  endif (NOT TCLAP_INCLUDE)
-
+  endif ()
   message(STATUS ${TCLAP_INCLUDE})
   include_directories(${TCLAP_INCLUDE})
-endif (NOT WIN32)
+endif ()
 
 
-set(USE_LLVM OFF)
 # Find LLVM infrustrament (Optional for *nix build)
-if (NOT WIN32)
+set(USE_LLVM OFF)
+if (NOT MSVC)
   find_package(LLVM CONFIG)
-
   if (NOT LLVM_DIR)
     message(STATUS "LLVM Infrustrament not found, build without it")
-  else (NOT LLVM_DIR)
+  else ()
     message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
     message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
     # Find the libraries that correspond to the LLVM components
     # that we wish to use
     llvm_map_components_to_libnames(llvm_libs support core irreader)
     set(USE_LLVM ON)
-  endif (NOT LLVM_DIR)
+  endif ()
+endif ()
 
-endif (NOT WIN32)
-
-# if (NOT WIN32)
+# if (NOT MSVC)
 #   # We currently don't know if python3 if available.
 # add_custom_command(
 #   OUTPUT Grammar.h Grammar.cpp
@@ -87,12 +83,11 @@ if (USE_LLVM)
   add_definitions(${LLVM_DEFINITIONS})
 endif(USE_LLVM)
 
-if (WIN32)
+if (MSVC)
   list(APPEND SOURCE_FILES ./windows_main.cpp)
-else (WIN32)
+else ()
   list(APPEND SOURCE_FILES ./main.cpp)
-endif (WIN32)
+endif ()
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
 target_link_libraries(${EXEC_NAME} ${EXTRA_LIBRARIES})
-add_definitions(-D_GLIBCXX_DEBUG)
