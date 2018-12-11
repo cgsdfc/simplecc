@@ -161,13 +161,13 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
   }
 
   void visitFuncDef(FuncDef *node) {
-    for (auto arg : node->args) {
+    for (auto arg : node->getArgs()) {
       visitDecl(arg);
     }
-    for (auto decl : node->decls) {
+    for (auto decl : node->getDecls()) {
       visitDecl(decl);
     }
-    for (auto s : node->stmts) {
+    for (auto s : node->getStmts()) {
       visitStmt(s);
     }
   }
@@ -175,76 +175,76 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
   void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
 
   void visitExpr(Expr *node) {
-    current_lineno = node->loc.getLineNo();
+    current_lineno = node->getLoc().getLineNo();
     VisitorBase::visitExpr<void>(node);
   }
 
   void visitStmt(Stmt *node) {
-    current_lineno = node->loc.getLineNo();
+    current_lineno = node->getLoc().getLineNo();
     VisitorBase::visitStmt<void>(node);
   }
 
   void visitArgDecl(ArgDecl *node) {
-    formal_arguments.push_back(local[node->name]);
+    formal_arguments.push_back(local[node->getName()]);
   }
 
   void visitVarDecl(VarDecl *node) {
-    local_objects.push_back(local[node->name]);
+    local_objects.push_back(local[node->getName()]);
   }
 
   void visitConstDecl(ConstDecl *) {}
 
   void visitRead(Read *node) {
-    for (auto expr : node->names) {
+    for (auto expr : node->getNames()) {
       auto name = static_cast<Name *>(expr);
-      const auto &entry = local[name->id];
+      const auto &entry = local[name->getId()];
       Add(ByteCode(MakeRead(entry.AsVariable().GetType())));
       Add(ByteCode(MakeStore(entry.GetScope()), entry.GetName().data()));
     }
   }
 
   void visitWrite(Write *node) {
-    if (node->str) {
-      visitExpr(node->str);
+    if (node->getStr()) {
+      visitExpr(node->getStr());
       Add(ByteCode(Opcode::PRINT_STRING));
     }
-    if (node->value) {
-      visitExpr(node->value);
-      auto type = symtable.GetExprType(node->value);
+    if (node->getValue()) {
+      visitExpr(node->getValue());
+      auto type = symtable.GetExprType(node->getValue());
       Add(ByteCode(MakePrint(type)));
     }
     Add(ByteCode(Opcode::PRINT_NEWLINE));
   }
 
   void visitAssign(Assign *node) {
-    visitExpr(node->value);
-    visitExpr(node->target);
+    visitExpr(node->getValue());
+    visitExpr(node->getTarget());
   }
 
   int CompileBoolOp(BoolOp *node, bool is_negative) {
-    if (node->has_cmpop) {
-      auto binop = subclass_cast<BinOp>(node->value);
+    if (node->getHasCmpop()) {
+      auto binop = subclass_cast<BinOp>(node->getValue());
       assert(binop);
-      visitExpr(binop->left);
-      visitExpr(binop->right);
+      visitExpr(binop->getLeft());
+      visitExpr(binop->getRight());
       auto opcode =
-          is_negative ? MakeJumpNegative(binop->op) : MakeJump(binop->op);
+          is_negative ? MakeJumpNegative(binop->getOp()) : MakeJump(binop->getOp());
       return Add(ByteCode(opcode));
     }
-    visitExpr(node->value);
+    visitExpr(node->getValue());
     auto opcode = is_negative ? Opcode::JUMP_IF_FALSE : Opcode::JUMP_IF_TRUE;
     return Add(ByteCode(opcode));
   }
 
   void visitFor(For *node) {
-    visitStmt(node->initial);
+    visitStmt(node->getInitial());
     auto jump_to_start = Add(ByteCode(Opcode::JUMP_FORWARD));
     auto loop_label = GetLabel();
-    visitStmt(node->step);
+    visitStmt(node->getStep());
     auto jump_to_end =
-        CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
+        CompileBoolOp(static_cast<BoolOp *>(node->getCondition()), true);
     auto start_label = GetLabel();
-    for (auto s : node->body) {
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
     auto jump_to_loop = Add(ByteCode(Opcode::JUMP_FORWARD));
@@ -258,8 +258,8 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
   void visitWhile(While *node) {
     auto loop_label = GetLabel();
     auto jump_to_end =
-        CompileBoolOp(static_cast<BoolOp *>(node->condition), true);
-    for (auto s : node->body) {
+        CompileBoolOp(static_cast<BoolOp *>(node->getCondition()), true);
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
     auto jump_to_loop = Add(ByteCode(Opcode::JUMP_FORWARD));
@@ -271,18 +271,18 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
 
   void visitIf(If *node) {
     auto jump_to_orelse =
-        CompileBoolOp(static_cast<BoolOp *>(node->test), true);
-    for (auto s : node->body) {
+        CompileBoolOp(static_cast<BoolOp *>(node->getTest()), true);
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
-    if (node->orelse.empty()) {
+    if (node->getOrelse().empty()) {
       auto end_label = GetLabel();
       SetTargetAt(jump_to_orelse, end_label);
       return;
     }
     auto jump_to_end = Add(ByteCode(Opcode::JUMP_FORWARD));
     auto orelse_label = GetLabel();
-    for (auto s : node->orelse) {
+    for (auto s : node->getOrelse()) {
       visitStmt(s);
     }
     auto end_label = GetLabel();
@@ -292,8 +292,8 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
   }
 
   void visitReturn(Return *node) {
-    if (node->value) {
-      visitExpr(node->value);
+    if (node->getValue()) {
+      visitExpr(node->getValue());
       Add(ByteCode(Opcode::RETURN_VALUE));
     } else {
       Add(ByteCode(Opcode::RETURN_NONE));
@@ -301,7 +301,7 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
   }
 
   void visitExprStmt(ExprStmt *node) {
-    visitExpr(node->value);
+    visitExpr(node->getValue());
     // discard return value
     Add(ByteCode(Opcode::POP_TOP));
   }
@@ -311,54 +311,54 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
   }
 
   void visitUnaryOp(UnaryOp *node) {
-    visitExpr(node->operand);
-    Add(ByteCode(MakeUnary(node->op)));
+    visitExpr(node->getOperand());
+    Add(ByteCode(MakeUnary(node->getOp())));
   }
 
   void visitBinOp(BinOp *node) {
-    visitExpr(node->left);
-    visitExpr(node->right);
-    Add(ByteCode(MakeBinary(node->op)));
+    visitExpr(node->getLeft());
+    visitExpr(node->getRight());
+    Add(ByteCode(MakeBinary(node->getOp())));
   }
 
-  void visitParenExpr(ParenExpr *node) { visitExpr(node->value); }
+  void visitParenExpr(ParenExpr *node) { visitExpr(node->getValue()); }
 
   void visitCall(Call *node) {
-    for (auto expr : node->args) {
+    for (auto expr : node->getArgs()) {
       visitExpr(expr);
     }
-    Add(ByteCode(Opcode::CALL_FUNCTION, node->args.size(), node->func.data()));
+    Add(ByteCode(Opcode::CALL_FUNCTION, node->getArgs().size(), node->getFunc().data()));
   }
 
-  void visitNum(Num *node) { Add(ByteCode(Opcode::LOAD_CONST, node->n)); }
+  void visitNum(Num *node) { Add(ByteCode(Opcode::LOAD_CONST, node->getN())); }
 
   void visitStr(Str *node) {
-    Add(ByteCode(Opcode::LOAD_STRING, symtable.GetStringLiteralID(node->s)));
+    Add(ByteCode(Opcode::LOAD_STRING, symtable.GetStringLiteralID(node->getS())));
   }
 
-  void visitChar(Char *node) { Add(ByteCode(Opcode::LOAD_CONST, node->c)); }
+  void visitChar(Char *node) { Add(ByteCode(Opcode::LOAD_CONST, node->getC())); }
 
   void visitSubscript(Subscript *node) {
-    const auto &entry = local[node->name];
+    const auto &entry = local[node->getName()];
     auto load = MakeLoad(entry.GetScope());
     // load array
-    Add(ByteCode(load, node->name.data()));
+    Add(ByteCode(load, node->getName().data()));
     // calculate index
-    visitExpr(node->index);
+    visitExpr(node->getIndex());
     // do subscript
-    Add(ByteCode(MakeSubScr(node->ctx)));
+    Add(ByteCode(MakeSubScr(node->getCtx())));
   }
 
   void visitName(Name *node) {
-    const auto &entry = local[node->id];
+    const auto &entry = local[node->getId()];
     if (entry.IsConstant()) {
       Add(ByteCode(Opcode::LOAD_CONST, entry.AsConstant().GetValue()));
     } else {
       // 4 choices: (LOAD, STORE) * (GLOBAL, LOCAL)
-      auto opcode = node->ctx == ExprContextKind::Load
+      auto opcode = node->getCtx() == ExprContextKind::Load
                         ? MakeLoad(entry.GetScope())
                         : MakeStore(entry.GetScope());
-      Add(ByteCode(opcode, node->id.data()));
+      Add(ByteCode(opcode, node->getId().data()));
     }
   }
 
@@ -373,7 +373,7 @@ public:
     // some jump will target a out-of-range offset
     // this return handles this issue
     Add(ByteCode(Opcode::RETURN_NONE));
-    const auto &entry = symtable.GetGlobal(function->name);
+    const auto &entry = symtable.GetGlobal(function->getName());
     // Check jump target
     for (auto &&code : buffer) {
       if (IsJumpXXX(code.GetOpcode())) {
@@ -405,12 +405,12 @@ CompiledFunction::CompiledFunction(SymbolTableView local,
 }
 
 void CompiledModule::Build(Program *prog, const SymbolTable &symtable) {
-  for (auto decl : prog->decls) {
+  for (auto decl : prog->getDecls()) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       FunctionCompiler functionCompiler(fun, symtable);
       functions.push_back(functionCompiler.Compile());
     } else if (auto var = subclass_cast<VarDecl>(decl)) {
-      global_objects.push_back(symtable.GetGlobal(var->name));
+      global_objects.push_back(symtable.GetGlobal(var->getName()));
     }
   }
 }

@@ -11,12 +11,12 @@ using namespace simplecompiler;
 
 // Define a declaration globally.
 void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
-  if (global.count(decl->name)) {
-    e.NameError(decl->loc, "redefinition of identifier", Quote(decl->name),
+  if (global.count(decl->getName())) {
+    e.NameError(decl->getLoc(), "redefinition of identifier", Quote(decl->getName()),
                 "in <module>");
     return;
   }
-  global.emplace(decl->name, SymbolEntry(Scope::Global, decl));
+  global.emplace(decl->getName(), SymbolEntry(Scope::Global, decl));
 }
 
 // Define a declaration locally.
@@ -24,23 +24,23 @@ void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
 void DefineLocalDecl(Decl *decl, TableType &local, const TableType &global,
                      ErrorManager &e, const String &funcname) {
   auto where = "in function " + Quote(funcname);
-  if (local.count(decl->name)) {
-    e.NameError(decl->loc, "redefinition of identifier", Quote(decl->name),
+  if (local.count(decl->getName())) {
+    e.NameError(decl->getLoc(), "redefinition of identifier", Quote(decl->getName()),
                 where);
     return;
   }
-  if (auto iter = global.find(decl->name);
+  if (auto iter = global.find(decl->getName());
       iter != global.end() && iter->second.IsFunction()) {
-    e.NameError(decl->loc, "local identifier", Quote(decl->name), where,
+    e.NameError(decl->getLoc(), "local identifier", Quote(decl->getName()), where,
                 "shallows a global function name");
     return;
   }
-  local.emplace(decl->name, SymbolEntry(Scope::Local, decl));
+  local.emplace(decl->getName(), SymbolEntry(Scope::Local, decl));
 }
 
 // Enter all global const/var declarations into dict
 void MakeGlobal(Program *prog, TableType &dict, ErrorManager &e) {
-  for (auto decl : prog->decls) {
+  for (auto decl : prog->getDecls()) {
     if (IsInstance<FuncDef>(decl))
       continue; // not now
     DefineGlobalDecl(decl, dict, e);
@@ -70,7 +70,7 @@ class LocalResolver : ChildrenVisitor<LocalResolver> {
       local.emplace(name, x->second);
     } else {
       e.NameError(loc, "undefined identifier", Quote(name), "in function",
-                  Quote(fun->name));
+                  Quote(fun->getName()));
     }
   }
 
@@ -80,7 +80,7 @@ class LocalResolver : ChildrenVisitor<LocalResolver> {
   void visitExpr(Expr *s) { return VisitorBase::visitExpr<void>(s); }
 
   void visitCall(Call *x) {
-    ResolveName(x->func, x->loc);
+    ResolveName(x->getFunc(), x->getLoc());
     ChildrenVisitor::visitCall(x);
   }
 
@@ -90,11 +90,11 @@ class LocalResolver : ChildrenVisitor<LocalResolver> {
   void visitChar(Char *x) {}
 
   void visitSubscript(Subscript *x) {
-    ResolveName(x->name, x->loc);
+    ResolveName(x->getName(), x->getLoc());
     ChildrenVisitor::visitSubscript(x);
   }
 
-  void visitName(Name *x) { ResolveName(x->id, x->loc); }
+  void visitName(Name *x) { ResolveName(x->getId(), x->getLoc()); }
 
 public:
   LocalResolver(FuncDef *fun, const TableType &global, TableType &local,
@@ -103,7 +103,7 @@ public:
 
   // public interface
   void Resolve() {
-    for (auto stmt : fun->stmts) {
+    for (auto stmt : fun->getStmts()) {
       visitStmt(stmt);
     }
   }
@@ -116,14 +116,14 @@ void MakeLocal(FuncDef *fun, TableType &top, TableType &local,
   DefineGlobalDecl(fun, top, e);
 
   // define arguments of a function
-  for (auto arg : fun->args) {
-    DefineLocalDecl(arg, local, top, e, fun->name);
+  for (auto arg : fun->getArgs()) {
+    DefineLocalDecl(arg, local, top, e, fun->getName());
   }
 
   // define const/var declarations of a function
-  auto where = "function " + Quote(fun->name);
-  for (auto decl : fun->decls) {
-    DefineLocalDecl(decl, local, top, e, fun->name);
+  auto where = "function " + Quote(fun->getName());
+  for (auto decl : fun->getDecls()) {
+    DefineLocalDecl(decl, local, top, e, fun->getName());
   }
 
   // resolve local names
@@ -154,7 +154,7 @@ class StringLiteralVisitor : public ChildrenVisitor<StringLiteralVisitor> {
 
   void visitStr(Str *node) {
     assert(node->getS().size() >= 2);
-    node->s = DoubleBackslashes(node->s);
+    node->s = DoubleBackslashes(node->getS());
     table.emplace(node->getS(), table.size());
   }
 
@@ -266,7 +266,7 @@ bool SymbolTable::Build(Program *prog) {
   MakeGlobal(prog, global, e);
 
   // visit all FuncDef and build their local tables
-  for (auto decl : prog->decls) {
+  for (auto decl : prog->getDecls()) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       TableType local;
       MakeLocal(fun, global, local, e);
@@ -281,11 +281,11 @@ bool SymbolTable::Build(Program *prog) {
   return e.IsOk();
 }
 
-ConstType::ConstType(ConstDecl *decl) : type(decl->type) {
-  if (auto x = subclass_cast<Char>(decl->value)) {
-    value = x->c;
-  } else if (auto x = subclass_cast<Num>(decl->value)) {
-    value = x->n;
+ConstType::ConstType(ConstDecl *decl) : type(decl->getType()) {
+  if (auto x = subclass_cast<Char>(decl->getValue())) {
+    value = x->getC();
+  } else if (auto x = subclass_cast<Num>(decl->getValue())) {
+    value = x->getN();
   } else {
     assert(false && "value of ConstDecl wrong type");
   }
@@ -305,14 +305,14 @@ const char *SymbolEntry::GetTypeName() const {
 VarType SymbolEntry::AsVariable() const {
   assert(IsVariable());
   if (auto AD = subclass_cast<ArgDecl>(decl)) {
-    return VarType(AD->type);
+    return VarType(AD->getType());
   }
-  return VarType(static_cast<VarDecl *>(decl)->type);
+  return VarType(static_cast<VarDecl *>(decl)->getType());
 }
 
 BasicTypeKind FuncType::GetArgTypeAt(int pos) const {
   assert(pos >= 0 && pos < fun->args.size() && "pos out of range");
-  return static_cast<ArgDecl *>(fun->args[pos])->type;
+  return static_cast<ArgDecl *>(fun->args[pos])->getType();
 }
 
 bool SymbolEntry::IsFormalArgument() const { return IsInstance<ArgDecl>(decl); }
@@ -334,12 +334,12 @@ ConstType SymbolEntry::AsConstant() const {
 
 bool SymbolEntry::IsArray() const {
   return decl && IsInstance<VarDecl>(decl) &&
-         static_cast<VarDecl *>(decl)->is_array;
+         static_cast<VarDecl *>(decl)->getIsArray();
 }
 
 bool SymbolEntry::IsVariable() const {
   return IsInstance<ArgDecl>(decl) ||
-         (IsInstance<VarDecl>(decl) && !static_cast<VarDecl *>(decl)->is_array);
+         (IsInstance<VarDecl>(decl) && !static_cast<VarDecl *>(decl)->getIsArray());
 }
 
 bool SymbolEntry::IsConstant() const {
@@ -350,6 +350,6 @@ bool SymbolEntry::IsFunction() const {
   return decl && IsInstance<FuncDef>(decl);
 }
 
-Location SymbolEntry::GetLocation() const { return decl->loc; }
+Location SymbolEntry::GetLocation() const { return decl->getLoc(); }
 
-const String &SymbolEntry::GetName() const { return decl->name; }
+const String &SymbolEntry::GetName() const { return decl->getName(); }
