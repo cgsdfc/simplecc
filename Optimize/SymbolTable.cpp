@@ -153,9 +153,9 @@ class StringLiteralVisitor : public ChildrenVisitor<StringLiteralVisitor> {
   StringLiteralTable &table;
 
   void visitStr(Str *node) {
-    assert(node->s.size() >= 2);
+    assert(node->getS().size() >= 2);
     node->s = DoubleBackslashes(node->s);
-    table.emplace(node->s, table.size());
+    table.emplace(node->getS(), table.size());
   }
 
   void visitDecl(Decl *node) {

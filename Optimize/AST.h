@@ -81,6 +81,10 @@ public:
       : AST(), Kind(Kind), name(name), loc(loc) {}
 
   enum DeclKind { ConstDecl, VarDecl, FuncDef, ArgDecl };
+
+  const std::string &getName() const { return name; }
+
+  const Location &getLoc() const { return loc; }
 };
 
 class Stmt : public AST {
@@ -93,6 +97,8 @@ public:
   Stmt(int Kind, const Location &loc) : AST(), Kind(Kind), loc(loc) {}
 
   enum StmtKind { Read, Write, Assign, For, While, Return, If, ExprStmt };
+
+  const Location &getLoc() const { return loc; }
 };
 
 class Expr : public AST {
@@ -116,6 +122,8 @@ public:
     Subscript,
     Name
   };
+
+  const Location &getLoc() const { return loc; }
 };
 
 // ConcreteNode
@@ -136,6 +144,9 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::ConstDecl; }
+
+  BasicTypeKind getType() const { return type; }
+  Expr *getValue() const { return value; }
 };
 
 class VarDecl : public Decl {
@@ -156,6 +167,12 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::VarDecl; }
+
+  BasicTypeKind getType() const { return type; }
+
+  int getIsArray() const { return is_array; }
+
+  int getSize() const { return size; }
 };
 
 class FuncDef : public Decl {
@@ -178,6 +195,14 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::FuncDef; }
+
+  BasicTypeKind getReturnType() const { return return_type; }
+
+  const std::vector<Decl *> &getArgs() const { return args; }
+
+  const std::vector<Decl *> &getDecls() const { return decls; }
+
+  const std::vector<Stmt *> &getStmts() const { return stmts; }
 };
 
 class ArgDecl : public Decl {
@@ -194,6 +219,8 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::ArgDecl; }
+
+  BasicTypeKind getType() const { return type; }
 };
 
 class Read : public Stmt {
@@ -210,6 +237,8 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Read; }
+
+  const std::vector<Expr *> &getNames() const { return names; }
 };
 
 class Write : public Stmt {
@@ -227,6 +256,9 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Write; }
+
+  Expr *getStr() const { return str; }
+  Expr *getValue() const { return value; }
 };
 
 class Assign : public Stmt {
@@ -244,6 +276,9 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Assign; }
+
+  Expr *getTarget() const { return target; }
+  Expr *getValue() const { return value; }
 };
 
 class For : public Stmt {
@@ -265,6 +300,12 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::For; }
+
+  Stmt *getInitial() const { return initial; }
+  Expr *getCondition() const { return condition; }
+  Stmt *getStep() const { return step; }
+
+  const std::vector<Stmt *> &getBody() const { return body; }
 };
 
 class While : public Stmt {
@@ -282,6 +323,10 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::While; }
+
+  Expr *getCondition() const { return condition; }
+
+  const std::vector<Stmt *> &getBody() const { return body; }
 };
 
 class Return : public Stmt {
@@ -298,6 +343,8 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Return; }
+
+  Expr *getValue() const { return value; }
 };
 
 class If : public Stmt {
@@ -317,6 +364,12 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::If; }
+
+  Expr *getTest() const { return test; }
+
+  const std::vector<Stmt *> &getBody() const { return body; }
+
+  const std::vector<Stmt *> &getOrelse() const { return orelse; }
 };
 
 class ExprStmt : public Stmt {
@@ -333,6 +386,8 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::ExprStmt; }
+
+  Expr *getValue() const { return value; }
 };
 
 class BinOp : public Expr {
@@ -351,6 +406,10 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::BinOp; }
+
+  Expr *getLeft() const { return left; }
+  OperatorKind getOp() const { return op; }
+  Expr *getRight() const { return right; }
 };
 
 class ParenExpr : public Expr {
@@ -367,6 +426,8 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::ParenExpr; }
+
+  Expr *getValue() const { return value; }
 };
 
 class BoolOp : public Expr {
@@ -384,6 +445,10 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::BoolOp; }
+
+  Expr *getValue() const { return value; }
+
+  int getHasCmpop() const { return has_cmpop; }
 };
 
 class UnaryOp : public Expr {
@@ -401,6 +466,9 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::UnaryOp; }
+
+  UnaryopKind getOp() const { return op; }
+  Expr *getOperand() const { return operand; }
 };
 
 class Call : public Expr {
@@ -419,6 +487,10 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Call; }
+
+  const std::string &getFunc() const { return func; }
+
+  const std::vector<Expr *> &getArgs() const { return args; }
 };
 
 class Num : public Expr {
@@ -434,6 +506,8 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Num; }
+
+  int getN() const { return n; }
 };
 
 class Str : public Expr {
@@ -449,6 +523,8 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Str; }
+
+  const std::string &getS() const { return s; }
 };
 
 class Char : public Expr {
@@ -464,6 +540,8 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Char; }
+
+  int getC() const { return c; }
 };
 
 class Subscript : public Expr {
@@ -483,6 +561,10 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Subscript; }
+
+  const std::string &getName() const { return name; }
+  Expr *getIndex() const { return index; }
+  ExprContextKind getCtx() const { return ctx; }
 };
 
 class Name : public Expr {
@@ -500,6 +582,9 @@ public:
   void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Name; }
+
+  const std::string &getId() const { return id; }
+  ExprContextKind getCtx() const { return ctx; }
 };
 
 // LeafNode
@@ -515,6 +600,8 @@ public:
   const char *GetClassName() const override { return "Program"; }
 
   void Format(std::ostream &os) const override;
+
+  const std::vector<Decl *> &getDecls() const { return decls; }
 };
 
 // EnumFromString

@@ -18,9 +18,9 @@ class ImplicitCallTransformer : VisitorBase<ImplicitCallTransformer> {
 
   Expr *visitExpr(Expr *node) {
     if (auto x = subclass_cast<Name>(node)) {
-      if (local[x->id].IsFunction()) {
+      if (local[x->getId()].IsFunction()) {
         // replace such a name with a call
-        auto call = new Call(x->id, {}, x->loc);
+        auto call = new Call(x->getId(), {}, x->getLoc());
         delete x;
         return call;
       } else {
@@ -41,15 +41,15 @@ class ImplicitCallTransformer : VisitorBase<ImplicitCallTransformer> {
   void visitRead(Read *node) {}
 
   void visitWrite(Write *node) {
-    if (node->value) {
+    if (node->getValue()) {
       VISIT(value);
     }
   }
 
   void visitAssign(Assign *node) {
     // don't check Name
-    if (IsInstance<Subscript>(node->target)) {
-      visitExpr(node->target);
+    if (IsInstance<Subscript>(node->getTarget())) {
+      visitExpr(node->getTarget());
     }
     VISIT(value);
   }
@@ -57,39 +57,39 @@ class ImplicitCallTransformer : VisitorBase<ImplicitCallTransformer> {
   void visitFor(For *node) {
     visitStmt(node->initial);
     VISIT(condition);
-    visitStmt(node->step);
-    for (auto s : node->body) {
+    visitStmt(node->getStep());
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
   }
 
   void visitWhile(While *node) {
     VISIT(condition);
-    for (auto s : node->body) {
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
   }
 
   void visitReturn(Return *node) {
-    if (node->value) {
+    if (node->getValue()) {
       VISIT(value);
     }
   }
 
   void visitIf(If *node) {
     VISIT(test);
-    for (auto s : node->body) {
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
-    for (auto s : node->orelse) {
+    for (auto s : node->getOrelse()) {
       visitStmt(s);
     }
   }
 
   // nothing to do since it must be a Call
   void visitExprStmt(ExprStmt *node) {
-    assert(IsInstance<Call>(node->value));
-    visitExpr(node->value);
+    assert(IsInstance<Call>(node->getValue()));
+    visitExpr(node->getValue());
   }
 
   void visitBinOp(BinOp *node) {
@@ -104,7 +104,7 @@ class ImplicitCallTransformer : VisitorBase<ImplicitCallTransformer> {
   void visitUnaryOp(UnaryOp *node) { VISIT(operand); }
 
   void visitCall(Call *node) {
-    for (int i = 0, size = node->args.size(); i < size; i++) {
+    for (int i = 0, size = node->getArgs().size(); i < size; i++) {
       node->args[i] = visitExpr(node->args[i]);
     }
   }
@@ -125,7 +125,7 @@ public:
 
   // public interface
   void Transform() {
-    for (auto stmt : funcDef->stmts) {
+    for (auto stmt : funcDef->getStmts()) {
       visitStmt(stmt);
     }
   }
@@ -149,10 +149,10 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   ErrorManager &e;
 
   // return type of the function being checked
-  BasicTypeKind GetReturnType() const { return funcDef->return_type; }
+  BasicTypeKind GetReturnType() const { return funcDef->getReturnType(); }
 
   // name of the function being checked
-  const String &GetFuncName() const { return funcDef->name; }
+  const String &GetFuncName() const { return funcDef->getName(); }
 
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
 
@@ -164,30 +164,30 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   }
 
   void visitRead(Read *node) {
-    for (auto expr : node->names) {
+    for (auto expr : node->getNames()) {
       visitExpr(expr); // Collect type info.
       auto name = subclass_cast<Name>(expr);
-      const auto &entry = local[name->id];
+      const auto &entry = local[name->getId()];
       if (!entry.IsVariable()) {
-        e.TypeError(name->loc, "cannot use scanf() on object of type",
+        e.TypeError(name->getLoc(), "cannot use scanf() on object of type",
                     entry.GetTypeName());
       }
     }
   }
 
   void visitWrite(Write *node) {
-    if (node->value) {
-      CheckExprOperand(node->value);
+    if (node->getValue()) {
+      CheckExprOperand(node->getValue());
     }
   }
 
   void visitReturn(Return *node) {
     auto return_type =
-        node->value ? visitExpr(node->value) : BasicTypeKind::Void;
+        node->getValue() ? visitExpr(node->getValue()) : BasicTypeKind::Void;
 
     // order a strict match
     if (GetReturnType() != return_type) {
-      e.TypeError(node->loc, "return type mismatched:", "function",
+      e.TypeError(node->getLoc(), "return type mismatched:", "function",
                   Quote(GetFuncName()), "must return",
                   CStringFromBasicTypeKind(GetReturnType()), "not",
                   CStringFromBasicTypeKind(return_type));
@@ -196,18 +196,18 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
 
   void visitAssign(Assign *node) {
     int errs = e.GetErrorCount();
-    auto value = CheckExprOperand(node->value);
-    auto target = visitExpr(node->target);
+    auto value = CheckExprOperand(node->getValue());
+    auto target = visitExpr(node->getTarget());
 
     if (e.IsOk(errs) && target != value) {
-      e.TypeError(node->loc, "type mismatched in assignment:",
+      e.TypeError(node->getLoc(), "type mismatched in assignment:",
                   CStringFromBasicTypeKind(target), "=",
                   CStringFromBasicTypeKind(value));
     }
   }
 
   void visitExprStmt(ExprStmt *node) {
-    auto call = subclass_cast<Call>(node->value);
+    auto call = subclass_cast<Call>(node->getValue());
     assert(call && "value of ExprStmt must be a Call");
     visitCall(call);
   }
@@ -218,17 +218,17 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
     auto errs = e.GetErrorCount();
     auto type = visitExpr(operand);
     if (e.IsOk(errs) && type != BasicTypeKind::Int) {
-      e.TypeError(operand->loc, msg);
+      e.TypeError(operand->getLoc(), msg);
     }
   }
 
   BasicTypeKind visitBoolOp(BoolOp *node) {
-    if (node->has_cmpop) {
-      auto x = static_cast<BinOp *>(node->value);
-      CheckBoolOpOperand(x->left);
-      CheckBoolOpOperand(x->right);
+    if (node->getHasCmpop()) {
+      auto x = static_cast<BinOp *>(node->getValue());
+      CheckBoolOpOperand(x->getLeft());
+      CheckBoolOpOperand(x->getRight());
     } else {
-      CheckBoolOpOperand(node->value);
+      CheckBoolOpOperand(node->getValue());
     }
     return BasicTypeKind::Int;
   }
@@ -239,31 +239,31 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
     auto errs = e.GetErrorCount();
     auto type = visitExpr(expr);
     if (e.IsOk(errs) && type == BasicTypeKind::Void) {
-      e.TypeError(expr->loc, msg);
+      e.TypeError(expr->getLoc(), msg);
     }
     return type;
   }
 
   BasicTypeKind visitBinOp(BinOp *node) {
-    CheckExprOperand(node->left);
-    CheckExprOperand(node->right);
+    CheckExprOperand(node->getLeft());
+    CheckExprOperand(node->getRight());
     return BasicTypeKind::Int;
   }
 
   BasicTypeKind visitUnaryOp(UnaryOp *node) {
-    CheckExprOperand(node->operand);
+    CheckExprOperand(node->getOperand());
     return BasicTypeKind::Int;
   }
 
   BasicTypeKind visitParenExpr(ParenExpr *node) {
-    CheckExprOperand(node->value);
+    CheckExprOperand(node->getValue());
     return BasicTypeKind::Int;
   }
 
   BasicTypeKind visitCall(Call *node) {
-    const auto &entry = local[node->func];
+    const auto &entry = local[node->getFunc()];
     if (!entry.IsFunction()) {
-      e.TypeError(node->loc, "object of type", entry.GetTypeName(),
+      e.TypeError(node->getLoc(), "object of type", entry.GetTypeName(),
                   "cannot be called as a function");
       return BasicTypeKind::Void;
     }
@@ -272,18 +272,18 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
     auto formal_args_len = fun_type.GetArgCount();
     auto actual_args_len = node->args.size();
     if (formal_args_len != actual_args_len) {
-      e.TypeError(node->loc, "function", Quote(node->func), "expects",
+      e.TypeError(node->getLoc(), "function", Quote(node->getFunc()), "expects",
                   formal_args_len, "arguments, got", actual_args_len);
     }
 
     // check args
     auto len = std::min(formal_args_len, actual_args_len);
     for (int i = 0; i < len; i++) {
-      auto actual = visitExpr(node->args[i]);
+      auto actual = visitExpr(node->getArgs()[i]);
       auto formal = fun_type.GetArgTypeAt(i);
       if (actual != formal) {
-        e.TypeError(node->args[i]->loc, "argument", i + 1, "of function",
-                    Quote(node->func), "must be",
+        e.TypeError(node->getArgs()[i]->getLoc(), "argument", i + 1, "of function",
+                    Quote(node->getFunc()), "must be",
                     CStringFromBasicTypeKind(formal), ", not",
                     CStringFromBasicTypeKind(actual));
       }
@@ -292,30 +292,30 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   }
 
   BasicTypeKind visitSubscript(Subscript *node) {
-    const auto &entry = local[node->name];
+    const auto &entry = local[node->getName()];
     if (!entry.IsArray()) {
-      e.TypeError(node->loc, "object of type", entry.GetTypeName(),
+      e.TypeError(node->getLoc(), "object of type", entry.GetTypeName(),
                   "cannot be subscripted as an array");
       return BasicTypeKind::Void;
     }
 
     int errs = e.GetErrorCount();
-    auto index = visitExpr(node->index);
+    auto index = visitExpr(node->getIndex());
     if (e.IsOk(errs) && index != BasicTypeKind::Int) {
-      e.TypeError(node->loc, "type of array index must be int");
+      e.TypeError(node->getLoc(), "type of array index must be int");
     }
     return entry.AsArray().GetElementType();
   }
 
   BasicTypeKind visitName(Name *node) {
-    const auto &entry = local[node->id];
-    if (node->ctx == ExprContextKind::Load && entry.IsArray()) {
-      e.TypeError(node->loc, "object of type", entry.GetTypeName(),
+    const auto &entry = local[node->getId()];
+    if (node->getCtx() == ExprContextKind::Load && entry.IsArray()) {
+      e.TypeError(node->getLoc(), "object of type", entry.GetTypeName(),
                   "cannot be used in an expression");
       return BasicTypeKind::Void;
     }
-    if (node->ctx == ExprContextKind::Store && !entry.IsVariable()) {
-      e.TypeError(node->loc, "object of type", entry.GetTypeName(),
+    if (node->getCtx() == ExprContextKind::Store && !entry.IsVariable()) {
+      e.TypeError(node->getLoc(), "object of type", entry.GetTypeName(),
                   "cannot be assigned to");
       return BasicTypeKind::Void;
     }
@@ -327,7 +327,7 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   BasicTypeKind visitNum(Num *x) { return BasicTypeKind::Int; }
   // not actually used, for instantiation only
   BasicTypeKind visitStr(Str *x) {
-    e.InternalError(x->loc, "TypeCheker::visitStr() shall not be called");
+    e.InternalError(x->getLoc(), "TypeCheker::visitStr() shall not be called");
   }
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 
@@ -338,7 +338,7 @@ public:
 
   // public interface
   void Check() {
-    for (auto stmt : funcDef->stmts) {
+    for (auto stmt : funcDef->getStmts()) {
       visitStmt(stmt);
     }
   }
@@ -347,7 +347,7 @@ public:
 
 bool simplecompiler::CheckType(Program *prog, SymbolTable &symtable) {
   ErrorManager e;
-  for (auto decl : prog->decls) {
+  for (auto decl : prog->getDecls()) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       // first do transformation
       ImplicitCallTransformer(symtable, fun).Transform();
