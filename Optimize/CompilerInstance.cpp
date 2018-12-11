@@ -8,7 +8,7 @@
 #include "SyntaxChecker.h"
 #include "Tokenize.h"
 #include "TypeChecker.h"
-#include "error.h"
+#include "ErrorManager.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "ASTGraph.h"

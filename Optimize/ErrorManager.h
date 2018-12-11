@@ -1,5 +1,5 @@
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef ERROR_MANAGER_H
+#define ERROR_MANAGER_H
 
 #include "Print.h"
 #include "TokenInfo.h"

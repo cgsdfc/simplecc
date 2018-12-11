@@ -1,7 +1,7 @@
 #include "AstBuilder.h"
 #include "AST.h"
 #include "Node.h"
-#include "error.h"
+#include "ErrorManager.h"
 
 #include <cassert>
 #include <sstream>

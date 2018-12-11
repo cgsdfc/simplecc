@@ -2,7 +2,7 @@
 #include "Grammar.h"
 #include "Node.h"
 #include "TokenInfo.h"
-#include "error.h"
+#include "ErrorManager.h"
 
 #include <algorithm>
 #include <stack>

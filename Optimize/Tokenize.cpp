@@ -1,5 +1,5 @@
 #include "Tokenize.h"
-#include "error.h"
+#include "ErrorManager.h"
 
 #include <algorithm>
 #include <cassert>

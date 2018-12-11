@@ -1,7 +1,7 @@
 #include "TypeChecker.h"
 #include "SymbolTable.h"
 #include "Visitor.h"
-#include "error.h"
+#include "ErrorManager.h"
 
 #include <algorithm>
 

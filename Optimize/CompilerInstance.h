@@ -2,7 +2,7 @@
 #define COMPILER_INSTANCE
 
 #include "SymbolTable.h"
-#include "error.h"
+#include "ErrorManager.h"
 
 #include <iostream>
 #include <vector>
