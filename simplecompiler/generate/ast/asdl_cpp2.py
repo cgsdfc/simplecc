@@ -4,6 +4,8 @@
 
 import sys
 import os
+import abc
+
 from string import Template
 from pprint import pprint
 from itertools import chain
@@ -54,6 +56,12 @@ class CppType:
         """delete stmt in cpp"""
         return None
 
+    @abc.abstractmethod
+    def make_getter(self, name):
+        """Return a piece of code for the cpp getter method of this named field.
+        The type of ``name`` is ``self``.
+        """
+
 
 class AstNode(CppType):
     """AstNode represents subclasses of AST"""
@@ -71,6 +79,13 @@ class AstNode(CppType):
 
     def delete(self, name):
         return self.delete_.substitute(name=name)
+
+    def make_getter(self, name):
+        return Template("""$type get$Member() const { return $name; }""").substitute(
+                type=self.as_member,
+                Member=camal_case(name),
+                name=name,
+            )
 
 
 class Primitive(CppType):
@@ -100,6 +115,14 @@ class Primitive(CppType):
         else:
             # larger types
             return self.const_ref(self.name)
+
+    def make_getter(self, name):
+        return Template("""
+$type get$Member() const { return $member; }""").substitute(
+        type=self.as_argument,
+        Member=camal_case(name),
+        member=name
+    )
 
 
 # These are simple data container about cpp types
@@ -160,6 +183,13 @@ class EnumClass(CppType):
 
     as_argument = as_member
 
+    def make_getter(self, name):
+        return Template("""$type get$Member() const { return $name; }""").substitute(
+                type=self.name,
+                Member=camal_case(name),
+                name=name
+            )
+
 
 class Sequence(CppType):
     """A list of item dealing with * in asdl"""
@@ -186,6 +216,15 @@ class Sequence(CppType):
 
     name = as_member
 
+    def make_getter(self, name):
+        return Template("""
+const std::vector<$elemtype> &get$Member() const { return $member; }
+""").substitute(
+        elemtype=self.elemtype.as_member,
+        Member=camal_case(name),
+        member=name,
+    )
+
 
 class Optional(CppType):
     """A optional item dealing with ? in asdl"""
@@ -211,6 +250,9 @@ class Optional(CppType):
         if isinstance(self.elemtype, AstNode):
             return self.delete_opt.substitute(name=name)
         return None
+
+    def make_getter(self, name):
+        return self.elemtype.make_getter(name)
 
 
 class TypeVisitor(asdl.VisitorBase):
@@ -512,34 +554,9 @@ $string2enum_impls
         )
 
 
-class AbstractNodeTemplate:
-    decl = Template("""
-class $class_name: public AST {
-    int Kind;
-public:
-    int GetKind() const { return Kind; }
-    $member_declaration
-
-    $class_name(int Kind, $constructor_args): AST(), Kind(Kind), $member_init {}
-
-    enum $enum_name {$enumitems};
-};""")
-
-    def substitute(self, x):
-        return self.decl.substitute(
-            class_name=x.name,
-            member_declaration=make_member_decls(x.members),
-            constructor_args=make_formal_args(x.members),
-            member_init=make_init(x.members),
-            enum_name=x.name + "Kind",
-            enumitems=self.make_enumitems(x.subclasses),
-        )
-
-    def make_enumitems(self, subclasses):
-        return ", ".join(c.name for c in subclasses)
-
-
 class ClassImplTemplate:
+    """This class emit code for methods of a class that go into cpp file"""
+
     formatter_impl = Template("""
 void $class_name::Format(std::ostream &os) const {
     os << "$class_name(" <<
@@ -586,7 +603,43 @@ $class_name::~$class_name() {
         yield self.make_destructor(x)
 
 
+
+class AbstractNodeTemplate:
+    """This class emit code for the interface of an AbstractNode"""
+
+    decl = Template("""
+class $class_name: public AST {
+    int Kind;
+public:
+    int GetKind() const { return Kind; }
+    $member_declaration
+
+    $class_name(int Kind, $constructor_args): AST(), Kind(Kind), $member_init {}
+
+    enum $enum_name {$enumitems};
+
+    $getters
+};""")
+
+    def substitute(self, x):
+        return self.decl.substitute(
+            class_name=x.name,
+            member_declaration=make_member_decls(x.members),
+            constructor_args=make_formal_args(x.members),
+            member_init=make_init(x.members),
+            enum_name=x.name + "Kind",
+            enumitems=self.make_enumitems(x.subclasses),
+            getters=make_getters(x.members),
+        )
+
+    def make_enumitems(self, subclasses):
+        return ", ".join(c.name for c in subclasses)
+
+
+
 class ConcreteNodeTemplate(ClassImplTemplate):
+    """This class emit code for the interface of an ConcreteNode"""
+
     decl = Template("""
 class $class_name: public $base {
 public:
@@ -606,6 +659,8 @@ public:
     static bool InstanceCheck($base *x) {
         return x->GetKind() == $base::$class_name;
     }
+
+    $getters
 };""")
 
     def substitute(self, x):
@@ -617,10 +672,13 @@ public:
             constructor_args=make_formal_args(x.members + x.base.members),
             base_init=make_actual_args(x.base.members),
             member_init=make_init(x.members),
+            getters=make_getters(x.members),
         )
 
 
 class LeafNodeTemplate(ClassImplTemplate):
+    """This class emit code for the interface of an LeafNode"""
+
     decl = Template("""
 class $class_name: public AST {
 public:
@@ -635,6 +693,8 @@ public:
     }
 
     void Format(std::ostream &os) const override;
+
+    $getters
 };""")
 
     def substitute(self, x):
@@ -644,6 +704,7 @@ public:
             member_declaration=make_member_decls(x.members),
             constructor_args=make_formal_args(x.members),
             member_init=make_init(x.members),
+            getters=make_getters(x.members),
         )
 
 
@@ -913,6 +974,10 @@ def make_enumitems(values):
     APPLE, BANANA
     """
     return ", ".join(values)
+
+
+def make_getters(members):
+    return "\n".join(type.make_getter(name) for type, name in members)
 
 
 def generate(args):
