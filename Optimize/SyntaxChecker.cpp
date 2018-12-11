@@ -10,16 +10,16 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
   friend class VisitorBase<SyntaxChecker>;
 
   void visitProgram(Program *node) {
-    if (node->decls.size() == 0) {
+    if (node->getDecls().size() == 0) {
       e.SyntaxError(Location(0, 0), "expected main() at the end of input");
       return;
     }
-    for (auto decl : node->decls) {
+    for (auto decl : node->getDecls()) {
       VisitorBase::visitDecl<void>(decl);
     }
 
-    auto decl_iter = node->decls.begin();
-    auto end = node->decls.end();
+    auto decl_iter = node->getDecls().begin();
+    auto end = node->getDecls().end();
 
     // check the order of declarations
     while (decl_iter != end && IsInstance<ConstDecl>(*decl_iter)) {
@@ -34,55 +34,55 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
 
     if (decl_iter != end) {
       auto decl = *decl_iter;
-      e.SyntaxError(decl->loc, "unexpected", decl->GetClassName(),
-                    Quote(decl->name));
+      e.SyntaxError(decl->getLoc(), "unexpected", decl->GetClassName(),
+                    Quote(decl->getName()));
     }
 
     // check the last declaration is the main function
-    auto x = subclass_cast<FuncDef>(node->decls.back());
-    if (!(x && x->name == "main")) {
-      e.SyntaxError(x->loc, "expected main() at the end of input");
+    auto x = subclass_cast<FuncDef>(node->getDecls().back());
+    if (!(x && x->getName() == "main")) {
+      e.SyntaxError(x->getLoc(), "expected main() at the end of input");
     }
   }
 
   void visitConstDecl(ConstDecl *node) {
-    if (node->type == BasicTypeKind::Int && !IsInstance<Num>(node->value)) {
-      e.SyntaxError(node->loc, "const int", Quote(node->name),
+    if (node->getType() == BasicTypeKind::Int && !IsInstance<Num>(node->getValue())) {
+      e.SyntaxError(node->getLoc(), "const int", Quote(node->getName()),
                     "expects an integer");
-    } else if (node->type == BasicTypeKind::Character &&
-               !IsInstance<Char>(node->value)) {
-      e.SyntaxError(node->loc, "cont char", Quote(node->name),
+    } else if (node->getType() == BasicTypeKind::Character &&
+               !IsInstance<Char>(node->getValue())) {
+      e.SyntaxError(node->getLoc(), "cont char", Quote(node->getName()),
                     "expects a character");
     }
   }
 
   void visitVarDecl(VarDecl *node) {
-    if (node->type == BasicTypeKind::Void) {
-      e.SyntaxError(node->loc, "cannot declare", Quote(node->name),
+    if (node->getType() == BasicTypeKind::Void) {
+      e.SyntaxError(node->getLoc(), "cannot declare", Quote(node->getName()),
                     "as a void variable");
-    } else if (node->is_array && node->size == 0) {
-      e.SyntaxError(node->loc, "array size of", Quote(node->name),
+    } else if (node->getIsArray() && node->getSize() == 0) {
+      e.SyntaxError(node->getLoc(), "array size of", Quote(node->getName()),
                     "cannot be 0");
     }
   }
 
   void visitArgDecl(ArgDecl *node) {
-    if (node->type == BasicTypeKind::Void) {
-      e.SyntaxError(node->loc, "cannot declare void argument");
+    if (node->getType() == BasicTypeKind::Void) {
+      e.SyntaxError(node->getLoc(), "cannot declare void argument");
     }
   }
 
   void visitFuncDef(FuncDef *node) {
-    for (auto arg : node->args) {
+    for (auto arg : node->getArgs()) {
       VisitorBase::visitDecl<void>(arg);
     }
-    for (auto decl : node->decls) {
+    for (auto decl : node->getDecls()) {
       VisitorBase::visitDecl<void>(decl);
     }
 
-    if (node->name == "main") {
-      if (node->return_type != BasicTypeKind::Void) {
-        e.SyntaxError(node->loc, "main() must return void");
+    if (node->getName() == "main") {
+      if (node->getReturnType() != BasicTypeKind::Void) {
+        e.SyntaxError(node->getLoc(), "main() must return void");
       }
     }
   }

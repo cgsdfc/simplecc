@@ -104,7 +104,7 @@ public:
       return Location(0, 0);
 #define DEFINE_AST_TRAITS(NAME)                                                \
   case AstKind::NAME:                                                          \
-    return static_cast<NAME *>(Ref)->loc;
+    return static_cast<NAME *>(Ref)->getLoc();
       DEFINE_AST_TRAITS(Decl)
       DEFINE_AST_TRAITS(Stmt)
       DEFINE_AST_TRAITS(Expr)
@@ -337,67 +337,67 @@ public:
     /// lambda to extract the numeric value of a Num or Char.
     auto MakeCV = [](Expr *E) {
       if (auto x = subclass_cast<Char>(E))
-        return x->c;
+        return x->getC();
       if (auto x = subclass_cast<Num>(E))
-        return x->n;
+        return x->getN();
       assert(false && "Unknown Expr class");
     };
 
-    O << "const " << CStringFromBasicTypeKind(CD->type) << " " << CD->name
-      << " = " << MakeCV(CD->value);
+    O << "const " << CStringFromBasicTypeKind(CD->getType()) << " " << CD->getName()
+      << " = " << MakeCV(CD->getValue());
     return O.str();
   }
 
   String visitVarDecl(VarDecl *VD) {
     std::ostringstream O;
-    O << CStringFromBasicTypeKind(VD->type) << " " << VD->name;
-    if (VD->is_array) {
-      O << "[" << VD->size << "]";
+    O << CStringFromBasicTypeKind(VD->getType()) << " " << VD->getName();
+    if (VD->getIsArray()) {
+      O << "[" << VD->getSize() << "]";
     }
     return O.str();
   }
 
   String visitFuncDef(FuncDef *FD) {
     std::ostringstream O;
-    Print(O, CStringFromBasicTypeKind(FD->return_type), FD->name);
+    Print(O, CStringFromBasicTypeKind(FD->getReturnType()), FD->getName());
     return O.str();
   }
 
   String visitArgDecl(ArgDecl *A) {
     std::ostringstream O;
-    Print(O, CStringFromBasicTypeKind(A->type), A->name);
+    Print(O, CStringFromBasicTypeKind(A->getType()), A->getName());
     return O.str();
   }
 
-  String visitBinOp(BinOp *BO) { return CStringFromOperatorKind(BO->op); }
+  String visitBinOp(BinOp *BO) { return CStringFromOperatorKind(BO->getOp()); }
 
-  String visitUnaryOp(UnaryOp *UO) { return CStringFromUnaryopKind(UO->op); }
+  String visitUnaryOp(UnaryOp *UO) { return CStringFromUnaryopKind(UO->getOp()); }
 
   String visitBoolOp(BoolOp *BO) { return ""; }
 
   String visitParenExpr(ParenExpr *PE) { return "()"; }
 
-  String visitName(Name *N) { return N->id; }
+  String visitName(Name *N) { return N->getId(); }
 
   String visitNum(Num *N) {
     std::ostringstream O;
-    O << N->n;
+    O << N->getN();
     return O.str();
   }
 
   String visitChar(Char *C) {
     std::ostringstream O;
-    O << "'" << C->c << "'";
+    O << "'" << C->getC() << "'";
     return O.str();
   }
 
   String visitStr(Str *S) {
     std::ostringstream O;
-    O << S->s;
+    O << S->getS();
     return O.str();
   }
 
-  String visitCall(Call *C) { return C->func; }
+  String visitCall(Call *C) { return C->getFunc(); }
 
   String visitRead(Read *) { return "scanf"; }
 
@@ -407,7 +407,7 @@ public:
 
   String visitSubscript(Subscript *) { return "[]"; }
 
-  String visitExprStmt(ExprStmt *ES) { return visitExpr(ES->value); }
+  String visitExprStmt(ExprStmt *ES) { return visitExpr(ES->getValue()); }
 
   String visitFor(For *) { return ""; }
   String visitIf(If *) { return ""; }
