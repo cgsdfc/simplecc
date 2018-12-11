@@ -343,8 +343,8 @@ public:
       assert(false && "Unknown Expr class");
     };
 
-    O << "const " << CStringFromBasicTypeKind(CD->getType()) << " " << CD->getName()
-      << " = " << MakeCV(CD->getValue());
+    O << "const " << CStringFromBasicTypeKind(CD->getType()) << " "
+      << CD->getName() << " = " << MakeCV(CD->getValue());
     return O.str();
   }
 
@@ -371,7 +371,9 @@ public:
 
   String visitBinOp(BinOp *BO) { return CStringFromOperatorKind(BO->getOp()); }
 
-  String visitUnaryOp(UnaryOp *UO) { return CStringFromUnaryopKind(UO->getOp()); }
+  String visitUnaryOp(UnaryOp *UO) {
+    return CStringFromUnaryopKind(UO->getOp());
+  }
 
   String visitBoolOp(BoolOp *BO) { return ""; }
 

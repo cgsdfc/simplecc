@@ -282,8 +282,8 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
       auto actual = visitExpr(node->getArgs()[i]);
       auto formal = fun_type.GetArgTypeAt(i);
       if (actual != formal) {
-        e.TypeError(node->getArgs()[i]->getLoc(), "argument", i + 1, "of function",
-                    Quote(node->getFunc()), "must be",
+        e.TypeError(node->getArgs()[i]->getLoc(), "argument", i + 1,
+                    "of function", Quote(node->getFunc()), "must be",
                     CStringFromBasicTypeKind(formal), ", not",
                     CStringFromBasicTypeKind(actual));
       }

@@ -46,7 +46,8 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
   }
 
   void visitConstDecl(ConstDecl *node) {
-    if (node->getType() == BasicTypeKind::Int && !IsInstance<Num>(node->getValue())) {
+    if (node->getType() == BasicTypeKind::Int &&
+        !IsInstance<Num>(node->getValue())) {
       e.SyntaxError(node->getLoc(), "const int", Quote(node->getName()),
                     "expects an integer");
     } else if (node->getType() == BasicTypeKind::Character &&

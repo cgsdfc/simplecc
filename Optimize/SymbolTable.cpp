@@ -12,8 +12,8 @@ using namespace simplecompiler;
 // Define a declaration globally.
 void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
   if (global.count(decl->getName())) {
-    e.NameError(decl->getLoc(), "redefinition of identifier", Quote(decl->getName()),
-                "in <module>");
+    e.NameError(decl->getLoc(), "redefinition of identifier",
+                Quote(decl->getName()), "in <module>");
     return;
   }
   global.emplace(decl->getName(), SymbolEntry(Scope::Global, decl));
@@ -25,14 +25,14 @@ void DefineLocalDecl(Decl *decl, TableType &local, const TableType &global,
                      ErrorManager &e, const String &funcname) {
   auto where = "in function " + Quote(funcname);
   if (local.count(decl->getName())) {
-    e.NameError(decl->getLoc(), "redefinition of identifier", Quote(decl->getName()),
-                where);
+    e.NameError(decl->getLoc(), "redefinition of identifier",
+                Quote(decl->getName()), where);
     return;
   }
   if (auto iter = global.find(decl->getName());
       iter != global.end() && iter->second.IsFunction()) {
-    e.NameError(decl->getLoc(), "local identifier", Quote(decl->getName()), where,
-                "shallows a global function name");
+    e.NameError(decl->getLoc(), "local identifier", Quote(decl->getName()),
+                where, "shallows a global function name");
     return;
   }
   local.emplace(decl->getName(), SymbolEntry(Scope::Local, decl));
@@ -339,7 +339,8 @@ bool SymbolEntry::IsArray() const {
 
 bool SymbolEntry::IsVariable() const {
   return IsInstance<ArgDecl>(decl) ||
-         (IsInstance<VarDecl>(decl) && !static_cast<VarDecl *>(decl)->getIsArray());
+         (IsInstance<VarDecl>(decl) &&
+          !static_cast<VarDecl *>(decl)->getIsArray());
 }
 
 bool SymbolEntry::IsConstant() const {

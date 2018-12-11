@@ -126,7 +126,8 @@ class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
   }
 
   void visitFuncDef(FuncDef *node) {
-    w.WriteLine(CStringFromBasicTypeKind(node->getReturnType()), node->getName(), "()");
+    w.WriteLine(CStringFromBasicTypeKind(node->getReturnType()),
+                node->getName(), "()");
     for (auto arg : node->getArgs()) {
       visitDecl(arg);
     }
@@ -257,7 +258,9 @@ class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
 
   ExprValue visitStr(Str *node) { return ExprValue(node); }
 
-  ExprValue visitParenExpr(ParenExpr *node) { return visitExpr(node->getValue()); }
+  ExprValue visitParenExpr(ParenExpr *node) {
+    return visitExpr(node->getValue());
+  }
 
   ExprValue visitBoolOp(BoolOp *node) {
     assert(false && "BoolOp should be handled by CompileBoolOp()");

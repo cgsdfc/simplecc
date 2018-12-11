@@ -227,8 +227,8 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
       assert(binop);
       visitExpr(binop->getLeft());
       visitExpr(binop->getRight());
-      auto opcode =
-          is_negative ? MakeJumpNegative(binop->getOp()) : MakeJump(binop->getOp());
+      auto opcode = is_negative ? MakeJumpNegative(binop->getOp())
+                                : MakeJump(binop->getOp());
       return Add(ByteCode(opcode));
     }
     visitExpr(node->getValue());
@@ -327,16 +327,20 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
     for (auto expr : node->getArgs()) {
       visitExpr(expr);
     }
-    Add(ByteCode(Opcode::CALL_FUNCTION, node->getArgs().size(), node->getFunc().data()));
+    Add(ByteCode(Opcode::CALL_FUNCTION, node->getArgs().size(),
+                 node->getFunc().data()));
   }
 
   void visitNum(Num *node) { Add(ByteCode(Opcode::LOAD_CONST, node->getN())); }
 
   void visitStr(Str *node) {
-    Add(ByteCode(Opcode::LOAD_STRING, symtable.GetStringLiteralID(node->getS())));
+    Add(ByteCode(Opcode::LOAD_STRING,
+                 symtable.GetStringLiteralID(node->getS())));
   }
 
-  void visitChar(Char *node) { Add(ByteCode(Opcode::LOAD_CONST, node->getC())); }
+  void visitChar(Char *node) {
+    Add(ByteCode(Opcode::LOAD_CONST, node->getC()));
+  }
 
   void visitSubscript(Subscript *node) {
     const auto &entry = local[node->getName()];
