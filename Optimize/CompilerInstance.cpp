@@ -3,12 +3,12 @@
 #include "AstBuilder.h"
 #include "ByteCodePrinter.h"
 #include "Compile.h"
+#include "ErrorManager.h"
 #include "Node.h"
 #include "Parser.h"
 #include "SyntaxChecker.h"
 #include "Tokenize.h"
 #include "TypeChecker.h"
-#include "ErrorManager.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "ASTGraph.h"

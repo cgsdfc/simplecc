@@ -1,6 +1,6 @@
 #include "SyntaxChecker.h"
-#include "Visitor.h"
 #include "ErrorManager.h"
+#include "Visitor.h"
 
 namespace {
 using namespace simplecompiler;

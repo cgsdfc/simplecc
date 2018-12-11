@@ -1,6 +1,6 @@
 #include "SymbolTable.h"
-#include "Visitor.h"
 #include "ErrorManager.h"
+#include "Visitor.h"
 
 #include <iostream>
 #include <unordered_map>

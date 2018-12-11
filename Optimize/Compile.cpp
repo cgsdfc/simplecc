@@ -1,6 +1,6 @@
 #include "Compile.h"
-#include "Visitor.h"
 #include "ErrorManager.h"
+#include "Visitor.h"
 
 #include <cassert>
 #include <iomanip>

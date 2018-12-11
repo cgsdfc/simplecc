@@ -1,8 +1,8 @@
 #include "Parser.h"
+#include "ErrorManager.h"
 #include "Grammar.h"
 #include "Node.h"
 #include "TokenInfo.h"
-#include "ErrorManager.h"
 
 #include <algorithm>
 #include <stack>

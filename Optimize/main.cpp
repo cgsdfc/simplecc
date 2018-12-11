@@ -1,5 +1,5 @@
-#include "Pass.h"
 #include "ErrorManager.h"
+#include "Pass.h"
 
 #include <algorithm>
 #include <cstring>

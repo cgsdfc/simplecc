@@ -1,8 +1,8 @@
 #ifndef COMPILER_INSTANCE
 #define COMPILER_INSTANCE
 
-#include "SymbolTable.h"
 #include "ErrorManager.h"
+#include "SymbolTable.h"
 
 #include <iostream>
 #include <vector>
