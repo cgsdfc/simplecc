@@ -2,9 +2,14 @@
 #define SYMBOL_TABLE_H
 
 #include "Types.h"
+#include "AST.h"
+
+#include <cassert>
+#include <iostream>
 #include <unordered_map>
 
 namespace simplecompiler {
+
 enum class Scope { Global, Local };
 std::ostream &operator<<(std::ostream &os, Scope s);
 

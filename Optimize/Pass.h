@@ -1,5 +1,8 @@
 #ifndef PASS_H
 #define PASS_H
+
+#include <iostream>
+#include <string>
 #include <cassert>
 #include <fstream>
 #include <iterator>

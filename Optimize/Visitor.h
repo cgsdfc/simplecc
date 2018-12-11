@@ -1,6 +1,7 @@
 #ifndef VISITOR_H
 #define VISITOR_H
 #include "AST.h"
+#include <cassert>
 
 namespace simplecompiler {
 

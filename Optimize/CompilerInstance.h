@@ -4,6 +4,9 @@
 #include "SymbolTable.h"
 #include "error.h"
 
+#include <iostream>
+#include <vector>
+
 namespace simplecompiler {
 class Node;
 enum class CompilationPhrase {

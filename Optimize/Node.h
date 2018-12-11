@@ -2,6 +2,9 @@
 #define NODE_H
 
 #include "TokenInfo.h"
+#include "Grammar.h"
+
+#include <iostream>
 #include <cassert>
 #include <vector>
 

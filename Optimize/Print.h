@@ -1,5 +1,7 @@
 #ifndef PRINT_H
 #define PRINT_H
+
+#include <utility>
 #include <iostream>
 
 namespace simplecompiler {
@@ -8,13 +10,13 @@ template <typename... Args> void Print(std::ostream &os, Args &&... args);
 template <> inline void Print(std::ostream &os) { os << "\n"; }
 
 template <typename Last> inline void Print(std::ostream &os, Last &&last) {
-  os << last << "\n";
+  os << std::forward<Last>(last) << "\n";
 }
 
 template <typename First, typename... Rest>
 inline void Print(std::ostream &os, First &&first, Rest &&... rest) {
-  os << first << " ";
-  Print(os, rest...);
+  os << std::forward<First>(first) << " ";
+  Print(os, std::forward<Rest>(rest)...);
 }
 
 template <typename... Args> void PrintOuts(Args &&... args) {
@@ -27,9 +29,8 @@ template <typename... Args> void PrintErrs(Args &&... args) {
 
 class Printer {
   std::ostream &os;
-
 public:
-  Printer(std::ostream &os) : os(os) {}
+  explicit Printer(std::ostream &os) : os(os) {}
 
   template <typename... Args> void WriteLine(Args &&... args) {
     Print(os, std::forward<Args>(args)...);

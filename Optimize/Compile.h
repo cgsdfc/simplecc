@@ -3,6 +3,9 @@
 #include "ByteCode.h"
 #include "SymbolTable.h"
 
+#include <vector>
+#include <iostream>
+
 namespace simplecompiler {
 using SymbolEntryList = std::vector<SymbolEntry>;
 

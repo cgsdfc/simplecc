@@ -4,8 +4,8 @@
 
 #include "TokenInfo.h"
 
-#include <cassert>
 #include <iostream>
+#include <string>
 #include <vector>
 
 namespace simplecompiler {

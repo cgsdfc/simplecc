@@ -3,6 +3,9 @@
 
 #include "Print.h"
 #include "TokenInfo.h"
+
+#include <utility>
+#include <iostream>
 #include <sstream>
 
 namespace simplecompiler {

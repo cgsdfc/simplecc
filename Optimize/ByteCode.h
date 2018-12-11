@@ -2,8 +2,10 @@
 #define BYTE_CODE_H
 
 #include "Opcode.h"
+
 #include <cassert>
 #include <optional>
+#include <iostream>
 
 namespace simplecompiler {
 class ByteCode {

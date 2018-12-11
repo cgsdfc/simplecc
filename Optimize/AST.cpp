@@ -1,5 +1,8 @@
 
 #include "AST.h"
+#include <cassert>
+#include <iostream>
+#include <vector>
 
 namespace simplecompiler {
 

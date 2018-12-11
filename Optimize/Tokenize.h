@@ -1,6 +1,5 @@
 #ifndef TOKENIZE_H
 #define TOKENIZE_H
-
 #include "Grammar.h"
 #include "TokenInfo.h"
 

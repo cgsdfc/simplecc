@@ -378,7 +378,7 @@ class HeaderTemplate:
 
 #include <vector>
 #include <iostream>
-#include <cassert>
+#include <string>
 
 namespace simplecompiler {
 class AST {
@@ -461,6 +461,9 @@ def substitute(x, method="substitute"):
 class ImplTemplate:
     impl = Template("""
 #include "AST.h"
+#include <iostream>
+#include <vector>
+#include <cassert>
 
 namespace simplecompiler {
 
@@ -846,6 +849,7 @@ class VisitorTemplate:
     decl = Template("""#ifndef VISITOR_H
 #define VISITOR_H
 #include "AST.h"
+#include <cassert>
 
 namespace simplecompiler {
 $visitor_base
