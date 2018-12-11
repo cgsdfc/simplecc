@@ -116,26 +116,26 @@ public:
 
   void visitProgram(Program *node) {
 
-    for (auto s : node->decls) {
+    for (auto s : node->getDecls()) {
       visitDecl(s);
     }
   }
 
-  void visitConstDecl(ConstDecl *node) { visitExpr(node->value); }
+  void visitConstDecl(ConstDecl *node) { visitExpr(node->getValue()); }
 
   void visitVarDecl(VarDecl *node) {}
 
   void visitFuncDef(FuncDef *node) {
 
-    for (auto s : node->args) {
+    for (auto s : node->getArgs()) {
       visitDecl(s);
     }
 
-    for (auto s : node->decls) {
+    for (auto s : node->getDecls()) {
       visitDecl(s);
     }
 
-    for (auto s : node->stmts) {
+    for (auto s : node->getStmts()) {
       visitStmt(s);
     }
   }
@@ -144,89 +144,89 @@ public:
 
   void visitRead(Read *node) {
 
-    for (auto s : node->names) {
+    for (auto s : node->getNames()) {
       visitExpr(s);
     }
   }
 
   void visitWrite(Write *node) {
 
-    if (node->str) {
-      visitExpr(node->str);
+    if (node->getStr()) {
+      visitExpr(node->getStr());
     }
 
-    if (node->value) {
-      visitExpr(node->value);
+    if (node->getValue()) {
+      visitExpr(node->getValue());
     }
   }
 
   void visitAssign(Assign *node) {
 
-    visitExpr(node->target);
+    visitExpr(node->getTarget());
 
-    visitExpr(node->value);
+    visitExpr(node->getValue());
   }
 
   void visitFor(For *node) {
 
-    visitStmt(node->initial);
+    visitStmt(node->getInitial());
 
-    visitExpr(node->condition);
+    visitExpr(node->getCondition());
 
-    visitStmt(node->step);
+    visitStmt(node->getStep());
 
-    for (auto s : node->body) {
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
   }
 
   void visitWhile(While *node) {
 
-    visitExpr(node->condition);
+    visitExpr(node->getCondition());
 
-    for (auto s : node->body) {
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
   }
 
   void visitReturn(Return *node) {
 
-    if (node->value) {
-      visitExpr(node->value);
+    if (node->getValue()) {
+      visitExpr(node->getValue());
     }
   }
 
   void visitIf(If *node) {
 
-    visitExpr(node->test);
+    visitExpr(node->getTest());
 
-    for (auto s : node->body) {
+    for (auto s : node->getBody()) {
       visitStmt(s);
     }
 
-    for (auto s : node->orelse) {
+    for (auto s : node->getOrelse()) {
       visitStmt(s);
     }
   }
 
-  void visitExprStmt(ExprStmt *node) { visitExpr(node->value); }
+  void visitExprStmt(ExprStmt *node) { visitExpr(node->getValue()); }
 
   void visitBinOp(BinOp *node) {
 
-    visitExpr(node->left);
+    visitExpr(node->getLeft());
 
-    visitExpr(node->right);
+    visitExpr(node->getRight());
   }
 
-  void visitParenExpr(ParenExpr *node) { visitExpr(node->value); }
+  void visitParenExpr(ParenExpr *node) { visitExpr(node->getValue()); }
 
-  void visitBoolOp(BoolOp *node) { visitExpr(node->value); }
+  void visitBoolOp(BoolOp *node) { visitExpr(node->getValue()); }
 
-  void visitUnaryOp(UnaryOp *node) { visitExpr(node->operand); }
+  void visitUnaryOp(UnaryOp *node) { visitExpr(node->getOperand()); }
 
   void visitCall(Call *node) {
 
-    for (auto s : node->args) {
+    for (auto s : node->getArgs()) {
       visitExpr(s);
     }
   }
@@ -237,7 +237,7 @@ public:
 
   void visitChar(Char *node) {}
 
-  void visitSubscript(Subscript *node) { visitExpr(node->index); }
+  void visitSubscript(Subscript *node) { visitExpr(node->getIndex()); }
 
   void visitName(Name *node) {}
 

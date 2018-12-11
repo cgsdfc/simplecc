@@ -873,27 +873,26 @@ void visit$class_name($class_name *node) {
 
     # ways to visit different kinds of field: Optional, Sequence, etc.
     visit = Template("""
-    visit$class_name(node->$name);
+    visit$class_name(node->get$name());
 """)
     visit_for = Template("""
-for (auto s: node->$name) {
+for (auto s: node->get$name()) {
     visit$class_name(s);
 }""")
     visit_if = Template("""
-if (node->$name) {
-    visit$class_name(node->$name);
+if (node->get$name()) {
+    visit$class_name(node->get$name());
 }""")
 
     def make_visit_children(self, members):
         for type, name in members:
             if isinstance(type, AstNode):
-                yield self.visit.substitute(class_name=type.name, name=name)
+                yield self.visit.substitute(class_name=type.name, name=camal_case(name))
             elif isinstance(type, Sequence) and isinstance(type.elemtype, AstNode):
                 yield self.visit_for.substitute(
-                        class_name=type.elemtype.name, name=name)
+                        class_name=type.elemtype.name, name=camal_case(name))
             elif isinstance(type, Optional) and isinstance(type.elemtype, AstNode):
-                yield self.visit_if.substitute(
-                        class_name=type.elemtype.name, name=name)
+                yield self.visit_if.substitute(class_name=type.elemtype.name, name=camal_case(name))
 
     def substitute(self, typemap):
         # methods forward to Derived
