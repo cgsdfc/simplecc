@@ -149,8 +149,12 @@ public:
   }
 };
 
-/// A class that emits LLVM IR from an AST. This class concretely
-/// implements the LLVM IR code generation.
+/// This class emits LLVM IR from an AST.
+///
+/// The principle it enforces is:
+/// 1. Don't change the semantic of the user's program.
+/// 2. Be well-formed in terms of LLVM IR.
+/// 3. Avoid useless stuffs.
 class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
   /// This helper visits a list of statements, skip those that appear **after**
@@ -162,9 +166,11 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     for (Stmt *S : StatementList) {
       visitStmt(S);
       if (IsInstance<Return>(S)) {
+        /// We see a Return.
         return false;
       }
     }
+    /// No Return ever seen.
     return true;
   }
 
@@ -192,11 +198,12 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     return Fn;
   }
 
+  /// Helper to create IR that loads a string literal (global string ptr).
   Value *getString(StringRef Str) { return Builder.CreateGlobalStringPtr(Str); }
 
   /// VisitorBase boilderplate.
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
-  void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
+  void visitDecl(Decl *node) { return VisitorBase::visitDecl<void>(node); }
   Value *visitExpr(Expr *E) { return VisitorBase::visitExpr<Value *>(E); }
 
   /// Simple atom nodes.
@@ -217,6 +224,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     if (Nn->getCtx() == ExprContextKind::Load) {
       return Builder.CreateLoad(Ptr, Nn->getId());
     }
+    /// This is a Store, return its address.
     return Ptr;
   }
 
@@ -389,8 +397,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     Builder.CreateStore(RHS, LHS);
   }
 
-  /// The logic varies depending on whether it is a load/store and whether
-  /// it is a global/local array.
+  /// The logic varies depending on whether it is a load/store
   Value *visitSubscript(Subscript *SB) {
     Value *Array = LocalValues[SB->getName()];
 
@@ -415,6 +422,8 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   }
 
   void visitRead(Read *RD) {
+    /// XXX: getFunction() may have different behavior than
+    /// getGlobalVariable(). Unify with GlobalValues[<name>].
     Function *Scanf = TheModule.getFunction("scanf");
     assert(Scanf && "scanf() must be declared");
     llvm::SmallVector<Value *, 2> Args;
@@ -426,9 +435,10 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
       case BasicTypeKind::Int:
         return "%d";
       case BasicTypeKind::Character:
+        /// Skip one extra space.
         return " %c";
       default:
-        llvm_unreachable("Impossible type of Variable");
+        llvm_unreachable("Void cannot be!");
       }
     };
 
@@ -601,11 +611,11 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     for (Decl *D : P->getDecls()) {
       visitDecl(D);
     }
-    TheModule.print(llvm::errs(), nullptr);
     /// Verify the Module.
     String ErrorMsg;
     llvm::raw_string_ostream OS(ErrorMsg);
     if (llvm::verifyModule(TheModule, &OS)) {
+      TheModule.print(llvm::errs(), nullptr);
       EM.Error(ErrorMsg);
     }
   }
