@@ -17,6 +17,7 @@ if (NOT MSVC)
   endif ()
   message(STATUS ${TCLAP_INCLUDE})
   include_directories(${TCLAP_INCLUDE})
+  set(CMAKE_CXX_FLAGS "-Wunused-function ${CMAKE_CXX_FLAGS}")
 endif ()
 
 

@@ -90,24 +90,8 @@ public:
 };
 
 /// A class that convert values of different types to LLVM counterparts.
-class LLVMValueMap : private LLVMTypeMap {
+class LLVMValueMap : public LLVMTypeMap {
   llvm::Module &TheModule;
-
-  Value *getValueGlobal(const String &Name, const ArrayType &A) const {
-    return TheModule.getOrInsertGlobal(Name, getType(A));
-  }
-
-  Value *getValueLocal(const String &Name, const ArrayType &A) const {
-    return new llvm::AllocaInst(getType(A), /* addressSpace */ 0, Name);
-  }
-
-  Value *getValueLocal(const String &Name, const VarType &V) const {
-    return new llvm::AllocaInst(getType(V), /* addressSpace */ 0, Name);
-  }
-
-  Value *getValueGlobal(const String &Name, const VarType &V) const {
-    return TheModule.getOrInsertGlobal(Name, getType(V));
-  }
 
 public:
   LLVMValueMap(llvm::Module &M, LLVMContext &Context)
@@ -116,41 +100,6 @@ public:
   /// Convert a Constant value.
   Value *getConstant(const ConstType &C) const {
     return ConstantInt::get(getType(C.GetType()), C.GetValue(), true);
-  }
-
-  /// Convert a Variable value.
-  Value *getVariable(Scope S, const String &Name, const VarType &V) const {
-    switch (S) {
-    case Scope::Global:
-      return getValueGlobal(Name, V);
-    case Scope::Local:
-      return getValueLocal(Name, V);
-    }
-  }
-
-  /// Convert an Array value.
-  Value *getArray(Scope S, const String &Name, const ArrayType &V) const {
-    switch (S) {
-    case Scope::Global:
-      return getValueGlobal(Name, V);
-    case Scope::Local:
-      return getValueLocal(Name, V);
-    }
-  }
-
-  /// Convert a Function value. Only prototype is created.
-  Value *getFunction(const String &Name, const FuncType &F) const {
-    Type *ReturnType = getType(F.GetReturnType());
-    std::vector<Type *> ArgTypes(F.GetArgCount());
-    for (int i = 0; i < F.GetArgCount(); i++) {
-      ArgTypes[i] = getType(F.GetArgTypeAt(i));
-    }
-    FunctionType *FT = FunctionType::get(ReturnType, ArgTypes, false);
-    return TheModule.getOrInsertFunction(Name, FT);
-  }
-
-  Value *getFunction(FuncDef *FD) const {
-    return getFunction(FD->name, FuncType(FD));
   }
 
   /// Convert a Num node to int value.
@@ -518,7 +467,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     LocalValues_.clear();
 
     auto Fn = Function::Create(
-        /* FunctionType */ TM.getType(FD),
+        /* FunctionType */ VM.getType(FD),
         /* Linkage */ Function::InternalLinkage,
         /* Name */ FD->name,
         /* Module */ &TheModule);
@@ -533,7 +482,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
       ArgDecl *V = static_cast<ArgDecl *>(FD->args[Idx]);
       Val.setName(V->name);
       /// Argument is never array.
-      auto Ptr = Builder.CreateAlloca(TM.getType(V->type), nullptr, V->name);
+      auto Ptr = Builder.CreateAlloca(VM.getType(V->type), nullptr, V->name);
       /// Store the initial value of an argument.
       Builder.CreateStore(&Val, Ptr);
       LocalValues_.emplace(V->name, Ptr);
@@ -544,7 +493,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     for (Decl *D : FD->decls) {
       if (auto VD = subclass_cast<VarDecl>(D)) {
         auto Alloca = Builder.CreateAlloca(
-            /* Type */ TM.getType(VD->type),
+            /* Type */ VM.getType(VD->type),
             /* ArraySize */ VD->is_array ? VM.getInt(VD->size) : nullptr,
             /* Name */ VD->name);
         LocalValues_.emplace(VD->name, Alloca);
@@ -601,7 +550,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
     // Create a global constant.
     auto GV = new llvm::GlobalVariable(
         /* Module */ TheModule,
-        /* Type */ TM.getTypeFromConstDecl(CD),
+        /* Type */ VM.getTypeFromConstDecl(CD),
         /* IsConstant */ true,
         /* Linkage */ GlobalVariable::InternalLinkage,
         /* Initializer */ VM.getConstantFromExpr(CD->value),
@@ -613,7 +562,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
   void visitVarDecl(VarDecl *VD) {
     auto GV = new llvm::GlobalVariable(
         /* Module */ TheModule,
-        /* Type */ TM.getTypeFromVarDecl(VD),
+        /* Type */ VM.getTypeFromVarDecl(VD),
         /* IsConstant */ false,
         /* Linkage */ GlobalVariable::InternalLinkage,
         /* Initializer */ VM.getGlobalInitializer(VD),
@@ -638,8 +587,7 @@ class LLVMIRCompilerImpl : VisitorBase<LLVMIRCompilerImpl> {
 public:
   LLVMIRCompilerImpl(const SymbolTable &S, llvm::LLVMContext &C,
                      llvm::Module &M)
-      : TheTable(S), TheContext(C), TheModule(M), Builder(C), EM(), TM(C),
-        VM(M, C) {
+      : TheTable(S), TheContext(C), TheModule(M), Builder(C), EM(), VM(M, C) {
     DeclareBuiltinFunctions();
   }
 
@@ -666,7 +614,6 @@ private:
   IRBuilder<> Builder;
 
   LLVMValueMap VM;
-  LLVMTypeMap TM;
   std::unordered_map<String, Value *> LocalValues_;
 
   ErrorManager EM;
