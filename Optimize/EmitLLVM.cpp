@@ -15,6 +15,7 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/ErrorHandling.h>
 
+#include <cassert>
 #include <memory>
 #include <system_error>
 #include <unordered_map>
@@ -176,7 +177,9 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     return Fn;
   }
 
-  Value *getString(StringRef Str) { return Builder.CreateGlobalStringPtr(Str); }
+  Value *getString(StringRef Str) {
+    return Builder.CreateGlobalStringPtr(Str);
+  }
 
   /// VisitorBase boilderplate.
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
@@ -186,7 +189,14 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   /// Simple atom nodes.
   Value *visitNum(Num *N) { return VM.getInt(N->getN()); }
   Value *visitChar(Char *C) { return VM.getChar(C->getC()); }
-  Value *visitStr(Str *S) { return getString(S->getS()); }
+
+  Value *visitStr(Str *S) {
+    /// Strip quotes first.
+    auto &&Str = S->getS();
+    assert(Str.size() >= 2 && "Str must have quotes");
+    String Stripped(Str.begin() + 1, Str.end() - 1);
+    return getString(Stripped);
+  }
 
   Value *visitName(Name *Nn) {
     Value *Ptr = LocalValues[Nn->getId()];
