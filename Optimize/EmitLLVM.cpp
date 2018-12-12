@@ -429,12 +429,12 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     /// and to get an address to its element, it **must** be stepped through
     /// first using a zero index in getelementptr and then the desired index.
     Value *IdxList[2] = {VM.getInt(0), Index};
-    Value *ElemPtr = Builder.CreateInBoundsGEP(Array, IdxList, "subscr");
+    Value *ElemPtr = Builder.CreateInBoundsGEP(Array, IdxList, "elemptr");
 
     switch (SB->getCtx()) {
     case ExprContextKind::Load:
       /// If this is a Load, emit a load.
-      return Builder.CreateLoad(ElemPtr, "elemtmp");
+      return Builder.CreateLoad(ElemPtr, "elemval");
     case ExprContextKind::Store:
       /// If this is a Store, just return the ptr to the elememt
       /// to be stored by an Assign.
@@ -542,11 +542,20 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     /// Setup local constants.
     for (Decl *D : FD->getDecls()) {
       if (auto VD = subclass_cast<VarDecl>(D)) {
-        auto Alloca = Builder.CreateAlloca(
-            /* Type */ VM.getType(VD->getType()),
-            /* ArraySize */ VD->getIsArray() ? VM.getInt(VD->getSize())
-                                             : nullptr,
-            /* Name */ VD->getName());
+        /// Important note about AllocaInst:
+        /// The second argument ArraySize is a wrong name! It is actually NumElem.
+        /// It isn't a shortcut for specifying the size of the array, but rather the number
+        /// of the element of Type.
+        /// %1 = alloca i32 2
+        /// makes %1 a i32* -- pointer to a an i32 follow by another i32.
+        /// %1 = alloca [i32 x 2]
+        /// makes %1 a **pointer to a [i32 x 2] array**.
+        ///
+        /// For consistency with global array, we use the second notation to create local arrays.
+        /// This makes the GEP as:
+        /// %elemptr = getelementptr inbound [i32 x 2], [i32 x 2]* %1, i32 0, i32 <index>
+        /// which is *verbose*, but consistent.
+        auto Alloca = Builder.CreateAlloca(VM.getTypeFromVarDecl(VD), nullptr, VD->getName());
         LocalValues.emplace(VD->getName(), Alloca);
       } else if (auto CD = subclass_cast<ConstDecl>(D)) {
         LocalValues.emplace(CD->getName(),
