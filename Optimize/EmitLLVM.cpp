@@ -282,6 +282,8 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Begin to emit the body into Then BB.
     Builder.SetInsertPoint(Then);
+    /// Check to see if control returns in the middle. If so
+    /// don't insert a Br.
     if (visitStmtList(I->getBody())) {
       /// Ends with an unconditional branch to End.
       Builder.CreateBr(End);
