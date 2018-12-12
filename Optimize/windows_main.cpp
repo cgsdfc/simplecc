@@ -1,28 +1,41 @@
-#include "CompilerInstance.h"
+#include "Pass.h"
+#include "ErrorManager.h"
+#include "Print.h"
 
-#include <fstream>
-#include <iostream>
+#include <iostream> // for cin
+#include <cstdio> // for getchar()
+#include <cassert>
 
 using namespace simplecompiler;
 
 int main(int argc, char **argv) {
-  ErrorManager e;
-  Print(std::clog, "Please input a filename:");
-  String filename;
-  if (!std::getline(std::cin, filename)) {
-    e.Error("No filename provided");
+  /// Prompt the user for an input filename.
+  PrintErrs("Please input a filename:");
+  String Filename;
+  ErrorManager EM;
+
+  /// If the user hit Control-D or Control-Z + Enter.
+  if (!std::getline(std::cin, Filename)) {
+    EM.Error("No filename provided");
     return 1;
   }
 
-  std::ifstream input_file(filename);
-  if (input_file.fail()) {
-    e.FileReadError(filename);
+  PassManager PM;
+  /// If the supplied filename isn't readable.
+  if (!PM.setInputFile(Filename)) {
+    EM.FileReadError(Filename);
     return 1;
   }
 
-  CompilerInstance instance(input_file, std::cout);
-  bool result = instance.Invoke();
-  Print(std::clog, "Press any key to continue");
+  /// Get the ID of the AssemblePass.
+  PassInfo *PI = getGlobalRegistry().getPassInfo("assemble");
+  assert(PI && "The AssemblePass must be registered");
+
+  /// Run the AssemblePass with the PM.
+  bool OK = PM.run(PI->getID());
+
+  /// To be Windows-friendly.
+  PrintErrs("Press any key to continue");
   std::getchar();
-  return !result;
+  return !OK;
 }

@@ -52,7 +52,6 @@ endif ()
 # endif()
 
 set(SOURCE_FILES
-  ./CompilerInstance.cpp
   ./ByteCodePrinter.cpp
   ./Assemble.cpp
   ./ByteCode.cpp
