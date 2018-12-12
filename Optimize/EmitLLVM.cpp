@@ -240,7 +240,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   }
 
   /// Simple wrapper nodes.
-  Value *visitParenExpr(ParenExpr *PE) { return visitExpr(PE->getValue()); }
+  Value *visitParenExpr(ParenExpr *PE) { return visitExprPromoteToInt(PE->getValue()); }
   void visitExprStmt(ExprStmt *ES) { visitExpr(ES->getValue()); }
 
   /// Convert the condition value to non-zeroness.
@@ -249,9 +249,19 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     return Builder.CreateICmpNE(Val, VM.getBool(false), "condtmp");
   }
 
+  /// This helper evaluates an Expr, optional emits a char to int bitcast
+  /// to ensure the result is int.
+  Value *visitExprPromoteToInt(Expr *E) {
+    Value *Val = visitExpr(E);
+    if (Val->getType() == VM.getCharType()) {
+      Val = Builder.CreateIntCast(Val, VM.getIntType(), /* isSigned */ false, "c2i");
+    }
+    return Val;
+  }
+
   Value *visitBinOp(BinOp *B) {
-    Value *L = visitExpr(B->getLeft());
-    Value *R = visitExpr(B->getRight());
+    Value *L = visitExprPromoteToInt(B->getLeft());
+    Value *R = visitExprPromoteToInt(B->getRight());
     assert(L && R);
     switch (B->getOp()) {
     case OperatorKind::Add:
@@ -278,7 +288,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   }
 
   Value *visitUnaryOp(UnaryOp *U) {
-    Value *Operand = visitExpr(U->getOperand());
+    Value *Operand = visitExprPromoteToInt(U->getOperand());
     switch (U->getOp()) {
     case UnaryopKind::USub:
       return Builder.CreateNeg(Operand, "negtmp");
