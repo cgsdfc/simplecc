@@ -163,9 +163,10 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   /// Helper of DeclareBuiltinFunctions() since their prototypes is similar.
   Function *DeclareIOBuiltins(const char *Name) {
     FunctionType *FT = FunctionType::get(
-        /* Result */ Type::getInt32PtrTy(TheContext),
+        /* Result */ Type::getInt32Ty(TheContext),
         /* Params */ Type::getInt8PtrTy(TheContext),
         /* IsVarArg */ true);
+
     Function *Fn = Function::Create(
         /* FunctionType */ FT,
         /* Linkage */ Function::ExternalLinkage,
@@ -400,8 +401,6 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   }
 
   void visitRead(Read *RD) {
-    /// Emit a scanf("%c", &Var) or scanf("%d", &Var)
-    /// depending on the type of Var.
     Function *Scanf = TheModule.getFunction("scanf");
     assert(Scanf && "scanf() must be declared");
     llvm::SmallVector<Value *, 2> Args;
@@ -413,7 +412,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
       case BasicTypeKind::Int:
         return "%d";
       case BasicTypeKind::Character:
-        return "%c";
+        return " %c";
       default:
         llvm_unreachable("Impossible type of Variable");
       }
