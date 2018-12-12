@@ -155,12 +155,17 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
   /// This helper visits a list of statements, skip those that appear **after**
   /// a Return.
-  void visitStmtList(const std::vector<Stmt *> &StatementList) {
+  /// It returns true if **no Return** is found in between.
+  /// Client can use its return value to judge whether they should insert
+  /// a Terminator.
+  bool visitStmtList(const std::vector<Stmt *> &StatementList) {
     for (Stmt *S : StatementList) {
       visitStmt(S);
-      if (IsInstance<Return>(S))
-        return;
+      if (IsInstance<Return>(S)) {
+        return false;
+      }
     }
+    return true;
   }
 
   /// Declare builtin functions (external really, but let's call it builtin).
@@ -277,16 +282,18 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Begin to emit the body into Then BB.
     Builder.SetInsertPoint(Then);
-    visitStmtList(I->getBody());
-    /// Ends with an unconditional branch to End.
-    Builder.CreateBr(End);
+    if (visitStmtList(I->getBody())) {
+      /// Ends with an unconditional branch to End.
+      Builder.CreateBr(End);
+    }
 
     /// Begin to emit the orelse into Else BB.
     Builder.SetInsertPoint(Else);
-    visitStmtList(I->getOrelse());
+    if (visitStmtList(I->getOrelse())) {
+      /// Ends with an unconditional branch to End.
+      Builder.CreateBr(End);
+    }
 
-    /// Ends with an unconditional branch to End.
-    Builder.CreateBr(End);
     Builder.SetInsertPoint(End);
   }
 
@@ -311,9 +318,10 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Begin to emit the Body, which is ``while { body }``.
     Builder.SetInsertPoint(Body);
-    visitStmtList(W->getBody());
-    /// The body ends with an unconditional branch to the beginning of loop.
-    Builder.CreateBr(Loop);
+    if ( visitStmtList(W->getBody()) ) {
+      /// The body ends with an unconditional branch to the beginning of loop.
+      Builder.CreateBr(Loop);
+    }
 
     /// While ends here. subsequent instructions go by.
     Builder.SetInsertPoint(End);
@@ -343,9 +351,10 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Begin Body:
     Builder.SetInsertPoint(Body);
-    visitStmtList(F->getBody());
-    /// End of Body: jump back to Loop.
-    Builder.CreateBr(Loop);
+    if (visitStmtList(F->getBody())) {
+      /// End of Body: jump back to Loop.
+      Builder.CreateBr(Loop);
+    }
 
     /// End of For.
     Builder.SetInsertPoint(End);
@@ -590,7 +599,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     for (Decl *D : P->getDecls()) {
       visitDecl(D);
     }
-    /* TheModule.print(llvm::errs(), nullptr); */
+    TheModule.print(llvm::errs(), nullptr);
     /// Verify the Module.
     String ErrorMsg;
     llvm::raw_string_ostream OS(ErrorMsg);

@@ -1,3 +1,10 @@
+void Test {
+  if (1) {
+    return;
+    if (2) return;
+  }
+}
+
 void main() {
   int ivar;
 
