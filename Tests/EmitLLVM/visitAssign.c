@@ -1,16 +1,10 @@
-char cvar;
-char carr[2];
-
 void main() {
-  int ivar;
-  int iarr[2];
+  int IntVar;
+  char CharVar;
 
-  ivar = 1;
-  cvar = 'a';
+  IntVar = 1;
+  Printf(IntVar);
 
-  ivar = ivar;
-  cvar = cvar;
-
-  iarr[0] = 1;
-  carr[0] = 'a';
+  CharVar = 'a';
+  Printf(CharVar);
 }
