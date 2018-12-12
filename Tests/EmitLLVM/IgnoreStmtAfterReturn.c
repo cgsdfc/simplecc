@@ -6,4 +6,6 @@ int Test {
   return(2);
 }
 
-void main() {}
+void main() {
+  printf("Expect 1: ", Test);
+}

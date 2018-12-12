@@ -219,13 +219,16 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   }
 
   Value *visitName(Name *Nn) {
-    Value *Ptr = LocalValues[Nn->getId()];
-    assert(Ptr);
+    Value *Val = LocalValues[Nn->getId()];
+    assert(Val);
+    /// Handle local constants:
+    if (llvm::isa<llvm::Constant>(Val)) return Val;
+
     if (Nn->getCtx() == ExprContextKind::Load) {
-      return Builder.CreateLoad(Ptr, Nn->getId());
+      return Builder.CreateLoad(Val, Nn->getId());
     }
     /// This is a Store, return its address.
-    return Ptr;
+    return Val;
   }
 
   /// Simple wrapper nodes.
