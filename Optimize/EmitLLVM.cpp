@@ -349,7 +349,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
       Value *Val = visitExpr(A);
       ArgsV.push_back(Val);
     }
-    return Builder.CreateCall(Callee, ArgsV, "calltmp");
+    return Builder.CreateCall(Callee, ArgsV);
   }
 
   void visitReturn(Return *Ret) {
