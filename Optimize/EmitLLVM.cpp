@@ -153,6 +153,16 @@ public:
 /// implements the LLVM IR code generation.
 class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
+  /// This helper visits a list of statements, skip those that appear **after**
+  /// a Return.
+  void visitStmtList(const std::vector<Stmt *> &StatementList) {
+    for (Stmt *S : StatementList) {
+      visitStmt(S);
+      if (IsInstance<Return>(S))
+        return;
+    }
+  }
+
   /// Declare builtin functions (external really, but let's call it builtin).
   void DeclareBuiltinFunctions() {
     /* declare i32 @printf(i8*, ...) */
@@ -177,9 +187,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     return Fn;
   }
 
-  Value *getString(StringRef Str) {
-    return Builder.CreateGlobalStringPtr(Str);
-  }
+  Value *getString(StringRef Str) { return Builder.CreateGlobalStringPtr(Str); }
 
   /// VisitorBase boilderplate.
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
@@ -269,20 +277,16 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Begin to emit the body into Then BB.
     Builder.SetInsertPoint(Then);
-    for (Stmt *S : I->getBody()) {
-      visitStmt(S);
-    }
+    visitStmtList(I->getBody());
     /// Ends with an unconditional branch to End.
     Builder.CreateBr(End);
 
     /// Begin to emit the orelse into Else BB.
     Builder.SetInsertPoint(Else);
-    for (Stmt *S : I->getOrelse()) {
-      visitStmt(S);
-    }
+    visitStmtList(I->getOrelse());
+
     /// Ends with an unconditional branch to End.
     Builder.CreateBr(End);
-
     Builder.SetInsertPoint(End);
   }
 
@@ -307,9 +311,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Begin to emit the Body, which is ``while { body }``.
     Builder.SetInsertPoint(Body);
-    for (Stmt *S : W->getBody()) {
-      visitStmt(S);
-    }
+    visitStmtList(W->getBody());
     /// The body ends with an unconditional branch to the beginning of loop.
     Builder.CreateBr(Loop);
 
@@ -341,9 +343,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Begin Body:
     Builder.SetInsertPoint(Body);
-    for (Stmt *S : F->getBody()) {
-      visitStmt(S);
-    }
+    visitStmtList(F->getBody());
     /// End of Body: jump back to Loop.
     Builder.CreateBr(Loop);
 
@@ -527,9 +527,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     }
 
     /// Generate the body
-    for (Stmt *S : FD->getStmts()) {
-      visitStmt(S);
-    }
+    visitStmtList(FD->getStmts());
 
     /// Check for well-formness of all BBs. In particular, look for
     /// any unterminated BB and try to add a Return to it.
@@ -537,18 +535,28 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
       Instruction *Terminator = BB.getTerminator();
       if (Terminator != nullptr)
         continue; /// Well-formed
-      if (Fn->getReturnType()->isVoidTy()) {
+      /// Make the function return right here.
+      /// A BB is unterminated for a number of reasons:
+      /// 1. the user forget to put a return here properly.
+      /// 2. the function returns void, no need write return explicitly.
+      /// 3. there are a branches of control flow, each of which returns
+      /// properly, but there isn't a "catch-all" return. No matter what is the
+      /// case, we "help" the program to return properly and
+      /// **give no warning or error**.
+      Builder.SetInsertPoint(&BB);
+      switch (FD->getReturnType()) {
+      case BasicTypeKind::Void:
         /// Make implicit return of void Function explicit.
-        Builder.SetInsertPoint(&BB);
         Builder.CreateRetVoid();
-      } else {
-        // How to attach source location?
-        EM.Error("control flow reaches end of non-void function: ", FD->getName());
-        // No source location, make errors short
-        return;
+        break;
+      case BasicTypeKind::Int:
+        Builder.CreateRet(VM.getInt(0));
+        break;
+      case BasicTypeKind::Character:
+        Builder.CreateRet(VM.getChar(0));
+        break;
       }
     }
-    /// No need to call verifyFunction() since verifyModule() does that.
   }
 
   /// Create a global constant.
@@ -613,7 +621,8 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 public:
   LLVMIRCompiler(String Name, Program *P, const SymbolTable &S)
       : TheTable(S), TheProgram(P), TheContext(), TheModule(Name, TheContext),
-        Builder(TheContext), VM(TheModule, TheContext), LocalValues(), GlobalValues(), EM() {
+        Builder(TheContext), VM(TheModule, TheContext), LocalValues(),
+        GlobalValues(), EM() {
     DeclareBuiltinFunctions();
   }
 
