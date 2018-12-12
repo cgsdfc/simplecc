@@ -62,6 +62,9 @@ public:
     }
   }
 
+  Type *getCharType() const { return getType(BasicTypeKind::Character); }
+  Type *getIntType() const { return getType(BasicTypeKind::Int); }
+
   Type *getTypeFromVarDecl(VarDecl *VD) const {
     if (VD->getIsArray())
       return getType(ArrayType(VD));
@@ -205,6 +208,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
   void visitDecl(Decl *node) { return VisitorBase::visitDecl<void>(node); }
   Value *visitExpr(Expr *E) { return VisitorBase::visitExpr<Value *>(E); }
+  void visitArgDecl(ArgDecl *) {}
 
   /// Simple atom nodes.
   Value *visitNum(Num *N) { return VM.getInt(N->getN()); }
@@ -221,13 +225,17 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   Value *visitName(Name *Nn) {
     Value *Val = LocalValues[Nn->getId()];
     assert(Val);
-    /// Handle local constants:
-    if (llvm::isa<llvm::Constant>(Val)) return Val;
 
-    if (Nn->getCtx() == ExprContextKind::Load) {
-      return Builder.CreateLoad(Val, Nn->getId());
-    }
     /// This is a Store, return its address.
+    if (Nn->getCtx() == ExprContextKind::Store) {
+      return Val;
+    }
+
+    /// This is a variable so **load** it.
+    if (!llvm::isa<llvm::ConstantInt>(Val)) {
+      Val = Builder.CreateLoad(Val, Nn->getId());
+    }
+
     return Val;
   }
 
@@ -607,8 +615,6 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
         /* Name */ VD->getName());
     GlobalValues.emplace(VD->getName(), GV);
   }
-
-  void visitArgDecl(ArgDecl *) {}
 
   void visitProgram(Program *P) {
     for (Decl *D : P->getDecls()) {
