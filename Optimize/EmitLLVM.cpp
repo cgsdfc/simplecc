@@ -370,13 +370,6 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     } else {
       Builder.CreateRetVoid();
     }
-    /// Return is a Terminator. End this BB and create a new one.
-    /// Normally one should not write code after a return because these
-    /// code obviously dead (without goto). But is is possible and a good chance
-    /// for DCE.
-    auto TheFunction = Builder.GetInsertBlock()->getParent();
-    BasicBlock *NextBB = BasicBlock::Create(TheContext, "next", TheFunction);
-    Builder.SetInsertPoint(NextBB);
   }
 
   void visitAssign(Assign *A) {
@@ -550,7 +543,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
         Builder.CreateRetVoid();
       } else {
         // How to attach source location?
-        EM.Error("control flow reaches end of non-void function");
+        EM.Error("control flow reaches end of non-void function: ", FD->getName());
         // No source location, make errors short
         return;
       }
