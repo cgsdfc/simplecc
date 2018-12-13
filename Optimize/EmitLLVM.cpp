@@ -264,8 +264,6 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   /// Form-2: <Expr> => int -- not a bool yet, compare it to int(0).
   Value *visitBoolOp(BoolOp *B) {
     Value *Val = visitExpr(B->getValue());
-    /// Zero of bool, char or int.
-    Value *Zero = nullptr;
 
     if (Val->getType() == VM.getBoolType()) {
       /// RichCompareOp produces a bool, we cross validate that.
