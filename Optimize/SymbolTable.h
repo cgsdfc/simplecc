@@ -62,7 +62,7 @@ using StringLiteralTable = std::unordered_map<String, int>;
 class SymbolTableView {
   friend class SymbolTable;
   const TableType *subtable;
-  SymbolTableView(const TableType &subtable) : subtable(&subtable) {}
+  explicit SymbolTableView(const TableType &subtable) : subtable(&subtable) {}
 
 public:
   SymbolTableView() = default;

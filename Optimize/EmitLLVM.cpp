@@ -48,7 +48,7 @@ protected:
   LLVMContext &getContext() const { return TheContext; }
 
 public:
-  LLVMTypeMap(LLVMContext &Context) : TheContext(Context) {}
+  explicit LLVMTypeMap(LLVMContext &Context) : TheContext(Context) {}
 
   /// Convert a basic type.
   Type *getType(BasicTypeKind Type) const {
@@ -89,6 +89,10 @@ public:
       ArgTypes[i] = getType(F.GetArgTypeAt(i));
     }
     return FunctionType::get(ReturnType, ArgTypes, false);
+  }
+
+  FunctionType *getTypeFromFuncDef(FuncDef *FD) const {
+    return getType(FuncType(FD));
   }
 
   Type *getType(const ConstType &C) const { return getType(C.GetType()); }
@@ -141,7 +145,7 @@ public:
 
   Constant *getGlobalInitializer(VarDecl *VD) {
     if (VD->getIsArray()) {
-      return llvm::ConstantAggregateZero::get(getType(VD));
+      return llvm::ConstantAggregateZero::get(getTypeFromVarDecl(VD));
     }
     switch (VD->getType()) {
     case BasicTypeKind::Int:
@@ -550,7 +554,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     /// Like C, we use ExternalLinkage by default and since our
     /// program **never links** with one another, ExternalLinkage is all we have.
     Function *TheFunction = Function::Create(
-        /* FunctionType */ VM.getType(FD),
+        /* FunctionType */ VM.getTypeFromFuncDef(FD),
         /* Linkage */ Function::ExternalLinkage,
         /* Name */ FD->getName(),
         /* Module */ &TheModule);

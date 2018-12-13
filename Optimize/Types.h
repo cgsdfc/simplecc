@@ -10,7 +10,7 @@ class FuncType {
   FuncDef *fun;
 
 public:
-  FuncType(FuncDef *fun) : fun(fun) {}
+  explicit FuncType(FuncDef *fun) : fun(fun) {}
 
   BasicTypeKind GetReturnType() const { return fun->return_type; }
 
@@ -23,7 +23,7 @@ class VarType {
   BasicTypeKind type;
 
 public:
-  VarType(BasicTypeKind type) : type(type) {}
+  explicit VarType(BasicTypeKind type) : type(type) {}
 
   BasicTypeKind GetType() const { return type; }
 };
@@ -32,7 +32,7 @@ class ArrayType {
   VarDecl *array;
 
 public:
-  ArrayType(VarDecl *array) : array(array) { assert(array->is_array); }
+  explicit ArrayType(VarDecl *array) : array(array) { assert(array->is_array); }
 
   BasicTypeKind GetElementType() const { return array->type; }
 
@@ -47,7 +47,7 @@ class ConstType {
   BasicTypeKind type;
 
 public:
-  ConstType(ConstDecl *decl);
+  explicit ConstType(ConstDecl *decl);
   int GetValue() const { return value; }
   BasicTypeKind GetType() const { return type; }
 };
