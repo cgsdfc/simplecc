@@ -552,7 +552,8 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     }
     /// A note about linkage:
     /// Like C, we use ExternalLinkage by default and since our
-    /// program **never links** with one another, ExternalLinkage is all we have.
+    /// program **never links** with one another, ExternalLinkage is all we
+    /// have.
     Function *TheFunction = Function::Create(
         /* FunctionType */ VM.getTypeFromFuncDef(FD),
         /* Linkage */ Function::ExternalLinkage,
@@ -561,7 +562,8 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     GlobalValues.emplace(FD->getName(), TheFunction);
 
     /// Create the entry point (Function body).
-    BasicBlock *EntryBlock = BasicBlock::Create(TheContext, "entry", TheFunction);
+    BasicBlock *EntryBlock =
+        BasicBlock::Create(TheContext, "entry", TheFunction);
     Builder.SetInsertPoint(EntryBlock);
 
     /// Setup arguments.

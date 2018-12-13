@@ -1,10 +1,10 @@
-#include "Pass.h"
 #include "ErrorManager.h"
+#include "Pass.h"
 #include "Print.h"
 
-#include <iostream> // for cin
-#include <cstdio> // for getchar()
 #include <cassert>
+#include <cstdio>   // for getchar()
+#include <iostream> // for cin
 
 using namespace simplecompiler;
 
