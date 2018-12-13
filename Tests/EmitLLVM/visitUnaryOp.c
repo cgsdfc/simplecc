@@ -7,6 +7,7 @@ void main() {
   printf(-'a');
   printf(+'a');
 
+  ivar = -2;
   printf(-(-ivar));
   printf(+(+ivar));
 }

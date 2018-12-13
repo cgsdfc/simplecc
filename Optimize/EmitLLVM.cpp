@@ -306,19 +306,19 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     case OperatorKind::Mult:
       return Builder.CreateMul(L, R, "mul");
     case OperatorKind::Div:
-      return Builder.CreateUDiv(L, R, "udiv");
+      return Builder.CreateSDiv(L, R, "div");
     case OperatorKind::Eq:
       return Builder.CreateICmpEQ(L, R, "eq");
     case OperatorKind::NotEq:
       return Builder.CreateICmpNE(L, R, "ne");
     case OperatorKind::Lt:
-      return Builder.CreateICmpSLT(L, R, "slt");
+      return Builder.CreateICmpSLT(L, R, "lt");
     case OperatorKind::LtE:
-      return Builder.CreateICmpSLE(L, R, "sle");
+      return Builder.CreateICmpSLE(L, R, "le");
     case OperatorKind::Gt:
-      return Builder.CreateICmpSGT(L, R, "sgt");
+      return Builder.CreateICmpSGT(L, R, "gt");
     case OperatorKind::GtE:
-      return Builder.CreateICmpSGE(L, R, "sge");
+      return Builder.CreateICmpSGE(L, R, "ge");
     }
   }
 
