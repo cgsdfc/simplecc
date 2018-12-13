@@ -251,17 +251,19 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   }
 
   /// ParenExpr automatically promotes a char to int.
-  Value *visitParenExpr(ParenExpr *PE) { return visitExprPromoteToInt(PE->getValue()); }
+  Value *visitParenExpr(ParenExpr *PE) {
+    return visitExprPromoteToInt(PE->getValue());
+  }
 
   void visitExprStmt(ExprStmt *ES) { visitExpr(ES->getValue()); }
 
   /// The tricky part of BoolOp:
-  /// BoolOp has two forms, indicated by getHasCmpop() and should be handled separatly:
-  /// The mission of visitBoolOp() is to evaluate the condition expression and produce
-  /// a bool value that indicates whether the condition is true.
-  /// We have thoese in grammar:
-  /// Form-1: <Expr> <RichCompareOp> <Expr> => bool -- already a bool.
-  /// Form-2: <Expr> => int -- not a bool yet, compare it to int(0).
+  /// BoolOp has two forms, indicated by getHasCmpop() and should be handled
+  /// separatly: The mission of visitBoolOp() is to evaluate the condition
+  /// expression and produce a bool value that indicates whether the condition
+  /// is true. We have thoese in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
+  /// => bool -- already a bool. Form-2: <Expr> => int -- not a bool yet,
+  /// compare it to int(0).
   Value *visitBoolOp(BoolOp *B) {
     Value *Val = visitExpr(B->getValue());
 
@@ -284,12 +286,13 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
   /// This method accept an int or char and cast it to an int.
   Value *PromoteToInt(Value *Val) {
-    if (Val->getType() == VM.getIntType()) return Val; /// The same as target type.
+    if (Val->getType() == VM.getIntType())
+      return Val; /// The same as target type.
     if (Val->getType() == VM.getCharType())
-      return Builder.CreateIntCast(Val, VM.getIntType(), /* isSigned */ false, "cast");
+      return Builder.CreateIntCast(Val, VM.getIntType(), /* isSigned */ false,
+                                   "cast");
     llvm_unreachable("Val->getType() must be char or int");
   }
-
 
   /// BinOp requires both operands to be int's.
   Value *visitBinOp(BinOp *B) {
@@ -371,7 +374,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Begin to emit the Body, which is ``while { body }``.
     Builder.SetInsertPoint(Body);
-    if ( visitStmtList(W->getBody()) ) {
+    if (visitStmtList(W->getBody())) {
       /// The body ends with an unconditional branch to the beginning of loop.
       Builder.CreateBr(Loop);
     }
@@ -565,19 +568,19 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     for (Decl *D : FD->getDecls()) {
       if (auto VD = subclass_cast<VarDecl>(D)) {
         /// Important note about AllocaInst:
-        /// The second argument ArraySize is a wrong name! It is actually NumElem.
-        /// It isn't a shortcut for specifying the size of the array, but rather the number
-        /// of the element of Type.
-        /// %1 = alloca i32 2
+        /// The second argument ArraySize is a wrong name! It is actually
+        /// NumElem. It isn't a shortcut for specifying the size of the array,
+        /// but rather the number of the element of Type. %1 = alloca i32 2
         /// makes %1 a i32* -- pointer to a an i32 follow by another i32.
         /// %1 = alloca [i32 x 2]
         /// makes %1 a **pointer to a [i32 x 2] array**.
         ///
-        /// For consistency with global array, we use the second notation to create local arrays.
-        /// This makes the GEP as:
-        /// %elemptr = getelementptr inbound [i32 x 2], [i32 x 2]* %1, i32 0, i32 <index>
-        /// which is *verbose*, but consistent.
-        auto Alloca = Builder.CreateAlloca(VM.getTypeFromVarDecl(VD), nullptr, VD->getName());
+        /// For consistency with global array, we use the second notation to
+        /// create local arrays. This makes the GEP as: %elemptr = getelementptr
+        /// inbound [i32 x 2], [i32 x 2]* %1, i32 0, i32 <index> which is
+        /// *verbose*, but consistent.
+        auto Alloca = Builder.CreateAlloca(VM.getTypeFromVarDecl(VD), nullptr,
+                                           VD->getName());
         LocalValues.emplace(VD->getName(), Alloca);
       } else if (auto CD = subclass_cast<ConstDecl>(D)) {
         LocalValues.emplace(CD->getName(),
@@ -697,10 +700,11 @@ private:
 
   /// Keep track of global name binding.
   /// Global Constant => GlobalVariable(IsConstant=true, InternalLinkage).
-  /// Global Array => GlobalVariable(Initializer=ConstantAggregateZero, InternalLinkage).
-  /// Global Variable => GlobalVariable(Initializer=Zero, InternalLinkage).
-  /// Global Function => Function(InternalLinkage).
-  /// printf/scanf => External Function Declaration, Function(ExternalLinkage, BasicBlocks=None).
+  /// Global Array => GlobalVariable(Initializer=ConstantAggregateZero,
+  /// InternalLinkage). Global Variable => GlobalVariable(Initializer=Zero,
+  /// InternalLinkage). Global Function => Function(InternalLinkage).
+  /// printf/scanf => External Function Declaration, Function(ExternalLinkage,
+  /// BasicBlocks=None).
   std::unordered_map<String, Value *> GlobalValues;
 
   /// Error handling. There should not be any user's errors in the stage.
