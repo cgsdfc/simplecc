@@ -81,6 +81,7 @@ public:
   Type *getType(const VarType &V) const { return getType(V.GetType()); }
 
   /// Convert a FuncType.
+  /// Note: If this function is main(), ensure it return int.
   FunctionType *getType(const FuncType &F) const {
     Type *ReturnType = getType(F.GetReturnType());
     std::vector<Type *> ArgTypes(F.GetArgCount());
@@ -538,20 +539,29 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     /// Clear the Mapping.
     LocalValues.clear();
 
-    /// Create the Function global object.
-    auto Fn = Function::Create(
+    /// Create function, fixing return type of main() to int.
+    /// We choose to alter the AST since otherwise the AST will
+    /// disagree with IR.
+    if (FD->getName() == "main") {
+      // XXX: Use setter: FD->setReturnType();
+      FD->return_type = BasicTypeKind::Int;
+    }
+    /// A note about linkage:
+    /// Like C, we use ExternalLinkage by default and since our
+    /// program **never links** with one another, ExternalLinkage is all we have.
+    Function *TheFunction = Function::Create(
         /* FunctionType */ VM.getType(FD),
-        /* Linkage */ Function::InternalLinkage,
+        /* Linkage */ Function::ExternalLinkage,
         /* Name */ FD->getName(),
         /* Module */ &TheModule);
-    GlobalValues.emplace(FD->getName(), Fn);
+    GlobalValues.emplace(FD->getName(), TheFunction);
 
     /// Create the entry point (Function body).
-    BasicBlock *EntryBlock = BasicBlock::Create(TheContext, "entry", Fn);
+    BasicBlock *EntryBlock = BasicBlock::Create(TheContext, "entry", TheFunction);
     Builder.SetInsertPoint(EntryBlock);
 
     /// Setup arguments.
-    for (llvm::Argument &Val : Fn->args()) {
+    for (llvm::Argument &Val : TheFunction->args()) {
       auto Idx = Val.getArgNo();
       ArgDecl *V = static_cast<ArgDecl *>(FD->getArgs()[Idx]);
       Val.setName(V->getName());
@@ -607,7 +617,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Check for well-formness of all BBs. In particular, look for
     /// any unterminated BB and try to add a Return to it.
-    for (BasicBlock &BB : *Fn) {
+    for (BasicBlock &BB : *TheFunction) {
       Instruction *Terminator = BB.getTerminator();
       if (Terminator != nullptr)
         continue; /// Well-formed
@@ -642,7 +652,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
         /* Module */ TheModule,
         /* Type */ VM.getTypeFromConstDecl(CD),
         /* IsConstant */ true,
-        /* Linkage */ GlobalVariable::InternalLinkage,
+        /* Linkage */ GlobalVariable::ExternalLinkage,
         /* Initializer */ VM.getConstantFromExpr(CD->getValue()),
         /* Name */ CD->getName());
     GlobalValues.emplace(CD->getName(), GV);
@@ -654,7 +664,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
         /* Module */ TheModule,
         /* Type */ VM.getTypeFromVarDecl(VD),
         /* IsConstant */ false,
-        /* Linkage */ GlobalVariable::InternalLinkage,
+        /* Linkage */ GlobalVariable::ExternalLinkage,
         /* Initializer */ VM.getGlobalInitializer(VD),
         /* Name */ VD->getName());
     GlobalValues.emplace(VD->getName(), GV);
@@ -699,10 +709,10 @@ private:
   std::unordered_map<String, Value *> LocalValues;
 
   /// Keep track of global name binding.
-  /// Global Constant => GlobalVariable(IsConstant=true, InternalLinkage).
+  /// Global Constant => GlobalVariable(IsConstant=true, ExternalLinkage).
   /// Global Array => GlobalVariable(Initializer=ConstantAggregateZero,
-  /// InternalLinkage). Global Variable => GlobalVariable(Initializer=Zero,
-  /// InternalLinkage). Global Function => Function(InternalLinkage).
+  /// ExternalLinkage). Global Variable => GlobalVariable(Initializer=Zero,
+  /// ExternalLinkage). Global Function => Function(ExternalLinkage).
   /// printf/scanf => External Function Declaration, Function(ExternalLinkage,
   /// BasicBlocks=None).
   std::unordered_map<String, Value *> GlobalValues;
