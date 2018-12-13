@@ -670,23 +670,41 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     }
   }
 
+private:
   /// Data members:
   friend class VisitorBase<LLVMIRCompiler>;
 
   /// Used for getting types of an Expr.
   const SymbolTable &TheTable;
+  /// AST tree node to be visited.
   Program *TheProgram;
 
+  /// LLVM core data structures.
   LLVMContext TheContext;
+  /// The Module to be populated.
   llvm::Module TheModule;
-
-  /// Major tool for emitting instructions.
+  /// High Level Instruction Builder.
   IRBuilder<> Builder;
 
+  /// Type & Value conversion helper.
   LLVMValueMap VM;
+
+  /// Keep track of local name binding.
+  /// Local Constant => ConstantInt.
+  /// Local Array/Variable => Alloca(Type, ArraySize=nullptr).
+  /// Global Stuffs => As it in GlobalValues.
   std::unordered_map<String, Value *> LocalValues;
+
+  /// Keep track of global name binding.
+  /// Global Constant => GlobalVariable(IsConstant=true, InternalLinkage).
+  /// Global Array => GlobalVariable(Initializer=ConstantAggregateZero, InternalLinkage).
+  /// Global Variable => GlobalVariable(Initializer=Zero, InternalLinkage).
+  /// Global Function => Function(InternalLinkage).
+  /// printf/scanf => External Function Declaration, Function(ExternalLinkage, BasicBlocks=None).
   std::unordered_map<String, Value *> GlobalValues;
 
+  /// Error handling. There should not be any user's errors in the stage.
+  /// But we developer can make mistakes and this EM will tell.
   ErrorManager EM;
 
 public:
@@ -697,16 +715,22 @@ public:
     DeclareBuiltinFunctions();
   }
 
-  /// Force this big object on the heap.
+  /// Don't put instance on the stack. It is about 1K.
+  /// Use this factory method instead.
   static std::unique_ptr<LLVMIRCompiler> Create(String Name, Program *P,
                                                 const SymbolTable &S) {
     return std::make_unique<LLVMIRCompiler>(Name, P, S);
   }
 
+  /// No copy no move.
   LLVMIRCompiler(const LLVMIRCompiler &) = delete;
+  LLVMIRCompiler &operator=(const LLVMIRCompiler &) = delete;
   LLVMIRCompiler(LLVMIRCompiler &&) = delete;
+  LLVMIRCompiler &operator=(LLVMIRCompiler &&) = delete;
+
   ~LLVMIRCompiler() = default;
 
+  /// Compile the program, return OK or not.
   bool Compile() {
     visitProgram(TheProgram);
     return EM.IsOk();
