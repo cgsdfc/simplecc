@@ -64,6 +64,7 @@ public:
 
   Type *getCharType() const { return getType(BasicTypeKind::Character); }
   Type *getIntType() const { return getType(BasicTypeKind::Int); }
+  Type *getBoolType() const { return Type::getInt1Ty(TheContext); }
 
   Type *getTypeFromVarDecl(VarDecl *VD) const {
     if (VD->getIsArray())
@@ -177,6 +178,16 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     return true;
   }
 
+  Value *visitUnaryOp(UnaryOp *U) {
+    Value *Operand = visitExprPromoteToInt(U->getOperand());
+    switch (U->getOp()) {
+    case UnaryopKind::USub:
+      return Builder.CreateNeg(Operand, "neg");
+    case UnaryopKind::UAdd:
+      return Operand;
+    }
+  }
+
   /// Declare builtin functions (external really, but let's call it builtin).
   void DeclareBuiltinFunctions() {
     /* declare i32 @printf(i8*, ...) */
@@ -243,21 +254,43 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   Value *visitParenExpr(ParenExpr *PE) { return visitExprPromoteToInt(PE->getValue()); }
   void visitExprStmt(ExprStmt *ES) { visitExpr(ES->getValue()); }
 
-  /// Convert the condition value to non-zeroness.
+  /// The tricky part of BoolOp:
+  /// BoolOp has two forms, indicated by getHasCmpop() and should be handled separatly:
+  /// The mission of visitBoolOp() is to evaluate the condition expression and produce
+  /// a bool value that indicates whether the condition is true.
+  /// We have thoese in grammar:
+  /// Form-1: <Expr> <RichCompareOp> <Expr> => bool -- already a bool.
+  /// Form-2: <Expr> => int -- not a bool yet, compare it to int(0).
   Value *visitBoolOp(BoolOp *B) {
     Value *Val = visitExpr(B->getValue());
-    return Builder.CreateICmpNE(Val, VM.getBool(false), "condtmp");
+    /// Zero of bool, char or int.
+    Value *Zero = nullptr;
+
+    if (Val->getType() == VM.getBoolType()) {
+      /// RichCompareOp produces a bool, we cross validate that.
+      assert(B->getHasCmpop() && "RichCompareOp must produce a bool");
+      /// We already got a bool
+      return Val;
+    } else if (Val->getType() == VM.getIntType()) {
+      return Builder.CreateICmpNE(Val, VM.getInt(0), "cmp");
+    } else {
+      /// This is impossible. Char must be promoted to int to reach BoolOp.
+      llvm_unreachable("Char cannot be!");
+    }
   }
 
-  /// This helper evaluates an Expr, optional emits a char to int bitcast
+  /// This helper evaluates an Expr, optional emits a char-to-int cast
   /// to ensure the result is int.
-  Value *visitExprPromoteToInt(Expr *E) {
-    Value *Val = visitExpr(E);
-    if (Val->getType() == VM.getCharType()) {
-      Val = Builder.CreateIntCast(Val, VM.getIntType(), /* isSigned */ false, "c2i");
-    }
-    return Val;
+  Value *visitExprPromoteToInt(Expr *E) { return PromoteToInt(visitExpr(E)); }
+
+  /// This method accept an int or char and cast it to an int.
+  Value *PromoteToInt(Value *Val) {
+    if (Val->getType() == VM.getIntType()) return Val; /// The same as target type.
+    if (Val->getType() == VM.getCharType())
+      return Builder.CreateIntCast(Val, VM.getIntType(), /* isSigned */ false, "cast");
+    llvm_unreachable("Val->getType() must be char or int");
   }
+
 
   Value *visitBinOp(BinOp *B) {
     Value *L = visitExprPromoteToInt(B->getLeft());
@@ -265,35 +298,25 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     assert(L && R);
     switch (B->getOp()) {
     case OperatorKind::Add:
-      return Builder.CreateAdd(L, R, "addtmp");
+      return Builder.CreateAdd(L, R, "add");
     case OperatorKind::Sub:
-      return Builder.CreateSub(L, R, "subtmp");
+      return Builder.CreateSub(L, R, "sub");
     case OperatorKind::Mult:
-      return Builder.CreateMul(L, R, "multmp");
+      return Builder.CreateMul(L, R, "mul");
     case OperatorKind::Div:
-      return Builder.CreateUDiv(L, R, "udivtmp");
+      return Builder.CreateUDiv(L, R, "udiv");
     case OperatorKind::Eq:
-      return Builder.CreateICmpEQ(L, R, "eqtmp");
+      return Builder.CreateICmpEQ(L, R, "eq");
     case OperatorKind::NotEq:
-      return Builder.CreateICmpNE(L, R, "netmp");
+      return Builder.CreateICmpNE(L, R, "ne");
     case OperatorKind::Lt:
-      return Builder.CreateICmpSLT(L, R, "slttmp");
+      return Builder.CreateICmpSLT(L, R, "slt");
     case OperatorKind::LtE:
-      return Builder.CreateICmpSLE(L, R, "sletmp");
+      return Builder.CreateICmpSLE(L, R, "sle");
     case OperatorKind::Gt:
-      return Builder.CreateICmpSGT(L, R, "sgttmp");
+      return Builder.CreateICmpSGT(L, R, "sgt");
     case OperatorKind::GtE:
-      return Builder.CreateICmpSGE(L, R, "sgetmp");
-    }
-  }
-
-  Value *visitUnaryOp(UnaryOp *U) {
-    Value *Operand = visitExprPromoteToInt(U->getOperand());
-    switch (U->getOp()) {
-    case UnaryopKind::USub:
-      return Builder.CreateNeg(Operand, "negtmp");
-    case UnaryopKind::UAdd:
-      return Operand;
+      return Builder.CreateICmpSGE(L, R, "sge");
     }
   }
 
