@@ -250,8 +250,9 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     return Val;
   }
 
-  /// Simple wrapper nodes.
+  /// ParenExpr automatically promotes a char to int.
   Value *visitParenExpr(ParenExpr *PE) { return visitExprPromoteToInt(PE->getValue()); }
+
   void visitExprStmt(ExprStmt *ES) { visitExpr(ES->getValue()); }
 
   /// The tricky part of BoolOp:
@@ -292,10 +293,10 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   }
 
 
+  /// BinOp requires both operands to be int's.
   Value *visitBinOp(BinOp *B) {
     Value *L = visitExprPromoteToInt(B->getLeft());
     Value *R = visitExprPromoteToInt(B->getRight());
-    assert(L && R);
     switch (B->getOp()) {
     case OperatorKind::Add:
       return Builder.CreateAdd(L, R, "add");
