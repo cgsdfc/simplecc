@@ -68,6 +68,7 @@ set(SOURCE_FILES
   ./gramdef.cpp
   ./Node.cpp
   ./Pass.cpp
+  ./Module.cpp
   ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")
