@@ -71,22 +71,17 @@ public:
   SymbolTableView(SymbolTableView &&) = default;
   ~SymbolTableView() = default;
 
-  // Sane operator[]
   const SymbolEntry &operator[](const String &name) const {
     assert(subtable->count(name));
     return subtable->find(name)->second;
   }
 
-  TableType::const_iterator begin() const { return subtable->begin(); }
-
-  TableType::const_iterator end() const { return subtable->end(); }
+  using const_iterator = TableType::const_iterator;
+  const_iterator begin() const { return subtable->begin(); }
+  const_iterator end() const { return subtable->end(); }
 };
 
 class SymbolTable {
-  TableType global;
-  std::unordered_map<FuncDef *, TableType> locals;
-  std::unordered_map<Expr *, BasicTypeKind> expr_types;
-
 public:
   /// Construct an empty SymbolTable
   SymbolTable() = default;
@@ -94,34 +89,28 @@ public:
   void clear();
 
   /// Build itself from a program
-  bool Build(Program *program);
+  bool Build(Program *P);
 
-  // Use only by TypeChecker
-  void SetExprType(Expr *expr, BasicTypeKind type) {
-    expr_types.emplace(expr, type);
-  }
+  void SetExprType(Expr *E, BasicTypeKind T);
 
   // Return local symbol table for a function
-  SymbolTableView GetLocal(FuncDef *fun) const {
-    assert(locals.count(fun));
-    return SymbolTableView(locals.find(fun)->second);
-  }
+  SymbolTableView GetLocal(FuncDef *FD) const;
 
   // Return a SymbolEntry for a global name
-  SymbolEntry GetGlobal(const String &name) const {
-    return SymbolTableView(global)[name];
-  }
+  SymbolEntry GetGlobal(const String &Name) const;
 
   // Return the BasicTypeKind for an expression
-  BasicTypeKind GetExprType(Expr *expr) const {
-    assert(expr_types.count(expr) && "Absent Expr Type");
-    return expr_types.find(expr)->second;
-  }
+  BasicTypeKind GetExprType(Expr *E) const;
 
-  void Format(std::ostream &os) const;
+  void Format(std::ostream &O) const;
 
-  TableType &getGlobal() { return global; }
-  TableType &getLocal(FuncDef *FD) { return locals[FD]; }
+  TableType &getGlobal() { return GlobalTable; }
+  TableType &getLocal(FuncDef *FD) { return LocalTables[FD]; }
+
+private:
+  TableType GlobalTable;
+  std::unordered_map<FuncDef *, TableType> LocalTables;
+  std::unordered_map<Expr *, BasicTypeKind> ExprTypes;
 };
 
 inline std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {

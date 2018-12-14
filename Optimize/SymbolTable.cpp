@@ -2,6 +2,7 @@
 #include "ErrorManager.h"
 #include "Visitor.h"
 
+#include <cassert>
 #include <iostream>
 #include <unordered_map>
 
@@ -111,6 +112,15 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
   void setLocal(TableType *L) { TheLocal = L; }
   void setGlobal(TableType *G) { TheGlobal = G; }
 
+  /// Clear the state of this SymbolTableBuilder
+  void clear() {
+    setTable(nullptr);
+    setLocal(nullptr);
+    setGlobal(nullptr);
+    setFuncDef(nullptr);
+    EM.clear();
+  }
+
 public:
   /// Default construct and destruct.
   SymbolTableBuilder() = default;
@@ -131,54 +141,70 @@ public:
     visitProgram(P);
     return EM.IsOk();
   }
-
-  /// Clear the state of this SymbolTableBuilder
-  void clear() {
-    setTable(nullptr);
-    setLocal(nullptr);
-    setGlobal(nullptr);
-    setFuncDef(nullptr);
-    EM.clear();
-  }
 };
 
-void SymbolTable::clear() {
-  global.clear();
-  locals.clear();
-  expr_types.clear();
-}
-
-std::ostream &operator<<(std::ostream &os, Scope s) {
-  switch (s) {
+std::ostream &operator<<(std::ostream &O, Scope S) {
+  switch (S) {
   case Scope::Global:
-    return os << "Global";
+    return O << "Global";
   case Scope::Local:
-    return os << "Local";
+    return O << "Local";
   }
 }
 
-void SymbolEntry::Format(std::ostream &os) const {
-  os << "SymbolEntry(" << GetName() << ", " << GetTypeName() << ", "
+void SymbolEntry::Format(std::ostream &O) const {
+  O << "SymbolEntry(" << GetName() << ", " << GetTypeName() << ", "
      << GetScope() << ", " << GetLocation() << ")";
 }
 
-void SymbolTable::Format(std::ostream &os) const {
-  os << "Global:\n";
-  for (const std::pair<String, SymbolEntry> &Pair : global) {
-    os << "  " << Pair.first << ": " << Pair.second << "\n";
+void SymbolTable::Format(std::ostream &O) const {
+  O << "Global:\n";
+  for (const std::pair<String, SymbolEntry> &Pair : GlobalTable) {
+    O << "  " << Pair.first << ": " << Pair.second << "\n";
   }
-  os << "\n";
-  for (const std::pair<FuncDef *, TableType> &Pair : locals) {
-    os << "Local(" << Pair.first->getName() << "):\n";
+  O << "\n";
+  for (const std::pair<FuncDef *, TableType> &Pair : LocalTables) {
+    O << "Local(" << Pair.first->getName() << "):\n";
     for (const std::pair<String, SymbolEntry> &Item : Pair.second) {
-      os << "  " << Item.first << ": " << Item.second << "\n";
+      O << "  " << Item.first << ": " << Item.second << "\n";
     }
-    os << "\n";
+    O << "\n";
   }
 }
 
+void SymbolTable::clear() {
+  GlobalTable.clear();
+  LocalTables.clear();
+  ExprTypes.clear();
+}
+
+/// Return a SymbolTableView for a given FuncDef.
+/// Assert on failure.
+SymbolTableView SymbolTable::GetLocal(FuncDef *FD) const {
+  assert(LocalTables.count(FD));
+  return SymbolTableView(LocalTables.find(FD)->second);
+}
+
+// Return a SymbolEntry for a global name.
+// Assert on failure.
+SymbolEntry SymbolTable::GetGlobal(const String &Name) const {
+  assert(GlobalTable.count(Name));
+  return GlobalTable.find(Name)->second;
+}
+
+// Return the BasicTypeKind for an Expr.
+// Assert on failure.
+BasicTypeKind SymbolTable::GetExprType(Expr *E) const {
+  assert(ExprTypes.count(E));
+  return ExprTypes.find(E)->second;
+}
+
+void SymbolTable::SetExprType(Expr *E, BasicTypeKind T) {
+  ExprTypes.emplace(E, T);
+}
+
 // public interface
-bool SymbolTable::Build(Program *prog) {
-  return SymbolTableBuilder().Build(prog, *this);
+bool SymbolTable::Build(Program *P) {
+  return SymbolTableBuilder().Build(P, *this);
 }
 } // namespace simplecompiler
