@@ -132,32 +132,6 @@ void MakeLocal(FuncDef *fun, TableType &top, TableType &local,
   // errors left in ErrorManager
 }
 
-// Visitor that build string table.
-class StringLiteralVisitor : public ChildrenVisitor<StringLiteralVisitor> {
-  friend class ChildrenVisitor<StringLiteralVisitor>;
-  friend class VisitorBase<StringLiteralVisitor>;
-
-  StringLiteralTable &table;
-
-  void visitStr(Str *node) {
-    table.emplace(node->getS(), table.size());
-  }
-
-  void visitDecl(Decl *node) {
-    if (auto x = subclass_cast<FuncDef>(node)) {
-      ChildrenVisitor::visitFuncDef(x);
-    }
-  }
-
-  void visitStmt(Stmt *node) { return VisitorBase::visitStmt<void>(node); }
-
-  void visitExpr(Expr *node) { return VisitorBase::visitExpr<void>(node); }
-
-public:
-  StringLiteralVisitor(StringLiteralTable &table) : table(table) {}
-  using ChildrenVisitor::visitProgram;
-};
-
 void CheckTable(const TableType &table) {
   for (const auto &item : table) {
     assert(item.first == item.second.GetName());
@@ -226,7 +200,6 @@ void SymbolTable::Format(std::ostream &os) const {
   os << "SymbolTable(";
   os << "global=" << global << ",\n"
      << "\nlocals=" << locals << ",\n"
-     << "\nstring_literals=" << string_literals << ",\n"
      << "\nexpr_types=" << expr_types;
   os << ")";
 }
@@ -259,9 +232,6 @@ bool SymbolTable::Build(Program *prog) {
         locals.emplace(fun, std::move(local));
       }
     }
-  }
-  if (e.IsOk()) {
-    StringLiteralVisitor(string_literals).visitProgram(prog);
   }
   return e.IsOk();
 }

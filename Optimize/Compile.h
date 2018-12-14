@@ -45,7 +45,7 @@ public:
 
 class CompiledModule {
   std::vector<CompiledFunction> functions;
-  StringLiteralTable strings;
+  std::unordered_map<String, int> strings;
   SymbolEntryList global_objects;
 
 public:
@@ -58,7 +58,12 @@ public:
 
   void Format(std::ostream &os) const;
 
-  const StringLiteralTable &GetStringLiteralTable() const { return strings; }
+  const std::unordered_map<String, int> &GetStringLiteralTable() const {
+    return strings;
+  }
+
+  /// For a string literal, this method returns the corresponding ID.
+  unsigned GetStringLiteralID(const String &Str);
 
   const SymbolEntryList &GetGlobalObjects() const { return global_objects; }
 };

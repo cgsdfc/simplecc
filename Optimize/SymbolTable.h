@@ -56,7 +56,6 @@ inline std::ostream &operator<<(std::ostream &os, const SymbolEntry &e) {
 }
 
 using TableType = std::unordered_map<String, SymbolEntry>;
-using StringLiteralTable = std::unordered_map<String, int>;
 
 // Provide a safe const view to a sub-symbol table
 class SymbolTableView {
@@ -86,12 +85,11 @@ class SymbolTable {
 
   TableType global;
   NestedTableType locals;
-  StringLiteralTable string_literals;
   std::unordered_map<Expr *, BasicTypeKind> expr_types;
 
 public:
   /// Construct an empty SymbolTable
-  SymbolTable() : global(), locals(), string_literals() {}
+  SymbolTable() : global(), locals() {}
 
   /// Build itself from a program
   bool Build(Program *program);
@@ -110,17 +108,6 @@ public:
   // Return a SymbolEntry for a global name
   SymbolEntry GetGlobal(const String &name) const {
     return SymbolTableView(global)[name];
-  }
-
-  // Return the ID for a string literal
-  int GetStringLiteralID(const String &literal) const {
-    assert(string_literals.count(literal));
-    return string_literals.find(literal)->second;
-  }
-
-  // Return the string literal table
-  const StringLiteralTable &GetStringLiteralTable() const {
-    return string_literals;
   }
 
   // Return the BasicTypeKind for an expression

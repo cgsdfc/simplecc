@@ -133,6 +133,7 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
   std::vector<ByteCode> buffer;
   SymbolTableView local;
   const SymbolTable &symtable;
+  CompiledModule &TheModule;
   FuncDef *function;
   std::vector<SymbolEntry> formal_arguments;
   std::vector<SymbolEntry> local_objects;
@@ -335,7 +336,7 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
 
   void visitStr(Str *node) {
     Add(ByteCode(Opcode::LOAD_STRING,
-                 symtable.GetStringLiteralID(node->getS())));
+                 TheModule.GetStringLiteralID(node->getS())));
   }
 
   void visitChar(Char *node) {
@@ -367,9 +368,10 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
   }
 
 public:
-  FunctionCompiler(FuncDef *fun, const SymbolTable &symtable)
+  FunctionCompiler(FuncDef *fun, const SymbolTable &symtable,
+                   CompiledModule &TheModule)
       : current_lineno(1), buffer(), local(symtable.GetLocal(fun)),
-        symtable(symtable), function(fun), e() {}
+        symtable(symtable), function(fun), e(), TheModule(TheModule) {}
 
   // public interface
   CompiledFunction Compile() {
@@ -409,15 +411,18 @@ CompiledFunction::CompiledFunction(SymbolTableView local,
 }
 
 void CompiledModule::Build(Program *prog, const SymbolTable &symtable) {
-  strings = symtable.GetStringLiteralTable();
   for (auto decl : prog->getDecls()) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
-      FunctionCompiler functionCompiler(fun, symtable);
+      FunctionCompiler functionCompiler(fun, symtable, *this);
       functions.push_back(functionCompiler.Compile());
     } else if (auto var = subclass_cast<VarDecl>(decl)) {
       global_objects.push_back(symtable.GetGlobal(var->getName()));
     }
   }
+}
+
+unsigned CompiledModule::GetStringLiteralID(const String &Str) {
+  return strings.emplace(Str, strings.size()).first->second;
 }
 
 CompiledFunction::CompiledFunction(CompiledFunction &&other)
