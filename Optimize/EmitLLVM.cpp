@@ -481,7 +481,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
     /// Select appropriate format specifier by type.
     auto SelectFmtSpc = [this](Expr *Name) {
-      auto T = TheTable.GetExprType(Name);
+      auto T = TheTable.getExprType(Name);
       switch (T) {
       case BasicTypeKind::Int:
         return "%d";
@@ -517,7 +517,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
         // No expr, no need to consult SymbolTable
         return "%s\n";
       }
-      auto T = TheTable.GetExprType(WR->getValue());
+      auto T = TheTable.getExprType(WR->getValue());
       if (!WR->getStr()) {
         // No string.
         return T == BasicTypeKind::Character ? "%c\n" : "%d\n";
@@ -605,7 +605,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     }
 
     /// Populate LocalValues with global objects.
-    SymbolTableView Local = TheTable.GetLocal(FD);
+    SymbolTableView Local = TheTable.getLocalTable(FD);
     for (auto &&Pair : Local) {
       const SymbolEntry &E = Pair.second;
       if (E.IsLocal()) {

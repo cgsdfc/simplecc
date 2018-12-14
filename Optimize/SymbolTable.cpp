@@ -166,26 +166,26 @@ void SymbolTable::clear() {
 
 /// Return a SymbolTableView for a given FuncDef.
 /// Assert on failure.
-SymbolTableView SymbolTable::GetLocal(FuncDef *FD) const {
+SymbolTableView SymbolTable::getLocalTable(FuncDef *FD) const {
   assert(LocalTables.count(FD));
   return SymbolTableView(LocalTables.find(FD)->second);
 }
 
 // Return a SymbolEntry for a global name.
 // Assert on failure.
-SymbolEntry SymbolTable::GetGlobal(const String &Name) const {
+SymbolEntry SymbolTable::getGlobalEntry(const String &Name) const {
   assert(GlobalTable.count(Name));
   return GlobalTable.find(Name)->second;
 }
 
 // Return the BasicTypeKind for an Expr.
 // Assert on failure.
-BasicTypeKind SymbolTable::GetExprType(Expr *E) const {
+BasicTypeKind SymbolTable::getExprType(Expr *E) const {
   assert(ExprTypes.count(E));
   return ExprTypes.find(E)->second;
 }
 
-void SymbolTable::SetExprType(Expr *E, BasicTypeKind T) {
+void SymbolTable::setExprType(Expr *E, BasicTypeKind T) {
   ExprTypes.emplace(E, T);
 }
 
@@ -193,4 +193,12 @@ void SymbolTable::SetExprType(Expr *E, BasicTypeKind T) {
 bool SymbolTable::Build(Program *P) {
   return SymbolTableBuilder().Build(P, *this);
 }
+
+/// Return the SymbolEntry for a name.
+/// Assert on failure.
+const SymbolEntry &SymbolTableView::operator[](const String &Name) const {
+  assert(TheTable->count(Name));
+  return TheTable->find(Name)->second;
+}
+
 } // namespace simplecompiler

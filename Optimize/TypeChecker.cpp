@@ -121,7 +121,7 @@ class ImplicitCallTransformer : VisitorBase<ImplicitCallTransformer> {
 
 public:
   ImplicitCallTransformer(const SymbolTable &symtable, FuncDef *fun)
-      : funcDef(fun), local(symtable.GetLocal(fun)) {}
+      : funcDef(fun), local(symtable.getLocalTable(fun)) {}
 
   // public interface
   void Transform() {
@@ -159,7 +159,7 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   // Return the type of evaluating the expression
   BasicTypeKind visitExpr(Expr *node) {
     auto type = VisitorBase::visitExpr<BasicTypeKind>(node);
-    symbolTable.SetExprType(node, type);
+    symbolTable.setExprType(node, type);
     return type;
   }
 
@@ -333,7 +333,7 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
 
 public:
   TypeCheker(SymbolTable &symbolTable, FuncDef *fun, ErrorManager &e)
-      : symbolTable(symbolTable), local(symbolTable.GetLocal(fun)),
+      : symbolTable(symbolTable), local(symbolTable.getLocalTable(fun)),
         funcDef(fun), e(e) {}
 
   // public interface

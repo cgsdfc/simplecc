@@ -211,7 +211,7 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
     }
     if (node->getValue()) {
       visitExpr(node->getValue());
-      auto type = symtable.GetExprType(node->getValue());
+      auto type = symtable.getExprType(node->getValue());
       Add(ByteCode(MakePrint(type)));
     }
     Add(ByteCode(Opcode::PRINT_NEWLINE));
@@ -370,7 +370,7 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
 public:
   FunctionCompiler(FuncDef *fun, const SymbolTable &symtable,
                    CompiledModule &TheModule)
-      : current_lineno(1), buffer(), local(symtable.GetLocal(fun)),
+      : current_lineno(1), buffer(), local(symtable.getLocalTable(fun)),
         symtable(symtable), function(fun), e(), TheModule(TheModule) {}
 
   // public interface
@@ -379,7 +379,7 @@ public:
     // some jump will target a out-of-range offset
     // this return handles this issue
     Add(ByteCode(Opcode::RETURN_NONE));
-    const auto &entry = symtable.GetGlobal(function->getName());
+    const auto &entry = symtable.getGlobalEntry(function->getName());
     // Check jump target
     for (auto &&code : buffer) {
       if (IsJumpXXX(code.GetOpcode())) {
@@ -416,7 +416,7 @@ void CompiledModule::Build(Program *prog, const SymbolTable &symtable) {
       FunctionCompiler functionCompiler(fun, symtable, *this);
       functions.push_back(functionCompiler.Compile());
     } else if (auto var = subclass_cast<VarDecl>(decl)) {
-      global_objects.push_back(symtable.GetGlobal(var->getName()));
+      global_objects.push_back(symtable.getGlobalEntry(var->getName()));
     }
   }
 }
