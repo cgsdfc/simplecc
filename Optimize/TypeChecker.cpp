@@ -11,13 +11,16 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
 
   void visitRead(Read *RD) {
     for (auto E : RD->getNames()) {
-      visitExpr(E); // Collect type info.
-      auto N = static_cast<Name *>(E);
+      auto N = subclass_cast<Name>(E);
+      assert(N);
       const auto &entry = TheLocalTable[N->getId()];
       if (!entry.IsVariable()) {
         EM.TypeError(N->getLoc(), "cannot use scanf() on object of type",
                      entry.GetTypeName());
+        continue;
       }
+      /// set the Expr type for this.
+      TheTable->setExprType(E, entry.AsVariable().GetType());
     }
   }
 
@@ -193,7 +196,9 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
 
   BasicTypeKind visitNum(Num *) { return BasicTypeKind::Int; }
   BasicTypeKind visitChar(Char *) { return BasicTypeKind::Character; }
+
   void visitStmt(Stmt *S) { return VisitorBase::visitStmt<void>(S); }
+  void visitDecl(Decl *D) { return VisitorBase::visitDecl<void>(D); }
 
   void setLocalTable(SymbolTableView L) { TheLocalTable = L; }
   void setTable(SymbolTable *S) { TheTable = S; }

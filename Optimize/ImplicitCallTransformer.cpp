@@ -1,13 +1,10 @@
+// XXX: Since this pass **modifies** the AST, it is important
+// to run a verify pass on it to ensure it didn't break any invariant.
 #include "ImplicitCallTransformer.h"
 #include "SymbolTable.h"
 #include "Visitor.h"
 
 #include <cassert>
-
-#define VISIT(name)                                                            \
-  do {                                                                         \
-    node->name = visitExpr(node->name);                                        \
-  } while (0)
 
 namespace simplecompiler {
 
@@ -29,6 +26,14 @@ namespace simplecompiler {
 /// after the SymbolTable pass and right before the TypeCheker pass.
 //
 class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
+
+/// This macro performs a visit & set on the specific member of a node.
+/// It requires the visitor has its argument named "node".
+/// Note: it evaluates NAME twice!
+#define VISIT(NAME)                                                            \
+  do {                                                                         \
+    node->NAME = TransformExpr(node->NAME);                                    \
+  } while (0)
 
   void visitWrite(Write *node) {
     if (node->getValue()) {
@@ -78,7 +83,15 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
     VISIT(right);
   }
 
-  Expr *visitExpr(Expr *E) {
+  /// Visit an Expr and do implicit call transform on it if applicable.
+  /// Or just return the original Expr.
+  /// Note: This is deliberately not named after visitExpr() to prevent
+  /// ChildrenVisitor accidentally call it, which may lead to unexpected
+  /// result. For example, we don't override visitRead() since it **does not**
+  /// need transformation. But ChildrenVisitor will still call it and visit all
+  /// its children with visitExpr() so it is important that visitExpr() don't
+  /// perform any transformation.
+  Expr *TransformExpr(Expr *E) {
     if (auto x = subclass_cast<Name>(E)) {
       if (TheLocalTable[x->getId()].IsFunction()) {
         // replace such a name with a call
@@ -89,14 +102,14 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
         return E;
       }
     } else {
-      VisitorBase::visitExpr<void>(E);
+      visitExpr(E);
       return E;
     }
   }
 
   void visitCall(Call *node) {
     for (int i = 0, size = node->getArgs().size(); i < size; i++) {
-      node->args[i] = visitExpr(node->args[i]);
+      VISIT(args[i]);
     }
   }
 
@@ -105,14 +118,22 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
     ChildrenVisitor::visitFuncDef(FD);
   }
 
-  void visitStmt(Stmt *node) { VisitorBase::visitStmt<void>(node); }
-  void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
+  /// VisitorBase's boilerplates.
+  void visitExpr(Expr *E) { VisitorBase::visitExpr<void>(E); }
+  void visitStmt(Stmt *S) { VisitorBase::visitStmt<void>(S); }
+  /// We're not insterested in Decl.
+  void visitDecl(Decl *) {}
 
   void visitBoolOp(BoolOp *node) { VISIT(value); }
   void visitParenExpr(ParenExpr *node) { VISIT(value); }
   void visitUnaryOp(UnaryOp *node) { VISIT(operand); }
-  void visitExprStmt(ExprStmt *node) { visitExpr(node->getValue()); }
   void visitSubscript(Subscript *node) { VISIT(index); }
+
+  /// ExprStmt must be in fact a Call.
+  void visitExprStmt(ExprStmt *node) {
+    assert(IsInstance<Call>(node->getValue()));
+    visitExpr(node->getValue());
+  }
 
   /// Setters.
   void setLocalTable(SymbolTableView L) { TheLocalTable = L; }
