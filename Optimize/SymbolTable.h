@@ -91,6 +91,8 @@ public:
   /// Construct an empty SymbolTable
   SymbolTable() = default;
 
+  void clear();
+
   /// Build itself from a program
   bool Build(Program *program);
 
@@ -116,8 +118,6 @@ public:
     return expr_types.find(expr)->second;
   }
 
-  // Self-check
-  void Check() const;
   void Format(std::ostream &os) const;
 
   TableType &getGlobal() { return global; }
