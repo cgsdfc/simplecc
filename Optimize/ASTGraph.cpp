@@ -409,8 +409,7 @@ public:
 
   String visitSubscript(Subscript *) { return "[]"; }
 
-  String visitExprStmt(ExprStmt *ES) { return visitExpr(ES->getValue()); }
-
+  String visitExprStmt(ExprStmt *ES) { return ""; }
   String visitFor(For *) { return ""; }
   String visitIf(If *) { return ""; }
   String visitWhile(While *) { return ""; }

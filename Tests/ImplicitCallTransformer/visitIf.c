@@ -5,10 +5,8 @@ int ifun {
 void main() {
   if (ifun) {
     printf(ifun);
-    printf(ifun);
   }
   else {
-    printf(ifun);
     printf(ifun);
   }
 

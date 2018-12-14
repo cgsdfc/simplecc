@@ -5,7 +5,5 @@ int ifun {
 void main() {
   while (ifun) {
     printf(ifun);
-    printf(ifun);
   }
-
 }

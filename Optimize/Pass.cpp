@@ -197,11 +197,6 @@ static RegisterPass<PrintNodePass>
     PrintNodePassRegister("print-nodes", "dump nodes of concrete syntax tree");
 template <> char PrintNodePass::ID = 0;
 
-using PrintAstPass = PrintPassMixin<BuildAstPass>;
-static RegisterPass<PrintAstPass>
-    PrintAstPassRegister("print-ast", "dump the nodes of abstract syntax tree");
-template <> char PrintAstPass::ID = 0;
-
 class SyntaxCheckerPass : public Pass {
   Program *TheProgram;
 
@@ -278,6 +273,12 @@ public:
 
 INITIALIZE_PASS(AnalysisPass, "", "")
 
+/// The PrintAstPass prints the final version of AST.
+using PrintAstPass = PrintPassMixin<BuildAstPass>;
+static RegisterPass<PrintAstPass>
+    PrintAstPassRegister("print-ast", "dump the nodes of abstract syntax tree");
+template <> char PrintAstPass::ID = 0;
+
 class PrintByteCodePass : public Pass {
 public:
   static char ID;
@@ -332,20 +333,6 @@ INITIALIZE_PASS(AssemblePass, "assemble",
                 "assemble the compiled program to MIPS assembly")
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
-/* /// Helper to open a file in llvm::raw_fd_ostream. */
-/* /// It opens the file, print any error message and return the stream. */
-/* /// User can use the has_error() of a raw_fd_ostream to see if everything is
- * OK. */
-/* static llvm::raw_fd_ostream LLVMOpenFile(String Filename, ) { */
-/*   if (Filename.empty()) Filename = "-"; */
-/*   std::error_code EC; */
-/*   llvm::raw_fd_ostream O(Filename, EC); */
-/*   if (EC) { */
-/*     llvm::errs() << EC.message() << "\n"; */
-/*   } */
-/*   return std::move(O); */
-/* }; */
-
 class EmitLLVMPass : public Pass {
 public:
   static char ID;
@@ -406,8 +393,9 @@ public:
 INITIALIZE_PASS(PrintCSTGraphPass, "print-cst-graph",
                 "print cst graph in dot format")
 
+/// The PrintASTGraphPass print the final version of the AST.
 class PrintASTGraphPass
-    : public PrintSyntaxTreeGraphPass<PrintASTGraphPass, BuildAstPass> {
+    : public PrintSyntaxTreeGraphPass<PrintASTGraphPass, AnalysisPass> {
 public:
   static char ID;
   PrintASTGraphPass() = default;

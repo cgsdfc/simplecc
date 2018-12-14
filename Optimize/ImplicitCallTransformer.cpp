@@ -2,6 +2,8 @@
 #include "SymbolTable.h"
 #include "Visitor.h"
 
+#include <cassert>
+
 #define VISIT(name)                                                            \
   do {                                                                         \
     node->name = visitExpr(node->name);                                        \

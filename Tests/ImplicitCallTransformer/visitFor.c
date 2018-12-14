@@ -6,7 +6,6 @@ void main() {
   int ivar;
   for (ivar = ifun; ivar < ifun + 1; ivar = ivar + 1) {
     printf(ifun);
-    printf(ifun);
-  } 
+  }
 
 }
