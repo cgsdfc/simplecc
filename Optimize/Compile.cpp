@@ -409,6 +409,7 @@ CompiledFunction::CompiledFunction(SymbolTableView local,
 }
 
 void CompiledModule::Build(Program *prog, const SymbolTable &symtable) {
+  strings = symtable.GetStringLiteralTable();
   for (auto decl : prog->getDecls()) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
       FunctionCompiler functionCompiler(fun, symtable);

@@ -471,6 +471,19 @@ class ModuleAssembler {
   const CompiledModule &module;
   Printer w;
 
+  // For each '\\' in string, make it doubled
+  static String DoubleBackslashes(const String &string) {
+    String result;
+    result.reserve(string.size());
+    for (auto c : string) {
+      result.push_back(c);
+      if (c == '\\') {
+        result.push_back(c);
+      }
+    }
+    return std::move(result);
+  }
+
   void MakeDataSegment() {
     w.WriteLine(".data");
     w.WriteLine("# Global objects");
@@ -487,7 +500,7 @@ class ModuleAssembler {
     w.WriteLine("# String literals");
     for (const auto &item : module.GetStringLiteralTable()) {
       auto &&label = GlobalContext::GetStringLiteralLabel(item.second, true);
-      w.WriteLine(label, ".asciiz", item.first);
+      w.WriteLine(label, ".asciiz", DoubleBackslashes(item.first));
     }
     w.WriteLine("# End of data segment");
   }

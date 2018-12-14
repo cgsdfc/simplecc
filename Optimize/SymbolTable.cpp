@@ -132,19 +132,6 @@ void MakeLocal(FuncDef *fun, TableType &top, TableType &local,
   // errors left in ErrorManager
 }
 
-// For each '\\' in string, make it doubled
-String DoubleBackslashes(const String &string) {
-  String result;
-  result.reserve(string.size());
-  for (auto c : string) {
-    result.push_back(c);
-    if (c == '\\') {
-      result.push_back(c);
-    }
-  }
-  return std::move(result);
-}
-
 // Visitor that build string table.
 class StringLiteralVisitor : public ChildrenVisitor<StringLiteralVisitor> {
   friend class ChildrenVisitor<StringLiteralVisitor>;
@@ -153,8 +140,6 @@ class StringLiteralVisitor : public ChildrenVisitor<StringLiteralVisitor> {
   StringLiteralTable &table;
 
   void visitStr(Str *node) {
-    assert(node->getS().size() >= 2);
-    node->s = DoubleBackslashes(node->getS());
     table.emplace(node->getS(), table.size());
   }
 
