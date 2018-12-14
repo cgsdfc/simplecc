@@ -143,20 +143,6 @@ public:
   }
 };
 
-std::ostream &operator<<(std::ostream &O, Scope S) {
-  switch (S) {
-  case Scope::Global:
-    return O << "Global";
-  case Scope::Local:
-    return O << "Local";
-  }
-}
-
-void SymbolEntry::Format(std::ostream &O) const {
-  O << "SymbolEntry(" << GetName() << ", " << GetTypeName() << ", "
-     << GetScope() << ", " << GetLocation() << ")";
-}
-
 void SymbolTable::Format(std::ostream &O) const {
   O << "Global:\n";
   for (const std::pair<String, SymbolEntry> &Pair : GlobalTable) {

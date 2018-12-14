@@ -1,15 +1,36 @@
-/// Types and SymbolEntry implementation.
-#include "SymbolTable.h"
+#include "Types.h"
 
 using namespace simplecompiler;
 
-ConstType::ConstType(ConstDecl *decl) : type(decl->getType()) {
-  if (auto x = subclass_cast<Char>(decl->getValue())) {
-    value = x->getC();
-  } else if (auto x = subclass_cast<Num>(decl->getValue())) {
-    value = x->getN();
-  } else {
-    assert(false && "value of ConstDecl wrong type");
+ArrayType::ArrayType(VarDecl *VD)
+    : ElemType(VD->getType()), Size(VD->getSize()) {
+  assert(VD->getIsArray());
+}
+
+ConstType::ConstType(ConstDecl *CD) : type(CD->getType()) {
+  auto Val = CD->getValue();
+  switch (Val->GetKind()) {
+  case Expr::Char:
+    value = static_cast<Char *>(Val)->getC();
+    break;
+  case Expr::Num:
+    value = static_cast<Num *>(Val)->getN();
+    break;
+  default:
+    assert(false && "Value of ConstDecl must be a Constant!");
+  }
+}
+
+VarType::VarType(Decl *D) {
+  switch (D->GetKind()) {
+  case Decl::ArgDecl:
+    type = static_cast<ArgDecl *>(D)->getType();
+    break;
+  case Decl::VarDecl:
+    type = static_cast<VarDecl *>(D)->getType();
+    break;
+  default:
+    assert(false && "Decl not for Variable!");
   }
 }
 
@@ -24,20 +45,16 @@ const char *SymbolEntry::GetTypeName() const {
   return "Variable";
 }
 
+BasicTypeKind FuncType::GetArgTypeAt(unsigned Idx) const {
+  assert(Idx < GetArgCount());
+  auto Arg = TheFuncDef->getArgs()[Idx];
+  return static_cast<ArgDecl *>(Arg)->getType();
+}
+
 VarType SymbolEntry::AsVariable() const {
   assert(IsVariable());
-  if (auto AD = subclass_cast<ArgDecl>(decl)) {
-    return VarType(AD->getType());
-  }
-  return VarType(static_cast<VarDecl *>(decl)->getType());
+  return VarType(decl);
 }
-
-BasicTypeKind FuncType::GetArgTypeAt(int pos) const {
-  assert(pos >= 0 && pos < fun->args.size() && "pos out of range");
-  return static_cast<ArgDecl *>(fun->args[pos])->getType();
-}
-
-bool SymbolEntry::IsFormalArgument() const { return IsInstance<ArgDecl>(decl); }
 
 FuncType SymbolEntry::AsFunction() const {
   assert(IsFunction());
@@ -60,9 +77,9 @@ bool SymbolEntry::IsArray() const {
 }
 
 bool SymbolEntry::IsVariable() const {
-  return IsInstance<ArgDecl>(decl) ||
-         (IsInstance<VarDecl>(decl) &&
-          !static_cast<VarDecl *>(decl)->getIsArray());
+  return decl && (IsInstance<ArgDecl>(decl) ||
+                  (IsInstance<VarDecl>(decl) &&
+                   !static_cast<VarDecl *>(decl)->getIsArray()));
 }
 
 bool SymbolEntry::IsConstant() const {
@@ -73,6 +90,32 @@ bool SymbolEntry::IsFunction() const {
   return decl && IsInstance<FuncDef>(decl);
 }
 
-Location SymbolEntry::GetLocation() const { return decl->getLoc(); }
+bool SymbolEntry::IsFormalArgument() const {
+  return decl && IsInstance<ArgDecl>(decl);
+}
 
-const String &SymbolEntry::GetName() const { return decl->getName(); }
+const Location &SymbolEntry::GetLocation() const {
+  assert(decl);
+  return decl->getLoc();
+}
+
+const String &SymbolEntry::GetName() const {
+  assert(decl);
+  return decl->getName();
+}
+
+void SymbolEntry::Format(std::ostream &O) const {
+  O << "SymbolEntry(" << GetName() << ", " << GetTypeName() << ", "
+    << GetScope() << ", " << GetLocation() << ")";
+}
+
+namespace simplecompiler {
+std::ostream &operator<<(std::ostream &O, Scope S) {
+  switch (S) {
+  case Scope::Global:
+    return O << "Global";
+  case Scope::Local:
+    return O << "Local";
+  }
+}
+} // namespace simplecompiler
