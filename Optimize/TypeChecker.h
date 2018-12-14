@@ -5,6 +5,6 @@ namespace simplecompiler {
 class Program;
 class SymbolTable;
 
-bool CheckType(Program *prog, SymbolTable &symtable);
+bool CheckType(Program *P, SymbolTable &S);
 } // namespace simplecompiler
 #endif
