@@ -70,6 +70,7 @@ set(SOURCE_FILES
   ./Pass.cpp
   ./Module.cpp
   ./Types.cpp
+  ./ImplicitCallTransformer.cpp
   ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")

@@ -4,6 +4,7 @@
 #include "AstBuilder.h"
 #include "ByteCodePrinter.h"
 #include "Compile.h"
+#include "ImplicitCallTransformer.h"
 #include "Node.h"
 #include "Parser.h"
 #include "Print.h"
@@ -258,6 +259,7 @@ public:
       return false;
     /// The SymbolTablePass's success implies that of BuildAstPass.
     TheProgram = PM.getResult<BuildAstPass>();
+    TransformImplicitCall(TheProgram, STP->getResult());
     return CheckType(TheProgram, STP->getResult());
   }
 

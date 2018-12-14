@@ -24,6 +24,9 @@ public:
   SymbolTableView(const SymbolTableView &) = default;
   SymbolTableView(SymbolTableView &&) = default;
 
+  SymbolTableView &operator=(const SymbolTableView &) = default;
+  SymbolTableView &operator=(SymbolTableView &&) = default;
+
   const SymbolEntry &operator[](const String &Name) const;
 
   using const_iterator = TableType::const_iterator;
@@ -65,7 +68,6 @@ private:
   TableType &getGlobal() { return GlobalTable; }
   /// Create or Return a local table to be populate.
   TableType &getLocal(FuncDef *FD) { return LocalTables[FD]; }
-
 };
 
 inline std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {

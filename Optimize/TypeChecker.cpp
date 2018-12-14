@@ -5,134 +5,7 @@
 
 #include <algorithm>
 
-namespace {
-using namespace simplecompiler;
-// Transform Name to Call if it is a function and it is in the context
-// of Expr or ExprStmt (Call really).
-class ImplicitCallTransformer : VisitorBase<ImplicitCallTransformer> {
-  friend class VisitorBase<ImplicitCallTransformer>;
-  FuncDef *funcDef;
-  SymbolTableView local;
-
-  void visitStmt(Stmt *node) { VisitorBase::visitStmt<void>(node); }
-
-  Expr *visitExpr(Expr *node) {
-    if (auto x = subclass_cast<Name>(node)) {
-      if (local[x->getId()].IsFunction()) {
-        // replace such a name with a call
-        auto call = new Call(x->getId(), {}, x->getLoc());
-        delete x;
-        return call;
-      } else {
-        return node;
-      }
-    } else {
-      VisitorBase::visitExpr<void>(node);
-      return node;
-    }
-  }
-
-#define VISIT(name)                                                            \
-  do {                                                                         \
-    node->name = visitExpr(node->name);                                        \
-  } while (0)
-
-  // don't check names in Read
-  void visitRead(Read *node) {}
-
-  void visitWrite(Write *node) {
-    if (node->getValue()) {
-      VISIT(value);
-    }
-  }
-
-  void visitAssign(Assign *node) {
-    // don't check Name
-    if (IsInstance<Subscript>(node->getTarget())) {
-      visitExpr(node->getTarget());
-    }
-    VISIT(value);
-  }
-
-  void visitFor(For *node) {
-    visitStmt(node->initial);
-    VISIT(condition);
-    visitStmt(node->getStep());
-    for (auto s : node->getBody()) {
-      visitStmt(s);
-    }
-  }
-
-  void visitWhile(While *node) {
-    VISIT(condition);
-    for (auto s : node->getBody()) {
-      visitStmt(s);
-    }
-  }
-
-  void visitReturn(Return *node) {
-    if (node->getValue()) {
-      VISIT(value);
-    }
-  }
-
-  void visitIf(If *node) {
-    VISIT(test);
-    for (auto s : node->getBody()) {
-      visitStmt(s);
-    }
-    for (auto s : node->getOrelse()) {
-      visitStmt(s);
-    }
-  }
-
-  // nothing to do since it must be a Call
-  void visitExprStmt(ExprStmt *node) {
-    assert(IsInstance<Call>(node->getValue()));
-    visitExpr(node->getValue());
-  }
-
-  void visitBinOp(BinOp *node) {
-    VISIT(left);
-    VISIT(right);
-  }
-
-  void visitBoolOp(BoolOp *node) { VISIT(value); }
-
-  void visitParenExpr(ParenExpr *node) { VISIT(value); }
-
-  void visitUnaryOp(UnaryOp *node) { VISIT(operand); }
-
-  void visitCall(Call *node) {
-    for (int i = 0, size = node->getArgs().size(); i < size; i++) {
-      node->args[i] = visitExpr(node->args[i]);
-    }
-  }
-
-  void visitNum(Num *) {}
-  void visitStr(Str *) {}
-  void visitChar(Char *) {}
-  void visitName(Name *) {
-    // calling this is an error
-    assert(false && "All Names must be handled by container nodes");
-  }
-
-  void visitSubscript(Subscript *node) { VISIT(index); }
-
-public:
-  ImplicitCallTransformer(const SymbolTable &symtable, FuncDef *fun)
-      : funcDef(fun), local(symtable.getLocalTable(fun)) {}
-
-  // public interface
-  void Transform() {
-    for (auto stmt : funcDef->getStmts()) {
-      visitStmt(stmt);
-    }
-  }
-
-#undef VISIT
-};
-
+namespace simplecompiler {
 // Check type for a function
 class TypeCheker : ChildrenVisitor<TypeCheker> {
   // use visitFor, visitWhile of ChildrenVisitor
@@ -140,7 +13,7 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   friend class VisitorBase<TypeCheker>;
 
   // set expression type of symbolTable
-  SymbolTable &symbolTable;
+  SymbolTable &TheTable;
   // local symbol information (type information mainly)
   SymbolTableView local;
   // FuncDef node being checked
@@ -159,12 +32,12 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   // Return the type of evaluating the expression
   BasicTypeKind visitExpr(Expr *node) {
     auto type = VisitorBase::visitExpr<BasicTypeKind>(node);
-    symbolTable.setExprType(node, type);
+    TheTable.setExprType(node, type);
     return type;
   }
 
-  void visitRead(Read *node) {
-    for (auto expr : node->getNames()) {
+  void visitRead(Read *RD) {
+    for (auto expr : RD->getNames()) {
       visitExpr(expr); // Collect type info.
       auto name = subclass_cast<Name>(expr);
       const auto &entry = local[name->getId()];
@@ -175,9 +48,9 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
     }
   }
 
-  void visitWrite(Write *node) {
-    if (node->getValue()) {
-      CheckExprOperand(node->getValue());
+  void visitWrite(Write *WR) {
+    if (WR->getValue()) {
+      CheckExprOperand(WR->getValue());
     }
   }
 
@@ -332,9 +205,9 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   BasicTypeKind visitChar(Char *x) { return BasicTypeKind::Character; }
 
 public:
-  TypeCheker(SymbolTable &symbolTable, FuncDef *fun, ErrorManager &e)
-      : symbolTable(symbolTable), local(symbolTable.getLocalTable(fun)),
-        funcDef(fun), e(e) {}
+  TypeCheker(SymbolTable &TheTable, FuncDef *fun, ErrorManager &e)
+      : TheTable(TheTable), local(TheTable.getLocalTable(fun)), funcDef(fun),
+        e(e) {}
 
   // public interface
   void Check() {
@@ -343,14 +216,12 @@ public:
     }
   }
 };
-} // namespace
+} // namespace simplecompiler
 
 bool simplecompiler::CheckType(Program *prog, SymbolTable &symtable) {
   ErrorManager e;
   for (auto decl : prog->getDecls()) {
     if (auto fun = subclass_cast<FuncDef>(decl)) {
-      // first do transformation
-      ImplicitCallTransformer(symtable, fun).Transform();
       TypeCheker(symtable, fun, e).Check();
     }
   }
