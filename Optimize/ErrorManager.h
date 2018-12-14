@@ -26,6 +26,8 @@ class ErrorManager : private Printer {
 public:
   ErrorManager() : Printer(std::cerr), error_count(0) {}
 
+  void clear() { error_count = 0; }
+
   template <typename... Args> void Error(Args &&... args) {
     WriteLine("Error:", std::forward<Args>(args)...);
     ++error_count;

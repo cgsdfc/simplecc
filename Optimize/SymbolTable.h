@@ -17,10 +17,12 @@ std::ostream &operator<<(std::ostream &os, Scope s);
 // a name within a block (global or local).
 class SymbolEntry {
   Scope scope;
-  Decl *decl;
+  Decl *decl = nullptr;
 
 public:
   SymbolEntry(Scope scope, Decl *decl) : scope(scope), decl(decl) {}
+  /// This constructs an invalid SymbolEntry.
+  SymbolEntry() = default;
 
   bool IsFunction() const;
   FuncType AsFunction() const;
@@ -81,15 +83,13 @@ public:
 };
 
 class SymbolTable {
-  using NestedTableType = std::unordered_map<FuncDef *, TableType>;
-
   TableType global;
-  NestedTableType locals;
+  std::unordered_map<FuncDef *, TableType> locals;
   std::unordered_map<Expr *, BasicTypeKind> expr_types;
 
 public:
   /// Construct an empty SymbolTable
-  SymbolTable() : global(), locals() {}
+  SymbolTable() = default;
 
   /// Build itself from a program
   bool Build(Program *program);
@@ -119,6 +119,9 @@ public:
   // Self-check
   void Check() const;
   void Format(std::ostream &os) const;
+
+  TableType &getGlobal() { return global; }
+  TableType &getLocal(FuncDef *FD) { return locals[FD]; }
 };
 
 inline std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {

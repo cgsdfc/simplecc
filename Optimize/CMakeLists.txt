@@ -69,6 +69,7 @@ set(SOURCE_FILES
   ./Node.cpp
   ./Pass.cpp
   ./Module.cpp
+  ./Types.cpp
   ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")

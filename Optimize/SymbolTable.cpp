@@ -2,12 +2,140 @@
 #include "ErrorManager.h"
 #include "Visitor.h"
 
+#include <iomanip>
 #include <iostream>
 #include <unordered_map>
 #include <utility> // move
 
 namespace {
 using namespace simplecompiler;
+
+/// This all-in-one class does what MakeLocal(), MakeGlobal()
+/// and LocalResolver do and in a uniform Visitor fashion.
+class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
+  /// Why Inherit from ChildrenVisitor:
+  /// We inherit from ChildrenVisitor since SymbolTable does not
+  /// concern about expression or statements. All it concerns is
+  /// declaration and its use site -- Names. So we let ChildrenVisitor
+  /// to automatically recurse into children while we only implement
+  /// visitors of interest.
+  friend class VisitorBase<SymbolTableBuilder>;
+  friend class ChildrenVisitor<SymbolTableBuilder>;
+
+  ErrorManager EM;
+  TableType *TheGlobal;
+  TableType *TheLocal;
+  FuncDef *TheFuncDef;
+  SymbolTable *TheTable;
+
+  void DefineLocalDecl(Decl *D) {
+    assert(TheLocal && "TheLocal must be set!");
+    if (TheLocal->count(D->getName())) {
+      EM.NameError(D->getLoc(), "redefinition of identifier",
+          D->getName(), "in function", TheFuncDef->getName());
+      return;
+    }
+    if (TheGlobal->count(D->getName()) &&
+        (*TheGlobal)[D->getName()].IsFunction()) {
+      EM.NameError(D->getLoc(), "local identifier", D->getName(),
+          "in function", TheFuncDef->getName(), "shallows a global function");
+      return;
+    }
+    /// Now we successfully define the name
+    TheLocal->emplace(D->getName(), SymbolEntry(Scope::Local, D));
+  }
+
+  void DefineGlobalDecl(Decl *D) {
+    assert(TheGlobal && "TheGlobal must be set!");
+    if (TheGlobal->count(D->getName())) {
+      EM.NameError(D->getLoc(), "redefinition of identifier",
+          D->getName(), "in <module>");
+      return;
+    }
+    TheGlobal->emplace(D->getName(), SymbolEntry(Scope::Global, D));
+  }
+
+  void ResolveName(const String &Name, const Location &L) {
+    assert(TheLocal && TheGlobal && TheFuncDef);
+    if (TheLocal->count(Name)) return;
+    if (TheGlobal->count(Name)) {
+      /// Fall back to globally.
+      TheLocal->emplace(Name, (*TheGlobal)[Name]);
+      return;
+    }
+    /// Undefined
+    EM.NameError(L, "undefined identifier", Name, "in function",
+        TheFuncDef->getName());
+  }
+
+  /// Overloads to visit AstNodes that have names.
+  void visitName(Name *N) {
+    ResolveName(N->getId(), N->getLoc());
+  }
+
+  void visitCall(Call *C) {
+    ResolveName(C->getFunc(), C->getLoc());
+    /// Recurse into children.
+    ChildrenVisitor::visitCall(C);
+  }
+
+  void visitSubscript(Subscript *SB) {
+    ResolveName(SB->getName(), SB->getLoc());
+    /// Recurse into children.
+    ChildrenVisitor::visitSubscript(SB);
+  }
+
+  // VisitorBase boilderplate.
+  void visitStmt(Stmt *S) { return VisitorBase::visitStmt<void>(S); }
+  void visitExpr(Expr *E) { return VisitorBase::visitExpr<void>(E); }
+
+  void visitDecl(Decl *D) {
+    switch (D->GetKind()) {
+    case Decl::FuncDef:
+      setFuncDef(static_cast<FuncDef*>(D));
+      setLocal(&TheTable->getLocal(TheFuncDef));
+      /// Define this function globally.
+      DefineGlobalDecl(D);
+      return visitFuncDef(TheFuncDef);
+
+    case Decl::ConstDecl:
+    case Decl::VarDecl:
+    case Decl::ArgDecl:
+      /* Fall through */
+      return TheLocal ? DefineLocalDecl(D) : DefineGlobalDecl(D);
+    default:
+      EM.InternalError("Unhandled Decl subclass!");
+    }
+  }
+
+  void setFuncDef(FuncDef *FD) { TheFuncDef = FD; }
+  void setTable(SymbolTable *ST) { TheTable = ST; }
+  void setLocal(TableType *L) { TheLocal = L; }
+  void setGlobal(TableType *G) { TheGlobal = G; }
+
+public:
+  SymbolTableBuilder() = default;
+  ~SymbolTableBuilder() = default;
+  SymbolTableBuilder(const SymbolTableBuilder &) = default;
+  SymbolTableBuilder(SymbolTableBuilder &&) = default;
+
+  bool Build(Program *P, SymbolTable &S) {
+    clear();
+    setTable(&S);
+    setGlobal(&S.getGlobal());
+    visitProgram(P);
+    return EM.IsOk();
+  }
+
+  /// Clear the state of this SymbolTableBuilder
+  void clear() {
+    setTable(nullptr);
+    setLocal(nullptr);
+    setGlobal(nullptr);
+    setFuncDef(nullptr);
+    EM.clear();
+  }
+};
 
 // Define a declaration globally.
 void DefineGlobalDecl(Decl *decl, TableType &global, ErrorManager &e) {
@@ -145,9 +273,9 @@ namespace simplecompiler {
 std::ostream &operator<<(std::ostream &os, Scope s) {
   switch (s) {
   case Scope::Global:
-    return os << "Scope::Global";
+    return os << "Global";
   case Scope::Local:
-    return os << "Scope::Local";
+    return os << "Local";
   }
 }
 
@@ -189,19 +317,24 @@ std::ostream &operator<<(std::ostream &os,
 } // namespace simplecompiler
 
 void SymbolEntry::Format(std::ostream &os) const {
-  os << "SymbolEntry(";
-  os << "type=" << GetTypeName() << ", "
-     << "scope=" << GetScope() << ", "
-     << "location=" << GetLocation() << ", "
-     << "name=" << Quote(GetName()) << ")";
+  os << "SymbolEntry("
+   << GetName() << ", " << GetTypeName() << ", " << GetScope()
+   << ", " << GetLocation() << ")";
 }
 
 void SymbolTable::Format(std::ostream &os) const {
-  os << "SymbolTable(";
-  os << "global=" << global << ",\n"
-     << "\nlocals=" << locals << ",\n"
-     << "\nexpr_types=" << expr_types;
-  os << ")";
+  os << "Global:\n";
+  for (const std::pair<String, SymbolEntry> &Pair : global) {
+    os << "  " << Pair.first << ": " << Pair.second << "\n";
+  }
+  os << "\n";
+  for (const std::pair<FuncDef*, TableType> &Pair : locals) {
+    os << "Local(" << Pair.first->getName() << "):\n";
+    for (const std::pair<String, SymbolEntry> &Item : Pair.second) {
+      os << "  " << Item.first << ": " << Item.second << "\n";
+    }
+    os << "\n";
+  }
 }
 
 // consistency check
@@ -219,93 +352,5 @@ void SymbolTable::Check() const {
 
 // public interface
 bool SymbolTable::Build(Program *prog) {
-  ErrorManager e;
-  // build global table first
-  MakeGlobal(prog, global, e);
-
-  // visit all FuncDef and build their local tables
-  for (auto decl : prog->getDecls()) {
-    if (auto fun = subclass_cast<FuncDef>(decl)) {
-      TableType local;
-      MakeLocal(fun, global, local, e);
-      if (e.IsOk()) {
-        locals.emplace(fun, std::move(local));
-      }
-    }
-  }
-  return e.IsOk();
+  return SymbolTableBuilder().Build(prog, *this);
 }
-
-ConstType::ConstType(ConstDecl *decl) : type(decl->getType()) {
-  if (auto x = subclass_cast<Char>(decl->getValue())) {
-    value = x->getC();
-  } else if (auto x = subclass_cast<Num>(decl->getValue())) {
-    value = x->getN();
-  } else {
-    assert(false && "value of ConstDecl wrong type");
-  }
-}
-
-const char *SymbolEntry::GetTypeName() const {
-  if (IsFunction())
-    return "Function";
-  if (IsArray())
-    return "Array";
-  if (IsConstant())
-    return "Constant";
-  assert(IsVariable());
-  return "Variable";
-}
-
-VarType SymbolEntry::AsVariable() const {
-  assert(IsVariable());
-  if (auto AD = subclass_cast<ArgDecl>(decl)) {
-    return VarType(AD->getType());
-  }
-  return VarType(static_cast<VarDecl *>(decl)->getType());
-}
-
-BasicTypeKind FuncType::GetArgTypeAt(int pos) const {
-  assert(pos >= 0 && pos < fun->args.size() && "pos out of range");
-  return static_cast<ArgDecl *>(fun->args[pos])->getType();
-}
-
-bool SymbolEntry::IsFormalArgument() const { return IsInstance<ArgDecl>(decl); }
-
-FuncType SymbolEntry::AsFunction() const {
-  assert(IsFunction());
-  return FuncType(static_cast<FuncDef *>(decl));
-}
-
-ArrayType SymbolEntry::AsArray() const {
-  assert(IsArray());
-  return ArrayType(static_cast<VarDecl *>(decl));
-}
-
-ConstType SymbolEntry::AsConstant() const {
-  assert(IsConstant());
-  return ConstType(static_cast<ConstDecl *>(decl));
-}
-
-bool SymbolEntry::IsArray() const {
-  return decl && IsInstance<VarDecl>(decl) &&
-         static_cast<VarDecl *>(decl)->getIsArray();
-}
-
-bool SymbolEntry::IsVariable() const {
-  return IsInstance<ArgDecl>(decl) ||
-         (IsInstance<VarDecl>(decl) &&
-          !static_cast<VarDecl *>(decl)->getIsArray());
-}
-
-bool SymbolEntry::IsConstant() const {
-  return decl && IsInstance<ConstDecl>(decl);
-}
-
-bool SymbolEntry::IsFunction() const {
-  return decl && IsInstance<FuncDef>(decl);
-}
-
-Location SymbolEntry::GetLocation() const { return decl->getLoc(); }
-
-const String &SymbolEntry::GetName() const { return decl->getName(); }
