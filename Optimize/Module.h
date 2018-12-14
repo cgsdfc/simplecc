@@ -1,24 +1,23 @@
 #ifndef MODULE_H
 #define MODULE_H
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace simplecompiler {
 class Function;
 
 class Module {
   std::string Name;
-  std::vector<Function*> Functions;
+  std::vector<Function *> Functions;
   std::vector<std::string> Strings;
 
 public:
   explicit Module(std::string Name);
 
-
   std::vector<std::string> &getStrings() { return Strings; }
   const std::vector<std::string> &getStrings() const { return Strings; }
 
-  std::vector<Function*> &getFunctions() { return Functions; }
+  std::vector<Function *> &getFunctions() { return Functions; }
   const std::vector<Function *> &getFunctions() const { return Functions; }
 
   /// Function iteration.
@@ -31,8 +30,7 @@ public:
 
   bool empty() const { return Functions.empty(); }
   size_t size() const { return Functions.size(); }
-
 };
 
-}
+} // namespace simplecompiler
 #endif

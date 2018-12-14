@@ -2,9 +2,7 @@
 #define BASIC_BLOCK_H
 
 namespace simplecompiler {
-class BasicBlock {
-
-};
-}
+class BasicBlock {};
+} // namespace simplecompiler
 
 #endif

@@ -2,9 +2,7 @@
 #define FUNCTION_H
 
 namespace simplecompiler {
-class Function {
-
-};
-}
+class Function {};
+} // namespace simplecompiler
 
 #endif
