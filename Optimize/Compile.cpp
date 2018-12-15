@@ -173,16 +173,16 @@ class FunctionCompiler : VisitorBase<FunctionCompiler> {
     }
   }
 
-  void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); }
+  /* void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); } */
 
   void visitExpr(Expr *node) {
     current_lineno = node->getLoc().getLineNo();
-    VisitorBase::visitExpr<void>(node);
+    VisitorBase::visitExpr(node);
   }
 
   void visitStmt(Stmt *node) {
     current_lineno = node->getLoc().getLineNo();
-    VisitorBase::visitStmt<void>(node);
+    VisitorBase::visitStmt(node);
   }
 
   void visitArgDecl(ArgDecl *node) {

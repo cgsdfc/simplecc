@@ -15,7 +15,7 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
       return;
     }
     for (auto decl : node->getDecls()) {
-      VisitorBase::visitDecl<void>(decl);
+      VisitorBase::visitDecl(decl);
     }
 
     auto decl_iter = node->getDecls().begin();
@@ -75,10 +75,10 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
 
   void visitFuncDef(FuncDef *node) {
     for (auto arg : node->getArgs()) {
-      VisitorBase::visitDecl<void>(arg);
+      VisitorBase::visitDecl(arg);
     }
     for (auto decl : node->getDecls()) {
-      VisitorBase::visitDecl<void>(decl);
+      VisitorBase::visitDecl(decl);
     }
 
     if (node->getName() == "main") {

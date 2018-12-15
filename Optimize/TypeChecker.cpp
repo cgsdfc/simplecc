@@ -191,8 +191,9 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   BasicTypeKind visitNum(Num *) { return BasicTypeKind::Int; }
   BasicTypeKind visitChar(Char *) { return BasicTypeKind::Character; }
 
-  void visitStmt(Stmt *S) { return VisitorBase::visitStmt<void>(S); }
-  void visitDecl(Decl *D) { return VisitorBase::visitDecl<void>(D); }
+  /// Using ChildrenVisitor's
+  /* void visitStmt(Stmt *S) { return VisitorBase::visitStmt<void>(S); } */
+  /* void visitDecl(Decl *D) { return VisitorBase::visitDecl<void>(D); } */
 
   void setLocalTable(SymbolTableView L) { TheLocalTable = L; }
   void setTable(SymbolTable *S) { TheTable = S; }

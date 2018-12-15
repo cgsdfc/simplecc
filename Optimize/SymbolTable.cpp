@@ -83,8 +83,8 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
   }
 
   // VisitorBase boilderplate.
-  void visitStmt(Stmt *S) { return VisitorBase::visitStmt<void>(S); }
-  void visitExpr(Expr *E) { return VisitorBase::visitExpr<void>(E); }
+  /* void visitStmt(Stmt *S) { return VisitorBase::visitStmt<void>(S); } */
+  /* void visitExpr(Expr *E) { return VisitorBase::visitExpr<void>(E); } */
 
   void visitDecl(Decl *D) {
     switch (D->GetKind()) {

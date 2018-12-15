@@ -119,9 +119,9 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   }
 
   /// VisitorBase's boilerplates.
-  void visitExpr(Expr *E) { VisitorBase::visitExpr<void>(E); }
-  void visitStmt(Stmt *S) { VisitorBase::visitStmt<void>(S); }
-  void visitDecl(Decl *D) { VisitorBase::visitDecl<void>(D); }
+  /* void visitExpr(Expr *E) { VisitorBase::visitExpr<void>(E); } */
+  /* void visitStmt(Stmt *S) { VisitorBase::visitStmt<void>(S); } */
+  /* void visitDecl(Decl *D) { VisitorBase::visitDecl<void>(D); } */
 
   void visitBoolOp(BoolOp *node) { VISIT(value); }
   void visitParenExpr(ParenExpr *node) { VISIT(value); }

@@ -100,11 +100,11 @@ class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
 
   LineLabel MakeLineLabel() { return LineLabel(labels++); }
 
-  void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); }
+  /* void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); } */
 
   ExprValue visitExpr(Expr *s) { return VisitorBase::visitExpr<ExprValue>(s); }
 
-  void visitDecl(Decl *s) { return VisitorBase::visitDecl<void>(s); }
+  /* void visitDecl(Decl *s) { return VisitorBase::visitDecl<void>(s); } */
 
   void visitConstDecl(ConstDecl *node) {
     auto type = CStringFromBasicTypeKind(node->getType());

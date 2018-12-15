@@ -144,11 +144,11 @@ public:
   /// Call this to do the collecting. Otherwise, nothing will happen.
   void collect(const AstRef &R) {
     if (auto D = R.get<Decl>())
-      return VisitorBase::visitDecl<void>(D);
+      return ChildrenVisitor::visitDecl(D);
     if (auto S = R.get<Stmt>())
-      return VisitorBase::visitStmt<void>(S);
+      return ChildrenVisitor::visitStmt(S);
     if (auto E = R.get<Expr>())
-      return VisitorBase::visitExpr<void>(E);
+      return ChildrenVisitor::visitExpr(E);
     if (auto P = R.get<Program>())
       return ChildrenVisitor::visitProgram(P);
     // ArgDecl has no children
