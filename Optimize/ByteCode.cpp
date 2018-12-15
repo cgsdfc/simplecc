@@ -6,8 +6,8 @@
 
 namespace simplecompiler {
 
-bool IsJumpXXX(Opcode op) {
-  switch (op) {
+bool ByteCode::IsJumpXXX(Opcode Op) {
+  switch (Op) {
   case Opcode::JUMP_IF_TRUE:
   case Opcode::JUMP_IF_FALSE:
   case Opcode::JUMP_FORWARD:
@@ -23,8 +23,8 @@ bool IsJumpXXX(Opcode op) {
   }
 }
 
-bool HasIntOperand(Opcode op) {
-  switch (op) {
+bool ByteCode::HasIntOperand(Opcode Op) {
+  switch (Op) {
   case Opcode::JUMP_IF_TRUE:
   case Opcode::JUMP_IF_FALSE:
   case Opcode::JUMP_FORWARD:
@@ -41,8 +41,8 @@ bool HasIntOperand(Opcode op) {
   }
 }
 
-bool HasStrOperand(Opcode op) {
-  switch (op) {
+bool ByteCode::HasStrOperand(Opcode Op) {
+  switch (Op) {
   case Opcode::LOAD_LOCAL:
   case Opcode::LOAD_GLOBAL:
   case Opcode::LOAD_CONST:
@@ -56,8 +56,8 @@ bool HasStrOperand(Opcode op) {
   }
 }
 
-bool HasNoOperand(Opcode op) {
-  switch (op) {
+bool ByteCode::HasNoOperand(Opcode Op) {
+  switch (Op) {
   case Opcode::BINARY_ADD:
   case Opcode::BINARY_SUB:
   case Opcode::BINARY_MULTIPLY:
@@ -72,30 +72,19 @@ bool HasNoOperand(Opcode op) {
   }
 }
 
-void ByteCode::Check() const {
-  auto checked = false;
-  if (HasIntOperand(opcode)) {
-    assert(int_arg.has_value());
-    checked = true;
+void ByteCode::Format(std::ostream &O) const {
+  O << "ByteCode(" << GetOpcode() << ", ";
+
+  if (HasIntOperand()) {
+    O << "int_arg=" << GetIntOperand() << ", ";
   }
-  if (HasStrOperand(opcode)) {
-    assert(str_arg);
-    checked = true;
+
+  if (HasStrOperand()) {
+    O << "str_arg=" << GetStrOperand() << ", ";
   }
-  if (HasNoOperand(opcode)) {
-    assert(!int_arg.has_value() && !str_arg);
-    checked = true;
-  }
-  assert(!checked && "unchecked opcode!");
+
+  O << "offset=" << GetByteCodeOffset() << ", ";
+  O << "lineno=" << GetSourceLineno() << ")";
 }
 
-void ByteCode::Format(std::ostream &os) const {
-  os << "ByteCode(" << opcode << ", ";
-  if (int_arg)
-    os << "int_arg=" << *int_arg << ", ";
-  if (str_arg)
-    os << "str_arg=" << Quote(str_arg) << ", ";
-  os << "offset=" << offset << ", ";
-  os << "lineno=" << lineno << ")";
-}
 } // namespace simplecompiler

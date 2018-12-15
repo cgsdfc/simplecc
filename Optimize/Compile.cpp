@@ -62,8 +62,8 @@ class ByteCodeBuilder {
     }
   }
 
-  static Opcode MakeBinary(OperatorKind oper) {
-    switch (oper) {
+  static Opcode MakeBinary(OperatorKind Op) {
+    switch (Op) {
     case OperatorKind::Add:
       return Opcode::BINARY_ADD;
     case OperatorKind::Sub:
@@ -77,8 +77,8 @@ class ByteCodeBuilder {
     }
   }
 
-  static Opcode MakeUnary(UnaryopKind oper) {
-    switch (oper) {
+  static Opcode MakeUnary(UnaryopKind Op) {
+    switch (Op) {
     case UnaryopKind::UAdd:
       return Opcode::UNARY_POSITIVE;
     case UnaryopKind::USub:
@@ -86,8 +86,8 @@ class ByteCodeBuilder {
     }
   }
 
-  static Opcode MakeJumpNegative(OperatorKind oper) {
-    switch (oper) {
+  static Opcode MakeJumpNegative(OperatorKind Op) {
+    switch (Op) {
     case OperatorKind::NotEq:
       return Opcode::JUMP_IF_EQUAL;
     case OperatorKind::Eq:
@@ -105,8 +105,8 @@ class ByteCodeBuilder {
     }
   }
 
-  static Opcode MakeJump(OperatorKind oper) {
-    switch (oper) {
+  static Opcode MakeJump(OperatorKind Op) {
+    switch (Op) {
     case OperatorKind::Eq:
       return Opcode::JUMP_IF_EQUAL;
     case OperatorKind::NotEq:
@@ -126,83 +126,98 @@ class ByteCodeBuilder {
 
   /// Insert a ByteCode into the back of InsertPoint.
   /// Return the offset of the inserted ByteCode.
+  //
   unsigned Insert(ByteCode Code) {
+    /// get the function being built.
     CompiledFunction &TheFunction = *getInsertPoint();
+
+    /// Fill in other members of Code.
     auto Off = TheFunction.size();
+    Code.SetSourceLineno(getLineNo());
+    Code.SetByteCodeOffset(Off);
+
+    /// Insert Code at the back of the function.
     TheFunction.GetByteCodeList().push_back(std::move(Code));
     return Off;
   }
 
-  unsigned CreateNullary(Opcode Op) { return Insert(ByteCode(Op)); }
+  /// Create a ByteCode and insert it into the InsertPoint.
+  /// This essentially forwards arguments to ByteCode::Create().
+  template <typename ... Args>
+  unsigned Create(Opcode Op, Args &&... ExtraArgs) {
+    return Insert(ByteCode::Create(Op, std::forward<Args>(ExtraArgs)...));
+  }
 
 public:
   ByteCodeBuilder() = default;
   ~ByteCodeBuilder() = default;
 
-  void setInsertPoint(CompiledFunction *F) { InsertPoint = F; }
-  CompiledFunction *getInsertPoint() const { return InsertPoint; }
+  unsigned CreateRead(BasicTypeKind T) { return Create(MakeRead(T)); }
 
-  void setLocation(const Location &L) { CurrentLineno = L.getLineNo(); }
+  unsigned CreatePrint(BasicTypeKind T) { return Create(MakePrint(T)); }
 
-  unsigned CreateRead(BasicTypeKind T) { return Insert(MakeRead(T)); }
+  unsigned CreatePrintNewline() { return Create(Opcode::PRINT_NEWLINE); }
 
-  unsigned CreatePrint(BasicTypeKind T) { return Insert(MakePrint(T)); }
+  unsigned CreatePrintString() { return Create(Opcode::PRINT_STRING); }
 
-  unsigned CreatePrintNewline() { return CreateNullary(Opcode::PRINT_NEWLINE); }
-
-  unsigned CreatePrintString() { return CreateNullary(Opcode::PRINT_STRING); }
-
-  unsigned CreateJumpIfFalse() { return CreateNullary(Opcode::JUMP_IF_FALSE); }
+  unsigned CreateJumpIfFalse() { return Create(Opcode::JUMP_IF_FALSE); }
 
   unsigned CreateJump(OperatorKind CompareOp, bool IsNeg = true) {
-    return CreateNullary(IsNeg ? MakeJumpNegative(CompareOp)
+    return Create(IsNeg ? MakeJumpNegative(CompareOp)
                                : MakeJump(CompareOp));
   }
 
-  unsigned CreateJumpForward() { return CreateNullary(Opcode::JUMP_FORWARD); }
+  unsigned CreateJumpForward() { return Create(Opcode::JUMP_FORWARD); }
 
-  unsigned CreateBinary(OperatorKind Op) {
-    return CreateNullary(MakeBinary(Op));
-  }
+  unsigned CreateBinary(OperatorKind Op) { return Create(MakeBinary(Op)); }
 
-  unsigned CreateReturnValue() { return CreateNullary(Opcode::RETURN_VALUE); }
+  unsigned CreateReturnValue() { return Create(Opcode::RETURN_VALUE); }
 
-  unsigned CreateReturnNone() { return CreateNullary(Opcode::RETURN_NONE); }
+  unsigned CreateReturnNone() { return Create(Opcode::RETURN_NONE); }
 
-  unsigned CreatePopTop() { return CreateNullary(Opcode::POP_TOP); }
+  unsigned CreatePopTop() { return Create(Opcode::POP_TOP); }
 
-  unsigned CreateUnary(UnaryopKind Op) { return CreateNullary(MakeUnary(Op)); }
+  unsigned CreateUnary(UnaryopKind Op) { return Create(MakeUnary(Op)); }
 
   unsigned CreateCallFunction(const String &Name, unsigned Argc) {
-    return Insert(ByteCode(Opcode::CALL_FUNCTION, Argc, Name.data()));
+    return Create(Opcode::CALL_FUNCTION, Name.data(), Argc);
   }
 
   unsigned CreateLoad(Scope S, const String &Name) {
-    return Insert(ByteCode(MakeLoad(S), Name.data()));
+    return Create(MakeLoad(S), Name.data());
   }
 
   unsigned CreateStore(Scope S, const String &Name) {
-    return Insert(ByteCode(MakeStore(S), Name.data()));
+    return Create(MakeStore(S), Name.data());
   }
 
   unsigned CreateLoadConst(int ConstValue) {
-    return Insert(ByteCode(Opcode::LOAD_CONST, ConstValue));
+    return Create(Opcode::LOAD_CONST, ConstValue);
   }
 
   unsigned CreateLoadString(unsigned StringID) {
-    return Insert(ByteCode(Opcode::LOAD_STRING, StringID));
+    return Create(Opcode::LOAD_STRING, StringID);
   }
 
   unsigned CreateSubscr(ExprContextKind Context) {
-    return CreateNullary(MakeSubScr(Context));
+    return Create(MakeSubScr(Context));
   }
 
   void setJumpTargetAt(unsigned Idx, unsigned Target) {
     ByteCode &TheCode = getInsertPoint()->getByteCodeAt(Idx);
-    assert(IsJumpXXX(TheCode.GetOpcode()) &&
-           "Attempt to set jump target for non-jump ByteCode!");
-    TheCode.SetTarget(Target);
+    TheCode.SetJumpTarget(Target);
   }
+
+  void setInsertPoint(CompiledFunction *F) { InsertPoint = F; }
+
+  CompiledFunction *getInsertPoint() const {
+    assert(InsertPoint && "InsertPoint not set!");
+    return InsertPoint;
+  }
+
+  void setLocation(const Location &L) { CurrentLineno = L.getLineNo(); }
+  unsigned getLineNo() const { return CurrentLineno; }
+
 
   /// Return the size of the current CompiledFunction.
   unsigned getSize() const { return getInsertPoint()->size(); }
@@ -428,37 +443,41 @@ unsigned CompiledModule::GetStringLiteralID(const String &Str) {
   return StringLiterals.emplace(Str, ID).first->second;
 }
 
-void CompiledFunction::Format(std::ostream &os) const {
-  os << "CompiledFunction(" << Quote(getName()) << "):\n";
-  os << "\nformal_arguments:\n";
-  for (const auto &arg : GetFormalArguments()) {
-    os << arg << "\n";
-  }
-  os << "\nlocal_objects:\n";
-  for (const auto &obj : GetLocalObjects()) {
-    os << obj << "\n";
-  }
-  os << "\ncode:\n";
+void CompiledFunction::Format(std::ostream &O) const {
+  O << "CompiledFunction(" << Quote(getName()) << ")\n";
 
-  auto lineno = 0;
-  for (const auto &code : *this) {
-    os << std::setw(4) << lineno << ": " << code << "\n";
-    lineno++;
+  O << "\nArguments:\n";
+  for (const auto &Arg : GetFormalArguments()) {
+    O << Arg << "\n";
+  }
+
+  O << "\nLocalVariables:\n";
+  for (const auto &LV : GetLocalObjects()) {
+    O << LV << "\n";
+  }
+
+  O << "\nBytecodes:\n";
+  auto Lineno = 0;
+  for (const auto &Code : *this) {
+    O << std::setw(4) << Lineno << ": " << Code << "\n";
+    Lineno++;
   }
 }
 
-void CompiledModule::Format(std::ostream &os) const {
-  os << "global_objects:\n";
-  for (const auto &obj : GetGlobalObjects()) {
-    os << obj << "\n";
+void CompiledModule::Format(std::ostream &O) const {
+  O << "GlobalVariables:\n";
+  for (const auto &GV : GetGlobalObjects()) {
+    O << GV << "\n";
   }
-  os << "\nfunctions:\n";
-  for (const auto &fun : *this) {
-    os << fun << "\n";
+
+  O << "\nFunctions:\n";
+  for (const auto &Fn : *this) {
+    O << *Fn << "\n";
   }
-  os << "\nstring_literals:\n";
-  for (auto &&item : GetStringLiteralTable()) {
-    os << std::setw(4) << item.second << ": " << item.first << "\n";
+
+  O << "\nStringLiterals:\n";
+  for (auto &&Pair : GetStringLiteralTable()) {
+    O << std::setw(4) << Pair.second << ": " << Pair.first << "\n";
   }
 }
 

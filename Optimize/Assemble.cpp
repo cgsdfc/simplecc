@@ -67,7 +67,7 @@ class LocalContext {
   // populate jump_targets
   void MakeJumpTargets(const CompiledFunction &fun) {
     for (const auto &code : fun) {
-      if (IsJumpXXX(code.GetOpcode())) {
+      if (code.IsJumpXXX()) {
         jump_targets.insert(code.GetIntOperand());
       }
     }
@@ -453,7 +453,7 @@ public:
     ByteCodeToMipsTranslator translator(w, context);
     MakePrologue();
     for (const auto &byteCode : source) {
-      auto offset = byteCode.GetOffset();
+      auto offset = byteCode.GetByteCodeOffset();
       if (context.IsTarget(offset)) {
         w.WriteLine(context.GetTargetLabel(offset, true));
       }

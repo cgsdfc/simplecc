@@ -37,6 +37,7 @@ public:
   std::vector<ByteCode> &GetByteCodeList() { return ByteCodeList; }
   const std::vector<ByteCode> &GetByteCodeList() const { return ByteCodeList; }
   ByteCode &getByteCodeAt(unsigned Idx) { return ByteCodeList[Idx]; }
+  const ByteCode &getByteCodeAt(unsigned Idx) const { return ByteCodeList[Idx]; }
 
   unsigned size() const { return ByteCodeList.size(); }
   bool empty() const { return ByteCodeList.empty(); }

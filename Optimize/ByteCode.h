@@ -5,61 +5,106 @@
 
 #include <cassert>
 #include <iostream>
-#include <optional>
 
 namespace simplecompiler {
 class ByteCode {
-  Opcode opcode;
+  /// Core IR information.
+  Opcode Op;
+  int IntOperand = 0;
+  const char *StrOperand = nullptr;
+
+  /// Debugging Information.
   // lineno in source file
-  unsigned lineno;
-  std::optional<int> int_arg;
-  const char *str_arg;
-  // offset in the instruction buffer
-  int offset;
+  unsigned SourceLineno = 0;
 
+  // offset in the ByteCode stream.
+  unsigned ByteCodeOffset = 0;
+
+  ByteCode(Opcode Op) : Op(Op) {}
 public:
-  ByteCode(Opcode opcode) : opcode(opcode), int_arg(), str_arg() {}
+  ~ByteCode() = default;
 
-  ByteCode(Opcode opcode, int arg) : opcode(opcode), int_arg(arg), str_arg() {}
+  /// Factories to create ByteCode instance correctly.
+  static ByteCode Create(Opcode Op) {
+    return ByteCode(Op);
+  }
 
-  ByteCode(Opcode opcode, const char *arg)
-      : opcode(opcode), int_arg(), str_arg(arg) {}
+  static ByteCode Create(Opcode Op, int Val) {
+    ByteCode B(Op);
+    B.SetIntOperand(Val);
+    return B;
+  }
 
-  ByteCode(Opcode opcode, int int_arg, const char *str_arg)
-      : opcode(opcode), int_arg(int_arg), str_arg(str_arg) {}
+  static ByteCode Create(Opcode Op, const char *Val) {
+    ByteCode B(Op);
+    B.SetStrOperand(Val);
+    return B;
+  }
 
-  void SetLineno(unsigned lineno) { this->lineno = lineno; }
+  static ByteCode Create(Opcode Op, const char *Str, int Int) {
+    ByteCode B(Op);
+    B.SetStrOperand(Str);
+    B.SetIntOperand(Int);
+    return B;
+  }
 
-  void SetTarget(int target) { int_arg = target; }
+  /// ByteCode property inspectation.
+  static bool HasIntOperand(Opcode op);
+  bool HasIntOperand() const { return HasIntOperand(GetOpcode()); }
 
-  void SetOffset(int offset) { this->offset = offset; }
+  static bool HasStrOperand(Opcode op);
+  bool HasStrOperand() const { return HasStrOperand(GetOpcode()); }
 
-  Opcode GetOpcode() const { return opcode; }
+  static bool HasNoOperand(Opcode op);
+  bool HasNoOperand() const { return HasNoOperand(GetOpcode()); }
+
+  static bool IsJumpXXX(Opcode op);
+  bool IsJumpXXX() const { return IsJumpXXX(GetOpcode()); }
+
+  void SetSourceLineno(unsigned Line) { SourceLineno = Line; }
+  unsigned GetSourceLineno() const { return SourceLineno; }
+
+  /// set the jump target for this ByteCode if this is a jump.
+  void SetJumpTarget(unsigned Target) {
+    assert(IsJumpXXX() && "SetJumpTarget() on non-jump ByteCode");
+    IntOperand = Target;
+  }
+
+  unsigned GetJumpTarget() const {
+    assert(IsJumpXXX() && "GetJumpTarget() on non-jump ByteCode");
+    return IntOperand;
+  }
+
+  void SetByteCodeOffset(unsigned Offset) { ByteCodeOffset = Offset; }
+  unsigned GetByteCodeOffset() const { return ByteCodeOffset; }
+
+  Opcode GetOpcode() const { return Op; }
 
   int GetIntOperand() const {
-    assert(int_arg.has_value());
-    return *int_arg;
+    assert(HasIntOperand());
+    return IntOperand;
+  }
+  void SetIntOperand(int Val) {
+    assert(HasIntOperand());
+    IntOperand = Val;
   }
 
   const char *GetStrOperand() const {
-    assert(str_arg);
-    return str_arg;
+    assert(HasStrOperand());
+    return StrOperand;
+  }
+  void SetStrOperand(const char *Val) {
+    assert(HasStrOperand());
+    StrOperand = Val;
   }
 
-  int GetOffset() const { return offset; }
-
-  void Check() const;
   void Format(std::ostream &os) const;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const ByteCode &c) {
-  c.Format(os);
-  return os;
+inline std::ostream &operator<<(std::ostream &O, const ByteCode &c) {
+  c.Format(O);
+  return O;
 }
 
-bool HasIntOperand(Opcode op);
-bool HasStrOperand(Opcode op);
-bool HasNoOperand(Opcode op);
-bool IsJumpXXX(Opcode op);
 } // namespace simplecompiler
 #endif
