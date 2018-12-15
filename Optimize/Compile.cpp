@@ -143,8 +143,7 @@ class ByteCodeBuilder {
 
   /// Create a ByteCode and insert it into the InsertPoint.
   /// This essentially forwards arguments to ByteCode::Create().
-  template <typename ... Args>
-  unsigned Create(Opcode Op, Args &&... ExtraArgs) {
+  template <typename... Args> unsigned Create(Opcode Op, Args &&... ExtraArgs) {
     return Insert(ByteCode::Create(Op, std::forward<Args>(ExtraArgs)...));
   }
 
@@ -163,8 +162,7 @@ public:
   unsigned CreateJumpIfFalse() { return Create(Opcode::JUMP_IF_FALSE); }
 
   unsigned CreateJump(OperatorKind CompareOp, bool IsNeg = true) {
-    return Create(IsNeg ? MakeJumpNegative(CompareOp)
-                               : MakeJump(CompareOp));
+    return Create(IsNeg ? MakeJumpNegative(CompareOp) : MakeJump(CompareOp));
   }
 
   unsigned CreateJumpForward() { return Create(Opcode::JUMP_FORWARD); }
@@ -217,7 +215,6 @@ public:
 
   void setLocation(const Location &L) { CurrentLineno = L.getLineNo(); }
   unsigned getLineNo() const { return CurrentLineno; }
-
 
   /// Return the size of the current CompiledFunction.
   unsigned getSize() const { return getInsertPoint()->size(); }

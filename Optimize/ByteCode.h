@@ -7,6 +7,18 @@
 #include <iostream>
 
 namespace simplecompiler {
+/// This class is a simplified byte code implementatoin.
+/// A ByteCode instance consists of an Opcode, an optional integer
+/// operand and an optional string operand. It also has information
+/// that connects compiled form to source code -- a kind of debugging
+/// information, namely the source line No and offset in the byte code
+/// stream of a function.
+///
+/// ByteCode can be translated to MIPS with a software-emulated stack
+/// without much difficulty. However, it cannot be subject to meaningful
+/// optimization. And the resultant MIPS code has a lot of stack traffic
+/// that makes it less than optimal.
+///
 class ByteCode {
   /// Core IR information.
   Opcode Op;
@@ -20,14 +32,14 @@ class ByteCode {
   // offset in the ByteCode stream.
   unsigned ByteCodeOffset = 0;
 
+  /// Private. Use Create() instead.
   ByteCode(Opcode Op) : Op(Op) {}
+
 public:
   ~ByteCode() = default;
 
   /// Factories to create ByteCode instance correctly.
-  static ByteCode Create(Opcode Op) {
-    return ByteCode(Op);
-  }
+  static ByteCode Create(Opcode Op) { return ByteCode(Op); }
 
   static ByteCode Create(Opcode Op, int Val) {
     ByteCode B(Op);
@@ -48,7 +60,7 @@ public:
     return B;
   }
 
-  /// ByteCode property inspectation.
+  /// ByteCode operand inspectation.
   static bool HasIntOperand(Opcode op);
   bool HasIntOperand() const { return HasIntOperand(GetOpcode()); }
 
