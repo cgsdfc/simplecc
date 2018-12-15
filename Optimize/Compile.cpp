@@ -2,6 +2,7 @@
 #include "ErrorManager.h"
 #include "Visitor.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iomanip>
 #include <iostream>
@@ -238,7 +239,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
 
   void visitVarDecl(VarDecl *VD) {
     auto TheFunction = Builder.getInsertPoint();
-    TheFunction->GetLocalObjects().push_back(TheLocalTable[VD->getName()]);
+    TheFunction->GetLocalVariables().push_back(TheLocalTable[VD->getName()]);
   }
 
   /// Explicitly do nothing.
@@ -395,9 +396,28 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitFuncDef(FuncDef *FD) {
     auto TheFunction = CompiledFunction::Create(TheModule);
     TheFunction->setName(FD->getName());
-    Builder.setInsertPoint(TheFunction);
     setLocalTable(TheTable->getLocalTable(FD));
+    TheFunction->setLocalTable(TheLocalTable);
+    Builder.setInsertPoint(TheFunction);
     ChildrenVisitor::visitFuncDef(FD);
+    // It is important we always return since we don't
+    // construct any BasicBlock to detect inproper returns.
+    Builder.CreateReturnNone();
+  }
+
+  void visitProgram(Program *P) {
+    for (Decl *D : P->getDecls()) {
+      switch (D->GetKind()) {
+        case Decl::FuncDef:
+          visitFuncDef(static_cast<FuncDef*>(D));
+          break;
+        case Decl::VarDecl:
+          // Collect global objects.
+          TheModule->GetGlobalVariables().push_back(TheTable->getGlobalEntry(D->getName()));
+          break;
+        default: break; // Ignore ConstDecl.
+      }
+    }
   }
 
   void setModule(CompiledModule *M) { TheModule = M; }
@@ -431,6 +451,11 @@ CompiledFunction::CompiledFunction(CompiledModule *M) : Parent(M) {
   M->getFunctionList().push_back(this);
 }
 
+CompiledModule::~CompiledModule() {
+  /// Delete all owned functions.
+  std::for_each(begin(), end(), [](CompiledFunction *F) { delete F; });
+}
+
 void CompiledModule::Build(Program *P, const SymbolTable &S) {
   ByteCodeCompiler().Compile(P, S, *this);
 }
@@ -449,7 +474,7 @@ void CompiledFunction::Format(std::ostream &O) const {
   }
 
   O << "\nLocalVariables:\n";
-  for (const auto &LV : GetLocalObjects()) {
+  for (const auto &LV : GetLocalVariables()) {
     O << LV << "\n";
   }
 
@@ -463,7 +488,7 @@ void CompiledFunction::Format(std::ostream &O) const {
 
 void CompiledModule::Format(std::ostream &O) const {
   O << "GlobalVariables:\n";
-  for (const auto &GV : GetGlobalObjects()) {
+  for (const auto &GV : GetGlobalVariables()) {
     O << GV << "\n";
   }
 

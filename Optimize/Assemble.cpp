@@ -52,7 +52,7 @@ class LocalContext {
       local_offsets.emplace(arg.GetName(), offset);
       offset -= BytesFromEntries(1);
     }
-    for (const auto &obj : fun.GetLocalObjects()) {
+    for (const auto &obj : fun.GetLocalVariables()) {
       if (obj.IsArray()) {
         offset -= BytesFromEntries(obj.AsArray().GetSize());
         local_offsets.emplace(obj.GetName(), offset + BytesFromEntries(1));
@@ -394,7 +394,7 @@ class FunctionAssembler {
   // variables, arrays and formal arguments.
   int GetLocalObjectsBytes() const {
     auto entries = source.GetFormalArgumentCount();
-    for (const auto &obj : source.GetLocalObjects()) {
+    for (const auto &obj : source.GetLocalVariables()) {
       entries += obj.IsArray() ? obj.AsArray().GetSize() : 1;
     }
     return BytesFromEntries(entries);
@@ -487,7 +487,7 @@ class ModuleAssembler {
   void MakeDataSegment() {
     w.WriteLine(".data");
     w.WriteLine("# Global objects");
-    for (const auto &obj : module.GetGlobalObjects()) {
+    for (const auto &obj : module.GetGlobalVariables()) {
       auto &&label = GlobalContext::GetGlobalLabel(obj.GetName(), true);
       if (obj.IsArray()) {
         auto bytes = BytesFromEntries(obj.AsArray().GetSize());

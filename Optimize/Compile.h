@@ -30,12 +30,12 @@ public:
   const String &getName() const { return Name; }
   void setName(String Str) { Name = std::move(Str); }
 
-  void Format(std::ostream &os) const;
-
+  void setLocalTable(SymbolTableView L) { Symbols = L; }
   SymbolTableView GetLocal() const { return Symbols; }
 
   std::vector<ByteCode> &GetByteCodeList() { return ByteCodeList; }
   const std::vector<ByteCode> &GetByteCodeList() const { return ByteCodeList; }
+
   ByteCode &getByteCodeAt(unsigned Idx) { return ByteCodeList[Idx]; }
   const ByteCode &getByteCodeAt(unsigned Idx) const {
     return ByteCodeList[Idx];
@@ -55,11 +55,13 @@ public:
 
   const SymbolEntryList &GetFormalArguments() const { return Arguments; }
   SymbolEntryList &GetFormalArguments() { return Arguments; }
-
   unsigned GetFormalArgumentCount() const { return Arguments.size(); }
 
-  const SymbolEntryList &GetLocalObjects() const { return LocalVariables; }
-  SymbolEntryList &GetLocalObjects() { return LocalVariables; }
+  const SymbolEntryList &GetLocalVariables() const { return LocalVariables; }
+  SymbolEntryList &GetLocalVariables() { return LocalVariables; }
+
+  CompiledModule *getParent() const { return Parent; }
+  void Format(std::ostream &os) const;
 };
 
 class CompiledModule {
@@ -73,21 +75,23 @@ class CompiledModule {
 
 public:
   CompiledModule() = default;
+  ~CompiledModule();
+
   void Build(Program *P, const SymbolTable &S);
 
-  const FunctionListTy &getFunctionList() const { return FunctionList; }
-  FunctionListTy &getFunctionList() { return FunctionList; }
-
-  void Format(std::ostream &os) const;
-
+  /// String literal interface.
   const StringLiteralTable &GetStringLiteralTable() const {
     return StringLiterals;
   }
-
   /// For a string literal, this method returns the corresponding ID.
   unsigned GetStringLiteralID(const String &Str);
 
-  const SymbolEntryList &GetGlobalObjects() const { return GlobalVariables; }
+  /// Function and global variables interface.
+  const FunctionListTy &getFunctionList() const { return FunctionList; }
+  FunctionListTy &getFunctionList() { return FunctionList; }
+
+  const SymbolEntryList &GetGlobalVariables() const { return GlobalVariables; }
+  SymbolEntryList &GetGlobalVariables() { return GlobalVariables; }
 
   /// Iterator Interface
   using iterator = FunctionListTy::iterator;
@@ -102,6 +106,8 @@ public:
   unsigned size() const { return FunctionList.size(); }
   CompiledFunction *front() const { return FunctionList.front(); }
   CompiledFunction *back() const { return FunctionList.back(); }
+
+  void Format(std::ostream &os) const;
 };
 
 inline std::ostream &operator<<(std::ostream &O, const CompiledFunction &c) {
