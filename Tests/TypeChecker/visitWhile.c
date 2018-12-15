@@ -3,24 +3,14 @@ void main() {
   int ivar;
   char cvar;
 
-  while (cvar) {
-    printf("type error in while");
-  }
+  while (cvar);
+  while (cvar == cvar);
+  while (ivar == cvar);
 
-  while (cvar == cvar) {
-    printf("type error in while");
-  }
 
-  while (ivar == cvar) {
-    printf("type error in while");
-  }
-
-  while (ivar) {
-    printf("ok");
-  }
-
-  while (ivar == ivar) {
-    printf("ok");
-  }
+  while ((cvar));
+  while (ivar + cvar);
+  while (ivar);
+  while (ivar == ivar);
 
 }
