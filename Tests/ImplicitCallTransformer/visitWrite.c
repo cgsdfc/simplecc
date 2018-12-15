@@ -1,9 +1,9 @@
-int ifun_ii {
+int IntFunctII {
   return(1);
 }
 
 void main() {
   printf("result");
-  printf(ifun_ii);
-  printf("result", ifun_ii);
+  printf(IntFunctII);
+  printf("result", IntFunctII);
 }

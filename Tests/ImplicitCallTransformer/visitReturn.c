@@ -1,7 +1,7 @@
-int ifun {
-  return(ifun);
+int Test {
+  return(Test);
 }
 
 void main() {
-  ifun;
+  Test;
 }

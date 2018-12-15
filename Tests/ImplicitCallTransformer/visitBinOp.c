@@ -1,9 +1,9 @@
-int ifun {
+int IntFunc {
   return(1);
 }
 
 void main() {
-  printf(ifun + ifun);
-  printf(ifun + ifun + ifun);
-  printf(ifun * ifun + ifun);
+  printf(IntFunc + IntFunc);
+  printf(IntFunc + IntFunc + IntFunc);
+  printf(IntFunc * IntFunc + IntFunc);
 }

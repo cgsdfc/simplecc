@@ -1,13 +1,13 @@
-int ifun {
+int Test {
   return(1);
 }
 
 void main() {
-  if (ifun) {
-    printf(ifun);
+  if (Test) {
+    printf(Test);
   }
   else {
-    printf(ifun);
+    printf(Test);
   }
 
 }

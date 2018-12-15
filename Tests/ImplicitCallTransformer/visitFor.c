@@ -1,11 +1,11 @@
-int ifun {
+int IntFunc {
   return(1);
 }
 
 void main() {
-  int ivar;
-  for (ivar = ifun; ivar < ifun + 1; ivar = ivar + 1) {
-    printf(ifun);
+  int IntVar;
+  for (IntVar = IntFunc; IntVar < IntFunc + 1; IntVar = IntVar + 1) {
+    printf(IntFunc);
   }
 
 }

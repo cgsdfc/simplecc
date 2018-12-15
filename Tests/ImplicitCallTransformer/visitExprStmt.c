@@ -1,19 +1,19 @@
-int ifun {
+int IntFunc {
   return(1);
 }
 
-void vfun {}
+void VoidFunc {}
 
-int ifun_i(int a) {
+int IntFuncI(int a) {
   return(a);
 }
 
-void vfun_i(int a) {}
+void VoidFuncI(int a) {}
 
 void main() {
-  ifun;
-  vfun;
-  ifun_i(1);
-  vfun_i(1);
+  IntFunc;
+  VoidFunc;
+  IntFuncI(1);
+  VoidFuncI(1);
 
 }

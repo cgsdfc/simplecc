@@ -1,8 +1,9 @@
-int ifun { return(1); }
+int Test { return(1); }
 
 void main() {
-  int iarr[2];
-  int ivar;
-  iarr[ifun] = 1;
-  ivar = iarr[ifun];
+  int IntArray[2];
+  int IntVar;
+
+  IntArray[Test] = 1;
+  IntVar = IntArray[Test];
 }
