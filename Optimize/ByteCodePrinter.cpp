@@ -92,18 +92,18 @@ inline std::ostream &operator<<(std::ostream &O, const LineLabel &L) {
 class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
 
   void visitConstDecl(ConstDecl *CD) {
-    auto type = CStringFromBasicTypeKind(CD->getType());
+    auto T = CStringFromBasicTypeKind(CD->getType());
     ExprValue val = visitExpr(CD->getValue());
-    w.WriteLine("const", type, CD->getName(), "=", val);
+    w.WriteLine("const", T, CD->getName(), "=", val);
   }
 
   void visitVarDecl(VarDecl *VD) {
-    auto type = CStringFromBasicTypeKind(VD->getType());
+    auto T = CStringFromBasicTypeKind(VD->getType());
     if (!VD->getIsArray()) {
-      w.WriteLine("var", type, VD->getName());
+      w.WriteLine("var", T, VD->getName());
       return;
     }
-    w.WriteLine("var", type, VD->getName(), "[", VD->getSize(), "]");
+    w.getOuts() << "var " << T << " " << VD->getName() << "[" << VD->getSize() << "]\n";
   }
 
   void visitArgDecl(ArgDecl *AD) {
@@ -112,8 +112,8 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
 
   void visitFuncDef(FuncDef *FD) {
     w.WriteLine();
-    w.WriteLine(CStringFromBasicTypeKind(FD->getReturnType()), FD->getName(),
-                "()");
+    const char *Ret = CStringFromBasicTypeKind(FD->getReturnType());
+    w.getOuts() << Ret << " " << FD->getName() << "()\n";
     ChildrenVisitor::visitFuncDef(FD);
     w.WriteLine();
   }
@@ -144,7 +144,7 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
     auto SB = subclass_cast<Subscript>(A->getTarget());
     assert(SB);
     ExprValue Idx = visitExpr(SB->getIndex());
-    w.WriteLine(SB->getName(), "[", Idx, "] =", RHS);
+    w.getOuts() << SB->getName() << "[" << Idx << "] = " << RHS << "\n";
   }
 
   void visitReturn(Return *R) {
@@ -255,7 +255,7 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
            "Store must be handle by visitAssign()");
     ExprValue Idx = visitExpr(SB->getIndex());
     ExprValue Result = MakeTemporary();
-    w.WriteLine(Result, "=", SB->getName(), "[", Idx, "]");
+    w.getOuts() << Result << " = " << SB->getName() << "[" << Idx << "]\n";
     return Result;
   }
 

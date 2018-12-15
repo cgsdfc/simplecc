@@ -36,6 +36,9 @@ public:
   template <typename... Args> void WriteLine(Args &&... args) {
     Print(os, std::forward<Args>(args)...);
   }
+
+  /// Use this when Printer::WriteLine() becomes awkward.
+  std::ostream &getOuts() { return os; }
 };
 } // namespace simplecompiler
 #endif
