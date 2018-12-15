@@ -1,12 +1,12 @@
 void main() {
-  const char cconst = 'a';
-  const int iconst = 1;
-  char cvar;
-  int ivar;
+  const char CharConst = 'a';
+  const int IntConst = 1;
+  char CharVar;
+  int IntVar;
 
-  cvar = (iconst);
-  cvar = (cconst);
+  CharVar = (IntConst);
+  CharVar = (CharConst);
 
-  ivar = (cconst);
-  ivar = (iconst);
+  IntVar = (CharConst);
+  IntVar = (IntConst);
 }

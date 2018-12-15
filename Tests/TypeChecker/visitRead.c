@@ -1,19 +1,19 @@
-void v_fun {}
+void Test {}
 
 void main() {
-  const int iconst = 1;
-  const char cconst = 'a';
-  int ivar;
-  char cvar;
-  int iarr[10];
-  char carr[10];
+  const int IntConst = 1;
+  const char CharConst = 'a';
+  int IntVar;
+  char CharVar;
+  int IntArray[10];
+  char CharArray[10];
 
-  scanf(v_fun);
-  scanf(iarr);
-  scanf(carr);
-  scanf(iconst);
-  scanf(cconst);
+  scanf(Test);
+  scanf(IntArray);
+  scanf(CharArray);
+  scanf(IntConst);
+  scanf(CharConst);
 
-  scanf(ivar);
-  scanf(cvar);
+  scanf(IntVar);
+  scanf(CharVar);
 }

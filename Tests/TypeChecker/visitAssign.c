@@ -1,40 +1,40 @@
-void fun(int i) {}
-char cfun {}
-int ifun {}
+void Func(int i) {}
+char CharFunc {}
+int IntFunc {}
 
 void main() {
-  const int iconst = 1;
-  const char cconst = 'a';
-  int ivar;
-  char cvar;
-  int iarr[10];
-  char carr[10];
+  const int IntConst = 1;
+  const char CharConst = 'a';
+  int IntVar;
+  char CharVar;
+  int IntArray[10];
+  char CharArray[10];
 
-  iconst = 1;
-  iarr = 1;
-  fun = 1;
+  IntConst = 1;
+  IntArray = 1;
+  Func = 1;
 
-  ivar = iarr;
-  cvar = iarr;
+  IntVar = IntArray;
+  CharVar = IntArray;
 
-  ivar = cconst;
-  cvar = iconst;
-  iarr[0] = cconst;
-  carr[0] = iconst;
-  cvar = ifun;
-  ivar = cfun;
+  IntVar = CharConst;
+  CharVar = IntConst;
+  IntArray[0] = CharConst;
+  CharArray[0] = IntConst;
+  CharVar = IntFunc;
+  IntVar = CharFunc;
 
-  ivar = 1;
-  ivar = ifun;
-  ivar = iarr[0];
-  iarr[0] = 1;
-  iarr[0] = ivar;
-  iarr[0] = ifun;
+  IntVar = 1;
+  IntVar = IntFunc;
+  IntVar = IntArray[0];
+  IntArray[0] = 1;
+  IntArray[0] = IntVar;
+  IntArray[0] = IntFunc;
 
-  cvar = 'a';
-  cvar = cfun;
-  cvar = carr[0];
-  carr[0] = 'a';
-  carr[0] = cvar;
-  carr[0] = cfun;
+  CharVar = 'a';
+  CharVar = CharFunc;
+  CharVar = CharArray[0];
+  CharArray[0] = 'a';
+  CharArray[0] = CharVar;
+  CharArray[0] = CharFunc;
 }

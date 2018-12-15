@@ -1,25 +1,25 @@
 void main() {
-  int iarr[10];
-  int ivar;
-  char cvar;
+  int IntArray[10];
+  int IntVar;
+  char CharVar;
 
-  if (cvar) {
+  if (CharVar) {
     printf("type error in if");
   }
 
-  if (cvar == cvar) {
+  if (CharVar == CharVar) {
     printf("type error in if");
   }
 
-  if (ivar == cvar) {
+  if (IntVar == CharVar) {
     printf("type error in if");
   }
 
-  if (ivar) {
+  if (IntVar) {
     printf("ok");
   }
 
-  if (ivar == ivar) {
+  if (IntVar == IntVar) {
     printf("ok");
   }
 

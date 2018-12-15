@@ -1,9 +1,9 @@
-int ifun {
+int Test {
   return(1);
 }
 
 void main() {
-  while (ifun) {
-    printf(ifun);
+  while (Test) {
+    printf(Test);
   }
 }

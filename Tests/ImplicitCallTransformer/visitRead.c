@@ -1,6 +1,6 @@
 void main() {
-  int ivar;
-  char cvar;
+  int IntVar;
+  char CharVar;
 
-  scanf(ivar, cvar);
+  scanf(IntVar, CharVar);
 }

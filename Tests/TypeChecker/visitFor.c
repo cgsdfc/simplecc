@@ -1,13 +1,13 @@
-void fun {}
+void Test {}
 
 void main() {
-  int ivar;
+  int IntVar;
 
-  for (fun = 0; fun < 3; fun = fun + 1) {
+  for (Test = 0; Test < 3; Test = Test + 1) {
     printf("bad for");
   }
 
-  for (ivar = 0; ivar < 3; ivar = ivar + 1) {
+  for (IntVar = 0; IntVar < 3; IntVar = IntVar + 1) {
     printf("good for");
   }
 

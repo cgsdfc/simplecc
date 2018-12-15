@@ -1,13 +1,13 @@
 void main() {
-  int i;
-  int arr[10];
+  int IntVar;
+  int IntArray[10];
 
-  i = arr + i;
-  i = i + arr;
-  i = -arr;
-  i = +arr;
+  IntVar = IntArray + IntVar;
+  IntVar = IntVar + IntArray;
+  IntVar = -IntArray;
+  IntVar = +IntArray;
 
-  i = arr[0];
-  i = arr[arr[0]];
-  i = arr[arr[arr[0]]];
+  IntVar = IntArray[0];
+  IntVar = IntArray[IntArray[0]];
+  IntVar = IntArray[IntArray[IntArray[0]]];
 }

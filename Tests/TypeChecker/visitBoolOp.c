@@ -1,21 +1,21 @@
-char c_fun1 {
+char CharFunc {
   return ('a');
 }
 
 void main() {
-  const int iconst = 1;
-  const char cconst = 'a';
-  char carr[1];
+  const int IntConst = 1;
+  const char CharConst = 'a';
+  char CharArray[1];
 
-  if (iconst > cconst) {
+  if (IntConst > CharConst) {
     printf("type of condition must be int");
   }
 
-  if (cconst != carr[0]) {
+  if (CharConst != CharArray[0]) {
     printf("type of condition must be int");
   }
 
-  if (iconst > carr[0]) {
+  if (IntConst > CharArray[0]) {
     printf("type of condition must be int");
   }
 
@@ -23,11 +23,11 @@ void main() {
     printf("type of condition must be int");
   }
 
-  if (c_fun1) {
+  if (CharFunc) {
     printf("type of condition must be int");
   }
 
-  if (carr[0]) {
+  if (CharArray[0]) {
     printf("type of condition must be int");
   }
 
@@ -39,7 +39,7 @@ void main() {
     printf("ok");
   }
 
-  if (iconst > cconst + 1) {
+  if (IntConst > CharConst + 1) {
     printf("ok");
   }
 

@@ -1,31 +1,31 @@
-void vfun {}
-int ifun {}
-char cfun { return('c'); }
+void VoidFunc {}
+int IntFunc {}
+char CharFunc { return('c'); }
 
 void main() {
-  const int iconst = 1;
-  const char cconst = 'a';
-  int ivar;
-  char cvar;
-  int iarr[2];
-  char carr[2];
+  const int IntConst = 1;
+  const char CharConst = 'a';
+  int IntVar;
+  char CharVar;
+  int IntArray[2];
+  char CharArray[2];
 
-  iconst[0] = 1;
-  ivar = iconst[0];
-  vfun[0] = 1;
-  ivar = vfun[0];
+  IntConst[0] = 1;
+  IntVar = IntConst[0];
+  VoidFunc[0] = 1;
+  IntVar = VoidFunc[0];
 
-  ivar = iarr[cconst];
-  ivar = iarr[cfun];
-  ivar = iarr[vfun];
-  ivar = iarr[iarr];
-  ivar = iarr[cvar];
-  ivar = iarr[carr[0]];
+  IntVar = IntArray[CharConst];
+  IntVar = IntArray[CharFunc];
+  IntVar = IntArray[VoidFunc];
+  IntVar = IntArray[IntArray];
+  IntVar = IntArray[CharVar];
+  IntVar = IntArray[CharArray[0]];
 
-  ivar = iarr[0];
-  ivar = iarr[iconst];
-  ivar = iarr[('a')];
-  ivar = iarr[ifun];
-  ivar = iarr[iarr[0]];
+  IntVar = IntArray[0];
+  IntVar = IntArray[IntConst];
+  IntVar = IntArray[('a')];
+  IntVar = IntArray[IntFunc];
+  IntVar = IntArray[IntArray[0]];
 
 }

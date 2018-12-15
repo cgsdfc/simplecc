@@ -37,8 +37,8 @@ char c_fun3 {
 }
 
 char c_fun4 {
-  const char cconst = 'a';
-  return(cconst);
+  const char CharConst = 'a';
+  return(CharConst);
 }
 
 void v_fun3 {

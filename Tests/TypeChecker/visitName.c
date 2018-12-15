@@ -1,17 +1,14 @@
 void main() {
-  const int iconst = 1;
-  const char cconst = 'a';
-  int ivar;
-  char cvar;
-  int iarr[10];
-  char carr[10];
+  const int IntConst = 1;
+  int IntVar;
+  int IntArray[10];
 
-  printf(iarr);
-  printf(iarr + 1);
+  printf(IntArray);
+  printf(IntArray + 1);
 
-  iarr = 1;
-  iconst = 1;
+  IntArray = 1;
+  IntConst = 1;
 
-  ivar = 1;
-  ivar = iconst + 1;
+  IntVar = 1;
+  IntVar = IntConst + 1;
 }

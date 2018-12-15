@@ -1,16 +1,18 @@
 void main() {
-  int iarr[10];
-  int ivar;
-  char cvar;
+  int IntArray[10];
+  int IntVar;
+  char CharVar;
 
-  while (cvar);
-  while (cvar == cvar);
-  while (ivar == cvar);
+  while (CharVar);
+  while (CharVar == CharVar);
+  while (IntVar == CharVar);
+  while (IntArray);
 
 
-  while ((cvar));
-  while (ivar + cvar);
-  while (ivar);
-  while (ivar == ivar);
+  while (IntArray[1]);
+  while ((CharVar));
+  while (IntVar + CharVar);
+  while (IntVar);
+  while (IntVar == IntVar);
 
 }
