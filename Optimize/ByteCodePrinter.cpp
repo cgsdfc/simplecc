@@ -101,9 +101,9 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
     auto type = CStringFromBasicTypeKind(VD->getType());
     if (!VD->getIsArray()) {
       w.WriteLine("var", type, VD->getName());
-    } else {
-      w.WriteLine("var", type, VD->getName(), "[", VD->getSize(), "]");
+      return;
     }
+    w.WriteLine("var", type, VD->getName(), "[", VD->getSize(), "]");
   }
 
   void visitArgDecl(ArgDecl *AD) {
@@ -111,9 +111,11 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   }
 
   void visitFuncDef(FuncDef *FD) {
+    w.WriteLine();
     w.WriteLine(CStringFromBasicTypeKind(FD->getReturnType()), FD->getName(),
                 "()");
     ChildrenVisitor::visitFuncDef(FD);
+    w.WriteLine();
   }
 
   void visitRead(Read *RD) {
@@ -132,17 +134,17 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   }
 
   void visitAssign(Assign *A) {
-    ExprValue value = visitExpr(A->getValue());
+    ExprValue RHS = visitExpr(A->getValue());
     if (IsInstance<Name>(A->getTarget())) {
-      ExprValue target = visitExpr(A->getTarget());
-      w.WriteLine(target, "=", value);
+      ExprValue LHS = visitExpr(A->getTarget());
+      w.WriteLine(LHS, "=", RHS);
       return;
     }
 
-    auto subscr = subclass_cast<Subscript>(A->getTarget());
-    assert(subscr);
-    ExprValue index = visitExpr(subscr->getIndex());
-    w.WriteLine(subscr->getName(), "[", index, "] =", value);
+    auto SB = subclass_cast<Subscript>(A->getTarget());
+    assert(SB);
+    ExprValue Idx = visitExpr(SB->getIndex());
+    w.WriteLine(SB->getName(), "[", Idx, "] =", RHS);
   }
 
   void visitReturn(Return *R) {
@@ -154,26 +156,26 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   }
 
   ExprValue visitCall(Call *C) {
-    for (auto arg : C->getArgs()) {
-      w.WriteLine("push", visitExpr(arg));
+    for (auto A : C->getArgs()) {
+      w.WriteLine("push", visitExpr(A));
     }
     w.WriteLine("call", C->getFunc());
     /// return a value even if void function
-    ExprValue ret_val = MakeTemporary();
-    w.WriteLine(ret_val, "= RET");
-    return ret_val;
+    ExprValue Ret = MakeTemporary();
+    w.WriteLine(Ret, "= RET");
+    return Ret;
   }
 
   LineLabel CompileBoolOp(BoolOp *B) {
-    auto temps = TempCounter;
-    ExprValue val = visitExpr(B->getValue());
-    if (temps == TempCounter) {
+    auto OldTmp = getTempCounter();
+    ExprValue Val = visitExpr(B->getValue());
+    if (OldTmp == getTempCounter()) {
       /// TempCounter didn't increase, we need to hold the result
-      w.WriteLine(MakeTemporary(), "=", val);
+      w.WriteLine(MakeTemporary(), "=", Val);
     }
-    LineLabel label = MakeLineLabel();
-    w.WriteLine("BZ", label.Inline(true));
-    return label;
+    LineLabel LB = MakeLineLabel();
+    w.WriteLine("BZ", LB.Inline(true));
+    return LB;
   }
 
   void visitFor(For *F) {
@@ -199,8 +201,8 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   void visitIf(If *I) {
     LineLabel Else = CompileBoolOp(static_cast<BoolOp *>(I->getTest()));
 
-    for (auto s : I->getBody()) {
-      visitStmt(s);
+    for (auto S : I->getBody()) {
+      visitStmt(S);
     }
 
     if (I->getOrelse().empty()) {
@@ -212,8 +214,8 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
     w.WriteLine("GOTO", End.Inline(true));
     w.WriteLine(Else.Inline(false));
 
-    for (auto s : I->getOrelse()) {
-      visitStmt(s);
+    for (auto S : I->getOrelse()) {
+      visitStmt(S);
     }
     w.WriteLine(End.Inline(false));
   }
@@ -223,8 +225,8 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
     w.WriteLine(Loop.Inline(false));
     LineLabel End = CompileBoolOp(static_cast<BoolOp *>(W->getCondition()));
 
-    for (auto s : W->getBody()) {
-      visitStmt(s);
+    for (auto S : W->getBody()) {
+      visitStmt(S);
     }
 
     w.WriteLine("GOTO", Loop.Inline(true));
@@ -232,11 +234,11 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   }
 
   ExprValue visitBinOp(BinOp *B) {
-    auto op = CStringFromOperatorKind(B->getOp());
+    auto Op = CStringFromOperatorKind(B->getOp());
     ExprValue L = visitExpr(B->getLeft());
     ExprValue R = visitExpr(B->getRight());
     ExprValue Result = MakeTemporary();
-    w.WriteLine(Result, "=", L, op, R);
+    w.WriteLine(Result, "=", L, Op, R);
     return Result;
   }
 
@@ -271,16 +273,11 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
 
   ExprValue MakeTemporary() { return ExprValue(TempCounter++); }
   LineLabel MakeLineLabel() { return LineLabel(LabelCounter++); }
-
-  void visitDecl(Decl *D) {
-    /// Line break before each function.
-    if (IsInstance<FuncDef>(D))
-      w.WriteLine();
-    ChildrenVisitor::visitDecl(D);
-  }
+  unsigned getTempCounter() const { return TempCounter; }
 
 public:
   ByteCodePrinter(std::ostream &os) : w(os) {}
+  ~ByteCodePrinter() = default;
 
   void Print(Program *P) { visitProgram(P); }
 
@@ -289,8 +286,8 @@ private:
   friend class VisitorBase<ByteCodePrinter>;
 
   Printer w;
-  int TempCounter = 0;
-  int LabelCounter = 0;
+  unsigned TempCounter = 0;
+  unsigned LabelCounter = 0;
 };
 
 void PrintByteCode(Program *P, std::ostream &O) { ByteCodePrinter(O).Print(P); }
