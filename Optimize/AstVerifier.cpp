@@ -45,6 +45,43 @@ class AstVerifier : ChildrenVisitor<AstVerifier> {
         "Value of ConstDecl must be Num or Char");
   }
 
+  void visitFor(For *F) {
+    AssertThat(IsInstance<Assign>(F->getInitial()),
+        "Initial of For must be an Assign");
+
+    AssertThat(IsInstance<BoolOp>(F->getCondition()),
+          "Condition of For must be a BoolOp");
+
+    AssertThat(IsInstance<Assign>(F->getStep()),
+        "Step of For must be an Assign");
+  }
+
+  void visitWhile(While *W) {
+    AssertThat(IsInstance<BoolOp>(W->getCondition()),
+          "Condition of While must be a BoolOp");
+  }
+
+  void visitIf(If *I) {
+    AssertThat(IsInstance<BoolOp>(I->getTest()), "Test of If must be a BoolOp");
+  }
+
+  void visitFuncDef(FuncDef *FD) {
+    for (Decl *D : FD->getArgs()) {
+      AssertThat(IsInstance<ArgDecl>(D), "Args of FuncDef must be ArgDecl's");
+    }
+    for (Decl *D : FD->getDecls()) {
+      AssertThat(IsInstance<ConstDecl>(D) || IsInstance<VarDecl>(D),
+          "Decls of FuncDef must be ConstDecl or VarDecl");
+    }
+  }
+
+  void visitProgram(Program *P) {
+    for (Decl *D : P->getDecls()) {
+      AssertThat(!IsInstance<ArgDecl>(D),
+          "ArgDecl cannot appear in Decls of Program");
+    }
+  }
+
 public:
   AstVerifier() = default;
   ~AstVerifier() = default;
