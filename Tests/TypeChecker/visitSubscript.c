@@ -1,6 +1,6 @@
 void vfun {}
 int ifun {}
-char cfun {}
+char cfun { return('c'); }
 
 void main() {
   const int iconst = 1;
