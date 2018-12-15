@@ -257,8 +257,8 @@ public:
     TheProgram = PM.getResult<BuildAstPass>();
     TransformImplicitCall(TheProgram, STP->getResult());
     /// Since TransformImplicitCall() modifies the AST, we need a sanity check.
-    if (!VerifyAST(TheProgram))
-      return false;
+    /* if (!VerifyAST(TheProgram)) */
+    /*   return false; */
     return CheckType(TheProgram, STP->getResult());
   }
 

@@ -834,8 +834,8 @@ $abstract_visitor
 };""")
 
     abstract = Template("""
-template<typename R>
-R visit$class_name($class_name *node) {
+template<typename RetTy = void>
+RetTy visit$class_name($class_name *node) {
     $test_and_dispatches
     assert(false && "$class_name");
 } """)
@@ -867,8 +867,9 @@ class ChildrenVisitorTemplate:
 template <class Derived>
 class ChildrenVisitor : public VisitorBase<Derived> {
 public:
-    friend class VisitorBase<Derived>;
 $methods
+
+/// Pull in VisitorBase's methods.
 $downcasts
 };""")
 
@@ -879,22 +880,21 @@ $code
 }""")
 
     # let subclass to customize this
-    crtp_downcast = Template("""
-void visit$class_name($class_name *node) {
-    static_cast<Derived*>(this)->visit$class_name(node);
-}""")
+    crtp_downcast = Template("""using VisitorBase<Derived>::visit$class_name;""")
 
     # ways to visit different kinds of field: Optional, Sequence, etc.
     visit = Template("""
-    visit$class_name(node->get$name());
+static_cast<Derived*>(this)->visit$class_name(node->get$name());
 """)
+
     visit_for = Template("""
 for (auto s: node->get$name()) {
-    visit$class_name(s);
+    static_cast<Derived*>(this)->visit$class_name(s);
 }""")
+
     visit_if = Template("""
-if (node->get$name()) {
-    visit$class_name(node->get$name());
+if (auto s = node->get$name()) {
+    static_cast<Derived*>(this)->visit$class_name(s);
 }""")
 
     def make_visit_children(self, members):
