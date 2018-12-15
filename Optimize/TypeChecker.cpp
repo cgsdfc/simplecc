@@ -13,14 +13,14 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
     for (auto E : RD->getNames()) {
       auto N = subclass_cast<Name>(E);
       assert(N);
-      const auto &entry = TheLocalTable[N->getId()];
-      if (!entry.IsVariable()) {
+      const auto &Entry = TheLocalTable[N->getId()];
+      if (!Entry.IsVariable()) {
         EM.TypeError(N->getLoc(), "cannot use scanf() on object of type",
-                     entry.GetTypeName());
+                     Entry.GetTypeName());
         continue;
       }
       /// set the Expr type for this.
-      TheTable->setExprType(E, entry.AsVariable().GetType());
+      TheTable->setExprType(E, Entry.AsVariable().GetType());
     }
   }
 
@@ -45,38 +45,32 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   }
 
   void visitAssign(Assign *A) {
-    int errs = EM.GetErrorCount();
-    auto value = CheckExprOperand(A->getValue());
-    auto target = visitExpr(A->getTarget());
+    int Errs = EM.GetErrorCount();
+    auto RHS = CheckExprOperand(A->getValue());
+    auto LHS = visitExpr(A->getTarget());
 
-    if (EM.IsOk(errs) && target != value) {
+    if (EM.IsOk(Errs) && LHS != RHS) {
       EM.TypeError(A->getLoc(), "type mismatched in assignment:",
-                   CStringFromBasicTypeKind(target), "=",
-                   CStringFromBasicTypeKind(value));
+                   CStringFromBasicTypeKind(LHS), "=",
+                   CStringFromBasicTypeKind(RHS));
     }
-  }
-
-  void visitExprStmt(ExprStmt *ES) {
-    auto call = subclass_cast<Call>(ES->getValue());
-    assert(call && "value of ExprStmt must be a Call");
-    visitCall(call);
   }
 
   // check the operand of BoolOp, restrict to int
   void CheckBoolOpOperand(Expr *E) {
-    auto msg = "operands of condition must be of type int";
-    auto errs = EM.GetErrorCount();
-    auto type = visitExpr(E);
-    if (EM.IsOk(errs) && type != BasicTypeKind::Int) {
-      EM.TypeError(E->getLoc(), msg);
+    auto Msg = "operands of condition must be of type int";
+    auto Errs = EM.GetErrorCount();
+    auto T = visitExpr(E);
+    if (EM.IsOk(Errs) && T != BasicTypeKind::Int) {
+      EM.TypeError(E->getLoc(), Msg);
     }
   }
 
   BasicTypeKind visitBoolOp(BoolOp *B) {
     if (B->getHasCmpop()) {
-      auto x = static_cast<BinOp *>(B->getValue());
-      CheckBoolOpOperand(x->getLeft());
-      CheckBoolOpOperand(x->getRight());
+      auto Bin = static_cast<BinOp *>(B->getValue());
+      CheckBoolOpOperand(Bin->getLeft());
+      CheckBoolOpOperand(Bin->getRight());
     } else {
       CheckBoolOpOperand(B->getValue());
     }
@@ -85,13 +79,13 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
 
   // check the operand of Expr, restrict to NOT void
   BasicTypeKind CheckExprOperand(Expr *E) {
-    auto msg = "void value cannot be used in an expression";
-    auto errs = EM.GetErrorCount();
-    auto type = visitExpr(E);
-    if (EM.IsOk(errs) && type == BasicTypeKind::Void) {
-      EM.TypeError(E->getLoc(), msg);
+    auto Msg = "void value cannot be used in an expression";
+    auto Errs = EM.GetErrorCount();
+    auto T = visitExpr(E);
+    if (EM.IsOk(Errs) && T == BasicTypeKind::Void) {
+      EM.TypeError(E->getLoc(), Msg);
     }
-    return type;
+    return T;
   }
 
   BasicTypeKind visitBinOp(BinOp *B) {
@@ -111,67 +105,67 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   }
 
   BasicTypeKind visitCall(Call *C) {
-    const auto &entry = TheLocalTable[C->getFunc()];
-    if (!entry.IsFunction()) {
-      EM.TypeError(C->getLoc(), "object of type", entry.GetTypeName(),
+    const auto &Entry = TheLocalTable[C->getFunc()];
+    if (!Entry.IsFunction()) {
+      EM.TypeError(C->getLoc(), "object of type", Entry.GetTypeName(),
                    "cannot be called as a function");
       return BasicTypeKind::Void;
     }
 
-    auto fun_type = entry.AsFunction();
-    auto formal_args_len = fun_type.GetArgCount();
-    auto actual_args_len = C->args.size();
-    if (formal_args_len != actual_args_len) {
+    auto Ty = Entry.AsFunction();
+    auto NumFormal = Ty.GetArgCount();
+    auto NumActual = C->getArgs().size();
+    if (NumFormal != NumActual) {
       EM.TypeError(C->getLoc(), "function", Quote(C->getFunc()), "expects",
-                   formal_args_len, "arguments, got", actual_args_len);
+                   NumFormal, "arguments, got", NumActual);
     }
 
     // check args
-    auto len = std::min(formal_args_len, actual_args_len);
-    for (int i = 0; i < len; i++) {
-      auto actual = visitExpr(C->getArgs()[i]);
-      auto formal = fun_type.GetArgTypeAt(i);
-      if (actual != formal) {
-        EM.TypeError(C->getArgs()[i]->getLoc(), "argument", i + 1,
+    auto Size = std::min(NumFormal, NumActual);
+    for (int I = 0; I < Size; I++) {
+      auto ActualTy = visitExpr(C->getArgs()[I]);
+      auto FormalTy = Ty.GetArgTypeAt(I);
+      if (ActualTy != FormalTy) {
+        EM.TypeError(C->getArgs()[I]->getLoc(), "argument", I + 1,
                      "of function", Quote(C->getFunc()), "must be",
-                     CStringFromBasicTypeKind(formal), ", not",
-                     CStringFromBasicTypeKind(actual));
+                     CStringFromBasicTypeKind(FormalTy), ", not",
+                     CStringFromBasicTypeKind(ActualTy));
       }
     }
-    return fun_type.GetReturnType();
+    return Ty.GetReturnType();
   }
 
   BasicTypeKind visitSubscript(Subscript *SB) {
-    const auto &entry = TheLocalTable[SB->getName()];
-    if (!entry.IsArray()) {
-      EM.TypeError(SB->getLoc(), "object of type", entry.GetTypeName(),
+    const auto &Entry = TheLocalTable[SB->getName()];
+    if (!Entry.IsArray()) {
+      EM.TypeError(SB->getLoc(), "object of type", Entry.GetTypeName(),
                    "cannot be subscripted as an array");
       return BasicTypeKind::Void;
     }
 
-    int errs = EM.GetErrorCount();
-    auto index = visitExpr(SB->getIndex());
-    if (EM.IsOk(errs) && index != BasicTypeKind::Int) {
+    int Errs = EM.GetErrorCount();
+    auto Idx = visitExpr(SB->getIndex());
+    if (EM.IsOk(Errs) && Idx != BasicTypeKind::Int) {
       EM.TypeError(SB->getLoc(), "type of array index must be int");
     }
-    return entry.AsArray().GetElementType();
+    return Entry.AsArray().GetElementType();
   }
 
   BasicTypeKind visitName(Name *N) {
-    const auto &entry = TheLocalTable[N->getId()];
-    if (N->getCtx() == ExprContextKind::Load && entry.IsArray()) {
-      EM.TypeError(N->getLoc(), "object of type", entry.GetTypeName(),
+    const auto &Entry = TheLocalTable[N->getId()];
+    if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
+      EM.TypeError(N->getLoc(), "object of type", Entry.GetTypeName(),
                    "cannot be used in an expression");
       return BasicTypeKind::Void;
     }
-    if (N->getCtx() == ExprContextKind::Store && !entry.IsVariable()) {
-      EM.TypeError(N->getLoc(), "object of type", entry.GetTypeName(),
+    if (N->getCtx() == ExprContextKind::Store && !Entry.IsVariable()) {
+      EM.TypeError(N->getLoc(), "object of type", Entry.GetTypeName(),
                    "cannot be assigned to");
       return BasicTypeKind::Void;
     }
-    if (entry.IsConstant())
-      return entry.AsConstant().GetType();
-    return entry.AsVariable().GetType();
+    if (Entry.IsConstant())
+      return Entry.AsConstant().GetType();
+    return Entry.AsVariable().GetType();
   }
 
   // not actually used, for instantiation only
@@ -182,9 +176,9 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
 
   // Return the type of evaluating the expression
   BasicTypeKind visitExpr(Expr *E) {
-    auto type = VisitorBase::visitExpr<BasicTypeKind>(E);
-    TheTable->setExprType(E, type);
-    return type;
+    auto T = VisitorBase::visitExpr<BasicTypeKind>(E);
+    TheTable->setExprType(E, T);
+    return T;
   }
 
   void visitFuncDef(FuncDef *FD) {
