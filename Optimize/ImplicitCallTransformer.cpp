@@ -27,28 +27,21 @@ namespace simplecompiler {
 //
 class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
 
-/// This macro performs a visit & set on the specific member of a node.
-/// It requires the visitor has its argument named "node".
-/// Note: it evaluates NAME twice!
-#define VISIT_AND_TRANSFORM(NAME)                                              \
-  do {                                                                         \
-    node->NAME = TransformExpr(node->NAME);                                    \
-  } while (0)
-
   void visitWrite(Write *node) {
     if (node->getValue()) {
-      VISIT_AND_TRANSFORM(value);
+      TransformExpr(node->value);
     }
   }
 
   void visitAssign(Assign *node) {
+    /// Don't transform the target!
     visitExpr(node->getTarget());
-    VISIT_AND_TRANSFORM(value);
+    TransformExpr(node->value);
   }
 
   void visitFor(For *node) {
     visitStmt(node->initial);
-    VISIT_AND_TRANSFORM(condition);
+    TransformExpr(node->condition);
     visitStmt(node->getStep());
     for (auto s : node->getBody()) {
       visitStmt(s);
@@ -56,7 +49,7 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   }
 
   void visitWhile(While *node) {
-    VISIT_AND_TRANSFORM(condition);
+    TransformExpr(node->condition);
     for (auto s : node->getBody()) {
       visitStmt(s);
     }
@@ -64,12 +57,12 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
 
   void visitReturn(Return *node) {
     if (node->getValue()) {
-      VISIT_AND_TRANSFORM(value);
+      TransformExpr(node->value);
     }
   }
 
   void visitIf(If *node) {
-    VISIT_AND_TRANSFORM(test);
+    TransformExpr(node->test);
     for (auto s : node->getBody()) {
       visitStmt(s);
     }
@@ -79,37 +72,13 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   }
 
   void visitBinOp(BinOp *node) {
-    VISIT_AND_TRANSFORM(left);
-    VISIT_AND_TRANSFORM(right);
-  }
-
-  /// Visit an Expr and do implicit call transform on it if applicable.
-  /// Or just return the original Expr.
-  /// Note: This is deliberately not named after visitExpr() to prevent
-  /// ChildrenVisitor accidentally call it, which may lead to unexpected
-  /// result. For example, we don't override visitRead() since it **does not**
-  /// need transformation. But ChildrenVisitor will still call it and visit all
-  /// its children with visitExpr() so it is important that visitExpr() don't
-  /// perform any transformation.
-  Expr *TransformExpr(Expr *E) {
-    if (auto x = subclass_cast<Name>(E)) {
-      if (TheLocalTable[x->getId()].IsFunction()) {
-        // replace such a name with a call
-        auto call = new Call(x->getId(), {}, x->getLoc());
-        delete x;
-        return call;
-      } else {
-        return E;
-      }
-    } else {
-      visitExpr(E);
-      return E;
-    }
+    TransformExpr(node->left);
+    TransformExpr(node->right);
   }
 
   void visitCall(Call *node) {
     for (int I = 0, Size = node->getArgs().size(); I < Size; I++) {
-      VISIT_AND_TRANSFORM(args[I]);
+      TransformExpr(node->args[I]);
     }
   }
 
@@ -118,14 +87,33 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
     ChildrenVisitor::visitFuncDef(FD);
   }
 
-  void visitBoolOp(BoolOp *node) { VISIT_AND_TRANSFORM(value); }
-  void visitParenExpr(ParenExpr *node) { VISIT_AND_TRANSFORM(value); }
-  void visitUnaryOp(UnaryOp *node) { VISIT_AND_TRANSFORM(operand); }
-  void visitSubscript(Subscript *node) { VISIT_AND_TRANSFORM(index); }
+  void visitBoolOp(BoolOp *node) { TransformExpr(node->value); }
+  void visitParenExpr(ParenExpr *node) { TransformExpr(node->value); }
+  void visitUnaryOp(UnaryOp *node) { TransformExpr(node->operand); }
+  void visitSubscript(Subscript *node) { TransformExpr(node->index); }
 
   /// Setters.
   void setLocalTable(SymbolTableView L) { TheLocalTable = L; }
   void setTable(const SymbolTable *S) { TheTable = S; }
+
+  /// Visit an Expr and do implicit call transform on it if applicable.
+  /// Note: This is deliberately not named after visitExpr() to prevent
+  /// ChildrenVisitor accidentally call it, which may lead to unexpected
+  /// result. For example, we don't override visitRead() since it **does not**
+  /// need transformation. But ChildrenVisitor will still call it and visit all
+  /// its children with visitExpr() so it is important that visitExpr() don't
+  /// perform any transformation.
+  /// Note: This modifies its argument with reference!
+  void TransformExpr(Expr *&E) {
+    if (!IsInstance<Name>(E))
+      return visitExpr(E);
+    if (Name *N = static_cast<Name *>(E);
+        !TheLocalTable[N->getId()].IsFunction())
+      return visitExpr(E);
+    Call *C = new Call(static_cast<Name *>(E)->getId(), {}, E->getLoc());
+    delete E;
+    E = C;
+  }
 
 public:
   ImplicitCallTransformer() = default;
