@@ -42,23 +42,23 @@ class AstVerifier : ChildrenVisitor<AstVerifier> {
   void visitConstDecl(ConstDecl *CD) {
     auto Val = CD->getValue();
     AssertThat(IsInstance<Char>(Val) || IsInstance<Num>(Val),
-        "Value of ConstDecl must be Num or Char");
+               "Value of ConstDecl must be Num or Char");
   }
 
   void visitFor(For *F) {
     AssertThat(IsInstance<Assign>(F->getInitial()),
-        "Initial of For must be an Assign");
+               "Initial of For must be an Assign");
 
     AssertThat(IsInstance<BoolOp>(F->getCondition()),
-          "Condition of For must be a BoolOp");
+               "Condition of For must be a BoolOp");
 
     AssertThat(IsInstance<Assign>(F->getStep()),
-        "Step of For must be an Assign");
+               "Step of For must be an Assign");
   }
 
   void visitWhile(While *W) {
     AssertThat(IsInstance<BoolOp>(W->getCondition()),
-          "Condition of While must be a BoolOp");
+               "Condition of While must be a BoolOp");
   }
 
   void visitIf(If *I) {
@@ -71,16 +71,25 @@ class AstVerifier : ChildrenVisitor<AstVerifier> {
     }
     for (Decl *D : FD->getDecls()) {
       AssertThat(IsInstance<ConstDecl>(D) || IsInstance<VarDecl>(D),
-          "Decls of FuncDef must be ConstDecl or VarDecl");
+                 "Decls of FuncDef must be ConstDecl or VarDecl");
+    }
+    for (Stmt *S : FD->getStmts()) {
+      visitStmt(S);
     }
   }
 
   void visitProgram(Program *P) {
     for (Decl *D : P->getDecls()) {
       AssertThat(!IsInstance<ArgDecl>(D),
-          "ArgDecl cannot appear in Decls of Program");
+                 "ArgDecl cannot appear in Decls of Program");
+      visitDecl(D);
     }
   }
+
+  /// VisitorBase's boilerplates.
+  void visitExpr(Expr *E) { VisitorBase::visitExpr<void>(E); }
+  void visitStmt(Stmt *S) { return VisitorBase::visitStmt<void>(S); }
+  void visitDecl(Decl *D) { return VisitorBase::visitDecl<void>(D); }
 
 public:
   AstVerifier() = default;
@@ -93,6 +102,7 @@ public:
 
 private:
   friend class ChildrenVisitor<AstVerifier>;
+  friend class VisitorBase<AstVerifier>;
   ErrorManager EM;
 };
 

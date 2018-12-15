@@ -2,6 +2,7 @@
 #include "AST.h"
 #include "Assemble.h"
 #include "AstBuilder.h"
+#include "AstVerifier.h"
 #include "ByteCodePrinter.h"
 #include "Compile.h"
 #include "ImplicitCallTransformer.h"
@@ -255,6 +256,9 @@ public:
     /// The SymbolTablePass's success implies that of BuildAstPass.
     TheProgram = PM.getResult<BuildAstPass>();
     TransformImplicitCall(TheProgram, STP->getResult());
+    /// Since TransformImplicitCall() modifies the AST, we need a sanity check.
+    if (!VerifyAST(TheProgram))
+      return false;
     return CheckType(TheProgram, STP->getResult());
   }
 
