@@ -30,25 +30,25 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
 /// This macro performs a visit & set on the specific member of a node.
 /// It requires the visitor has its argument named "node".
 /// Note: it evaluates NAME twice!
-#define VISIT(NAME)                                                            \
+#define VISIT_AND_TRANSFORM(NAME)                                              \
   do {                                                                         \
     node->NAME = TransformExpr(node->NAME);                                    \
   } while (0)
 
   void visitWrite(Write *node) {
     if (node->getValue()) {
-      VISIT(value);
+      VISIT_AND_TRANSFORM(value);
     }
   }
 
   void visitAssign(Assign *node) {
-    VISIT(target);
-    VISIT(value);
+    visitExpr(node->getTarget());
+    VISIT_AND_TRANSFORM(value);
   }
 
   void visitFor(For *node) {
     visitStmt(node->initial);
-    VISIT(condition);
+    VISIT_AND_TRANSFORM(condition);
     visitStmt(node->getStep());
     for (auto s : node->getBody()) {
       visitStmt(s);
@@ -56,7 +56,7 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   }
 
   void visitWhile(While *node) {
-    VISIT(condition);
+    VISIT_AND_TRANSFORM(condition);
     for (auto s : node->getBody()) {
       visitStmt(s);
     }
@@ -64,12 +64,12 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
 
   void visitReturn(Return *node) {
     if (node->getValue()) {
-      VISIT(value);
+      VISIT_AND_TRANSFORM(value);
     }
   }
 
   void visitIf(If *node) {
-    VISIT(test);
+    VISIT_AND_TRANSFORM(test);
     for (auto s : node->getBody()) {
       visitStmt(s);
     }
@@ -79,8 +79,8 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   }
 
   void visitBinOp(BinOp *node) {
-    VISIT(left);
-    VISIT(right);
+    VISIT_AND_TRANSFORM(left);
+    VISIT_AND_TRANSFORM(right);
   }
 
   /// Visit an Expr and do implicit call transform on it if applicable.
@@ -108,8 +108,8 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   }
 
   void visitCall(Call *node) {
-    for (int i = 0, size = node->getArgs().size(); i < size; i++) {
-      VISIT(args[i]);
+    for (int I = 0, Size = node->getArgs().size(); I < Size; I++) {
+      VISIT_AND_TRANSFORM(args[I]);
     }
   }
 
@@ -118,21 +118,10 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
     ChildrenVisitor::visitFuncDef(FD);
   }
 
-  /// VisitorBase's boilerplates.
-  /* void visitExpr(Expr *E) { VisitorBase::visitExpr<void>(E); } */
-  /* void visitStmt(Stmt *S) { VisitorBase::visitStmt<void>(S); } */
-  /* void visitDecl(Decl *D) { VisitorBase::visitDecl<void>(D); } */
-
-  void visitBoolOp(BoolOp *node) { VISIT(value); }
-  void visitParenExpr(ParenExpr *node) { VISIT(value); }
-  void visitUnaryOp(UnaryOp *node) { VISIT(operand); }
-  void visitSubscript(Subscript *node) { VISIT(index); }
-
-  /// ExprStmt must be in fact a Call.
-  void visitExprStmt(ExprStmt *node) {
-    assert(IsInstance<Call>(node->getValue()));
-    visitExpr(node->getValue());
-  }
+  void visitBoolOp(BoolOp *node) { VISIT_AND_TRANSFORM(value); }
+  void visitParenExpr(ParenExpr *node) { VISIT_AND_TRANSFORM(value); }
+  void visitUnaryOp(UnaryOp *node) { VISIT_AND_TRANSFORM(operand); }
+  void visitSubscript(Subscript *node) { VISIT_AND_TRANSFORM(index); }
 
   /// Setters.
   void setLocalTable(SymbolTableView L) { TheLocalTable = L; }
