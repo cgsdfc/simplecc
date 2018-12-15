@@ -15,8 +15,8 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
       assert(N);
       const auto &Entry = TheLocalTable[N->getId()];
       if (!Entry.IsVariable()) {
-        EM.TypeError(N->getLoc(), "cannot use scanf() on object of type",
-                     Entry.GetTypeName());
+        EM.TypeError(N->getLoc(), "cannot use scanf() on", Entry.GetTypeName(),
+                     Entry.GetName());
         continue;
       }
       /// set the Expr type for this.
@@ -107,7 +107,7 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   BasicTypeKind visitCall(Call *C) {
     const auto &Entry = TheLocalTable[C->getFunc()];
     if (!Entry.IsFunction()) {
-      EM.TypeError(C->getLoc(), "object of type", Entry.GetTypeName(),
+      EM.TypeError(C->getLoc(), Entry.GetTypeName(), Entry.GetName(),
                    "cannot be called as a function");
       return BasicTypeKind::Void;
     }
@@ -138,7 +138,7 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   BasicTypeKind visitSubscript(Subscript *SB) {
     const auto &Entry = TheLocalTable[SB->getName()];
     if (!Entry.IsArray()) {
-      EM.TypeError(SB->getLoc(), "object of type", Entry.GetTypeName(),
+      EM.TypeError(SB->getLoc(), Entry.GetTypeName(), Entry.GetName(),
                    "cannot be subscripted as an array");
       return BasicTypeKind::Void;
     }
@@ -146,7 +146,7 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
     int Errs = EM.GetErrorCount();
     auto Idx = visitExpr(SB->getIndex());
     if (EM.IsOk(Errs) && Idx != BasicTypeKind::Int) {
-      EM.TypeError(SB->getLoc(), "type of array index must be int");
+      EM.TypeError(SB->getLoc(), "Array index must be int");
     }
     return Entry.AsArray().GetElementType();
   }
@@ -154,12 +154,12 @@ class TypeCheker : ChildrenVisitor<TypeCheker> {
   BasicTypeKind visitName(Name *N) {
     const auto &Entry = TheLocalTable[N->getId()];
     if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
-      EM.TypeError(N->getLoc(), "object of type", Entry.GetTypeName(),
+      EM.TypeError(N->getLoc(), Entry.GetTypeName(), Entry.GetName(),
                    "cannot be used in an expression");
       return BasicTypeKind::Void;
     }
     if (N->getCtx() == ExprContextKind::Store && !Entry.IsVariable()) {
-      EM.TypeError(N->getLoc(), "object of type", Entry.GetTypeName(),
+      EM.TypeError(N->getLoc(), Entry.GetTypeName(), Entry.GetName(),
                    "cannot be assigned to");
       return BasicTypeKind::Void;
     }
