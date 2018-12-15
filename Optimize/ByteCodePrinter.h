@@ -4,6 +4,6 @@
 
 namespace simplecompiler {
 class Program;
-void PrintByteCode(Program *prog, std::ostream &os);
+void PrintByteCode(Program *P, std::ostream &O);
 } // namespace simplecompiler
 #endif

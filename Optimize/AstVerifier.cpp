@@ -86,11 +86,6 @@ class AstVerifier : ChildrenVisitor<AstVerifier> {
     }
   }
 
-  /// VisitorBase's boilerplates.
-  /* void visitExpr(Expr *E) { VisitorBase::visitExpr<void>(E); } */
-  /* void visitStmt(Stmt *S) { return VisitorBase::visitStmt<void>(S); } */
-  /* void visitDecl(Decl *D) { return VisitorBase::visitDecl<void>(D); } */
-
 public:
   AstVerifier() = default;
   ~AstVerifier() = default;

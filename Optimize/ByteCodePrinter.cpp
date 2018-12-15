@@ -5,119 +5,104 @@
 #include <cassert>
 #include <iostream>
 
-using namespace simplecompiler;
-
-namespace {
-// A class that handles the formatting of the result of an epxression
-// It is a union of factor expr and temporary
+namespace simplecompiler {
+/// This class handles the formatting of the result of an epxression
+/// It is a union of factor Expr and temporary
 class ExprValue {
-  Expr *factor;
-  int temporary;
+  Expr *Factor;
+  int Temporary;
 
-  // Sanity check
+  /// Sanity check
   bool Check() const {
-    if (!factor) {
-      return temporary >= 0;
+    if (!Factor) {
+      return Temporary >= 0;
     } else {
-      return (IsInstance<Char>(factor) || IsInstance<Num>(factor) ||
-              IsInstance<Name>(factor) || IsInstance<Str>(factor));
+      return (IsInstance<Char>(Factor) || IsInstance<Num>(Factor) ||
+              IsInstance<Name>(Factor) || IsInstance<Str>(Factor));
     }
   }
 
 public:
   ExprValue() = default;
+  ~ExprValue() = default;
+  ExprValue(const ExprValue &) = default;
+  ExprValue &operator=(const ExprValue &) = default;
 
-  explicit ExprValue(int temporary) : factor(nullptr), temporary(temporary) {
+  explicit ExprValue(int Temp) : Factor(nullptr), Temporary(Temp) {
     assert(Check());
   }
-  explicit ExprValue(Expr *factor) : factor(factor), temporary(-1) {
+  explicit ExprValue(Expr *Factor) : Factor(Factor), Temporary(-1) {
     assert(Check());
   }
 
-  void Format(std::ostream &os) const {
-    if (!factor) {
-      os << "t" << temporary;
-    } else if (auto x = subclass_cast<Char>(factor)) {
-      os << "'" << static_cast<char>(x->getC()) << "'";
-    } else if (auto x = subclass_cast<Num>(factor)) {
-      os << x->getN();
-    } else if (auto x = subclass_cast<Name>(factor)) {
-      os << x->getId();
+  void Format(std::ostream &O) const {
+    if (!Factor) {
+      O << "t" << Temporary;
+    } else if (auto C = subclass_cast<Char>(Factor)) {
+      O << "'" << static_cast<char>(C->getC()) << "'";
+    } else if (auto N = subclass_cast<Num>(Factor)) {
+      O << N->getN();
+    } else if (auto N = subclass_cast<Name>(Factor)) {
+      O << N->getId();
     } else {
-      os << static_cast<Str *>(factor)->getS();
+      O << static_cast<Str *>(Factor)->getS();
     }
   }
 };
 
-std::ostream &operator<<(std::ostream &os, const ExprValue &c) {
-  c.Format(os);
-  return os;
+inline std::ostream &operator<<(std::ostream &O, const ExprValue &Val) {
+  Val.Format(O);
+  return O;
 }
 
-// A class that handles the formatting of a label of two form:
-// inline form like GOTO Label_1 and non-inlined form like:
-// Label_1:
-// printf t0
+/// This class handles the formatting of a label of two form:
+/// inline form like GOTO Label_1 and non-inlined form like:
+/// Label_1:
+/// printf t0
 class LineLabel {
-  // Identifier of this label
-  int value;
-  // which form it takes
-  bool inlined;
+  /// No of this label
+  unsigned No;
+  /// Which form it takes
+  bool IsInlined;
 
 public:
-  LineLabel(int value) : value(value), inlined(false) {}
+  LineLabel(unsigned No) : No(No), IsInlined(false) {}
+  LineLabel(const LineLabel &) = default;
+  LineLabel &operator=(const LineLabel &) = default;
 
-  // setter of inlined, for use in operator<<()
+  /// Setter of inlined, for use in operator<<()
   LineLabel &Inline(bool inlined) {
-    this->inlined = inlined;
+    this->IsInlined = inlined;
     return *this;
   }
 
-  void Format(std::ostream &os) const {
-    os << "Label_" << value;
-    if (!inlined)
-      os << ":";
+  void Format(std::ostream &O) const {
+    O << "Label_" << No;
+    if (!IsInlined)
+      O << ":";
   }
 };
 
-std::ostream &operator<<(std::ostream &os, const LineLabel &c) {
-  c.Format(os);
-  return os;
+inline std::ostream &operator<<(std::ostream &O, const LineLabel &L) {
+  L.Format(O);
+  return O;
 }
 
-// A class that prints a program in the quarternary form
-class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
-  friend class VisitorBase<ByteCodePrinter>;
+/// This class prints a program in the quarternary form.
+class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
 
-  Program *program;
-  Printer w;
-  // temporaries counter
-  int temporaries;
-  // label counter
-  int labels;
-
-  ExprValue MakeTemporary() { return ExprValue(temporaries++); }
-
-  LineLabel MakeLineLabel() { return LineLabel(labels++); }
-
-  /* void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); } */
-
-  ExprValue visitExpr(Expr *s) { return VisitorBase::visitExpr<ExprValue>(s); }
-
-  /* void visitDecl(Decl *s) { return VisitorBase::visitDecl<void>(s); } */
-
-  void visitConstDecl(ConstDecl *node) {
-    auto type = CStringFromBasicTypeKind(node->getType());
-    auto &&val = visitExpr(node->getValue());
-    w.WriteLine("const", type, node->getName(), "=", val);
+  void visitConstDecl(ConstDecl *CD) {
+    auto type = CStringFromBasicTypeKind(CD->getType());
+    ExprValue val = visitExpr(CD->getValue());
+    w.WriteLine("const", type, CD->getName(), "=", val);
   }
 
-  void visitVarDecl(VarDecl *node) {
-    auto type = CStringFromBasicTypeKind(node->getType());
-    if (!node->getIsArray()) {
-      w.WriteLine("var", type, node->getName());
+  void visitVarDecl(VarDecl *VD) {
+    auto type = CStringFromBasicTypeKind(VD->getType());
+    if (!VD->getIsArray()) {
+      w.WriteLine("var", type, VD->getName());
     } else {
-      w.WriteLine("var", type, node->getName(), "[", node->getSize(), "]");
+      w.WriteLine("var", type, VD->getName(), "[", VD->getSize(), "]");
     }
   }
 
@@ -125,188 +110,189 @@ class ByteCodePrinter : VisitorBase<ByteCodePrinter> {
     w.WriteLine("para", CStringFromBasicTypeKind(AD->getType()), AD->getName());
   }
 
-  void visitFuncDef(FuncDef *node) {
-    w.WriteLine(CStringFromBasicTypeKind(node->getReturnType()),
-                node->getName(), "()");
-    for (auto arg : node->getArgs()) {
-      visitDecl(arg);
-    }
-    for (auto decl : node->getDecls()) {
-      visitDecl(decl);
-    }
-    for (auto stmt : node->getStmts()) {
-      visitStmt(stmt);
-    }
-    // XXX: No return here!
+  void visitFuncDef(FuncDef *FD) {
+    w.WriteLine(CStringFromBasicTypeKind(FD->getReturnType()), FD->getName(),
+                "()");
+    ChildrenVisitor::visitFuncDef(FD);
   }
 
-  void visitRead(Read *node) {
-    for (auto name : node->getNames()) {
+  void visitRead(Read *RD) {
+    for (auto name : RD->getNames()) {
       w.WriteLine("scanf", visitExpr(name));
     }
   }
 
-  void visitWrite(Write *node) {
-    if (node->getStr()) {
-      w.WriteLine("printf", visitExpr(node->getStr()));
+  void visitWrite(Write *WR) {
+    if (WR->getStr()) {
+      w.WriteLine("printf", visitExpr(WR->getStr()));
     }
-    if (node->getValue()) {
-      w.WriteLine("printf", visitExpr(node->getValue()));
+    if (WR->getValue()) {
+      w.WriteLine("printf", visitExpr(WR->getValue()));
     }
   }
 
-  void visitAssign(Assign *node) {
-    auto &&value = visitExpr(node->getValue());
-    if (IsInstance<Name>(node->getTarget())) {
-      auto &&target = visitExpr(node->getTarget());
+  void visitAssign(Assign *A) {
+    ExprValue value = visitExpr(A->getValue());
+    if (IsInstance<Name>(A->getTarget())) {
+      ExprValue target = visitExpr(A->getTarget());
       w.WriteLine(target, "=", value);
-    } else {
-      auto subscr = subclass_cast<Subscript>(node->getTarget());
-      assert(subscr);
-      auto &&index = visitExpr(subscr->getIndex());
-      w.WriteLine(subscr->getName(), "[", index, "] =", value);
+      return;
     }
+
+    auto subscr = subclass_cast<Subscript>(A->getTarget());
+    assert(subscr);
+    ExprValue index = visitExpr(subscr->getIndex());
+    w.WriteLine(subscr->getName(), "[", index, "] =", value);
   }
 
-  void visitReturn(Return *node) {
-    if (node->getValue()) {
-      w.WriteLine("ret", visitExpr(node->getValue()));
-    } else {
-      w.WriteLine("ret");
+  void visitReturn(Return *R) {
+    if (R->getValue()) {
+      w.WriteLine("ret", visitExpr(R->getValue()));
+      return;
     }
+    w.WriteLine("ret");
   }
 
-  ExprValue visitCall(Call *node) {
-    for (auto arg : node->getArgs()) {
+  ExprValue visitCall(Call *C) {
+    for (auto arg : C->getArgs()) {
       w.WriteLine("push", visitExpr(arg));
     }
-    w.WriteLine("call", node->getFunc());
-    // return a value even if void function
-    auto &&ret_val = MakeTemporary();
+    w.WriteLine("call", C->getFunc());
+    /// return a value even if void function
+    ExprValue ret_val = MakeTemporary();
     w.WriteLine(ret_val, "= RET");
     return ret_val;
   }
 
-  LineLabel CompileBoolOp(BoolOp *node, bool jump_if_false) {
-    auto temps = temporaries;
-    auto &&val = visitExpr(node->getValue());
-    if (temps == temporaries) {
-      // temporaries didn't increase, we need to hold the result
+  LineLabel CompileBoolOp(BoolOp *B) {
+    auto temps = TempCounter;
+    ExprValue val = visitExpr(B->getValue());
+    if (temps == TempCounter) {
+      /// TempCounter didn't increase, we need to hold the result
       w.WriteLine(MakeTemporary(), "=", val);
     }
-    auto &&label = MakeLineLabel();
-    auto jump = jump_if_false ? "BZ" : "BNZ";
-    w.WriteLine(jump, label.Inline(true));
+    LineLabel label = MakeLineLabel();
+    w.WriteLine("BZ", label.Inline(true));
     return label;
   }
 
-  void visitFor(For *node) {
-    auto &&start_label = MakeLineLabel();
-    visitStmt(node->getInitial());
-    w.WriteLine("GOTO", start_label.Inline(true));
-    auto &&loop_label = MakeLineLabel();
-    w.WriteLine(loop_label.Inline(false));
-    visitStmt(node->getStep());
-    auto &&end_label =
-        CompileBoolOp(static_cast<BoolOp *>(node->getCondition()), true);
-    w.WriteLine(start_label.Inline(false));
-    for (auto s : node->getBody()) {
-      visitStmt(s);
+  void visitFor(For *F) {
+    LineLabel Start = MakeLineLabel();
+    visitStmt(F->getInitial());
+    w.WriteLine("GOTO", Start.Inline(true));
+
+    LineLabel Loop = MakeLineLabel();
+    w.WriteLine(Loop.Inline(false));
+    visitStmt(F->getStep());
+
+    LineLabel End = CompileBoolOp(static_cast<BoolOp *>(F->getCondition()));
+    w.WriteLine(Start.Inline(false));
+
+    for (Stmt *S : F->getBody()) {
+      visitStmt(S);
     }
-    w.WriteLine("GOTO", loop_label.Inline(true));
-    w.WriteLine(end_label.Inline(false));
+
+    w.WriteLine("GOTO", Loop.Inline(true));
+    w.WriteLine(End.Inline(false));
   }
 
-  void visitIf(If *node) {
-    auto &&orelse_label =
-        CompileBoolOp(static_cast<BoolOp *>(node->getTest()), true);
-    for (auto s : node->getBody()) {
+  void visitIf(If *I) {
+    LineLabel Else = CompileBoolOp(static_cast<BoolOp *>(I->getTest()));
+
+    for (auto s : I->getBody()) {
       visitStmt(s);
     }
-    if (node->getOrelse().empty()) {
-      w.WriteLine(orelse_label.Inline(false));
+
+    if (I->getOrelse().empty()) {
+      w.WriteLine(Else.Inline(false));
       return;
     }
-    auto &&end_label = MakeLineLabel();
-    w.WriteLine("GOTO", end_label.Inline(true));
-    w.WriteLine(orelse_label.Inline(false));
-    for (auto s : node->getOrelse()) {
+
+    LineLabel End = MakeLineLabel();
+    w.WriteLine("GOTO", End.Inline(true));
+    w.WriteLine(Else.Inline(false));
+
+    for (auto s : I->getOrelse()) {
       visitStmt(s);
     }
-    w.WriteLine(end_label.Inline(false));
+    w.WriteLine(End.Inline(false));
   }
 
-  void visitWhile(While *node) {
-    auto &&loop_label = MakeLineLabel();
-    w.WriteLine(loop_label.Inline(false));
-    auto &&end_label =
-        CompileBoolOp(static_cast<BoolOp *>(node->getCondition()), true);
-    for (auto s : node->getBody()) {
+  void visitWhile(While *W) {
+    LineLabel Loop = MakeLineLabel();
+    w.WriteLine(Loop.Inline(false));
+    LineLabel End = CompileBoolOp(static_cast<BoolOp *>(W->getCondition()));
+
+    for (auto s : W->getBody()) {
       visitStmt(s);
     }
-    w.WriteLine("GOTO", loop_label.Inline(true));
-    w.WriteLine(end_label.Inline(false));
+
+    w.WriteLine("GOTO", Loop.Inline(true));
+    w.WriteLine(End.Inline(false));
   }
 
-  void visitExprStmt(ExprStmt *node) { visitExpr(node->getValue()); }
-
-  ExprValue visitName(Name *node) { return ExprValue(node); }
-
-  ExprValue visitChar(Char *node) { return ExprValue(node); }
-
-  ExprValue visitNum(Num *node) { return ExprValue(node); }
-
-  ExprValue visitStr(Str *node) { return ExprValue(node); }
-
-  ExprValue visitParenExpr(ParenExpr *node) {
-    return visitExpr(node->getValue());
+  ExprValue visitBinOp(BinOp *B) {
+    auto op = CStringFromOperatorKind(B->getOp());
+    ExprValue L = visitExpr(B->getLeft());
+    ExprValue R = visitExpr(B->getRight());
+    ExprValue Result = MakeTemporary();
+    w.WriteLine(Result, "=", L, op, R);
+    return Result;
   }
 
-  ExprValue visitBoolOp(BoolOp *node) {
+  ExprValue visitUnaryOp(UnaryOp *U) {
+    auto Op = CStringFromUnaryopKind(U->getOp());
+    ExprValue Operand = visitExpr(U->getOperand());
+    ExprValue Result = MakeTemporary();
+    w.WriteLine(Result, "=", Op, Operand);
+    return Result;
+  }
+
+  ExprValue visitSubscript(Subscript *SB) {
+    assert(SB->getCtx() == ExprContextKind::Load &&
+           "Store must be handle by visitAssign()");
+    ExprValue Idx = visitExpr(SB->getIndex());
+    ExprValue Result = MakeTemporary();
+    w.WriteLine(Result, "=", SB->getName(), "[", Idx, "]");
+    return Result;
+  }
+
+  ExprValue visitExpr(Expr *E) { return VisitorBase::visitExpr<ExprValue>(E); }
+  ExprValue visitParenExpr(ParenExpr *PE) { return visitExpr(PE->getValue()); }
+  ExprValue visitName(Name *N) { return ExprValue(N); }
+  ExprValue visitChar(Char *C) { return ExprValue(C); }
+  ExprValue visitNum(Num *N) { return ExprValue(N); }
+  ExprValue visitStr(Str *S) { return ExprValue(S); }
+
+  ExprValue visitBoolOp(BoolOp *) {
     assert(false && "BoolOp should be handled by CompileBoolOp()");
     return ExprValue();
   }
 
-  // XXX: result id should come after operands's
-  ExprValue visitBinOp(BinOp *node) {
-    auto op = CStringFromOperatorKind(node->getOp());
-    auto &&left = visitExpr(node->getLeft());
-    auto &&right = visitExpr(node->getRight());
-    auto &&result = MakeTemporary();
-    w.WriteLine(result, "=", left, op, right);
-    return result;
-  }
+  ExprValue MakeTemporary() { return ExprValue(TempCounter++); }
+  LineLabel MakeLineLabel() { return LineLabel(LabelCounter++); }
 
-  ExprValue visitUnaryOp(UnaryOp *node) {
-    auto op = CStringFromUnaryopKind(node->getOp());
-    auto &&operand = visitExpr(node->getOperand());
-    auto &&result = MakeTemporary();
-    w.WriteLine(result, "=", op, operand);
-    return result;
-  }
-
-  ExprValue visitSubscript(Subscript *node) {
-    assert(node->getCtx() == ExprContextKind::Load &&
-           "Store must be handle by visitAssign()");
-    auto &&index = visitExpr(node->getIndex());
-    auto &&result = MakeTemporary();
-    w.WriteLine(result, "=", node->getName(), "[", index, "]");
-    return result;
+  void visitDecl(Decl *D) {
+    /// Line break before each function.
+    if (IsInstance<FuncDef>(D))
+      w.WriteLine();
+    ChildrenVisitor::visitDecl(D);
   }
 
 public:
-  ByteCodePrinter(Program *program, std::ostream &os)
-      : program(program), w(os), temporaries(0), labels(0) {}
+  ByteCodePrinter(std::ostream &os) : w(os) {}
 
-  void Print() {
-    for (auto decl : program->getDecls()) {
-      visitDecl(decl);
-      w.WriteLine();
-    }
-  }
+  void Print(Program *P) { visitProgram(P); }
+
+private:
+  friend class ChildrenVisitor<ByteCodePrinter>;
+  friend class VisitorBase<ByteCodePrinter>;
+
+  Printer w;
+  int TempCounter = 0;
+  int LabelCounter = 0;
 };
-} // namespace
 
-void simplecompiler::PrintByteCode(Program *prog, std::ostream &os) {
-  ByteCodePrinter(prog, os).Print();
-}
+void PrintByteCode(Program *P, std::ostream &O) { ByteCodePrinter(O).Print(P); }
+
+} // namespace simplecompiler
