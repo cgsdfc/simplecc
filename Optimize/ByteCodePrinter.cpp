@@ -103,7 +103,8 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
       w.WriteLine("var", T, VD->getName());
       return;
     }
-    w.getOuts() << "var " << T << " " << VD->getName() << "[" << VD->getSize() << "]\n";
+    w.getOuts() << "var " << T << " " << VD->getName() << "[" << VD->getSize()
+                << "]\n";
   }
 
   void visitArgDecl(ArgDecl *AD) {

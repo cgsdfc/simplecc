@@ -66,7 +66,7 @@ class LocalContext {
 
   // populate jump_targets
   void MakeJumpTargets(const CompiledFunction &fun) {
-    for (const auto &code : fun.GetCode()) {
+    for (const auto &code : fun) {
       if (IsJumpXXX(code.GetOpcode())) {
         jump_targets.insert(code.GetIntOperand());
       }
@@ -75,7 +75,7 @@ class LocalContext {
 
 public:
   LocalContext(const CompiledFunction &fun)
-      : local_offsets(), jump_targets(), name(fun.GetName()),
+      : local_offsets(), jump_targets(), name(fun.getName()),
         local(fun.GetLocal()) {
     MakeLocalOffsets(fun);
     MakeJumpTargets(fun);
@@ -452,7 +452,7 @@ public:
   void Assemble() {
     ByteCodeToMipsTranslator translator(w, context);
     MakePrologue();
-    for (const auto &byteCode : source.GetCode()) {
+    for (const auto &byteCode : source) {
       auto offset = byteCode.GetOffset();
       if (context.IsTarget(offset)) {
         w.WriteLine(context.GetTargetLabel(offset, true));
@@ -515,10 +515,10 @@ class ModuleAssembler {
     w.WriteLine();
     w.WriteLine("# User defined functions");
 
-    for (const auto &fun : module.GetFunctions()) {
-      w.WriteLine(GlobalContext::GetGlobalLabel(fun.GetName(), true));
-      FunctionAssembler(fun, w).Assemble();
-      w.WriteLine("# End of", fun.GetName());
+    for (const auto &fun : module) {
+      w.WriteLine(GlobalContext::GetGlobalLabel(fun->getName(), true));
+      FunctionAssembler(*fun, w).Assemble();
+      w.WriteLine("# End of", fun->getName());
       w.WriteLine();
     }
     w.WriteLine("# End of text segment");

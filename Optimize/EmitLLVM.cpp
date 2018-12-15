@@ -222,7 +222,8 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
   /// VisitorBase boilderplate.
   /* void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); } */
-  /* void visitDecl(Decl *node) { return VisitorBase::visitDecl<void>(node); } */
+  /* void visitDecl(Decl *node) { return VisitorBase::visitDecl<void>(node); }
+   */
   Value *visitExpr(Expr *E) { return VisitorBase::visitExpr<Value *>(E); }
   void visitArgDecl(ArgDecl *) {}
 

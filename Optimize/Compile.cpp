@@ -9,441 +9,439 @@
 #include <utility>
 #include <vector>
 
-using namespace simplecompiler;
+namespace simplecompiler {
 
-namespace {
+class ByteCodeBuilder {
 
-Opcode MakeSubScr(ExprContextKind ctx) {
-  switch (ctx) {
-  case ExprContextKind::Load:
-    return Opcode::BINARY_SUBSCR;
-  case ExprContextKind::Store:
-    return Opcode::STORE_SUBSCR;
-  }
-}
-
-Opcode MakeLoad(Scope scope) {
-  switch (scope) {
-  case Scope::Global:
-    return Opcode::LOAD_GLOBAL;
-  case Scope::Local:
-    return Opcode::LOAD_LOCAL;
-  }
-}
-
-Opcode MakeStore(Scope scope) {
-  switch (scope) {
-  case Scope::Global:
-    return Opcode::STORE_GLOBAL;
-  case Scope::Local:
-    return Opcode::STORE_LOCAL;
-  }
-}
-
-Opcode MakeRead(BasicTypeKind type) {
-  switch (type) {
-  case BasicTypeKind::Character:
-    return Opcode::READ_CHARACTER;
-  case BasicTypeKind::Int:
-    return Opcode::READ_INTEGER;
-  default:
-    assert(false);
-  }
-}
-
-Opcode MakePrint(BasicTypeKind type) {
-  switch (type) {
-  case BasicTypeKind::Character:
-    return Opcode::PRINT_CHARACTER;
-  case BasicTypeKind::Int:
-    return Opcode::PRINT_INTEGER;
-  default:
-    assert(false);
-  }
-}
-
-Opcode MakeBinary(OperatorKind oper) {
-  switch (oper) {
-  case OperatorKind::Add:
-    return Opcode::BINARY_ADD;
-  case OperatorKind::Sub:
-    return Opcode::BINARY_SUB;
-  case OperatorKind::Mult:
-    return Opcode::BINARY_MULTIPLY;
-  case OperatorKind::Div:
-    return Opcode::BINARY_DIVIDE;
-  default:
-    assert(false);
-  }
-}
-
-Opcode MakeUnary(UnaryopKind oper) {
-  switch (oper) {
-  case UnaryopKind::UAdd:
-    return Opcode::UNARY_POSITIVE;
-  case UnaryopKind::USub:
-    return Opcode::UNARY_NEGATIVE;
-  }
-}
-
-Opcode MakeJumpNegative(OperatorKind oper) {
-  switch (oper) {
-  case OperatorKind::NotEq:
-    return Opcode::JUMP_IF_EQUAL;
-  case OperatorKind::Eq:
-    return Opcode::JUMP_IF_NOT_EQUAL;
-  case OperatorKind::GtE:
-    return Opcode::JUMP_IF_LESS;
-  case OperatorKind::Gt:
-    return Opcode::JUMP_IF_LESS_EQUAL;
-  case OperatorKind::LtE:
-    return Opcode::JUMP_IF_GREATER;
-  case OperatorKind::Lt:
-    return Opcode::JUMP_IF_GREATER_EQUAL;
-  default:
-    assert(false);
-  }
-}
-
-Opcode MakeJump(OperatorKind oper) {
-  switch (oper) {
-  case OperatorKind::Eq:
-    return Opcode::JUMP_IF_EQUAL;
-  case OperatorKind::NotEq:
-    return Opcode::JUMP_IF_NOT_EQUAL;
-  case OperatorKind::Lt:
-    return Opcode::JUMP_IF_LESS;
-  case OperatorKind::LtE:
-    return Opcode::JUMP_IF_LESS_EQUAL;
-  case OperatorKind::Gt:
-    return Opcode::JUMP_IF_GREATER;
-  case OperatorKind::GtE:
-    return Opcode::JUMP_IF_GREATER_EQUAL;
-  default:
-    assert(false);
-  }
-}
-} // namespace
-
-namespace {
-class FunctionCompiler : VisitorBase<FunctionCompiler> {
-  friend class VisitorBase<FunctionCompiler>;
-
-  unsigned current_lineno;
-  std::vector<ByteCode> buffer;
-  SymbolTableView local;
-  const SymbolTable &symtable;
-  CompiledModule &TheModule;
-  FuncDef *function;
-  std::vector<SymbolEntry> formal_arguments;
-  std::vector<SymbolEntry> local_objects;
-  ErrorManager e;
-
-  // add one piece of ByteCode to buffer, return the the offset
-  // of it in buffer
-  int Add(ByteCode code) {
-    code.SetLineno(current_lineno);
-    auto offset = GetLabel();
-    code.SetOffset(offset);
-    buffer.push_back(code);
-    return offset;
-  }
-
-  // return the offset of the next ByteCode to be added
-  int GetLabel() const { return buffer.size(); }
-
-  // return the last ByteCode in the buffer
-  ByteCode GetLastByteCode() const { return buffer.back(); }
-
-  // set the jump ByteCode at offset to have target
-  void SetTargetAt(int offset, int target) {
-    assert(IsJumpXXX(buffer.at(offset).GetOpcode()) && "IsJumpXXX()");
-    buffer.at(offset).SetTarget(target);
-  }
-
-  void visitFuncDef(FuncDef *node) {
-    for (auto arg : node->getArgs()) {
-      visitDecl(arg);
-    }
-    for (auto decl : node->getDecls()) {
-      visitDecl(decl);
-    }
-    for (auto s : node->getStmts()) {
-      visitStmt(s);
+  static Opcode MakeSubScr(ExprContextKind ctx) {
+    switch (ctx) {
+    case ExprContextKind::Load:
+      return Opcode::BINARY_SUBSCR;
+    case ExprContextKind::Store:
+      return Opcode::STORE_SUBSCR;
     }
   }
 
-  /* void visitDecl(Decl *node) { VisitorBase::visitDecl<void>(node); } */
-
-  void visitExpr(Expr *node) {
-    current_lineno = node->getLoc().getLineNo();
-    VisitorBase::visitExpr(node);
+  static Opcode MakeLoad(Scope scope) {
+    switch (scope) {
+    case Scope::Global:
+      return Opcode::LOAD_GLOBAL;
+    case Scope::Local:
+      return Opcode::LOAD_LOCAL;
+    }
   }
 
-  void visitStmt(Stmt *node) {
-    current_lineno = node->getLoc().getLineNo();
-    VisitorBase::visitStmt(node);
+  static Opcode MakeStore(Scope scope) {
+    switch (scope) {
+    case Scope::Global:
+      return Opcode::STORE_GLOBAL;
+    case Scope::Local:
+      return Opcode::STORE_LOCAL;
+    }
   }
 
-  void visitArgDecl(ArgDecl *node) {
-    formal_arguments.push_back(local[node->getName()]);
+  static Opcode MakeRead(BasicTypeKind type) {
+    switch (type) {
+    case BasicTypeKind::Character:
+      return Opcode::READ_CHARACTER;
+    case BasicTypeKind::Int:
+      return Opcode::READ_INTEGER;
+    default:
+      assert(false);
+    }
   }
 
-  void visitVarDecl(VarDecl *node) {
-    local_objects.push_back(local[node->getName()]);
+  static Opcode MakePrint(BasicTypeKind type) {
+    switch (type) {
+    case BasicTypeKind::Character:
+      return Opcode::PRINT_CHARACTER;
+    case BasicTypeKind::Int:
+      return Opcode::PRINT_INTEGER;
+    default:
+      assert(false);
+    }
   }
 
+  static Opcode MakeBinary(OperatorKind oper) {
+    switch (oper) {
+    case OperatorKind::Add:
+      return Opcode::BINARY_ADD;
+    case OperatorKind::Sub:
+      return Opcode::BINARY_SUB;
+    case OperatorKind::Mult:
+      return Opcode::BINARY_MULTIPLY;
+    case OperatorKind::Div:
+      return Opcode::BINARY_DIVIDE;
+    default:
+      assert(false);
+    }
+  }
+
+  static Opcode MakeUnary(UnaryopKind oper) {
+    switch (oper) {
+    case UnaryopKind::UAdd:
+      return Opcode::UNARY_POSITIVE;
+    case UnaryopKind::USub:
+      return Opcode::UNARY_NEGATIVE;
+    }
+  }
+
+  static Opcode MakeJumpNegative(OperatorKind oper) {
+    switch (oper) {
+    case OperatorKind::NotEq:
+      return Opcode::JUMP_IF_EQUAL;
+    case OperatorKind::Eq:
+      return Opcode::JUMP_IF_NOT_EQUAL;
+    case OperatorKind::GtE:
+      return Opcode::JUMP_IF_LESS;
+    case OperatorKind::Gt:
+      return Opcode::JUMP_IF_LESS_EQUAL;
+    case OperatorKind::LtE:
+      return Opcode::JUMP_IF_GREATER;
+    case OperatorKind::Lt:
+      return Opcode::JUMP_IF_GREATER_EQUAL;
+    default:
+      assert(false);
+    }
+  }
+
+  static Opcode MakeJump(OperatorKind oper) {
+    switch (oper) {
+    case OperatorKind::Eq:
+      return Opcode::JUMP_IF_EQUAL;
+    case OperatorKind::NotEq:
+      return Opcode::JUMP_IF_NOT_EQUAL;
+    case OperatorKind::Lt:
+      return Opcode::JUMP_IF_LESS;
+    case OperatorKind::LtE:
+      return Opcode::JUMP_IF_LESS_EQUAL;
+    case OperatorKind::Gt:
+      return Opcode::JUMP_IF_GREATER;
+    case OperatorKind::GtE:
+      return Opcode::JUMP_IF_GREATER_EQUAL;
+    default:
+      assert(false);
+    }
+  }
+
+  /// Insert a ByteCode into the back of InsertPoint.
+  /// Return the offset of the inserted ByteCode.
+  unsigned Insert(ByteCode Code) {
+    CompiledFunction &TheFunction = *getInsertPoint();
+    auto Off = TheFunction.size();
+    TheFunction.GetByteCodeList().push_back(std::move(Code));
+    return Off;
+  }
+
+  unsigned CreateNullary(Opcode Op) { return Insert(ByteCode(Op)); }
+
+public:
+  ByteCodeBuilder() = default;
+  ~ByteCodeBuilder() = default;
+
+  void setInsertPoint(CompiledFunction *F) { InsertPoint = F; }
+  CompiledFunction *getInsertPoint() const { return InsertPoint; }
+
+  void setLocation(const Location &L) { CurrentLineno = L.getLineNo(); }
+
+  unsigned CreateRead(BasicTypeKind T) { return Insert(MakeRead(T)); }
+
+  unsigned CreatePrint(BasicTypeKind T) { return Insert(MakePrint(T)); }
+
+  unsigned CreatePrintNewline() { return CreateNullary(Opcode::PRINT_NEWLINE); }
+
+  unsigned CreatePrintString() { return CreateNullary(Opcode::PRINT_STRING); }
+
+  unsigned CreateJumpIfFalse() { return CreateNullary(Opcode::JUMP_IF_FALSE); }
+
+  unsigned CreateJump(OperatorKind CompareOp, bool IsNeg = true) {
+    return CreateNullary(IsNeg ? MakeJumpNegative(CompareOp)
+                               : MakeJump(CompareOp));
+  }
+
+  unsigned CreateJumpForward() { return CreateNullary(Opcode::JUMP_FORWARD); }
+
+  unsigned CreateBinary(OperatorKind Op) {
+    return CreateNullary(MakeBinary(Op));
+  }
+
+  unsigned CreateReturnValue() { return CreateNullary(Opcode::RETURN_VALUE); }
+
+  unsigned CreateReturnNone() { return CreateNullary(Opcode::RETURN_NONE); }
+
+  unsigned CreatePopTop() { return CreateNullary(Opcode::POP_TOP); }
+
+  unsigned CreateUnary(UnaryopKind Op) { return CreateNullary(MakeUnary(Op)); }
+
+  unsigned CreateCallFunction(const String &Name, unsigned Argc) {
+    return Insert(ByteCode(Opcode::CALL_FUNCTION, Argc, Name.data()));
+  }
+
+  unsigned CreateLoad(Scope S, const String &Name) {
+    return Insert(ByteCode(MakeLoad(S), Name.data()));
+  }
+
+  unsigned CreateStore(Scope S, const String &Name) {
+    return Insert(ByteCode(MakeStore(S), Name.data()));
+  }
+
+  unsigned CreateLoadConst(int ConstValue) {
+    return Insert(ByteCode(Opcode::LOAD_CONST, ConstValue));
+  }
+
+  unsigned CreateLoadString(unsigned StringID) {
+    return Insert(ByteCode(Opcode::LOAD_STRING, StringID));
+  }
+
+  unsigned CreateSubscr(ExprContextKind Context) {
+    return CreateNullary(MakeSubScr(Context));
+  }
+
+  void setJumpTargetAt(unsigned Idx, unsigned Target) {
+    ByteCode &TheCode = getInsertPoint()->getByteCodeAt(Idx);
+    assert(IsJumpXXX(TheCode.GetOpcode()) &&
+           "Attempt to set jump target for non-jump ByteCode!");
+    TheCode.SetTarget(Target);
+  }
+
+  /// Return the size of the current CompiledFunction.
+  unsigned getSize() const { return getInsertPoint()->size(); }
+
+private:
+  CompiledFunction *InsertPoint = nullptr;
+  unsigned CurrentLineno = 1;
+};
+
+class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
+
+  void visitStmt(Stmt *S) {
+    Builder.setLocation(S->getLoc());
+    ChildrenVisitor::visitStmt(S);
+  }
+
+  void visitArgDecl(ArgDecl *A) {
+    auto TheFunction = Builder.getInsertPoint();
+    TheFunction->GetFormalArguments().push_back(TheLocalTable[A->getName()]);
+  }
+
+  void visitVarDecl(VarDecl *VD) {
+    auto TheFunction = Builder.getInsertPoint();
+    TheFunction->GetLocalObjects().push_back(TheLocalTable[VD->getName()]);
+  }
+
+  /// Explicitly do nothing.
   void visitConstDecl(ConstDecl *) {}
 
-  void visitRead(Read *node) {
-    for (auto expr : node->getNames()) {
-      auto name = static_cast<Name *>(expr);
-      const auto &entry = local[name->getId()];
-      Add(ByteCode(MakeRead(entry.AsVariable().GetType())));
-      Add(ByteCode(MakeStore(entry.GetScope()), entry.GetName().data()));
+  void visitRead(Read *RD) {
+    for (auto E : RD->getNames()) {
+      auto N = static_cast<Name *>(E);
+      const auto &Entry = TheLocalTable[N->getId()];
+      Builder.CreateRead(Entry.AsVariable().GetType());
+      Builder.CreateStore(Entry.GetScope(), Entry.GetName());
     }
   }
 
-  void visitWrite(Write *node) {
-    if (node->getStr()) {
-      visitExpr(node->getStr());
-      Add(ByteCode(Opcode::PRINT_STRING));
+  void visitWrite(Write *WR) {
+    if (WR->getStr()) {
+      visitExpr(WR->getStr());
+      Builder.CreatePrintString();
     }
-    if (node->getValue()) {
-      visitExpr(node->getValue());
-      auto type = symtable.getExprType(node->getValue());
-      Add(ByteCode(MakePrint(type)));
+    if (WR->getValue()) {
+      visitExpr(WR->getValue());
+      Builder.CreatePrint(TheTable->getExprType(WR->getValue()));
     }
-    Add(ByteCode(Opcode::PRINT_NEWLINE));
+    Builder.CreatePrintNewline();
   }
 
-  void visitAssign(Assign *node) {
-    visitExpr(node->getValue());
-    visitExpr(node->getTarget());
-  }
-
-  int CompileBoolOp(BoolOp *node, bool is_negative) {
-    if (node->getHasCmpop()) {
-      auto binop = subclass_cast<BinOp>(node->getValue());
-      assert(binop);
-      visitExpr(binop->getLeft());
-      visitExpr(binop->getRight());
-      auto opcode = is_negative ? MakeJumpNegative(binop->getOp())
-                                : MakeJump(binop->getOp());
-      return Add(ByteCode(opcode));
+  unsigned CompileBoolOp(BoolOp *B) {
+    ChildrenVisitor::visitBoolOp(B);
+    if (B->getHasCmpop()) {
+      return Builder.CreateJump(static_cast<BinOp *>(B->getValue())->getOp());
     }
-    visitExpr(node->getValue());
-    auto opcode = is_negative ? Opcode::JUMP_IF_FALSE : Opcode::JUMP_IF_TRUE;
-    return Add(ByteCode(opcode));
+    return Builder.CreateJumpIfFalse();
   }
 
   void visitFor(For *node) {
     visitStmt(node->getInitial());
-    auto jump_to_start = Add(ByteCode(Opcode::JUMP_FORWARD));
-    auto loop_label = GetLabel();
+    unsigned JumpToStart = Builder.CreateJumpForward();
+
+    unsigned Loop = Builder.getSize();
     visitStmt(node->getStep());
-    auto jump_to_end =
-        CompileBoolOp(static_cast<BoolOp *>(node->getCondition()), true);
-    auto start_label = GetLabel();
+    unsigned JumpToEnd =
+        CompileBoolOp(static_cast<BoolOp *>(node->getCondition()));
+
+    unsigned Start = Builder.getSize();
     for (auto s : node->getBody()) {
       visitStmt(s);
     }
-    auto jump_to_loop = Add(ByteCode(Opcode::JUMP_FORWARD));
-    auto end_label = GetLabel();
+    unsigned JumpToLoop = Builder.CreateJumpForward();
+    unsigned End = Builder.getSize();
 
-    SetTargetAt(jump_to_start, start_label);
-    SetTargetAt(jump_to_end, end_label);
-    SetTargetAt(jump_to_loop, loop_label);
+    Builder.setJumpTargetAt(JumpToStart, Start);
+    Builder.setJumpTargetAt(JumpToEnd, End);
+    Builder.setJumpTargetAt(JumpToLoop, Loop);
   }
 
-  void visitWhile(While *node) {
-    auto loop_label = GetLabel();
-    auto jump_to_end =
-        CompileBoolOp(static_cast<BoolOp *>(node->getCondition()), true);
-    for (auto s : node->getBody()) {
+  void visitWhile(While *W) {
+    unsigned Loop = Builder.getSize();
+    unsigned JumpToEnd =
+        CompileBoolOp(static_cast<BoolOp *>(W->getCondition()));
+
+    for (auto s : W->getBody()) {
       visitStmt(s);
     }
-    auto jump_to_loop = Add(ByteCode(Opcode::JUMP_FORWARD));
-    auto end_label = GetLabel();
+    unsigned JumpToLoop = Builder.CreateJumpForward();
 
-    SetTargetAt(jump_to_end, end_label);
-    SetTargetAt(jump_to_loop, loop_label);
+    unsigned End = Builder.getSize();
+    Builder.setJumpTargetAt(JumpToEnd, End);
+    Builder.setJumpTargetAt(JumpToLoop, Loop);
   }
 
-  void visitIf(If *node) {
-    auto jump_to_orelse =
-        CompileBoolOp(static_cast<BoolOp *>(node->getTest()), true);
-    for (auto s : node->getBody()) {
+  void visitIf(If *I) {
+    unsigned JumpToElse = CompileBoolOp(static_cast<BoolOp *>(I->getTest()));
+    for (auto s : I->getBody()) {
       visitStmt(s);
     }
-    if (node->getOrelse().empty()) {
-      auto end_label = GetLabel();
-      SetTargetAt(jump_to_orelse, end_label);
+
+    if (I->getOrelse().empty()) {
+      unsigned End = Builder.getSize();
+      Builder.setJumpTargetAt(JumpToElse, End);
       return;
     }
-    auto jump_to_end = Add(ByteCode(Opcode::JUMP_FORWARD));
-    auto orelse_label = GetLabel();
-    for (auto s : node->getOrelse()) {
+    unsigned JumpToEnd = Builder.CreateJumpForward();
+
+    unsigned Else = Builder.getSize();
+    for (auto s : I->getOrelse()) {
       visitStmt(s);
     }
-    auto end_label = GetLabel();
+    unsigned End = Builder.getSize();
 
-    SetTargetAt(jump_to_orelse, orelse_label);
-    SetTargetAt(jump_to_end, end_label);
+    Builder.setJumpTargetAt(JumpToElse, Else);
+    Builder.setJumpTargetAt(JumpToEnd, End);
   }
 
-  void visitReturn(Return *node) {
-    if (node->getValue()) {
-      visitExpr(node->getValue());
-      Add(ByteCode(Opcode::RETURN_VALUE));
-    } else {
-      Add(ByteCode(Opcode::RETURN_NONE));
-    }
+  void visitReturn(Return *R) {
+    ChildrenVisitor::visitReturn(R);
+    R->getValue() ? Builder.CreateReturnValue() : Builder.CreateReturnNone();
   }
 
-  void visitExprStmt(ExprStmt *node) {
-    visitExpr(node->getValue());
+  void visitExprStmt(ExprStmt *ES) {
+    ChildrenVisitor::visitExprStmt(ES);
     // discard return value
-    Add(ByteCode(Opcode::POP_TOP));
+    Builder.CreatePopTop();
   }
 
-  void visitBoolOp(BoolOp *node) {
+  void visitBoolOp(BoolOp *) {
     assert(false && "BoolOp should be handled by CompileBoolOp()");
   }
 
-  void visitUnaryOp(UnaryOp *node) {
-    visitExpr(node->getOperand());
-    Add(ByteCode(MakeUnary(node->getOp())));
+  void visitUnaryOp(UnaryOp *U) {
+    ChildrenVisitor::visitUnaryOp(U);
+    Builder.CreateUnary(U->getOp());
   }
 
-  void visitBinOp(BinOp *node) {
-    visitExpr(node->getLeft());
-    visitExpr(node->getRight());
-    Add(ByteCode(MakeBinary(node->getOp())));
+  void visitBinOp(BinOp *B) {
+    ChildrenVisitor::visitBinOp(B);
+    Builder.CreateBinary(B->getOp());
   }
 
-  void visitParenExpr(ParenExpr *node) { visitExpr(node->getValue()); }
-
-  void visitCall(Call *node) {
-    for (auto expr : node->getArgs()) {
-      visitExpr(expr);
-    }
-    Add(ByteCode(Opcode::CALL_FUNCTION, node->getArgs().size(),
-                 node->getFunc().data()));
+  void visitCall(Call *C) {
+    /// Visit all the args first.
+    ChildrenVisitor::visitCall(C);
+    Builder.CreateCallFunction(C->getFunc(), C->getArgs().size());
   }
 
-  void visitNum(Num *node) { Add(ByteCode(Opcode::LOAD_CONST, node->getN())); }
+  void visitNum(Num *N) { Builder.CreateLoadConst(N->getN()); }
 
-  void visitStr(Str *node) {
-    Add(ByteCode(Opcode::LOAD_STRING,
-                 TheModule.GetStringLiteralID(node->getS())));
+  void visitStr(Str *S) {
+    Builder.CreateLoadString(TheModule->GetStringLiteralID(S->getS()));
   }
 
-  void visitChar(Char *node) {
-    Add(ByteCode(Opcode::LOAD_CONST, node->getC()));
-  }
+  void visitChar(Char *C) { Builder.CreateLoadConst(C->getC()); }
 
-  void visitSubscript(Subscript *node) {
-    const auto &entry = local[node->getName()];
-    auto load = MakeLoad(entry.GetScope());
+  void visitSubscript(Subscript *SB) {
+    const auto &Entry = TheLocalTable[SB->getName()];
     // load array
-    Add(ByteCode(load, node->getName().data()));
+    Builder.CreateLoad(Entry.GetScope(), SB->getName());
     // calculate index
-    visitExpr(node->getIndex());
+    visitExpr(SB->getIndex());
     // do subscript
-    Add(ByteCode(MakeSubScr(node->getCtx())));
+    Builder.CreateSubscr(SB->getCtx());
   }
 
-  void visitName(Name *node) {
-    const auto &entry = local[node->getId()];
-    if (entry.IsConstant()) {
-      Add(ByteCode(Opcode::LOAD_CONST, entry.AsConstant().GetValue()));
-    } else {
-      // 4 choices: (LOAD, STORE) * (GLOBAL, LOCAL)
-      auto opcode = node->getCtx() == ExprContextKind::Load
-                        ? MakeLoad(entry.GetScope())
-                        : MakeStore(entry.GetScope());
-      Add(ByteCode(opcode, node->getId().data()));
+  void visitName(Name *N) {
+    const auto &Entry = TheLocalTable[N->getId()];
+    if (Entry.IsConstant()) {
+      Builder.CreateLoadConst(Entry.AsConstant().GetValue());
+      return;
     }
+    N->getCtx() == ExprContextKind::Load
+        ? Builder.CreateLoad(Entry.GetScope(), N->getId())
+        : Builder.CreateStore(Entry.GetScope(), N->getId());
   }
+
+  void visitFuncDef(FuncDef *FD) {
+    auto TheFunction = CompiledFunction::Create(TheModule);
+    TheFunction->setName(FD->getName());
+    Builder.setInsertPoint(TheFunction);
+    setLocalTable(TheTable->getLocalTable(FD));
+    ChildrenVisitor::visitFuncDef(FD);
+  }
+
+  void setModule(CompiledModule *M) { TheModule = M; }
+  void setTable(const SymbolTable *S) { TheTable = S; }
+  void setLocalTable(SymbolTableView V) { TheLocalTable = V; }
 
 public:
-  FunctionCompiler(FuncDef *fun, const SymbolTable &symtable,
-                   CompiledModule &TheModule)
-      : current_lineno(1), buffer(), local(symtable.getLocalTable(fun)),
-        symtable(symtable), function(fun), e(), TheModule(TheModule) {}
+  ByteCodeCompiler() = default;
 
   // public interface
-  CompiledFunction Compile() {
-    visitFuncDef(function);
-    // some jump will target a out-of-range offset
-    // this return handles this issue
-    Add(ByteCode(Opcode::RETURN_NONE));
-    const auto &entry = symtable.getGlobalEntry(function->getName());
-    // Check jump target
-    for (auto &&code : buffer) {
-      if (IsJumpXXX(code.GetOpcode())) {
-        if (code.GetOffset() >= buffer.size()) {
-          e.InternalError("jump target out of range:", code);
-        }
-      }
-    }
-    return CompiledFunction(local, std::move(buffer), entry,
-                            std::move(formal_arguments),
-                            std::move(local_objects));
+  void Compile(Program *P, const SymbolTable &S, CompiledModule &Module) {
+    EM.clear();
+    setTable(&S);
+    setModule(&Module);
+    visitProgram(P);
   }
+
+private:
+  friend class ChildrenVisitor<ByteCodeCompiler>;
+  friend class VisitorBase<ByteCodeCompiler>;
+
+  ByteCodeBuilder Builder;
+  SymbolTableView TheLocalTable;
+  const SymbolTable *TheTable;
+  CompiledModule *TheModule;
+  ErrorManager EM;
 };
 
-} // namespace
-
-CompiledFunction::CompiledFunction(SymbolTableView local,
-                                   std::vector<ByteCode> code,
-                                   SymbolEntry entry,
-                                   SymbolEntryList formal_arguments,
-                                   SymbolEntryList local_objects)
-    : local(local), code(std::move(code)), entry(entry),
-      formal_arguments(std::move(formal_arguments)),
-      local_objects(std::move(local_objects)) {
-  assert(entry.IsFunction());
-  for (auto &&code : code) {
-    code.Check();
-  }
+CompiledFunction::CompiledFunction(CompiledModule *M) : Parent(M) {
+  /// Owned by Module
+  M->getFunctionList().push_back(this);
 }
 
-void CompiledModule::Build(Program *prog, const SymbolTable &symtable) {
-  for (auto decl : prog->getDecls()) {
-    if (auto fun = subclass_cast<FuncDef>(decl)) {
-      FunctionCompiler functionCompiler(fun, symtable, *this);
-      functions.push_back(functionCompiler.Compile());
-    } else if (auto var = subclass_cast<VarDecl>(decl)) {
-      global_objects.push_back(symtable.getGlobalEntry(var->getName()));
-    }
-  }
+void CompiledModule::Build(Program *P, const SymbolTable &S) {
+  ByteCodeCompiler().Compile(P, S, *this);
 }
 
 unsigned CompiledModule::GetStringLiteralID(const String &Str) {
-  return strings.emplace(Str, strings.size()).first->second;
+  auto ID = StringLiterals.size();
+  return StringLiterals.emplace(Str, ID).first->second;
 }
 
-CompiledFunction::CompiledFunction(CompiledFunction &&other)
-    : local(other.local), code(std::move(other.code)), entry(other.entry),
-      formal_arguments(std::move(other.formal_arguments)),
-      local_objects(std::move(other.local_objects)) {}
-
 void CompiledFunction::Format(std::ostream &os) const {
-  os << "CompiledFunction(" << Quote(GetName()) << "):\n";
+  os << "CompiledFunction(" << Quote(getName()) << "):\n";
   os << "\nformal_arguments:\n";
-  for (const auto &arg : formal_arguments) {
+  for (const auto &arg : GetFormalArguments()) {
     os << arg << "\n";
   }
   os << "\nlocal_objects:\n";
-  for (const auto &obj : local_objects) {
+  for (const auto &obj : GetLocalObjects()) {
     os << obj << "\n";
   }
   os << "\ncode:\n";
 
   auto lineno = 0;
-  for (const auto &code : GetCode()) {
+  for (const auto &code : *this) {
     os << std::setw(4) << lineno << ": " << code << "\n";
     lineno++;
   }
@@ -451,15 +449,17 @@ void CompiledFunction::Format(std::ostream &os) const {
 
 void CompiledModule::Format(std::ostream &os) const {
   os << "global_objects:\n";
-  for (const auto &obj : global_objects) {
+  for (const auto &obj : GetGlobalObjects()) {
     os << obj << "\n";
   }
   os << "\nfunctions:\n";
-  for (const auto &fun : functions) {
+  for (const auto &fun : *this) {
     os << fun << "\n";
   }
   os << "\nstring_literals:\n";
-  for (auto &&item : strings) {
+  for (auto &&item : GetStringLiteralTable()) {
     os << std::setw(4) << item.second << ": " << item.first << "\n";
   }
 }
+
+} // namespace simplecompiler

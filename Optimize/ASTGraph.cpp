@@ -407,9 +407,7 @@ public:
 
   String visitAssign(Assign *) { return "="; }
 
-  String visitSubscript(Subscript *SB) {
-    return SB->getName();
-  }
+  String visitSubscript(Subscript *SB) { return SB->getName(); }
 
   String visitExprStmt(ExprStmt *ES) { return ""; }
   String visitFor(For *) { return ""; }
