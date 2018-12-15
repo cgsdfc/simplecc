@@ -58,15 +58,12 @@ public:
     ErrorWithLocation("TypeError", loc, std::forward<Args>(args)...);
   }
 
-  template <typename... Args>
-  [[noreturn]] void InternalError(Args &&... args) {
+  template <typename... Args> void InternalError(Args &&... args) {
     WriteLine("InternalError", std::forward<Args>(args)...);
-    std::abort();
+    ++error_count;
   }
 
-  int GetErrorCount() const {
-    return error_count;
-  }
+  int GetErrorCount() const { return error_count; }
 
   bool IsOk(int prev_count = 0) const { return prev_count == GetErrorCount(); }
 };

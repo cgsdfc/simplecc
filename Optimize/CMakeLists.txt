@@ -71,6 +71,7 @@ set(SOURCE_FILES
   ./Module.cpp
   ./Types.cpp
   ./ImplicitCallTransformer.cpp
+  ./AstVerifier.cpp
   ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")
