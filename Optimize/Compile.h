@@ -9,22 +9,22 @@
 #include <vector>
 
 namespace simplecompiler {
-class CompiledModule;
+class ByteCodeModule;
 using SymbolEntryList = std::vector<SymbolEntry>;
 
-class CompiledFunction {
-  CompiledModule *Parent;
+class ByteCodeFunction {
+  ByteCodeModule *Parent;
   SymbolTableView Symbols;
   std::vector<ByteCode> ByteCodeList;
   SymbolEntryList Arguments;
   SymbolEntryList LocalVariables;
   String Name;
 
-  CompiledFunction(CompiledModule *M);
+  ByteCodeFunction(ByteCodeModule *M);
 
 public:
-  static CompiledFunction *Create(CompiledModule *M) {
-    return new CompiledFunction(M);
+  static ByteCodeFunction *Create(ByteCodeModule *M) {
+    return new ByteCodeFunction(M);
   }
 
   const String &getName() const { return Name; }
@@ -60,12 +60,12 @@ public:
   const SymbolEntryList &GetLocalVariables() const { return LocalVariables; }
   SymbolEntryList &GetLocalVariables() { return LocalVariables; }
 
-  CompiledModule *getParent() const { return Parent; }
+  ByteCodeModule *getParent() const { return Parent; }
   void Format(std::ostream &os) const;
 };
 
-class CompiledModule {
-  using FunctionListTy = std::vector<CompiledFunction *>;
+class ByteCodeModule {
+  using FunctionListTy = std::vector<ByteCodeFunction *>;
   FunctionListTy FunctionList;
 
   using StringLiteralTable = std::unordered_map<String, int>;
@@ -74,8 +74,8 @@ class CompiledModule {
   SymbolEntryList GlobalVariables;
 
 public:
-  CompiledModule() = default;
-  ~CompiledModule();
+  ByteCodeModule() = default;
+  ~ByteCodeModule();
 
   void Build(Program *P, const SymbolTable &S);
 
@@ -104,18 +104,18 @@ public:
   /// FunctionList Forwading Interface
   bool empty() const { return FunctionList.empty(); }
   unsigned size() const { return FunctionList.size(); }
-  CompiledFunction *front() const { return FunctionList.front(); }
-  CompiledFunction *back() const { return FunctionList.back(); }
+  ByteCodeFunction *front() const { return FunctionList.front(); }
+  ByteCodeFunction *back() const { return FunctionList.back(); }
 
   void Format(std::ostream &os) const;
 };
 
-inline std::ostream &operator<<(std::ostream &O, const CompiledFunction &c) {
+inline std::ostream &operator<<(std::ostream &O, const ByteCodeFunction &c) {
   c.Format(O);
   return O;
 }
 
-inline std::ostream &operator<<(std::ostream &O, const CompiledModule &c) {
+inline std::ostream &operator<<(std::ostream &O, const ByteCodeModule &c) {
   c.Format(O);
   return O;
 }

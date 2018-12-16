@@ -299,11 +299,11 @@ INITIALIZE_PASS(PrintByteCodePass, "print-bytecode",
                 "print byte code in quarternary form")
 
 class CompilePass : public Pass {
-  CompiledModule TheModule;
+  ByteCodeModule TheModule;
 
 public:
   static char ID;
-  using ResultT = const CompiledModule &;
+  using ResultT = const ByteCodeModule &;
   ResultT getResult() const { return TheModule; }
 
   bool run(PassManager &PM) override {
@@ -327,7 +327,7 @@ class AssemblePass : public Pass {
 public:
   static char ID;
   bool run(PassManager &PM) override {
-    const CompiledModule &CM = PM.getResult<CompilePass>();
+    const ByteCodeModule &CM = PM.getResult<CompilePass>();
     AssembleMips(CM, PM.getOutputStream());
     return true;
   }

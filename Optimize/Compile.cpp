@@ -130,7 +130,7 @@ class ByteCodeBuilder {
   //
   unsigned Insert(ByteCode Code) {
     /// get the function being built.
-    CompiledFunction &TheFunction = *getInsertPoint();
+    ByteCodeFunction &TheFunction = *getInsertPoint();
 
     /// Fill in other members of Code.
     auto Off = TheFunction.size();
@@ -207,9 +207,9 @@ public:
     TheCode.SetJumpTarget(Target);
   }
 
-  void setInsertPoint(CompiledFunction *F) { InsertPoint = F; }
+  void setInsertPoint(ByteCodeFunction *F) { InsertPoint = F; }
 
-  CompiledFunction *getInsertPoint() const {
+  ByteCodeFunction *getInsertPoint() const {
     assert(InsertPoint && "InsertPoint not set!");
     return InsertPoint;
   }
@@ -217,11 +217,11 @@ public:
   void setLocation(const Location &L) { CurrentLineno = L.getLineNo(); }
   unsigned getLineNo() const { return CurrentLineno; }
 
-  /// Return the size of the current CompiledFunction.
+  /// Return the size of the current ByteCodeFunction.
   unsigned getSize() const { return getInsertPoint()->size(); }
 
 private:
-  CompiledFunction *InsertPoint = nullptr;
+  ByteCodeFunction *InsertPoint = nullptr;
   unsigned CurrentLineno = 1;
 };
 
@@ -394,7 +394,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   }
 
   void visitFuncDef(FuncDef *FD) {
-    auto TheFunction = CompiledFunction::Create(TheModule);
+    auto TheFunction = ByteCodeFunction::Create(TheModule);
     TheFunction->setName(FD->getName());
     setLocalTable(TheTable->getLocalTable(FD));
     TheFunction->setLocalTable(TheLocalTable);
@@ -422,7 +422,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
     }
   }
 
-  void setModule(CompiledModule *M) { TheModule = M; }
+  void setModule(ByteCodeModule *M) { TheModule = M; }
   void setTable(const SymbolTable *S) { TheTable = S; }
   void setLocalTable(SymbolTableView V) { TheLocalTable = V; }
 
@@ -430,7 +430,7 @@ public:
   ByteCodeCompiler() = default;
 
   // public interface
-  void Compile(Program *P, const SymbolTable &S, CompiledModule &Module) {
+  void Compile(Program *P, const SymbolTable &S, ByteCodeModule &Module) {
     EM.clear();
     setTable(&S);
     setModule(&Module);
@@ -444,31 +444,31 @@ private:
   ByteCodeBuilder Builder;
   SymbolTableView TheLocalTable;
   const SymbolTable *TheTable;
-  CompiledModule *TheModule;
+  ByteCodeModule *TheModule;
   ErrorManager EM;
 };
 
-CompiledFunction::CompiledFunction(CompiledModule *M) : Parent(M) {
+ByteCodeFunction::ByteCodeFunction(ByteCodeModule *M) : Parent(M) {
   /// Owned by Module
   M->getFunctionList().push_back(this);
 }
 
-CompiledModule::~CompiledModule() {
+ByteCodeModule::~ByteCodeModule() {
   /// Delete all owned functions.
-  std::for_each(begin(), end(), [](CompiledFunction *F) { delete F; });
+  std::for_each(begin(), end(), [](ByteCodeFunction *F) { delete F; });
 }
 
-void CompiledModule::Build(Program *P, const SymbolTable &S) {
+void ByteCodeModule::Build(Program *P, const SymbolTable &S) {
   ByteCodeCompiler().Compile(P, S, *this);
 }
 
-unsigned CompiledModule::GetStringLiteralID(const String &Str) {
+unsigned ByteCodeModule::GetStringLiteralID(const String &Str) {
   auto ID = StringLiterals.size();
   return StringLiterals.emplace(Str, ID).first->second;
 }
 
-void CompiledFunction::Format(std::ostream &O) const {
-  O << "CompiledFunction(" << Quote(getName()) << ")\n";
+void ByteCodeFunction::Format(std::ostream &O) const {
+  O << "ByteCodeFunction(" << Quote(getName()) << ")\n";
 
   O << "\nArguments:\n";
   for (const auto &Arg : GetFormalArguments()) {
@@ -488,7 +488,7 @@ void CompiledFunction::Format(std::ostream &O) const {
   }
 }
 
-void CompiledModule::Format(std::ostream &O) const {
+void ByteCodeModule::Format(std::ostream &O) const {
   O << "GlobalVariables:\n";
   for (const auto &GV : GetGlobalVariables()) {
     O << GV << "\n";

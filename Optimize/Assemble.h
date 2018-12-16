@@ -3,7 +3,7 @@
 #include <iostream>
 
 namespace simplecompiler {
-class CompiledModule;
-void AssembleMips(const CompiledModule &module, std::ostream &os);
+class ByteCodeModule;
+void AssembleMips(const ByteCodeModule &module, std::ostream &os);
 } // namespace simplecompiler
 #endif

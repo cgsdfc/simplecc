@@ -44,7 +44,7 @@ class LocalContext {
   SymbolTableView local;
 
   // populate local_offsets
-  void MakeLocalOffsets(const CompiledFunction &fun) {
+  void MakeLocalOffsets(const ByteCodeFunction &fun) {
     // offset points to the first vacant byte after storing
     // $ra and $fp. $ra is at 0($fp), $fp is at -4($fp)
     auto offset = BytesFromEntries(-2);
@@ -65,7 +65,7 @@ class LocalContext {
   }
 
   // populate jump_targets
-  void MakeJumpTargets(const CompiledFunction &fun) {
+  void MakeJumpTargets(const ByteCodeFunction &fun) {
     for (const auto &code : fun) {
       if (code.IsJumpXXX()) {
         jump_targets.insert(code.GetIntOperand());
@@ -74,7 +74,7 @@ class LocalContext {
   }
 
 public:
-  LocalContext(const CompiledFunction &fun)
+  LocalContext(const ByteCodeFunction &fun)
       : local_offsets(), jump_targets(), name(fun.getName()),
         local(fun.GetLocal()) {
     MakeLocalOffsets(fun);
@@ -384,9 +384,9 @@ public:
 };
 // }}}
 
-// Assemble a CompiledFunction to MIPS code
+// Assemble a ByteCodeFunction to MIPS code
 class FunctionAssembler {
-  const CompiledFunction &source;
+  const ByteCodeFunction &source;
   Printer &w;
   LocalContext context;
 
@@ -445,7 +445,7 @@ class FunctionAssembler {
   }
 
 public:
-  FunctionAssembler(const CompiledFunction &source, Printer &w)
+  FunctionAssembler(const ByteCodeFunction &source, Printer &w)
       : source(source), w(w), context(source) {}
 
   // public interface
@@ -468,7 +468,7 @@ public:
 
 // Assemble a whole MIPS program
 class ModuleAssembler {
-  const CompiledModule &module;
+  const ByteCodeModule &module;
   Printer w;
 
   // For each '\\' in string, make it doubled
@@ -525,7 +525,7 @@ class ModuleAssembler {
   }
 
 public:
-  ModuleAssembler(const CompiledModule &module, std::ostream &os)
+  ModuleAssembler(const ByteCodeModule &module, std::ostream &os)
       : module(module), w(os) {}
 
   void Assemble() {
@@ -536,7 +536,7 @@ public:
 };
 } // namespace
 
-void simplecompiler::AssembleMips(const CompiledModule &module,
+void simplecompiler::AssembleMips(const ByteCodeModule &module,
                                   std::ostream &os) {
   ModuleAssembler(module, os).Assemble();
 }
