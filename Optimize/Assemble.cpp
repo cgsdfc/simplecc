@@ -1,6 +1,7 @@
 #include "Assemble.h"
 #include "ByteCodeFunction.h"
 #include "ByteCodeModule.h"
+#include "MipsSupport.h"
 #include "OpcodeDispatcher.h"
 #include "Print.h"
 
@@ -12,107 +13,12 @@
 
 using namespace simplecompiler;
 
-// Return the bytes for n entries
-inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
-
-enum class MipsSyscallNumber {
-  PRINT_STRING = 4,
-  PRINT_CHARACTER = 11,
-  PRINT_INTEGER = 1,
-  READ_INTEGER = 5,
-  READ_CHARACTER = 12,
-  EXIT_PROGRAM = 10,
-};
-
-inline std::ostream &operator<<(std::ostream &os, MipsSyscallNumber syscall) {
-  return os << static_cast<int>(syscall);
-}
-
-/// CRTP base for label.
-template <typename Derived> class LabelBase {
-protected:
-  /// Whether this label needs a colon at the end.
-  bool NeedColon;
-
-public:
-  LabelBase(bool N) : NeedColon(N) {}
-  void setNeedColon(bool B) { NeedColon = B; }
-  void Format(std::ostream &O) const {
-    static_cast<const Derived *>(this)->FormatImpl(O);
-    if (NeedColon)
-      O << ":";
-  }
-};
-
-template <typename Derived>
-inline std::ostream &operator<<(std::ostream &O, const LabelBase<Derived> &LB) {
-  LB.Format(O);
-  return O;
-}
-
-class AsciizLabel : public LabelBase<AsciizLabel> {
-  unsigned StringID;
-
-public:
-  AsciizLabel(unsigned N, bool NeedColon) : LabelBase(NeedColon), StringID(N) {}
-  void FormatImpl(std::ostream &O) const { O << "string_" << StringID; }
-};
-
-class JumpTargetLabel : public LabelBase<JumpTargetLabel> {
-  const char *ParentName;
-  unsigned Target;
-
-public:
-  JumpTargetLabel(const char *PN, unsigned T, bool NeedColon)
-      : LabelBase(NeedColon), ParentName(PN), Target(T) {}
-  JumpTargetLabel(const String &PN, unsigned T, bool NeedColon)
-      : JumpTargetLabel(PN.data(), T, NeedColon) {}
-
-  void FormatImpl(std::ostream &O) const {
-    O << ParentName << "_label_" << Target;
-  }
-};
-
-class ReturnLabel : public LabelBase<ReturnLabel> {
-  const char *ParentName;
-
-public:
-  ReturnLabel(const String &PN, bool NeedColon)
-      : LabelBase(NeedColon), ParentName(PN.data()) {}
-  void FormatImpl(std::ostream &O) const { O << ParentName << "_return"; }
-};
-
-/// A Global label that is unique with the module.
-class GlobalLabel : public LabelBase<GlobalLabel> {
-  const char *Name;
-
-public:
-  GlobalLabel(const char *N, bool NeedColon) : LabelBase(NeedColon), Name(N) {}
-  GlobalLabel(const String &N, bool NeedColon)
-      : GlobalLabel(N.data(), NeedColon) {}
-
-  void FormatImpl(std::ostream &O) const { O << Name; }
-};
-
-/// A wrapper class that escapes the string when Format'ted.
-class EscapedString {
-  const String &Str;
-
-public:
-  EscapedString(const String &S) : Str(S) {}
-
-  void Format(std::ostream &O) const {
-    for (char C : Str) {
+void EscapedString::Format(std::ostream &O) const {
+  for (char C : Str) {
+    O << C;
+    if (C == '\\')
       O << C;
-      if (C == '\\')
-        O << C;
-    }
   }
-};
-
-inline std::ostream &operator<<(std::ostream &O, const EscapedString &E) {
-  E.Format(O);
-  return O;
 }
 
 // Provide local information for ByteCodeToMipsTranslator
@@ -172,8 +78,9 @@ public:
   bool IsJumpTarget(unsigned Off) const { return JumpTargets.count(Off); }
 
   // Return the offset of local name relatited to frame pointer
-  signed GetLocalOffset(const char *Name) const {
-    return LocalOffsets.at(Name);
+  signed int GetLocalOffset(const char *Name) const {
+    assert(LocalOffsets.count(Name) && "Undefined Name");
+    return LocalOffsets.find(Name)->second;
   }
 
   // Return whether a name is a variable
@@ -442,7 +349,9 @@ public:
       WriteLine(
           JumpTargetLabel(TheContext.getName(), Off, /* NeedColon */ true));
     }
+    WriteLine("#", C.GetOpcodeName());
     OpcodeDispatcher::dispatch(C);
+    WriteLine();
   }
 
 private:
@@ -503,7 +412,6 @@ class MipsAssemblyWriter {
     for (const ByteCode &C : TheFunction) {
       TheTranslator.Write(C);
     }
-    W.WriteLine();
     WriteEpilogue(W, TheFunction);
   }
 
@@ -532,17 +440,17 @@ class MipsAssemblyWriter {
     W.WriteLine("addi $sp, $sp,", -BytesFromEntries(2));
     W.WriteLine();
 
-    auto nargs = TheFunction.GetFormalArgumentCount();
-    if (nargs) {
+    auto NumArgs = TheFunction.GetFormalArgumentCount();
+    if (NumArgs) {
       // copy arguments here
       W.WriteLine("# Passing Arguments");
-      for (int i = 0; i < nargs; i++) {
+      for (int I = 0; I < NumArgs; I++) {
         // actual is above $fp, with $fp + 4 pointing to the last arg.
-        auto actual = BytesFromEntries(nargs - i);
+        signed int Actual = BytesFromEntries(NumArgs - I);
         // formal is under $sp, with $sp pointing to the first arg.
-        auto formal = BytesFromEntries(-i);
-        W.WriteLine("lw $t0,", actual, "($fp)");
-        W.WriteLine("sw $t0,", formal, "($sp)");
+        signed int Formal = BytesFromEntries(-I);
+        W.WriteLine("lw $t0,", Actual, "($fp)");
+        W.WriteLine("sw $t0,", Formal, "($sp)");
       }
       W.WriteLine();
     }
