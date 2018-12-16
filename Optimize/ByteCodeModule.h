@@ -34,7 +34,9 @@ public:
   const FunctionListTy &getFunctionList() const { return FunctionList; }
   FunctionListTy &getFunctionList() { return FunctionList; }
 
-  const GlobalVariableListTy &GetGlobalVariables() const { return GlobalVariables; }
+  const GlobalVariableListTy &GetGlobalVariables() const {
+    return GlobalVariables;
+  }
   GlobalVariableListTy &GetGlobalVariables() { return GlobalVariables; }
 
   /// Iterator Interface

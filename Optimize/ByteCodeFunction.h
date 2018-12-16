@@ -49,7 +49,9 @@ public:
   LocalVariableListTy &GetFormalArguments() { return Arguments; }
   unsigned GetFormalArgumentCount() const { return Arguments.size(); }
 
-  const LocalVariableListTy &GetLocalVariables() const { return LocalVariables; }
+  const LocalVariableListTy &GetLocalVariables() const {
+    return LocalVariables;
+  }
   LocalVariableListTy &GetLocalVariables() { return LocalVariables; }
 
   ByteCodeModule *getParent() const { return Parent; }

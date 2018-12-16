@@ -73,6 +73,7 @@ set(SOURCE_FILES
   ./ImplicitCallTransformer.cpp
   ./AstVerifier.cpp
   ./ByteCodeBuilder.cpp
+  ./ByteCodeFunction.cpp
   ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")

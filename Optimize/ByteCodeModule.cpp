@@ -4,10 +4,7 @@
 #include "ErrorManager.h"
 #include "Visitor.h"
 
-#include <algorithm>
 #include <cassert>
-#include <iomanip>
-#include <iostream>
 #include <utility>
 
 namespace simplecompiler {
@@ -248,62 +245,8 @@ private:
   ErrorManager EM;
 };
 
-ByteCodeFunction::ByteCodeFunction(ByteCodeModule *M) : Parent(M) {
-  /// Owned by Module
-  M->getFunctionList().push_back(this);
-}
-
-ByteCodeModule::~ByteCodeModule() {
-  /// Delete all owned functions.
-  std::for_each(begin(), end(), [](ByteCodeFunction *F) { delete F; });
-}
-
 void ByteCodeModule::Build(Program *P, const SymbolTable &S) {
   clear();
   ByteCodeCompiler().Compile(P, S, *this);
 }
-
-unsigned ByteCodeModule::GetStringLiteralID(const String &Str) {
-  auto ID = StringLiterals.size();
-  return StringLiterals.emplace(Str, ID).first->second;
-}
-
-void ByteCodeModule::clear() {
-  FunctionList.clear();
-  StringLiterals.clear();
-  GlobalVariables.clear();
-}
-
-void ByteCodeFunction::Format(std::ostream &O) const {
-  O << getName() << ":\n";
-
-  for (const auto &Arg : GetFormalArguments()) {
-    O << Arg << "\n";
-  }
-
-  for (const auto &LV : GetLocalVariables()) {
-    O << LV << "\n";
-  }
-
-  for (const auto &Code : *this) {
-    O << Code << "\n";
-  }
-}
-
-void ByteCodeModule::Format(std::ostream &O) const {
-  for (const auto &GV : GetGlobalVariables()) {
-    O << GV << "\n";
-  }
-
-  O << "\n";
-  for (auto &&Pair : GetStringLiteralTable()) {
-    O << std::setw(4) << Pair.second << ": " << Pair.first << "\n";
-  }
-
-  O << "\n";
-  for (const auto &Fn : *this) {
-    O << *Fn << "\n";
-  }
-}
-
 } // namespace simplecompiler
