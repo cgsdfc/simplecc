@@ -191,6 +191,7 @@ void SymbolTable::setExprType(Expr *E, BasicTypeKind T) {
 
 // public interface
 bool SymbolTable::Build(Program *P) {
+  clear();
   return SymbolTableBuilder().Build(P, *this);
 }
 
