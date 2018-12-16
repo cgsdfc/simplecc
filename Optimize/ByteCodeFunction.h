@@ -9,10 +9,10 @@
 
 namespace simplecompiler {
 class ByteCodeModule;
-using SymbolEntryList = std::vector<SymbolEntry>;
 
 class ByteCodeFunction {
 public:
+  using LocalVariableListTy = std::vector<SymbolEntry>;
   using ByteCodeListTy = std::vector<ByteCode>;
 
   static ByteCodeFunction *Create(ByteCodeModule *M) {
@@ -45,12 +45,12 @@ public:
   const_iterator begin() const { return ByteCodeList.begin(); }
   const_iterator end() const { return ByteCodeList.end(); }
 
-  const SymbolEntryList &GetFormalArguments() const { return Arguments; }
-  SymbolEntryList &GetFormalArguments() { return Arguments; }
+  const LocalVariableListTy &GetFormalArguments() const { return Arguments; }
+  LocalVariableListTy &GetFormalArguments() { return Arguments; }
   unsigned GetFormalArgumentCount() const { return Arguments.size(); }
 
-  const SymbolEntryList &GetLocalVariables() const { return LocalVariables; }
-  SymbolEntryList &GetLocalVariables() { return LocalVariables; }
+  const LocalVariableListTy &GetLocalVariables() const { return LocalVariables; }
+  LocalVariableListTy &GetLocalVariables() { return LocalVariables; }
 
   ByteCodeModule *getParent() const { return Parent; }
   void Format(std::ostream &O) const;
@@ -59,8 +59,8 @@ private:
   ByteCodeModule *Parent;
   SymbolTableView Symbols;
   ByteCodeListTy ByteCodeList;
-  SymbolEntryList Arguments;
-  SymbolEntryList LocalVariables;
+  LocalVariableListTy Arguments;
+  LocalVariableListTy LocalVariables;
   String Name;
 
   ByteCodeFunction(ByteCodeModule *M);

@@ -10,10 +10,10 @@ namespace simplecompiler {
 class Program;
 class SymbolTable;
 class ByteCodeFunction;
-using SymbolEntryList = std::vector<SymbolEntry>;
 
 class ByteCodeModule {
 public:
+  using GlobalVariableListTy = std::vector<SymbolEntry>;
   using FunctionListTy = std::vector<ByteCodeFunction *>;
   using StringLiteralTable = std::unordered_map<String, int>;
 
@@ -34,8 +34,8 @@ public:
   const FunctionListTy &getFunctionList() const { return FunctionList; }
   FunctionListTy &getFunctionList() { return FunctionList; }
 
-  const SymbolEntryList &GetGlobalVariables() const { return GlobalVariables; }
-  SymbolEntryList &GetGlobalVariables() { return GlobalVariables; }
+  const GlobalVariableListTy &GetGlobalVariables() const { return GlobalVariables; }
+  GlobalVariableListTy &GetGlobalVariables() { return GlobalVariables; }
 
   /// Iterator Interface
   using iterator = FunctionListTy::iterator;
@@ -61,7 +61,7 @@ public:
 private:
   FunctionListTy FunctionList;
   StringLiteralTable StringLiterals;
-  SymbolEntryList GlobalVariables;
+  GlobalVariableListTy GlobalVariables;
 };
 
 inline std::ostream &operator<<(std::ostream &O, const ByteCodeModule &c) {
