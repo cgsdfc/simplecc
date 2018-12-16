@@ -6,6 +6,25 @@
 
 namespace simplecompiler {
 
+ByteCode ByteCode::Create(Opcode Op, int Val) {
+  ByteCode B(Op);
+  B.SetIntOperand(Val);
+  return B;
+}
+
+ByteCode ByteCode::Create(Opcode Op, const char *Val) {
+  ByteCode B(Op);
+  B.SetStrOperand(Val);
+  return B;
+}
+
+ByteCode ByteCode::Create(Opcode Op, const char *Str, int Int) {
+  ByteCode B(Op);
+  B.SetStrOperand(Str);
+  B.SetIntOperand(Int);
+  return B;
+}
+
 bool ByteCode::IsJumpXXX(Opcode Op) {
   switch (Op) {
   case Opcode::JUMP_IF_TRUE:

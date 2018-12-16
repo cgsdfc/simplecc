@@ -41,24 +41,11 @@ public:
   /// Factories to create ByteCode instance correctly.
   static ByteCode Create(Opcode Op) { return ByteCode(Op); }
 
-  static ByteCode Create(Opcode Op, int Val) {
-    ByteCode B(Op);
-    B.SetIntOperand(Val);
-    return B;
-  }
+  static ByteCode Create(Opcode Op, int Val);
 
-  static ByteCode Create(Opcode Op, const char *Val) {
-    ByteCode B(Op);
-    B.SetStrOperand(Val);
-    return B;
-  }
+  static ByteCode Create(Opcode Op, const char *Val);
 
-  static ByteCode Create(Opcode Op, const char *Str, int Int) {
-    ByteCode B(Op);
-    B.SetStrOperand(Str);
-    B.SetIntOperand(Int);
-    return B;
-  }
+  static ByteCode Create(Opcode Op, const char *Str, int Int);
 
   /// ByteCode operand inspectation.
   static bool HasIntOperand(Opcode op);

@@ -408,14 +408,16 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitProgram(Program *P) {
     for (Decl *D : P->getDecls()) {
       switch (D->GetKind()) {
-        case Decl::FuncDef:
-          visitFuncDef(static_cast<FuncDef*>(D));
-          break;
-        case Decl::VarDecl:
-          // Collect global objects.
-          TheModule->GetGlobalVariables().push_back(TheTable->getGlobalEntry(D->getName()));
-          break;
-        default: break; // Ignore ConstDecl.
+      case Decl::FuncDef:
+        visitFuncDef(static_cast<FuncDef *>(D));
+        break;
+      case Decl::VarDecl:
+        // Collect global objects.
+        TheModule->GetGlobalVariables().push_back(
+            TheTable->getGlobalEntry(D->getName()));
+        break;
+      default:
+        break; // Ignore ConstDecl.
       }
     }
   }
