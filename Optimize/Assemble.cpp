@@ -5,33 +5,102 @@
 #include "Print.h"
 
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 
 using namespace simplecompiler;
-namespace {
+
+/// CRTP base for label.
+template <typename Derived> class LabelBase {
+protected:
+  /// Whether this label needs a colon at the end.
+  bool NeedColon;
+
+public:
+  LabelBase(bool N) : NeedColon(N) {}
+  void setNeedColon(bool B) { NeedColon = B; }
+  void Format(std::ostream &O) const {
+    static_cast<const Derived *>(this)->FormatImpl(O);
+    if (NeedColon)
+      O << ":";
+  }
+};
+
+template <typename Derived>
+std::ostream &operator<<(std::ostream &O, const LabelBase<Derived> &LB) {
+  LB.Format(O);
+  return O;
+}
+
+class AsciizLabel : public LabelBase<AsciizLabel> {
+  unsigned StringID;
+
+public:
+  AsciizLabel(unsigned N, bool NeedColon) : LabelBase(NeedColon), StringID(N) {}
+  void FormatImpl(std::ostream &O) const { O << "string_" << StringID; }
+};
+
+class JumpTargetLabel : public LabelBase<JumpTargetLabel> {
+  const char *ParentName;
+  unsigned Target;
+
+public:
+  JumpTargetLabel(const char *PN, unsigned T, bool NeedColon)
+      : LabelBase(NeedColon), ParentName(PN), Target(T) {}
+  JumpTargetLabel(const String &PN, unsigned T, bool NeedColon)
+      : JumpTargetLabel(PN.data(), T, NeedColon) {}
+
+  void FormatImpl(std::ostream &O) const {
+    O << ParentName << "_label_" << Target;
+  }
+};
+
+class ReturnLabel : public LabelBase<ReturnLabel> {
+  const char *ParentName;
+
+public:
+  ReturnLabel(const String &PN, bool NeedColon)
+      : LabelBase(NeedColon), ParentName(PN.data()) {}
+  void FormatImpl(std::ostream &O) const { O << ParentName << "return"; }
+};
+
+/// A Global label that is unique with the module.
+class GlobalLabel : public LabelBase<GlobalLabel> {
+  const char *Name;
+
+public:
+  GlobalLabel(const char *N, bool NeedColon) : LabelBase(NeedColon), Name(N) {}
+  GlobalLabel(const String &N, bool NeedColon)
+      : GlobalLabel(N.data(), NeedColon) {}
+
+  void FormatImpl(std::ostream &O) const { O << Name; }
+};
+
+/// A wrapper class that escapes the string when Format'ted.
+class EscapedString {
+  const String &Str;
+
+public:
+  EscapedString(const String &S) : Str(S) {}
+
+  void Format(std::ostream &O) const {
+    for (char C : Str) {
+      O << C;
+      if (C == '\\')
+        O << C;
+    }
+  }
+};
+
+std::ostream &operator<<(std::ostream &O, const EscapedString &E) {
+  E.Format(O);
+  return O;
+}
 
 // Return the bytes for n entries
 inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
-
-// Handle global object naming
-class GlobalContext {
-public:
-  // Return a label for a global name
-  static String GetGlobalLabel(const String &name, bool colon) {
-    return colon ? name + ":" : name;
-  }
-
-  // Return a label for a string literal
-  static String GetStringLiteralLabel(int ID, bool colon) {
-    std::ostringstream os;
-    os << "string_" << ID;
-    if (colon)
-      os << ":";
-    return os.str();
-  }
-};
 
 // Provide local information for ByteCodeToMipsTranslator
 class LocalContext {
@@ -40,20 +109,19 @@ class LocalContext {
   // a byte code offset is a jump target if in it
   std::unordered_set<int> jump_targets;
   // name of the function being translated
-  const String &name;
-  // local symbols for type information
-  SymbolTableView local;
+  const ByteCodeFunction *TheFunction;
 
   // populate local_offsets
-  void MakeLocalOffsets(const ByteCodeFunction &fun) {
+  void MakeLocalOffsets() {
+    local_offsets.clear();
     // offset points to the first vacant byte after storing
     // $ra and $fp. $ra is at 0($fp), $fp is at -4($fp)
     auto offset = BytesFromEntries(-2);
-    for (const auto &arg : fun.GetFormalArguments()) {
+    for (const auto &arg : TheFunction->GetFormalArguments()) {
       local_offsets.emplace(arg.GetName(), offset);
       offset -= BytesFromEntries(1);
     }
-    for (const auto &obj : fun.GetLocalVariables()) {
+    for (const auto &obj : TheFunction->GetLocalVariables()) {
       if (obj.IsArray()) {
         offset -= BytesFromEntries(obj.AsArray().GetSize());
         local_offsets.emplace(obj.GetName(), offset + BytesFromEntries(1));
@@ -66,8 +134,9 @@ class LocalContext {
   }
 
   // populate jump_targets
-  void MakeJumpTargets(const ByteCodeFunction &fun) {
-    for (const auto &code : fun) {
+  void MakeJumpTargets() {
+    jump_targets.clear();
+    for (const auto &code : *TheFunction) {
       if (code.IsJumpXXX()) {
         jump_targets.insert(code.GetIntOperand());
       }
@@ -75,11 +144,12 @@ class LocalContext {
   }
 
 public:
-  LocalContext(const ByteCodeFunction &fun)
-      : local_offsets(), jump_targets(), name(fun.getName()),
-        local(fun.GetLocal()) {
-    MakeLocalOffsets(fun);
-    MakeJumpTargets(fun);
+  LocalContext() = default;
+
+  void Initialize(const ByteCodeFunction &fun) {
+    TheFunction = &fun;
+    MakeLocalOffsets();
+    MakeJumpTargets();
   }
 
   // Return if an offset is a jump target
@@ -88,39 +158,18 @@ public:
   // Return the offset of local name relatited to frame pointer
   int GetLocalOffset(const char *name) const { return local_offsets.at(name); }
 
-  // Return the label denoting a global object.
-  String GetGlobalLabel(const char *name) const {
-    return GlobalContext::GetGlobalLabel(name, false);
-  }
-
-  // Return the label denoting a string literal.
-  String GetStringLiteralLabel(int ID) const {
-    return GlobalContext::GetStringLiteralLabel(ID, false);
-  }
-
-  // Return the label denoting the epilogue of a function.
-  String GetReturnLabel(bool colon) const {
-    std::ostringstream os;
-    os << name << "_return";
-    if (colon)
-      os << ":";
-    return os.str();
-  }
-
-  // Return the label of a jump target of a function.
-  String GetTargetLabel(int offset, bool colon = false) const {
-    std::ostringstream os;
-    os << name << "_label_" << offset;
-    if (colon)
-      os << ":";
-    return os.str();
-  }
-
   // Return whether a name is a variable
-  bool IsVariable(const char *name) const { return local[name].IsVariable(); }
+  bool IsVariable(const char *Name) const {
+    return TheFunction->GetLocal()[Name].IsVariable();
+  }
 
   // Return whether a name is an array
-  bool IsArray(const char *name) const { return local[name].IsArray(); }
+  bool IsArray(const char *Name) const {
+    return TheFunction->GetLocal()[Name].IsArray();
+  }
+
+  const String &getName() const { return TheFunction->getName(); }
+
 };
 
 enum class MipsSyscallNumber {
@@ -139,10 +188,6 @@ inline std::ostream &operator<<(std::ostream &os, MipsSyscallNumber syscall) {
 // Serve as a template translating one ByteCode to MIPS instructions
 class ByteCodeToMipsTranslator
     : public OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
-  Printer &w;
-  const LocalContext &context;
-  int stack_level = 0;
-
 public:
   ByteCodeToMipsTranslator(Printer &w, const LocalContext &context)
       : w(w), context(context) {}
@@ -179,8 +224,8 @@ public:
   }
 
   void HandleLoadGlobal(const ByteCode &code) {
-    auto &&label = context.GetGlobalLabel(code.GetStrOperand());
-    w.WriteLine("la $t0,", label);
+    GlobalLabel GL(code.GetStrOperand(), /* NeedColon */ false);
+    w.WriteLine("la $t0,", GL);
     if (context.IsVariable(code.GetStrOperand())) {
       w.WriteLine("lw $t0, 0($t0)");
     }
@@ -193,7 +238,8 @@ public:
   }
 
   void HandleLoadString(const ByteCode &code) {
-    w.WriteLine("la $t0,", context.GetStringLiteralLabel(code.GetIntOperand()));
+    AsciizLabel AL(code.GetIntOperand(), /* NeedColon */ false);
+    w.WriteLine("la $t0,", AL);
     PUSH("$t0");
   }
 
@@ -205,8 +251,8 @@ public:
 
   void HandleStoreGlobal(const ByteCode &code) {
     POP("$t0");
-    auto &&label = context.GetGlobalLabel(code.GetStrOperand());
-    w.WriteLine("sw $t0,", label);
+    GlobalLabel GL(code.GetStrOperand(), /* NeedColon */ false);
+    w.WriteLine("sw $t0,", GL);
   }
 
   void HandleBinary(const char *op) {
@@ -237,8 +283,8 @@ public:
   }
 
   void HandleCallFunction(const ByteCode &code) {
-    auto &&label = context.GetGlobalLabel(code.GetStrOperand());
-    w.WriteLine("jal", label);
+    GlobalLabel Fn(code.GetStrOperand(), /* NeedColon */ false);
+    w.WriteLine("jal", Fn);
     auto bytes = BytesFromEntries(code.GetIntOperand());
     if (bytes) {
       w.WriteLine("addi $sp, $sp", bytes);
@@ -247,8 +293,7 @@ public:
   }
 
   void HandleReturn() {
-    auto &&label = context.GetReturnLabel(false);
-    w.WriteLine("j", label);
+    w.WriteLine("j", ReturnLabel(Name, /* NeedColon */ false));
   }
 
   void HandleReturnValue(const ByteCode &code) {
@@ -333,8 +378,9 @@ public:
 
   void HandleUnaryJumpIf(const char *op, const ByteCode &code) {
     POP("$t0");
-    auto &&label = context.GetTargetLabel(code.GetIntOperand());
-    w.WriteLine(op, "$t0", label);
+    w.WriteLine(
+        op, "$t0",
+        JumpTargetLabel(Name, code.GetIntOperand(), /* NeedColon */ false));
   }
 
   void HandleJumpIfTrue(const ByteCode &code) {
@@ -346,15 +392,16 @@ public:
   }
 
   void HandleJumpForward(const ByteCode &code) {
-    auto &&label = context.GetTargetLabel(code.GetIntOperand());
-    w.WriteLine("j", label);
+    w.WriteLine("j", JumpTargetLabel(Name, code.GetIntOperand(),
+                                     /* NeedColon */ false));
   }
 
   void HandleBinaryJumpIf(const char *op, const ByteCode &code) {
     POP("$t0"); // TOS
     POP("$t1"); // TOS1
-    auto &&label = context.GetTargetLabel(code.GetIntOperand());
-    w.WriteLine(op, "$t1, $t0,", label);
+    w.WriteLine(
+        op, "$t1, $t0,",
+        JumpTargetLabel(Name, code.GetIntOperand(), /* NeedColon */ false));
   }
 
   void HandleJumpIfNotEqual(const ByteCode &code) {
@@ -382,53 +429,120 @@ public:
   }
 
   void HandlePopTop(const ByteCode &code) { POP(); }
+
+private:
+  String Name;
+  Printer &w;
+  const LocalContext &context;
+  int stack_level = 0;
+
 };
 // }}}
 
-// Assemble a ByteCodeFunction to MIPS code
-class FunctionAssembler {
-  const ByteCodeFunction &TheFunction;
-  Printer &w;
-  LocalContext context;
+
+namespace simplecompiler {
+class MipsAssemblyWriter {
+
+  static constexpr int InBytes(int Entries) { return 4 * Entries; }
+
+  void WriteData(Printer &W, const ByteCodeModule &Module) {
+    W.WriteLine(".data");
+    W.WriteLine("# Global objects");
+
+    for (const SymbolEntry &E : Module.GetGlobalVariables()) {
+      GlobalLabel GL(E.GetName(), false);
+      if (!E.IsArray()) {
+        W.WriteLine(GL, ".word", 0);
+        continue;
+      }
+      W.WriteLine(GL, ".space", BytesFromEntries(E.AsArray().GetSize()));
+    }
+
+    W.WriteLine();
+    W.WriteLine("# String literals");
+
+    for (const std::pair<String, unsigned> &Item :
+         Module.GetStringLiteralTable()) {
+      W.WriteLine(AsciizLabel(Item.second, /* NeedColon */ true), ".asciiz",
+                  EscapedString(Item.first));
+    }
+
+    W.WriteLine("# End of data segment");
+  }
 
   // Return the total bytes consumed by local objects, including
   // variables, arrays and formal arguments.
-  int GetLocalObjectsBytes() const {
-    auto entries = TheFunction.GetFormalArgumentCount();
-    for (const auto &obj : TheFunction.GetLocalVariables()) {
-      entries += obj.IsArray() ? obj.AsArray().GetSize() : 1;
-    }
-    return BytesFromEntries(entries);
+  unsigned GetLocalObjectsInBytes(const ByteCodeFunction &TheFunction) const {
+    unsigned Entries = std::accumulate(
+        TheFunction.local_begin(), TheFunction.local_end(),
+        TheFunction.GetFormalArgumentCount(),
+        [](unsigned Entries, const SymbolEntry &E) {
+          return Entries + (E.IsArray() ? E.AsArray().GetSize() : 1);
+        });
+    return InBytes(Entries);
   }
 
-  void MakePrologue() {
-    w.WriteLine("# Prologue");
-    w.WriteLine("sw $ra, 0($sp)");
-    w.WriteLine("sw $fp, -4($sp)");
-    w.WriteLine("move $fp, $sp");
-    w.WriteLine("addi $sp, $sp,", -BytesFromEntries(2));
-    w.WriteLine();
+  bool IsJumpTarget(unsigned Off) { return JumpTargets.count(Off); }
+
+  void WriteFunction(Printer &W, const ByteCodeFunction &TheFunction) {
+    InitializeLocalInfo(TheFunction);
+
+    WritePrologue(W, TheFunction);
+    for (const ByteCode &C : TheFunction) {
+      unsigned Off = C.GetByteCodeOffset();
+      if (IsJumpTarget(Off)) {
+        W.WriteLine(
+            JumpTargetLabel(TheFunction.getName(), Off, /* NeedColon */ true));
+      }
+      // ByteCodeToMipsTranslator:
+    }
+    WriteEpilogue(W, TheFunction);
+  }
+
+  void WriteText(Printer &W, const ByteCodeModule &Module) {
+    W.WriteLine(".text");
+    W.WriteLine(".globl main");
+    W.WriteLine("jal main");
+    W.WriteLine("li $v0,", MipsSyscallNumber::EXIT_PROGRAM);
+    W.WriteLine("syscall");
+    W.WriteLine();
+    W.WriteLine("# User defined functions");
+
+    for (const ByteCodeFunction *Fn : Module) {
+      WriteFunction(W, *Fn);
+    }
+    W.WriteLine("# End of text segment");
+  }
+
+  void WritePrologue(Printer &W, const ByteCodeFunction &TheFunction) {
+    W.WriteLine(GlobalLabel(TheFunction.getName(), /* NeedColon */ true));
+    W.WriteLine("# Prologue");
+    W.WriteLine("sw $ra, 0($sp)");
+    W.WriteLine("sw $fp, -4($sp)");
+    W.WriteLine("move $fp, $sp");
+    W.WriteLine("addi $sp, $sp,", -BytesFromEntries(2));
+    W.WriteLine();
 
     auto nargs = TheFunction.GetFormalArgumentCount();
     if (nargs) {
       // copy arguments here
-      w.WriteLine("# Passing Arguments");
+      W.WriteLine("# Passing Arguments");
       for (int i = 0; i < nargs; i++) {
         // actual is above $fp, with $fp + 4 pointing to the last arg.
         auto actual = BytesFromEntries(nargs - i);
         // formal is under $sp, with $sp pointing to the first arg.
         auto formal = BytesFromEntries(-i);
-        w.WriteLine("lw $t0,", actual, "($fp)");
-        w.WriteLine("sw $t0,", formal, "($sp)");
+        W.WriteLine("lw $t0,", actual, "($fp)");
+        W.WriteLine("sw $t0,", formal, "($sp)");
       }
-      w.WriteLine();
+      W.WriteLine();
     }
 
-    auto offset = -GetLocalObjectsBytes();
-    if (offset) {
-      w.WriteLine("# Make room for local objects");
-      w.WriteLine("addi $sp, $sp,", offset);
-      w.WriteLine();
+    auto Off = GetLocalObjectsInBytes(TheFunction);
+    if (Off != 0) {
+      W.WriteLine("# Make room for local objects");
+      W.WriteLine("addi $sp, $sp,", -Off);
+      W.WriteLine();
     }
     // now $fp points to the bottom of stack,
     // $sp points to the next TOS of the stack.
@@ -436,110 +550,79 @@ class FunctionAssembler {
     // $fp stored at -4($fp)
   }
 
-  void MakeEpilogue() {
-    w.WriteLine("# Epilogue");
-    w.WriteLine(context.GetReturnLabel(true));
-    w.WriteLine("lw $ra, 0($fp)");
-    w.WriteLine("move $sp, $fp");
-    w.WriteLine("lw $fp, -4($fp)");
-    w.WriteLine("jr $ra");
+  void WriteEpilogue(Printer &W, const ByteCodeFunction &TheFunction) {
+    W.WriteLine("# Epilogue");
+    W.WriteLine(ReturnLabel(TheFunction.getName(), /* NeedColon */ true));
+    W.WriteLine("lw $ra, 0($fp)");
+    W.WriteLine("move $sp, $fp");
+    W.WriteLine("lw $fp, -4($fp)");
+    W.WriteLine("jr $ra");
   }
 
-public:
-  FunctionAssembler(const ByteCodeFunction &source, Printer &w)
-      : TheFunction(source), w(w), context(TheFunction) {}
+  /// Initialize the **local offset** dictionary for a function.
+  /// The LocalOffsets is where local variables live on the stack.
+  void InitializeLocalOffsets(const ByteCodeFunction &TheFunction) {
+    // offset points to the first vacant byte after storing
+    // $ra and $fp. $ra is at 0($fp), $fp is at -4($fp)
+    LocalOffsets.clear();
+    auto Off = -InBytes(2);
 
-  // public interface
-  void Assemble() {
-    ByteCodeToMipsTranslator translator(w, context);
-    MakePrologue();
-    for (const auto &Code : TheFunction) {
-      auto offset = Code.GetByteCodeOffset();
-      if (context.IsTarget(offset)) {
-        w.WriteLine(context.GetTargetLabel(offset, true));
-      }
-      // corresponding ByteCode
-      w.WriteLine("#", Code.GetOpcodeName());
-      translator.dispatch(Code);
-      w.WriteLine();
+    /// Allocate space for formal arguments.
+    for (const SymbolEntry &Arg : TheFunction.GetFormalArguments()) {
+      LocalOffsets.emplace(Arg.GetName(), Off);
+      Off -= InBytes(1);
     }
-    MakeEpilogue();
+
+    /// Allocate space for non-arg local variables.
+    for (const SymbolEntry &Var : TheFunction.GetLocalVariables()) {
+      if (Var.IsArray()) {
+        Off -= InBytes(Var.AsArray().GetSize());
+        LocalOffsets.emplace(Var.GetName(), Off + InBytes(1));
+        continue;
+      }
+      /// Variable:
+      assert(Var.IsVariable());
+      LocalOffsets.emplace(Var.GetName(), Off);
+      Off -= InBytes(1);
+    }
   }
+
+  /// Initialize the **jump targets** set, which tells us whether an offset
+  /// in the ByteCode stream is a target of some jump command.
+  void InitializeJumpTargets(const ByteCodeFunction &TheFunction) {
+    JumpTargets.clear();
+    for (const ByteCode &C : TheFunction) {
+      if (C.IsJumpXXX()) {
+        JumpTargets.insert(C.GetIntOperand());
+      }
+    }
+  }
+
+  /// Initialize both LocalOffsets and JumpTargets.
+  void InitializeLocalInfo(const ByteCodeFunction &TheFunction) {
+    InitializeLocalOffsets(TheFunction);
+    InitializeJumpTargets(TheFunction);
+  }
+
+  void WriteByteCode(Printer &W, const ByteCode &C);
+public:
+  MipsAssemblyWriter() = default;
+  ~MipsAssemblyWriter() = default;
+
+  void Write(const ByteCodeModule &M, std::ostream &O) {
+    Printer W(O);
+    WriteData(W, M);
+    W.WriteLine();
+    WriteText(W, M);
+  }
+
+private:
+  std::unordered_map<String, unsigned> LocalOffsets;
+  std::unordered_set<unsigned> JumpTargets;
 };
 
-// Assemble a whole MIPS program
-class ModuleAssembler {
-  const ByteCodeModule &TheModule;
-  Printer w;
-
-  // For each '\\' in string, make it doubled
-  static String DoubleBackslashes(const String &string) {
-    String result;
-    result.reserve(string.size());
-    for (auto c : string) {
-      result.push_back(c);
-      if (c == '\\') {
-        result.push_back(c);
-      }
-    }
-    return std::move(result);
-  }
-
-  void MakeDataSegment() {
-    w.WriteLine(".data");
-    w.WriteLine("# Global objects");
-    for (const auto &obj : TheModule.GetGlobalVariables()) {
-      auto &&label = GlobalContext::GetGlobalLabel(obj.GetName(), true);
-      if (obj.IsArray()) {
-        auto bytes = BytesFromEntries(obj.AsArray().GetSize());
-        w.WriteLine(label, ".space", bytes);
-      } else {
-        w.WriteLine(label, ".word", 0);
-      }
-    }
-    w.WriteLine();
-    w.WriteLine("# String literals");
-    for (const auto &item : TheModule.GetStringLiteralTable()) {
-      auto &&label = GlobalContext::GetStringLiteralLabel(item.second, true);
-      w.WriteLine(label, ".asciiz", DoubleBackslashes(item.first));
-    }
-    w.WriteLine("# End of data segment");
-  }
-
-  void MakeTextSegment() {
-    w.WriteLine(".text");
-    w.WriteLine("# Boilerplate");
-    w.WriteLine(".globl main");
-    w.WriteLine("jal main");
-    w.WriteLine("li $v0,", MipsSyscallNumber::EXIT_PROGRAM);
-    w.WriteLine("syscall");
-    w.WriteLine();
-    w.WriteLine("# User defined functions");
-
-    for (const auto &fun : TheModule) {
-      w.WriteLine(GlobalContext::GetGlobalLabel(fun->getName(), true));
-      FunctionAssembler(*fun, w).Assemble();
-      w.WriteLine("# End of", fun->getName());
-      w.WriteLine();
-    }
-    w.WriteLine("# End of text segment");
-  }
-
-public:
-  ModuleAssembler(const ByteCodeModule &TheModule, std::ostream &os)
-      : TheModule(TheModule), w(os) {}
-
-  void Assemble() {
-    MakeDataSegment();
-    w.WriteLine();
-    MakeTextSegment();
-  }
-};
-} // namespace
-
-void simplecompiler::AssembleMips(const ByteCodeModule &TheModule,
-                                  std::ostream &os) {
-  ModuleAssembler(TheModule, os).Assemble();
+void AssembleMips(const ByteCodeModule &M, std::ostream &O) {
+  MipsAssemblyWriter().Write(M, O);
 }
 
-// vim: set foldmethod=marker
+}

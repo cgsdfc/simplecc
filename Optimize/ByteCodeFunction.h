@@ -49,6 +49,15 @@ public:
   LocalVariableListTy &GetFormalArguments() { return Arguments; }
   unsigned GetFormalArgumentCount() const { return Arguments.size(); }
 
+  /// Iterator of local variables.
+  using local_iterator = LocalVariableListTy::iterator;
+  using const_local_iterator = LocalVariableListTy::const_iterator;
+
+  local_iterator local_begin() { return LocalVariables.begin(); }
+  local_iterator local_end() { return LocalVariables.end(); }
+  const_local_iterator local_begin() const { return LocalVariables.begin(); }
+  const_local_iterator local_end() const { return LocalVariables.end(); }
+
   const LocalVariableListTy &GetLocalVariables() const {
     return LocalVariables;
   }

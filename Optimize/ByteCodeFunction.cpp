@@ -1,10 +1,10 @@
 #include "ByteCodeFunction.h"
 #include "ByteCodeModule.h"
 
-#include <utility> // pair
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <utility> // pair
 
 using namespace simplecompiler;
 
