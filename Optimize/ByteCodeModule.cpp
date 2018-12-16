@@ -1,4 +1,4 @@
-#include "Compile.h"
+#include "ByteCodeModule.h"
 #include "ByteCodeBuilder.h"
 #include "ByteCodeFunction.h"
 #include "ErrorManager.h"

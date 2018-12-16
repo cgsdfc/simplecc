@@ -1,6 +1,6 @@
 #include "Assemble.h"
 #include "ByteCodeFunction.h"
-#include "Compile.h"
+#include "ByteCodeModule.h"
 #include "OpcodeDispatcher.h"
 #include "Print.h"
 

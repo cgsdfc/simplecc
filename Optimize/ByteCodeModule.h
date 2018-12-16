@@ -1,5 +1,5 @@
-#ifndef COMPILE_H
-#define COMPILE_H
+#ifndef BYTE_CODE_MODULE_H
+#define BYTE_CODE_MODULE_H
 #include "Types.h"
 
 #include <iostream>

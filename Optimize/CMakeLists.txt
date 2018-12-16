@@ -56,7 +56,7 @@ set(SOURCE_FILES
   ./ByteCodePrinter.cpp
   ./Assemble.cpp
   ./ByteCode.cpp
-  ./Compile.cpp
+  ./ByteCodeModule.cpp
   ./Opcode.cpp
   ./AST.cpp
   ./Grammar.cpp
