@@ -1,6 +1,7 @@
 #include "ByteCode.h"
 #include "ErrorManager.h"
 
+#include <iomanip>
 #include <cassert>
 #include <iostream>
 
@@ -92,18 +93,17 @@ bool ByteCode::HasNoOperand(Opcode Op) {
 }
 
 void ByteCode::Format(std::ostream &O) const {
-  O << "ByteCode(" << GetOpcode() << ", ";
+  /* O << std::setw(4) << GetSourceLineno(); */
+  O << std::left << std::setw(4) << GetByteCodeOffset();
+  O << std::left << std::setw(20) << GetOpcode();
 
   if (HasIntOperand()) {
-    O << "int_arg=" << GetIntOperand() << ", ";
+    O << std::setw(10) << GetIntOperand();
   }
 
   if (HasStrOperand()) {
-    O << "str_arg=" << GetStrOperand() << ", ";
+    O << std::setw(20) << GetStrOperand();
   }
-
-  O << "offset=" << GetByteCodeOffset() << ", ";
-  O << "lineno=" << GetSourceLineno() << ")";
 }
 
 } // namespace simplecompiler

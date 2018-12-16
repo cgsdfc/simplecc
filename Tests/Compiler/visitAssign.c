@@ -1,16 +1,16 @@
-char cvar;
-char carr[2];
+char CharVar;
+char CharArray[2];
 
 void main() {
-  int ivar;
-  int iarr[2];
+  int IntVar;
+  int IntArray[2];
 
-  ivar = 1;
-  cvar = 'a';
+  IntVar = 1;
+  CharVar = 'a';
 
-  ivar = ivar;
-  cvar = cvar;
+  IntVar = IntVar;
+  CharVar = CharVar;
 
-  iarr[0] = 1;
-  carr[0] = 'a';
+  IntArray[0] = 1;
+  CharArray[0] = 'a';
 }

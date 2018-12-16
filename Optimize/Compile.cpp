@@ -153,29 +153,21 @@ public:
   ~ByteCodeBuilder() = default;
 
   unsigned CreateRead(BasicTypeKind T) { return Create(MakeRead(T)); }
-
   unsigned CreatePrint(BasicTypeKind T) { return Create(MakePrint(T)); }
-
   unsigned CreatePrintNewline() { return Create(Opcode::PRINT_NEWLINE); }
-
   unsigned CreatePrintString() { return Create(Opcode::PRINT_STRING); }
-
   unsigned CreateJumpIfFalse() { return Create(Opcode::JUMP_IF_FALSE); }
+  unsigned CreateJumpIfTrue() { return Create(Opcode::JUMP_IF_TRUE); }
 
   unsigned CreateJump(OperatorKind CompareOp, bool IsNeg = true) {
     return Create(IsNeg ? MakeJumpNegative(CompareOp) : MakeJump(CompareOp));
   }
 
   unsigned CreateJumpForward() { return Create(Opcode::JUMP_FORWARD); }
-
   unsigned CreateBinary(OperatorKind Op) { return Create(MakeBinary(Op)); }
-
   unsigned CreateReturnValue() { return Create(Opcode::RETURN_VALUE); }
-
   unsigned CreateReturnNone() { return Create(Opcode::RETURN_NONE); }
-
   unsigned CreatePopTop() { return Create(Opcode::POP_TOP); }
-
   unsigned CreateUnary(UnaryopKind Op) { return Create(MakeUnary(Op)); }
 
   unsigned CreateCallFunction(const String &Name, unsigned Argc) {
@@ -267,10 +259,14 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   }
 
   unsigned CompileBoolOp(BoolOp *B) {
-    ChildrenVisitor::visitBoolOp(B);
     if (B->getHasCmpop()) {
-      return Builder.CreateJump(static_cast<BinOp *>(B->getValue())->getOp());
+      BinOp *BO = static_cast<BinOp*>(B->getValue());
+      visitExpr(BO->getLeft());
+      visitExpr(BO->getRight());
+      return Builder.CreateJump(BO->getOp());
     }
+
+    ChildrenVisitor::visitBoolOp(B);
     return Builder.CreateJumpIfFalse();
   }
 
@@ -365,12 +361,10 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   }
 
   void visitNum(Num *N) { Builder.CreateLoadConst(N->getN()); }
-
+  void visitChar(Char *C) { Builder.CreateLoadConst(C->getC()); }
   void visitStr(Str *S) {
     Builder.CreateLoadString(TheModule->GetStringLiteralID(S->getS()));
   }
-
-  void visitChar(Char *C) { Builder.CreateLoadConst(C->getC()); }
 
   void visitSubscript(Subscript *SB) {
     const auto &Entry = TheLocalTable[SB->getName()];
@@ -394,12 +388,16 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   }
 
   void visitFuncDef(FuncDef *FD) {
+    /// Create the function and set members.
     auto TheFunction = ByteCodeFunction::Create(TheModule);
     TheFunction->setName(FD->getName());
     setLocalTable(TheTable->getLocalTable(FD));
     TheFunction->setLocalTable(TheLocalTable);
+
+    /// Emit code for the function body.
     Builder.setInsertPoint(TheFunction);
     ChildrenVisitor::visitFuncDef(FD);
+
     // It is important we always return since we don't
     // construct any BasicBlock to detect inproper returns.
     Builder.CreateReturnNone();
@@ -443,8 +441,8 @@ private:
 
   ByteCodeBuilder Builder;
   SymbolTableView TheLocalTable;
-  const SymbolTable *TheTable;
-  ByteCodeModule *TheModule;
+  const SymbolTable *TheTable = nullptr;
+  ByteCodeModule *TheModule = nullptr;
   ErrorManager EM;
 };
 
@@ -459,6 +457,7 @@ ByteCodeModule::~ByteCodeModule() {
 }
 
 void ByteCodeModule::Build(Program *P, const SymbolTable &S) {
+  clear();
   ByteCodeCompiler().Compile(P, S, *this);
 }
 
@@ -467,42 +466,43 @@ unsigned ByteCodeModule::GetStringLiteralID(const String &Str) {
   return StringLiterals.emplace(Str, ID).first->second;
 }
 
-void ByteCodeFunction::Format(std::ostream &O) const {
-  O << "ByteCodeFunction(" << Quote(getName()) << ")\n";
+void ByteCodeModule::clear() {
+  FunctionList.clear();
+  StringLiterals.clear();
+  GlobalVariables.clear();
+}
 
-  O << "\nArguments:\n";
+void ByteCodeFunction::Format(std::ostream &O) const {
+  O << getName() << ":\n";
+
   for (const auto &Arg : GetFormalArguments()) {
     O << Arg << "\n";
   }
 
-  O << "\nLocalVariables:\n";
   for (const auto &LV : GetLocalVariables()) {
     O << LV << "\n";
   }
 
-  O << "\nBytecodes:\n";
-  auto Lineno = 0;
   for (const auto &Code : *this) {
-    O << std::setw(4) << Lineno << ": " << Code << "\n";
-    Lineno++;
+    O << Code << "\n";
   }
 }
 
 void ByteCodeModule::Format(std::ostream &O) const {
-  O << "GlobalVariables:\n";
   for (const auto &GV : GetGlobalVariables()) {
     O << GV << "\n";
   }
 
-  O << "\nFunctions:\n";
+  O << "\n";
+  for (auto &&Pair : GetStringLiteralTable()) {
+    O << std::setw(4) << Pair.second << ": " << Pair.first << "\n";
+  }
+
+  O << "\n";
   for (const auto &Fn : *this) {
     O << *Fn << "\n";
   }
 
-  O << "\nStringLiterals:\n";
-  for (auto &&Pair : GetStringLiteralTable()) {
-    O << std::setw(4) << Pair.second << ": " << Pair.first << "\n";
-  }
 }
 
 } // namespace simplecompiler

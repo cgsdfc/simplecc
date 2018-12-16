@@ -13,16 +13,9 @@ class ByteCodeModule;
 using SymbolEntryList = std::vector<SymbolEntry>;
 
 class ByteCodeFunction {
-  ByteCodeModule *Parent;
-  SymbolTableView Symbols;
-  std::vector<ByteCode> ByteCodeList;
-  SymbolEntryList Arguments;
-  SymbolEntryList LocalVariables;
-  String Name;
-
-  ByteCodeFunction(ByteCodeModule *M);
-
 public:
+  using ByteCodeListTy = std::vector<ByteCode>;
+
   static ByteCodeFunction *Create(ByteCodeModule *M) {
     return new ByteCodeFunction(M);
   }
@@ -33,8 +26,8 @@ public:
   void setLocalTable(SymbolTableView L) { Symbols = L; }
   SymbolTableView GetLocal() const { return Symbols; }
 
-  std::vector<ByteCode> &GetByteCodeList() { return ByteCodeList; }
-  const std::vector<ByteCode> &GetByteCodeList() const { return ByteCodeList; }
+  ByteCodeListTy &GetByteCodeList() { return ByteCodeList; }
+  const ByteCodeListTy &GetByteCodeList() const { return ByteCodeList; }
 
   ByteCode &getByteCodeAt(unsigned Idx) { return ByteCodeList[Idx]; }
   const ByteCode &getByteCodeAt(unsigned Idx) const {
@@ -45,8 +38,8 @@ public:
   bool empty() const { return ByteCodeList.empty(); }
 
   /// Iterator Interface.
-  using iterator = decltype(ByteCodeList)::iterator;
-  using const_iterator = decltype(ByteCodeList)::const_iterator;
+  using iterator = ByteCodeListTy::iterator;
+  using const_iterator = ByteCodeListTy::const_iterator;
 
   iterator begin() { return ByteCodeList.begin(); }
   iterator end() { return ByteCodeList.end(); }
@@ -62,21 +55,28 @@ public:
 
   ByteCodeModule *getParent() const { return Parent; }
   void Format(std::ostream &os) const;
+
+private:
+  ByteCodeModule *Parent;
+  SymbolTableView Symbols;
+  ByteCodeListTy ByteCodeList;
+  SymbolEntryList Arguments;
+  SymbolEntryList LocalVariables;
+  String Name;
+
+  ByteCodeFunction(ByteCodeModule *M);
+
 };
 
 class ByteCodeModule {
-  using FunctionListTy = std::vector<ByteCodeFunction *>;
-  FunctionListTy FunctionList;
-
-  using StringLiteralTable = std::unordered_map<String, int>;
-  StringLiteralTable StringLiterals;
-
-  SymbolEntryList GlobalVariables;
-
 public:
+  using FunctionListTy = std::vector<ByteCodeFunction *>;
+  using StringLiteralTable = std::unordered_map<String, int>;
+
   ByteCodeModule() = default;
   ~ByteCodeModule();
 
+  /// Populate this Module with ByteCode.
   void Build(Program *P, const SymbolTable &S);
 
   /// String literal interface.
@@ -106,8 +106,16 @@ public:
   unsigned size() const { return FunctionList.size(); }
   ByteCodeFunction *front() const { return FunctionList.front(); }
   ByteCodeFunction *back() const { return FunctionList.back(); }
+  ByteCodeFunction *getFunctionAt(unsigned Idx) const { return FunctionList[Idx]; }
+  /// Make this Module empty.
+  void clear();
 
   void Format(std::ostream &os) const;
+
+private:
+  FunctionListTy FunctionList;
+  StringLiteralTable StringLiterals;
+  SymbolEntryList GlobalVariables;
 };
 
 inline std::ostream &operator<<(std::ostream &O, const ByteCodeFunction &c) {
