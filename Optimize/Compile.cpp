@@ -258,6 +258,13 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
     Builder.CreatePrintNewline();
   }
 
+  /// Visit value first and then target. The order of ChildrenVisitor::visitAssign
+  /// is unfortunately wrong.
+  void visitAssign(Assign *A) {
+    visitExpr(A->getValue());
+    visitExpr(A->getTarget());
+  }
+
   unsigned CompileBoolOp(BoolOp *B) {
     if (B->getHasCmpop()) {
       BinOp *BO = static_cast<BinOp*>(B->getValue());
