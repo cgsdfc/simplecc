@@ -55,7 +55,7 @@ const char *CStringFromOpcode(Opcode val) {
 
     def substitute_cpp(self):
         return self.cpp.substitute(
-                code="\n".join(Template("""case Opcode::$val: return "Opcode::$val";""")
+                code="\n".join(Template("""case Opcode::$val: return "$val";""")
                     .substitute(val=val) for val in self.values),
                 default=self.default,
         )
