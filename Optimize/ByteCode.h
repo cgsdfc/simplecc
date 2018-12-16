@@ -78,6 +78,7 @@ public:
   unsigned GetByteCodeOffset() const { return ByteCodeOffset; }
 
   Opcode GetOpcode() const { return Op; }
+  const char *GetOpcodeName() const { return CStringFromOpcode(GetOpcode()); }
 
   int GetIntOperand() const {
     assert(HasIntOperand());

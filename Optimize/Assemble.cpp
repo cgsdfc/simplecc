@@ -387,15 +387,15 @@ public:
 
 // Assemble a ByteCodeFunction to MIPS code
 class FunctionAssembler {
-  const ByteCodeFunction &source;
+  const ByteCodeFunction &TheFunction;
   Printer &w;
   LocalContext context;
 
   // Return the total bytes consumed by local objects, including
   // variables, arrays and formal arguments.
   int GetLocalObjectsBytes() const {
-    auto entries = source.GetFormalArgumentCount();
-    for (const auto &obj : source.GetLocalVariables()) {
+    auto entries = TheFunction.GetFormalArgumentCount();
+    for (const auto &obj : TheFunction.GetLocalVariables()) {
       entries += obj.IsArray() ? obj.AsArray().GetSize() : 1;
     }
     return BytesFromEntries(entries);
@@ -409,7 +409,7 @@ class FunctionAssembler {
     w.WriteLine("addi $sp, $sp,", -BytesFromEntries(2));
     w.WriteLine();
 
-    auto nargs = source.GetFormalArgumentCount();
+    auto nargs = TheFunction.GetFormalArgumentCount();
     if (nargs) {
       // copy arguments here
       w.WriteLine("# Passing Arguments");
@@ -447,20 +447,20 @@ class FunctionAssembler {
 
 public:
   FunctionAssembler(const ByteCodeFunction &source, Printer &w)
-      : source(source), w(w), context(source) {}
+      : TheFunction(source), w(w), context(TheFunction) {}
 
   // public interface
   void Assemble() {
     ByteCodeToMipsTranslator translator(w, context);
     MakePrologue();
-    for (const auto &byteCode : source) {
-      auto offset = byteCode.GetByteCodeOffset();
+    for (const auto &Code : TheFunction) {
+      auto offset = Code.GetByteCodeOffset();
       if (context.IsTarget(offset)) {
         w.WriteLine(context.GetTargetLabel(offset, true));
       }
       // corresponding ByteCode
-      w.WriteLine("#", byteCode);
-      translator.dispatch(byteCode);
+      w.WriteLine("#", Code.GetOpcodeName());
+      translator.dispatch(Code);
       w.WriteLine();
     }
     MakeEpilogue();
@@ -469,7 +469,7 @@ public:
 
 // Assemble a whole MIPS program
 class ModuleAssembler {
-  const ByteCodeModule &module;
+  const ByteCodeModule &TheModule;
   Printer w;
 
   // For each '\\' in string, make it doubled
@@ -488,7 +488,7 @@ class ModuleAssembler {
   void MakeDataSegment() {
     w.WriteLine(".data");
     w.WriteLine("# Global objects");
-    for (const auto &obj : module.GetGlobalVariables()) {
+    for (const auto &obj : TheModule.GetGlobalVariables()) {
       auto &&label = GlobalContext::GetGlobalLabel(obj.GetName(), true);
       if (obj.IsArray()) {
         auto bytes = BytesFromEntries(obj.AsArray().GetSize());
@@ -499,7 +499,7 @@ class ModuleAssembler {
     }
     w.WriteLine();
     w.WriteLine("# String literals");
-    for (const auto &item : module.GetStringLiteralTable()) {
+    for (const auto &item : TheModule.GetStringLiteralTable()) {
       auto &&label = GlobalContext::GetStringLiteralLabel(item.second, true);
       w.WriteLine(label, ".asciiz", DoubleBackslashes(item.first));
     }
@@ -516,7 +516,7 @@ class ModuleAssembler {
     w.WriteLine();
     w.WriteLine("# User defined functions");
 
-    for (const auto &fun : module) {
+    for (const auto &fun : TheModule) {
       w.WriteLine(GlobalContext::GetGlobalLabel(fun->getName(), true));
       FunctionAssembler(*fun, w).Assemble();
       w.WriteLine("# End of", fun->getName());
@@ -526,8 +526,8 @@ class ModuleAssembler {
   }
 
 public:
-  ModuleAssembler(const ByteCodeModule &module, std::ostream &os)
-      : module(module), w(os) {}
+  ModuleAssembler(const ByteCodeModule &TheModule, std::ostream &os)
+      : TheModule(TheModule), w(os) {}
 
   void Assemble() {
     MakeDataSegment();
@@ -537,9 +537,9 @@ public:
 };
 } // namespace
 
-void simplecompiler::AssembleMips(const ByteCodeModule &module,
+void simplecompiler::AssembleMips(const ByteCodeModule &TheModule,
                                   std::ostream &os) {
-  ModuleAssembler(module, os).Assemble();
+  ModuleAssembler(TheModule, os).Assemble();
 }
 
 // vim: set foldmethod=marker
