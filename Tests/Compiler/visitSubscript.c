@@ -1,10 +1,10 @@
 void main() {
-  int iarr[2];
-  int ivar;
-  char carr[2];
+  int IntArray[2];
+  int IntVar;
+  char CharArray[2];
 
-  iarr[0] = 1;
-  ivar = iarr[0];
-  iarr[0] = iarr[1];
-  printf(carr[1]);
+  IntArray[0] = 1;
+  IntVar = IntArray[0];
+  IntArray[0] = IntArray[1];
+  printf(CharArray[1]);
 }

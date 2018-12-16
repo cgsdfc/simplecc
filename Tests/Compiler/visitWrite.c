@@ -1,14 +1,18 @@
-void main() {
-  char cvar;
-  int ivar;
+void Test1 {
+  char CharVar;
 
   printf("string");
   printf(1);
   printf('a');
-
-  printf(cvar);
-  printf(ivar);
-
-  printf("string", cvar);
-  printf("string", ivar);
+  printf(CharVar);
 }
+
+void Test2 {
+  char CharVar;
+  int IntVar;
+
+  printf("string ", CharVar);
+  printf("string ", IntVar);
+}
+
+void main() {}

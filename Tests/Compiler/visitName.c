@@ -1,16 +1,16 @@
-const char cconst = 'a';
-char cvar;
+const char CharConst = 'a';
+char CharVar;
 
 void main() {
-  const int iconst = 1;
-  int ivar;
+  const int IntConst = 1;
+  int IntVar;
 
-  printf(iconst);
-  printf(cconst);
+  printf(IntConst);
+  printf(CharConst);
 
-  printf(ivar);
-  printf(cvar);
+  printf(IntVar);
+  printf(CharVar);
 
-  ivar = 1;
-  cvar = 'a';
+  IntVar = 1;
+  CharVar = 'a';
 }

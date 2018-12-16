@@ -1,15 +1,18 @@
-void main() {
-  int ivar;
+int IntVar;
 
+void Test1 {
   if (1) {
-    ivar = 1;
+    IntVar = 1;
   }
+}
 
+void Test2 {
   if (1) {
-    ivar = 1;
+    IntVar = 1;
   }
   else {
-    ivar = 2;
+    IntVar = 2;
   }
-
 }
+
+void main() {}

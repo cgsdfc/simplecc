@@ -1,12 +1,15 @@
-void main() {
-  int ivar;
+int IntVar;
 
+void Test1 {
   while (1) {
-    printf(1);
+    IntVar = 1;
   }
-
-  while (ivar < 1) {
-    printf("ivar");
-  }
-
 }
+
+void Test2 {
+  while (IntVar < 1) {
+    IntVar = 1;
+  }
+}
+
+void main() {}

@@ -1,6 +1,6 @@
 void main() {
-  int ivar;
+  int IntVar;
 
-  ivar = (1 + 1) * (2 - 1);
-  ivar = ('a');
+  IntVar = (1 + 1) * (2 - 1);
+  IntVar = ('a');
 }
