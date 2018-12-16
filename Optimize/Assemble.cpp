@@ -12,6 +12,22 @@
 
 using namespace simplecompiler;
 
+// Return the bytes for n entries
+inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
+
+enum class MipsSyscallNumber {
+  PRINT_STRING = 4,
+  PRINT_CHARACTER = 11,
+  PRINT_INTEGER = 1,
+  READ_INTEGER = 5,
+  READ_CHARACTER = 12,
+  EXIT_PROGRAM = 10,
+};
+
+inline std::ostream &operator<<(std::ostream &os, MipsSyscallNumber syscall) {
+  return os << static_cast<int>(syscall);
+}
+
 /// CRTP base for label.
 template <typename Derived> class LabelBase {
 protected:
@@ -29,7 +45,7 @@ public:
 };
 
 template <typename Derived>
-std::ostream &operator<<(std::ostream &O, const LabelBase<Derived> &LB) {
+inline std::ostream &operator<<(std::ostream &O, const LabelBase<Derived> &LB) {
   LB.Format(O);
   return O;
 }
@@ -63,7 +79,7 @@ class ReturnLabel : public LabelBase<ReturnLabel> {
 public:
   ReturnLabel(const String &PN, bool NeedColon)
       : LabelBase(NeedColon), ParentName(PN.data()) {}
-  void FormatImpl(std::ostream &O) const { O << ParentName << "return"; }
+  void FormatImpl(std::ostream &O) const { O << ParentName << "_return"; }
 };
 
 /// A Global label that is unique with the module.
@@ -94,69 +110,71 @@ public:
   }
 };
 
-std::ostream &operator<<(std::ostream &O, const EscapedString &E) {
+inline std::ostream &operator<<(std::ostream &O, const EscapedString &E) {
   E.Format(O);
   return O;
 }
 
-// Return the bytes for n entries
-inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
-
 // Provide local information for ByteCodeToMipsTranslator
 class LocalContext {
-  // byte offset of local objects relatited to $fp
-  std::unordered_map<String, int> local_offsets;
-  // a byte code offset is a jump target if in it
-  std::unordered_set<int> jump_targets;
-  // name of the function being translated
-  const ByteCodeFunction *TheFunction;
 
-  // populate local_offsets
-  void MakeLocalOffsets() {
-    local_offsets.clear();
+  /// Initialize the **local offset** dictionary for a function.
+  /// The LocalOffsets is where local variables live on the stack.
+  void InitializeLocalOffsets() {
     // offset points to the first vacant byte after storing
     // $ra and $fp. $ra is at 0($fp), $fp is at -4($fp)
-    auto offset = BytesFromEntries(-2);
-    for (const auto &arg : TheFunction->GetFormalArguments()) {
-      local_offsets.emplace(arg.GetName(), offset);
-      offset -= BytesFromEntries(1);
+    LocalOffsets.clear();
+    signed Off = -BytesFromEntries(2);
+
+    /// Allocate space for formal arguments.
+    for (const SymbolEntry &Arg : TheFunction->GetFormalArguments()) {
+      LocalOffsets.emplace(Arg.GetName(), Off);
+      Off -= BytesFromEntries(1);
     }
-    for (const auto &obj : TheFunction->GetLocalVariables()) {
-      if (obj.IsArray()) {
-        offset -= BytesFromEntries(obj.AsArray().GetSize());
-        local_offsets.emplace(obj.GetName(), offset + BytesFromEntries(1));
-      } else {
-        assert(obj.IsVariable());
-        local_offsets.emplace(obj.GetName(), offset);
-        offset -= BytesFromEntries(1);
+
+    /// Allocate space for non-arg local variables.
+    for (const SymbolEntry &Var : TheFunction->GetLocalVariables()) {
+      if (Var.IsArray()) {
+        Off -= BytesFromEntries(Var.AsArray().GetSize());
+        LocalOffsets.emplace(Var.GetName(), Off + BytesFromEntries(1));
+        continue;
       }
+      /// Variable:
+      assert(Var.IsVariable());
+      LocalOffsets.emplace(Var.GetName(), Off);
+      Off -= BytesFromEntries(1);
     }
   }
 
-  // populate jump_targets
-  void MakeJumpTargets() {
-    jump_targets.clear();
-    for (const auto &code : *TheFunction) {
-      if (code.IsJumpXXX()) {
-        jump_targets.insert(code.GetIntOperand());
+  /// Initialize the **jump targets** set, which tells us whether an offset
+  /// in the ByteCode stream is a target of some jump command.
+  void InitializeJumpTargets() {
+    JumpTargets.clear();
+    for (const ByteCode &C : *TheFunction) {
+      if (C.IsJumpXXX()) {
+        JumpTargets.insert(C.GetIntOperand());
       }
     }
   }
 
 public:
   LocalContext() = default;
+  ~LocalContext() = default;
 
-  void Initialize(const ByteCodeFunction &fun) {
-    TheFunction = &fun;
-    MakeLocalOffsets();
-    MakeJumpTargets();
+  /// Initialize both LocalOffsets and JumpTargets.
+  void Initialize(const ByteCodeFunction &F) {
+    TheFunction = &F;
+    InitializeLocalOffsets();
+    InitializeJumpTargets();
   }
 
   // Return if an offset is a jump target
-  bool IsTarget(int offset) const { return jump_targets.count(offset); }
+  bool IsJumpTarget(unsigned Off) const { return JumpTargets.count(Off); }
 
   // Return the offset of local name relatited to frame pointer
-  int GetLocalOffset(const char *name) const { return local_offsets.at(name); }
+  signed GetLocalOffset(const char *Name) const {
+    return LocalOffsets.at(Name);
+  }
 
   // Return whether a name is a variable
   bool IsVariable(const char *Name) const {
@@ -170,275 +188,270 @@ public:
 
   const String &getName() const { return TheFunction->getName(); }
 
+private:
+  std::unordered_map<String, signed> LocalOffsets;
+  std::unordered_set<unsigned> JumpTargets;
+  const ByteCodeFunction *TheFunction = nullptr;
 };
-
-enum class MipsSyscallNumber {
-  PRINT_STRING = 4,
-  PRINT_CHARACTER = 11,
-  PRINT_INTEGER = 1,
-  READ_INTEGER = 5,
-  READ_CHARACTER = 12,
-  EXIT_PROGRAM = 10,
-};
-
-inline std::ostream &operator<<(std::ostream &os, MipsSyscallNumber syscall) {
-  return os << static_cast<int>(syscall);
-}
 
 // Serve as a template translating one ByteCode to MIPS instructions
 class ByteCodeToMipsTranslator
-    : public OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
-public:
-  ByteCodeToMipsTranslator(Printer &w, const LocalContext &context)
-      : w(w), context(context) {}
+    : OpcodeDispatcher<ByteCodeToMipsTranslator> { // {{{
 
   // Push a register onto the stack
   void PUSH(const char *r) {
     // $sp points to the one entry pass TOS
     assert(r);
     assert(r[0] == '$');
-    w.WriteLine("sw", r, ", 0($sp)");
-    w.WriteLine("addi $sp, $sp, -4");
+    WriteLine("sw", r, ", 0($sp)");
+    WriteLine("addi $sp, $sp, -4");
     ++stack_level;
   }
 
   // Pop the stack, optionally taking the tos value
   void POP(const char *r = nullptr) {
     assert(stack_level > 0 && "POP an empty stack!");
-    w.WriteLine("addi $sp, $sp, 4");
+    WriteLine("addi $sp, $sp, 4");
     if (r) {
       assert(r[0] == '$');
-      w.WriteLine("lw", r, ", 0($sp)");
+      WriteLine("lw", r, ", 0($sp)");
     }
     --stack_level;
   }
 
-  void HandleLoadLocal(const ByteCode &code) {
-    auto offset = context.GetLocalOffset(code.GetStrOperand());
-    if (context.IsVariable(code.GetStrOperand())) {
-      w.WriteLine("lw $t0,", offset, "($fp)");
+  void HandleLoadLocal(const ByteCode &C) {
+    auto offset = TheContext.GetLocalOffset(C.GetStrOperand());
+    if (TheContext.IsVariable(C.GetStrOperand())) {
+      WriteLine("lw $t0,", offset, "($fp)");
     } else {
-      w.WriteLine("addi $t0, $fp,", offset);
+      WriteLine("addi $t0, $fp,", offset);
     }
     PUSH("$t0");
   }
 
-  void HandleLoadGlobal(const ByteCode &code) {
-    GlobalLabel GL(code.GetStrOperand(), /* NeedColon */ false);
-    w.WriteLine("la $t0,", GL);
-    if (context.IsVariable(code.GetStrOperand())) {
-      w.WriteLine("lw $t0, 0($t0)");
+  void HandleLoadGlobal(const ByteCode &C) {
+    GlobalLabel GL(C.GetStrOperand(), /* NeedColon */ false);
+    WriteLine("la $t0,", GL);
+    if (TheContext.IsVariable(C.GetStrOperand())) {
+      WriteLine("lw $t0, 0($t0)");
     }
     PUSH("$t0");
   }
 
-  void HandleLoadConst(const ByteCode &code) {
-    w.WriteLine("li $t0,", code.GetIntOperand());
+  void HandleLoadConst(const ByteCode &C) {
+    WriteLine("li $t0,", C.GetIntOperand());
     PUSH("$t0");
   }
 
-  void HandleLoadString(const ByteCode &code) {
-    AsciizLabel AL(code.GetIntOperand(), /* NeedColon */ false);
-    w.WriteLine("la $t0,", AL);
+  void HandleLoadString(const ByteCode &C) {
+    AsciizLabel AL(C.GetIntOperand(), /* NeedColon */ false);
+    WriteLine("la $t0,", AL);
     PUSH("$t0");
   }
 
-  void HandleStoreLocal(const ByteCode &code) {
+  void HandleStoreLocal(const ByteCode &C) {
     POP("$t0");
-    auto offset = context.GetLocalOffset(code.GetStrOperand());
-    w.WriteLine("sw $t0,", offset, "($fp)");
+    auto offset = TheContext.GetLocalOffset(C.GetStrOperand());
+    WriteLine("sw $t0,", offset, "($fp)");
   }
 
-  void HandleStoreGlobal(const ByteCode &code) {
+  void HandleStoreGlobal(const ByteCode &C) {
     POP("$t0");
-    GlobalLabel GL(code.GetStrOperand(), /* NeedColon */ false);
-    w.WriteLine("sw $t0,", GL);
+    GlobalLabel GL(C.GetStrOperand(), /* NeedColon */ false);
+    WriteLine("sw $t0,", GL);
   }
 
   void HandleBinary(const char *op) {
     POP("$t0"); // TOS
     POP("$t1"); // TOS1
-    w.WriteLine(op, "$t2, $t1, $t0");
+    WriteLine(op, "$t2, $t1, $t0");
     PUSH("$t2");
   }
 
-  void HandleBinaryAdd(const ByteCode &code) { HandleBinary("add"); }
+  void HandleBinaryAdd(const ByteCode &C) { HandleBinary("add"); }
 
-  void HandleBinarySub(const ByteCode &code) { HandleBinary("sub"); }
+  void HandleBinarySub(const ByteCode &C) { HandleBinary("sub"); }
 
-  void HandleBinaryMultiply(const ByteCode &code) { HandleBinary("mul"); }
+  void HandleBinaryMultiply(const ByteCode &C) { HandleBinary("mul"); }
 
-  void HandleBinaryDivide(const ByteCode &code) { HandleBinary("div"); }
+  void HandleBinaryDivide(const ByteCode &C) { HandleBinary("div"); }
 
-  void HandleUnaryPositive(const ByteCode &code) {
+  void HandleUnaryPositive(const ByteCode &C) {
     // Nop
   }
 
-  void HandleUnaryNegative(const ByteCode &code) {
+  void HandleUnaryNegative(const ByteCode &C) {
     // $sp points to **the next vacant byte** of the stack, so
     // TOS is 4 + $sp
-    w.WriteLine("lw $t0, 4($sp)");
-    w.WriteLine("sub $t0, $zero, $t0");
-    w.WriteLine("sw, $t0, 4($sp)");
+    WriteLine("lw $t0, 4($sp)");
+    WriteLine("sub $t0, $zero, $t0");
+    WriteLine("sw, $t0, 4($sp)");
   }
 
-  void HandleCallFunction(const ByteCode &code) {
-    GlobalLabel Fn(code.GetStrOperand(), /* NeedColon */ false);
-    w.WriteLine("jal", Fn);
-    auto bytes = BytesFromEntries(code.GetIntOperand());
+  void HandleCallFunction(const ByteCode &C) {
+    GlobalLabel Fn(C.GetStrOperand(), /* NeedColon */ false);
+    WriteLine("jal", Fn);
+    auto bytes = BytesFromEntries(C.GetIntOperand());
     if (bytes) {
-      w.WriteLine("addi $sp, $sp", bytes);
+      WriteLine("addi $sp, $sp", bytes);
     }
     PUSH("$v0");
   }
 
   void HandleReturn() {
-    w.WriteLine("j", ReturnLabel(Name, /* NeedColon */ false));
+    WriteLine("j", ReturnLabel(TheContext.getName(), /* NeedColon */ false));
   }
 
-  void HandleReturnValue(const ByteCode &code) {
+  void HandleReturnValue(const ByteCode &C) {
     POP("$v0");
     HandleReturn();
   }
 
-  void HandleReturnNone(const ByteCode &code) { HandleReturn(); }
+  void HandleReturnNone(const ByteCode &C) { HandleReturn(); }
 
   void HandlePrint(MipsSyscallNumber syscall_code) {
-    w.WriteLine("li $v0,", syscall_code);
+    WriteLine("li $v0,", syscall_code);
     POP("$a0");
-    w.WriteLine("syscall");
+    WriteLine("syscall");
   }
 
-  void HandlePrintString(const ByteCode &code) {
+  void HandlePrintString(const ByteCode &C) {
     /* print string */
     /* v0 = 4 */
     /* $a0 = address of null-terminated string to print */
     HandlePrint(MipsSyscallNumber::PRINT_STRING);
   }
 
-  void HandlePrintCharacter(const ByteCode &code) {
+  void HandlePrintCharacter(const ByteCode &C) {
     /* print character */
     /* 11 */
     /* $a0 = character to print */
     HandlePrint(MipsSyscallNumber::PRINT_CHARACTER);
   }
 
-  void HandlePrintInteger(const ByteCode &code) {
+  void HandlePrintInteger(const ByteCode &C) {
     /* print integer */
     /* 1 */
     /* $a0 = integer to print */
     HandlePrint(MipsSyscallNumber::PRINT_INTEGER);
   }
 
-  void HandlePrintNewline(const ByteCode &code) {
-    w.WriteLine("li $a0,", static_cast<int>('\n'));
-    w.WriteLine("li $v0,", MipsSyscallNumber::PRINT_CHARACTER);
-    w.WriteLine("syscall");
+  void HandlePrintNewline(const ByteCode &C) {
+    WriteLine("li $a0,", static_cast<int>('\n'));
+    WriteLine("li $v0,", MipsSyscallNumber::PRINT_CHARACTER);
+    WriteLine("syscall");
   }
 
   void HandleRead(MipsSyscallNumber syscall_code) {
-    w.WriteLine("li $v0,", syscall_code);
-    w.WriteLine("syscall");
+    WriteLine("li $v0,", syscall_code);
+    WriteLine("syscall");
     PUSH("$v0");
   }
 
-  void HandleReadInteger(const ByteCode &code) {
+  void HandleReadInteger(const ByteCode &C) {
     /* read integer */
     /* 5 */
     /* $v0 contains integer read */
     HandleRead(MipsSyscallNumber::READ_INTEGER);
   }
 
-  void HandleReadCharacter(const ByteCode &code) {
+  void HandleReadCharacter(const ByteCode &C) {
     /* read character */
     /* 12 */
     /* $v0 contains character read */
     HandleRead(MipsSyscallNumber::READ_CHARACTER);
   }
 
-  void HandleBinarySubscr(const ByteCode &code) {
+  void HandleBinarySubscr(const ByteCode &C) {
     // elements of smaller index are stored at higher address
     // as opposed to C convension.
-    POP("$t0");                       // index
-    POP("$t1");                       // base
-    w.WriteLine("sll $t0, $t0, 2");   // offset = index * 4
-    w.WriteLine("add $t2, $t1, $t0"); // address = base + offset
-    w.WriteLine("lw $t3, 0($t2)");    // t3 = array[index]
+    POP("$t0");                     // index
+    POP("$t1");                     // base
+    WriteLine("sll $t0, $t0, 2");   // offset = index * 4
+    WriteLine("add $t2, $t1, $t0"); // address = base + offset
+    WriteLine("lw $t3, 0($t2)");    // t3 = array[index]
     PUSH("$t3");
   }
 
-  void HandleStoreSubscr(const ByteCode &code) {
+  void HandleStoreSubscr(const ByteCode &C) {
     POP("$t0");
     POP("$t1");
     POP("$t3");
-    w.WriteLine("sll $t0, $t0, 2");
-    w.WriteLine("add $t2, $t1, $t0");
-    w.WriteLine("sw $t3, 0($t2)");
+    WriteLine("sll $t0, $t0, 2");
+    WriteLine("add $t2, $t1, $t0");
+    WriteLine("sw $t3, 0($t2)");
   }
 
-  void HandleUnaryJumpIf(const char *op, const ByteCode &code) {
+  void HandleUnaryJumpIf(const char *op, const ByteCode &C) {
     POP("$t0");
-    w.WriteLine(
-        op, "$t0",
-        JumpTargetLabel(Name, code.GetIntOperand(), /* NeedColon */ false));
+    WriteLine(op, "$t0",
+              JumpTargetLabel(TheContext.getName(), C.GetIntOperand(),
+                              /* NeedColon */ false));
   }
 
-  void HandleJumpIfTrue(const ByteCode &code) {
-    HandleUnaryJumpIf("bnez", code);
+  void HandleJumpIfTrue(const ByteCode &C) { HandleUnaryJumpIf("bnez", C); }
+
+  void HandleJumpIfFalse(const ByteCode &C) { HandleUnaryJumpIf("beqz", C); }
+
+  void HandleJumpForward(const ByteCode &C) {
+    WriteLine("j", JumpTargetLabel(TheContext.getName(), C.GetIntOperand(),
+                                   /* NeedColon */ false));
   }
 
-  void HandleJumpIfFalse(const ByteCode &code) {
-    HandleUnaryJumpIf("beqz", code);
-  }
-
-  void HandleJumpForward(const ByteCode &code) {
-    w.WriteLine("j", JumpTargetLabel(Name, code.GetIntOperand(),
-                                     /* NeedColon */ false));
-  }
-
-  void HandleBinaryJumpIf(const char *op, const ByteCode &code) {
+  void HandleBinaryJumpIf(const char *Op, const ByteCode &C) {
     POP("$t0"); // TOS
     POP("$t1"); // TOS1
-    w.WriteLine(
-        op, "$t1, $t0,",
-        JumpTargetLabel(Name, code.GetIntOperand(), /* NeedColon */ false));
+    WriteLine(Op, "$t1, $t0,",
+              JumpTargetLabel(TheContext.getName(), C.GetIntOperand(),
+                              /* NeedColon */ false));
   }
 
-  void HandleJumpIfNotEqual(const ByteCode &code) {
-    HandleBinaryJumpIf("bne", code);
+  void HandleJumpIfNotEqual(const ByteCode &C) { HandleBinaryJumpIf("bne", C); }
+
+  void HandleJumpIfEqual(const ByteCode &C) { HandleBinaryJumpIf("beq", C); }
+
+  void HandleJumpIfGreater(const ByteCode &C) { HandleBinaryJumpIf("bgt", C); }
+
+  void HandleJumpIfGreaterEqual(const ByteCode &C) {
+    HandleBinaryJumpIf("bge", C);
   }
 
-  void HandleJumpIfEqual(const ByteCode &code) {
-    HandleBinaryJumpIf("beq", code);
+  void HandleJumpIfLess(const ByteCode &C) { HandleBinaryJumpIf("blt", C); }
+
+  void HandleJumpIfLessEqual(const ByteCode &C) {
+    HandleBinaryJumpIf("ble", C);
   }
 
-  void HandleJumpIfGreater(const ByteCode &code) {
-    HandleBinaryJumpIf("bgt", code);
+  void HandlePopTop(const ByteCode &C) { POP(); }
+
+  /// Forward WriteLine() to ThePrinter.
+  template <typename... Args> void WriteLine(Args &&... Arguments) {
+    ThePrinter.WriteLine(std::forward<Args>(Arguments)...);
   }
 
-  void HandleJumpIfGreaterEqual(const ByteCode &code) {
-    HandleBinaryJumpIf("bge", code);
-  }
+public:
+  ByteCodeToMipsTranslator(std::ostream &O, const LocalContext &C)
+      : ThePrinter(O), OpcodeDispatcher(), TheContext(C) {}
 
-  void HandleJumpIfLess(const ByteCode &code) {
-    HandleBinaryJumpIf("blt", code);
+  /// Wrap OpcodeDispatcher::dispatch() to provide label
+  /// generation.
+  void Write(const ByteCode &C) {
+    unsigned Off = C.GetByteCodeOffset();
+    /// If this is a JumpTarget, emit a label.
+    if (TheContext.IsJumpTarget(Off)) {
+      WriteLine(
+          JumpTargetLabel(TheContext.getName(), Off, /* NeedColon */ true));
+    }
+    OpcodeDispatcher::dispatch(C);
   }
-
-  void HandleJumpIfLessEqual(const ByteCode &code) {
-    HandleBinaryJumpIf("ble", code);
-  }
-
-  void HandlePopTop(const ByteCode &code) { POP(); }
 
 private:
-  String Name;
-  Printer &w;
-  const LocalContext &context;
+  friend class OpcodeDispatcher<ByteCodeToMipsTranslator>;
+  Printer ThePrinter;
+  const LocalContext &TheContext;
   int stack_level = 0;
-
 };
 // }}}
-
 
 namespace simplecompiler {
 class MipsAssemblyWriter {
@@ -482,20 +495,15 @@ class MipsAssemblyWriter {
     return InBytes(Entries);
   }
 
-  bool IsJumpTarget(unsigned Off) { return JumpTargets.count(Off); }
-
   void WriteFunction(Printer &W, const ByteCodeFunction &TheFunction) {
-    InitializeLocalInfo(TheFunction);
+    TheContext.Initialize(TheFunction);
+    ByteCodeToMipsTranslator TheTranslator(W.getOuts(), TheContext);
 
     WritePrologue(W, TheFunction);
     for (const ByteCode &C : TheFunction) {
-      unsigned Off = C.GetByteCodeOffset();
-      if (IsJumpTarget(Off)) {
-        W.WriteLine(
-            JumpTargetLabel(TheFunction.getName(), Off, /* NeedColon */ true));
-      }
-      // ByteCodeToMipsTranslator:
+      TheTranslator.Write(C);
     }
+    W.WriteLine();
     WriteEpilogue(W, TheFunction);
   }
 
@@ -510,6 +518,7 @@ class MipsAssemblyWriter {
 
     for (const ByteCodeFunction *Fn : Module) {
       WriteFunction(W, *Fn);
+      W.WriteLine();
     }
     W.WriteLine("# End of text segment");
   }
@@ -538,7 +547,7 @@ class MipsAssemblyWriter {
       W.WriteLine();
     }
 
-    auto Off = GetLocalObjectsInBytes(TheFunction);
+    signed Off = GetLocalObjectsInBytes(TheFunction);
     if (Off != 0) {
       W.WriteLine("# Make room for local objects");
       W.WriteLine("addi $sp, $sp,", -Off);
@@ -559,52 +568,6 @@ class MipsAssemblyWriter {
     W.WriteLine("jr $ra");
   }
 
-  /// Initialize the **local offset** dictionary for a function.
-  /// The LocalOffsets is where local variables live on the stack.
-  void InitializeLocalOffsets(const ByteCodeFunction &TheFunction) {
-    // offset points to the first vacant byte after storing
-    // $ra and $fp. $ra is at 0($fp), $fp is at -4($fp)
-    LocalOffsets.clear();
-    auto Off = -InBytes(2);
-
-    /// Allocate space for formal arguments.
-    for (const SymbolEntry &Arg : TheFunction.GetFormalArguments()) {
-      LocalOffsets.emplace(Arg.GetName(), Off);
-      Off -= InBytes(1);
-    }
-
-    /// Allocate space for non-arg local variables.
-    for (const SymbolEntry &Var : TheFunction.GetLocalVariables()) {
-      if (Var.IsArray()) {
-        Off -= InBytes(Var.AsArray().GetSize());
-        LocalOffsets.emplace(Var.GetName(), Off + InBytes(1));
-        continue;
-      }
-      /// Variable:
-      assert(Var.IsVariable());
-      LocalOffsets.emplace(Var.GetName(), Off);
-      Off -= InBytes(1);
-    }
-  }
-
-  /// Initialize the **jump targets** set, which tells us whether an offset
-  /// in the ByteCode stream is a target of some jump command.
-  void InitializeJumpTargets(const ByteCodeFunction &TheFunction) {
-    JumpTargets.clear();
-    for (const ByteCode &C : TheFunction) {
-      if (C.IsJumpXXX()) {
-        JumpTargets.insert(C.GetIntOperand());
-      }
-    }
-  }
-
-  /// Initialize both LocalOffsets and JumpTargets.
-  void InitializeLocalInfo(const ByteCodeFunction &TheFunction) {
-    InitializeLocalOffsets(TheFunction);
-    InitializeJumpTargets(TheFunction);
-  }
-
-  void WriteByteCode(Printer &W, const ByteCode &C);
 public:
   MipsAssemblyWriter() = default;
   ~MipsAssemblyWriter() = default;
@@ -617,12 +580,11 @@ public:
   }
 
 private:
-  std::unordered_map<String, unsigned> LocalOffsets;
-  std::unordered_set<unsigned> JumpTargets;
+  LocalContext TheContext;
 };
 
 void AssembleMips(const ByteCodeModule &M, std::ostream &O) {
   MipsAssemblyWriter().Write(M, O);
 }
 
-}
+} // namespace simplecompiler
