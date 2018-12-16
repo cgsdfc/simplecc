@@ -1,6 +1,7 @@
 #include "Assemble.h"
 #include "ByteCodeFunction.h"
 #include "ByteCodeModule.h"
+#include "LocalContext.h"
 #include "MipsSupport.h"
 #include "OpcodeDispatcher.h"
 #include "Print.h"
@@ -8,8 +9,6 @@
 #include <iostream>
 #include <numeric>
 #include <sstream>
-#include <unordered_map>
-#include <unordered_set>
 
 using namespace simplecompiler;
 
@@ -20,86 +19,6 @@ void EscapedString::Format(std::ostream &O) const {
       O << C;
   }
 }
-
-// Provide local information for ByteCodeToMipsTranslator
-class LocalContext {
-
-  /// Initialize the **local offset** dictionary for a function.
-  /// The LocalOffsets is where local variables live on the stack.
-  void InitializeLocalOffsets() {
-    // offset points to the first vacant byte after storing
-    // $ra and $fp. $ra is at 0($fp), $fp is at -4($fp)
-    LocalOffsets.clear();
-    signed Off = -BytesFromEntries(2);
-
-    /// Allocate space for formal arguments.
-    for (const SymbolEntry &Arg : TheFunction->GetFormalArguments()) {
-      LocalOffsets.emplace(Arg.GetName(), Off);
-      Off -= BytesFromEntries(1);
-    }
-
-    /// Allocate space for non-arg local variables.
-    for (const SymbolEntry &Var : TheFunction->GetLocalVariables()) {
-      if (Var.IsArray()) {
-        Off -= BytesFromEntries(Var.AsArray().GetSize());
-        LocalOffsets.emplace(Var.GetName(), Off + BytesFromEntries(1));
-        continue;
-      }
-      /// Variable:
-      assert(Var.IsVariable());
-      LocalOffsets.emplace(Var.GetName(), Off);
-      Off -= BytesFromEntries(1);
-    }
-  }
-
-  /// Initialize the **jump targets** set, which tells us whether an offset
-  /// in the ByteCode stream is a target of some jump command.
-  void InitializeJumpTargets() {
-    JumpTargets.clear();
-    for (const ByteCode &C : *TheFunction) {
-      if (C.IsJumpXXX()) {
-        JumpTargets.insert(C.GetIntOperand());
-      }
-    }
-  }
-
-public:
-  LocalContext() = default;
-  ~LocalContext() = default;
-
-  /// Initialize both LocalOffsets and JumpTargets.
-  void Initialize(const ByteCodeFunction &F) {
-    TheFunction = &F;
-    InitializeLocalOffsets();
-    InitializeJumpTargets();
-  }
-
-  // Return if an offset is a jump target
-  bool IsJumpTarget(unsigned Off) const { return JumpTargets.count(Off); }
-
-  // Return the offset of local name relatited to frame pointer
-  signed int GetLocalOffset(const char *Name) const {
-    assert(LocalOffsets.count(Name) && "Undefined Name");
-    return LocalOffsets.find(Name)->second;
-  }
-
-  // Return whether a name is a variable
-  bool IsVariable(const char *Name) const {
-    return TheFunction->GetLocal()[Name].IsVariable();
-  }
-
-  // Return whether a name is an array
-  bool IsArray(const char *Name) const {
-    return TheFunction->GetLocal()[Name].IsArray();
-  }
-
-  const String &getName() const { return TheFunction->getName(); }
-
-private:
-  std::unordered_map<String, signed> LocalOffsets;
-  std::unordered_set<unsigned> JumpTargets;
-  const ByteCodeFunction *TheFunction = nullptr;
-};
 
 // Serve as a template translating one ByteCode to MIPS instructions
 class ByteCodeToMipsTranslator

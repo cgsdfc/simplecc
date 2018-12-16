@@ -74,6 +74,7 @@ set(SOURCE_FILES
   ./AstVerifier.cpp
   ./ByteCodeBuilder.cpp
   ./ByteCodeFunction.cpp
+  ./LocalContext.cpp
   ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")
