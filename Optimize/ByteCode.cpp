@@ -1,8 +1,8 @@
 #include "ByteCode.h"
 #include "ErrorManager.h"
 
-#include <iomanip>
 #include <cassert>
+#include <iomanip>
 #include <iostream>
 
 namespace simplecompiler {
