@@ -9,7 +9,7 @@ using String = std::string;
 // Return the bytes for n entries
 inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
 
-enum class MipsSyscallNumber : unsigned {
+enum class MipsSyscallCode : unsigned {
   PRINT_STRING = 4,
   PRINT_CHARACTER = 11,
   PRINT_INTEGER = 1,
@@ -18,7 +18,7 @@ enum class MipsSyscallNumber : unsigned {
   EXIT_PROGRAM = 10,
 };
 
-inline std::ostream &operator<<(std::ostream &os, MipsSyscallNumber syscall) {
+inline std::ostream &operator<<(std::ostream &os, MipsSyscallCode syscall) {
   return os << static_cast<unsigned>(syscall);
 }
 

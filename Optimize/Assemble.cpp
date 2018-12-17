@@ -68,7 +68,7 @@ class MipsAssemblyWriter {
     W.WriteLine(".text");
     W.WriteLine(".globl main");
     W.WriteLine("jal main");
-    W.WriteLine("li $v0,", MipsSyscallNumber::EXIT_PROGRAM);
+    W.WriteLine("li $v0,", MipsSyscallCode::EXIT_PROGRAM);
     W.WriteLine("syscall");
     W.WriteLine();
     W.WriteLine("# User defined functions");
