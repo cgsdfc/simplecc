@@ -46,3 +46,10 @@ compile_commands.json
 
 # generated documents
 docs/
+
+# CLion stuffs
+.idea
+cmake-build-*
+
+# Temp folder
+t/
