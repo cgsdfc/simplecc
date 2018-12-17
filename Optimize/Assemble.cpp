@@ -11,14 +11,6 @@
 
 using namespace simplecompiler;
 
-void EscapedString::Format(std::ostream &O) const {
-  for (char C : Str) {
-    O << C;
-    if (C == '\\')
-      O << C;
-  }
-}
-
 namespace simplecompiler {
 class MipsAssemblyWriter {
 

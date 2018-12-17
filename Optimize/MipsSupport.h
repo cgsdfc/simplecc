@@ -48,7 +48,7 @@ class AsciizLabel : public LabelBase<AsciizLabel> {
 
 public:
   AsciizLabel(unsigned N, bool NeedColon) : LabelBase(NeedColon), StringID(N) {}
-  void FormatImpl(std::ostream &O) const { O << "string_" << StringID; }
+  void FormatImpl(std::ostream &O) const;
 };
 
 class JumpTargetLabel : public LabelBase<JumpTargetLabel> {
@@ -61,9 +61,7 @@ public:
   JumpTargetLabel(const String &PN, unsigned T, bool NeedColon)
       : JumpTargetLabel(PN.data(), T, NeedColon) {}
 
-  void FormatImpl(std::ostream &O) const {
-    O << ParentName << "_label_" << Target;
-  }
+  void FormatImpl(std::ostream &O) const;
 };
 
 class ReturnLabel : public LabelBase<ReturnLabel> {
@@ -72,7 +70,7 @@ class ReturnLabel : public LabelBase<ReturnLabel> {
 public:
   ReturnLabel(const String &PN, bool NeedColon)
       : LabelBase(NeedColon), ParentName(PN.data()) {}
-  void FormatImpl(std::ostream &O) const { O << ParentName << "_return"; }
+  void FormatImpl(std::ostream &O) const;
 };
 
 /// A Global label that is unique with the module.
@@ -84,7 +82,7 @@ public:
   GlobalLabel(const String &N, bool NeedColon)
       : GlobalLabel(N.data(), NeedColon) {}
 
-  void FormatImpl(std::ostream &O) const { O << Name; }
+  void FormatImpl(std::ostream &O) const;
 };
 
 /// A wrapper class that escapes the string when Format'ted.

@@ -76,6 +76,7 @@ set(SOURCE_FILES
   ./ByteCodeFunction.cpp
   ./LocalContext.cpp
   ./ByteCodeToMipsTranslator.cpp
+  ./MipsSupport.cpp
   ./Tokenize.cpp)
 
 set(EXTRA_LIBRARIES "")
