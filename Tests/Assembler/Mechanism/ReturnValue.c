@@ -11,6 +11,7 @@ void main() {
 
   IntVar_1 = IntFunction_1;
   IntVar_2 = IntFunction_2;
-  Printf(IntVar_1);
-  Printf(IntVar_2);
+
+  Printf("Expect 1: ", IntVar_1);
+  Printf("Expect 2: ", IntVar_2);
 }

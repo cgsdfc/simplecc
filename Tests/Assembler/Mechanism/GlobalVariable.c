@@ -7,9 +7,9 @@ void main() {
   CharVar_1 = 'a';
   CharVar_2 = 'b';
 
-  Printf("IntVar_1: ", IntVar_1);
-  Printf("IntVar_2: ", IntVar_2);
+  Printf("Expect 1: ", IntVar_1);
+  Printf("Expect 2: ", IntVar_2);
 
-  Printf("CharVar_1: ", CharVar_1);
-  Printf("CharVar_2: ", CharVar_2);
+  Printf("Expect a: ", CharVar_1);
+  Printf("Expect b: ", CharVar_2);
 }

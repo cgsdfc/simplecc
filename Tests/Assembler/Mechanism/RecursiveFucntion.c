@@ -11,7 +11,8 @@ int RecursiveFactoral(int Order) {
 }
 
 void main() {
-  Printf("Expect -1: ", RecursiveFactoral(-1));
+  Printf("Expect -1");
+  RecursiveFactoral(-1);
   Printf("Expect 1: ", RecursiveFactoral(0));
   Printf("Expect 1: ", RecursiveFactoral(1));
   Printf("Expect 2: ", RecursiveFactoral(2));

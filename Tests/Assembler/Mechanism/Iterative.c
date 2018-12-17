@@ -19,7 +19,9 @@ int IterativeFactoral(int Order) {
 }
 
 void main() {
-  Printf("Expect -1: ", IterativeFactoral(-1));
+  Printf("Expect -1: ");
+  IterativeFactoral(-1);
+
   Printf("Expect 1: ", IterativeFactoral(0));
   Printf("Expect 1: ", IterativeFactoral(1));
   Printf("Expect 2: ", IterativeFactoral(2));
