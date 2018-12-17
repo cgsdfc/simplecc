@@ -1,5 +1,9 @@
 void main() {
-  while (1) {
-    printf(1);
+  int I;
+  I = 0;
+
+  while (I < 3) {
+    printf(I);
+    I = I + 1;
   }
 }

@@ -3,10 +3,10 @@ int IntFunction_Int_Int(int IntArg1, int IntArg2) {
 }
 
 void VoidFunction_Void {
-  printf("hello");
+  printf("Expect: hello");
 }
 
 void main() {
-  printf(IntFunction_Int_Int(1, 2));
+  printf("Expect 3: ", IntFunction_Int_Int(1, 2));
   VoidFunction_Void;
 }

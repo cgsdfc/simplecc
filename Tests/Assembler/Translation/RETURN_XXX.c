@@ -1,11 +1,12 @@
-void VoidFunction_Void {
-  return;
-}
-
-int IntFunction_Void {
+int IntFunction {
   return(1);
 }
 
-void main() {
+char CharFunction {
+  return('a');
+}
 
+void main() {
+  Printf("Expect 1: ", IntFunction);
+  Printf("Expect a: ", CharFunction);
 }

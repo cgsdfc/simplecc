@@ -1,5 +1,5 @@
 void main() {
-  printf(1);
-  printf('a');
+  printf("Expect 1: ", 1);
+  printf("Expect a: ", 'a');
   printf("string");
 }

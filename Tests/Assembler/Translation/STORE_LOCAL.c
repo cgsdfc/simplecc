@@ -1,4 +1,5 @@
 void main() {
-  int IntVariable;
-  IntVariable = 1;
+  int IntVar;
+  IntVar = 2;
+  Printf("Expect 2: ", IntVar);
 }

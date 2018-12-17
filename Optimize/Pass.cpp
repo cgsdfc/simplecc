@@ -327,8 +327,9 @@ class AssemblePass : public Pass {
 public:
   static char ID;
   bool run(PassManager &PM) override {
-    const ByteCodeModule &CM = PM.getResult<CompilePass>();
-    AssembleMips(CM, PM.getOutputStream());
+    auto CP = PM.getPass<CompilePass>();
+    if (!CP) return false;
+    AssembleMips(CP->getResult(), PM.getOutputStream());
     return true;
   }
 };

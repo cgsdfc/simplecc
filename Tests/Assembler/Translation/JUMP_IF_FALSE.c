@@ -1,8 +1,8 @@
 void main() {
   if (1) {
-    printf("true branch taken");
+    printf("Expect true");
   }
   else {
-    printf("false branch taken");
+    printf("Unexpected false");
   }
 }

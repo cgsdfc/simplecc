@@ -1,3 +1,3 @@
 void main() {
-  printf(1);
+  printf("Expect 1: ", 1);
 }

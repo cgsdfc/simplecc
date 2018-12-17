@@ -13,12 +13,3 @@ void main() {
   VoidFunction_Void;
   Printf("End of call");
 }
-Dump Arguments:
-I1: 1
-I2: 2
-C1: a
-C2: b
-End of Dump
-
--- program is finished running --
-
