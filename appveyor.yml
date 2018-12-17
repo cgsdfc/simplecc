@@ -16,8 +16,8 @@ before_build:
     mkdir build
     cd build
     cmake --version
-    cmake ../Optimize -G "Visual Studio 15 2017 Win64"
+    cmake ../src -G "Visual Studio 15 2017 Win64"
 build:
-  project: build\Optimize.sln
+  project: build\simplecompiler.sln
   verbosity: minimal
   parallel: true

@@ -1,4 +1,4 @@
-set(EXEC_NAME optimize)
+set(EXEC_NAME simplec)
 
 set(SOURCE_FILES
   ./ByteCodePrinter.cpp

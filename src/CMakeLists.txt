@@ -1,4 +1,4 @@
-project(Optimize)
+project(simplecompiler)
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 set(CMAKE_BUILD_TYPE Debug)
