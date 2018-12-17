@@ -5,24 +5,24 @@
 using namespace simplecompiler;
 
 // Push a register onto the stack
-void ByteCodeToMipsTranslator::PUSH(const char *r) {
+void ByteCodeToMipsTranslator::PUSH(const char *R) {
   // $sp points to the one entry pass TOS
-  assert(r);
-  assert(r[0] == '$');
-  WriteLine("sw", r, ", 0($sp)");
+  assert(R);
+  assert(R[0] == '$');
+  WriteLine("sw", R, ", 0($sp)");
   WriteLine("addi $sp, $sp, -4");
-  ++stack_level;
+  ++StackDepth;
 }
 
 // Pop the stack, optionally taking the tos value
-void ByteCodeToMipsTranslator::POP(const char *r) {
-  assert(stack_level > 0 && "POP an empty stack!");
+void ByteCodeToMipsTranslator::POP(const char *R) {
+  assert(StackDepth > 0 && "POP an empty stack!");
   WriteLine("addi $sp, $sp, 4");
-  if (r) {
-    assert(r[0] == '$');
-    WriteLine("lw", r, ", 0($sp)");
+  if (R) {
+    assert(R[0] == '$');
+    WriteLine("lw", R, ", 0($sp)");
   }
-  --stack_level;
+  --StackDepth;
 }
 
 void ByteCodeToMipsTranslator::HandleBinarySubscr(const ByteCode &C) {
@@ -85,6 +85,19 @@ void ByteCodeToMipsTranslator::HandleBinary(const char *op) {
   PUSH("$t2");
 }
 
+void ByteCodeToMipsTranslator::HandleBinaryAdd(const ByteCode &C) {
+  HandleBinary("add");
+}
+void ByteCodeToMipsTranslator::HandleBinarySub(const ByteCode &C) {
+  HandleBinary("sub");
+}
+void ByteCodeToMipsTranslator::HandleBinaryMultiply(const ByteCode &C) {
+  HandleBinary("mul");
+}
+void ByteCodeToMipsTranslator::HandleBinaryDivide(const ByteCode &C) {
+  HandleBinary("div");
+}
+
 void ByteCodeToMipsTranslator::HandleUnaryNegative(const ByteCode &C) {
   // $sp points to **the next vacant byte** of the stack, so
   // TOS is 4 + $sp
@@ -112,8 +125,8 @@ void ByteCodeToMipsTranslator::HandleReturnValue(const ByteCode &C) {
   HandleReturn();
 }
 
-void ByteCodeToMipsTranslator::HandlePrint(MipsSyscallNumber syscall_code) {
-  WriteLine("li $v0,", syscall_code);
+void ByteCodeToMipsTranslator::HandlePrint(MipsSyscallCode Syscall) {
+  WriteLine("li $v0,", Syscall);
   POP("$a0");
   WriteLine("syscall");
 }
@@ -122,31 +135,31 @@ void ByteCodeToMipsTranslator::HandlePrintString(const ByteCode &C) {
   /* print string */
   /* v0 = 4 */
   /* $a0 = address of null-terminated string to print */
-  HandlePrint(MipsSyscallNumber::PRINT_STRING);
+  HandlePrint(MipsSyscallCode::PRINT_STRING);
 }
 
 void ByteCodeToMipsTranslator::HandlePrintCharacter(const ByteCode &C) {
   /* print character */
   /* 11 */
   /* $a0 = character to print */
-  HandlePrint(MipsSyscallNumber::PRINT_CHARACTER);
+  HandlePrint(MipsSyscallCode::PRINT_CHARACTER);
 }
 
 void ByteCodeToMipsTranslator::HandlePrintInteger(const ByteCode &C) {
   /* print integer */
   /* 1 */
   /* $a0 = integer to print */
-  HandlePrint(MipsSyscallNumber::PRINT_INTEGER);
+  HandlePrint(MipsSyscallCode::PRINT_INTEGER);
 }
 
 void ByteCodeToMipsTranslator::HandlePrintNewline(const ByteCode &C) {
   WriteLine("li $a0,", static_cast<int>('\n'));
-  WriteLine("li $v0,", MipsSyscallNumber::PRINT_CHARACTER);
+  WriteLine("li $v0,", MipsSyscallCode::PRINT_CHARACTER);
   WriteLine("syscall");
 }
 
-void ByteCodeToMipsTranslator::HandleRead(MipsSyscallNumber syscall_code) {
-  WriteLine("li $v0,", syscall_code);
+void ByteCodeToMipsTranslator::HandleRead(MipsSyscallCode Syscall) {
+  WriteLine("li $v0,", Syscall);
   WriteLine("syscall");
   PUSH("$v0");
 }
@@ -155,14 +168,14 @@ void ByteCodeToMipsTranslator::HandleReadInteger(const ByteCode &C) {
   /* read integer */
   /* 5 */
   /* $v0 contains integer read */
-  HandleRead(MipsSyscallNumber::READ_INTEGER);
+  HandleRead(MipsSyscallCode::READ_INTEGER);
 }
 
 void ByteCodeToMipsTranslator::HandleReadCharacter(const ByteCode &C) {
   /* read character */
   /* 12 */
   /* $v0 contains character read */
-  HandleRead(MipsSyscallNumber::READ_CHARACTER);
+  HandleRead(MipsSyscallCode::READ_CHARACTER);
 }
 
 void ByteCodeToMipsTranslator::HandleStoreSubscr(const ByteCode &C) {
@@ -191,9 +204,9 @@ void ByteCodeToMipsTranslator::HandleBinaryJumpIf(const char *Op,
                                                   const ByteCode &C) {
   POP("$t0"); // TOS
   POP("$t1"); // TOS1
-  WriteLine(Op, "$t1, $t0,",
-            JumpTargetLabel(TheContext.getName(), C.GetIntOperand(),
-                            /* NeedColon */ false));
+  JumpTargetLabel Label(TheContext.getName(), C.GetIntOperand(),
+                        /* NeedColon */ false);
+  WriteLine(Op, "$t1, $t0,", Label);
 }
 
 /// ByteCodeToMipsTranslator::Wrap OpcodeDispatcher::dispatch() to provide label
@@ -207,4 +220,29 @@ void ByteCodeToMipsTranslator::Write(const ByteCode &C) {
   WriteLine("#", C.GetOpcodeName());
   OpcodeDispatcher::dispatch(C);
   WriteLine();
+}
+
+void ByteCodeToMipsTranslator::HandleJumpIfTrue(const ByteCode &C) {
+  HandleUnaryJumpIf("bnez", C);
+}
+void ByteCodeToMipsTranslator::HandleJumpIfFalse(const ByteCode &C) {
+  HandleUnaryJumpIf("beqz", C);
+}
+void ByteCodeToMipsTranslator::HandleJumpIfNotEqual(const ByteCode &C) {
+  HandleBinaryJumpIf("bne", C);
+}
+void ByteCodeToMipsTranslator::HandleJumpIfEqual(const ByteCode &C) {
+  HandleBinaryJumpIf("beq", C);
+}
+void ByteCodeToMipsTranslator::HandleJumpIfGreater(const ByteCode &C) {
+  HandleBinaryJumpIf("bgt", C);
+}
+void ByteCodeToMipsTranslator::HandleJumpIfGreaterEqual(const ByteCode &C) {
+  HandleBinaryJumpIf("bge", C);
+}
+void ByteCodeToMipsTranslator::HandleJumpIfLess(const ByteCode &C) {
+  HandleBinaryJumpIf("blt", C);
+}
+void ByteCodeToMipsTranslator::HandleJumpIfLessEqual(const ByteCode &C) {
+  HandleBinaryJumpIf("ble", C);
 }
