@@ -35,7 +35,7 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
     if (decl_iter != end) {
       auto decl = *decl_iter;
       EM.SyntaxError(decl->getLoc(), "unexpected", decl->GetClassName(),
-                    Quote(decl->getName()));
+                     Quote(decl->getName()));
     }
 
     // check the last declaration is the main function
@@ -49,21 +49,21 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
     if (CD->getType() == BasicTypeKind::Int &&
         !IsInstance<Num>(CD->getValue())) {
       EM.SyntaxError(CD->getLoc(), "const int", Quote(CD->getName()),
-                    "expects an integer");
+                     "expects an integer");
     } else if (CD->getType() == BasicTypeKind::Character &&
                !IsInstance<Char>(CD->getValue())) {
       EM.SyntaxError(CD->getLoc(), "const char", Quote(CD->getName()),
-                    "expects a character");
+                     "expects a character");
     }
   }
 
   void visitVarDecl(VarDecl *VD) {
     if (VD->getType() == BasicTypeKind::Void) {
       EM.SyntaxError(VD->getLoc(), "cannot declare", Quote(VD->getName()),
-                    "as a void variable");
+                     "as a void variable");
     } else if (VD->getIsArray() && VD->getSize() == 0) {
       EM.SyntaxError(VD->getLoc(), "array size of", Quote(VD->getName()),
-                    "cannot be 0");
+                     "cannot be 0");
     }
   }
 

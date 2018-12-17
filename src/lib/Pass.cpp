@@ -328,7 +328,8 @@ public:
   static char ID;
   bool run(PassManager &PM) override {
     auto CP = PM.getPass<CompilePass>();
-    if (!CP) return false;
+    if (!CP)
+      return false;
     AssembleMips(CP->getResult(), PM.getOutputStream());
     return true;
   }
