@@ -44,3 +44,6 @@ compile_commands.json
 # graph's
 *.png
 *.dot
+
+# generated documents
+docs/
