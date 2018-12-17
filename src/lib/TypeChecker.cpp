@@ -1,11 +1,11 @@
-#include "simplecompiler/TypeChecker.h"
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/SymbolTable.h"
-#include "simplecompiler/Visitor.h"
+#include "simplecc/TypeChecker.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/SymbolTable.h"
+#include "simplecc/Visitor.h"
 
 #include <algorithm>
 
-namespace simplecompiler {
+namespace simplecc {
 // Check type for a function
 class TypeCheker : ChildrenVisitor<TypeCheker> {
 
@@ -217,4 +217,4 @@ private:
 
 bool CheckType(Program *P, SymbolTable &S) { return TypeCheker().Check(P, S); }
 
-} // namespace simplecompiler
+} // namespace simplecc

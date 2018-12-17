@@ -1,12 +1,12 @@
 // XXX: Since this pass **modifies** the AST, it is important
 // to run a verify pass on it to ensure it didn't break any invariant.
-#include "simplecompiler/ImplicitCallTransformer.h"
-#include "simplecompiler/SymbolTable.h"
-#include "simplecompiler/Visitor.h"
+#include "simplecc/ImplicitCallTransformer.h"
+#include "simplecc/SymbolTable.h"
+#include "simplecc/Visitor.h"
 
 #include <cassert>
 
-namespace simplecompiler {
+namespace simplecc {
 
 /// What is an implicit call and why we need to transform them?
 /// Q1: What is an implicit call?
@@ -136,4 +136,4 @@ private:
 void TransformImplicitCall(Program *P, const SymbolTable &S) {
   ImplicitCallTransformer().Transform(P, S);
 }
-} // namespace simplecompiler
+} // namespace simplecc

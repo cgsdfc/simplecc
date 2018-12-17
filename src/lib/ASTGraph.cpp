@@ -1,7 +1,7 @@
-#include "simplecompiler/ASTGraph.h"
-#include "simplecompiler/Print.h"
-#include "simplecompiler/TokenInfo.h" // for Location
-#include "simplecompiler/Visitor.h"
+#include "simplecc/ASTGraph.h"
+#include "simplecc/Print.h"
+#include "simplecc/TokenInfo.h" // for Location
+#include "simplecc/Visitor.h"
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/ADT/iterator.h>
@@ -19,7 +19,7 @@
 #include <utility>     // for move
 #include <vector>
 
-namespace simplecompiler {
+namespace simplecc {
 
 class AstGraph;
 
@@ -305,9 +305,9 @@ void WriteASTGraph(Program *P, llvm::raw_ostream &os) {
   llvm::WriteGraph(os, Graph);
 }
 
-} // namespace simplecompiler
+} // namespace simplecc
 
-namespace simplecompiler {
+namespace simplecc {
 
 /// This class generates a description for each AST node.
 class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
@@ -416,11 +416,11 @@ public:
   String visitReturn(Return *) { return ""; }
 };
 
-} // namespace simplecompiler
+} // namespace simplecc
 
 namespace llvm {
-using simplecompiler::AstGraph;
-using simplecompiler::AstRef;
+using simplecc::AstGraph;
+using simplecc::AstRef;
 
 /// Specialized GraphTraits for AstGraph
 template <> struct GraphTraits<AstGraph> {
@@ -458,7 +458,7 @@ template <> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
 
   static std::string getNodeDescription(const void *NodeRef, const AstGraph &) {
     auto N = static_cast<AstRef *>(const_cast<void *>(NodeRef));
-    simplecompiler::DescriptionVisitor DV;
+    simplecc::DescriptionVisitor DV;
     return DV.makeDescription(*N);
   }
 };

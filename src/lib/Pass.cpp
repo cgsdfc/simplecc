@@ -1,23 +1,23 @@
-#include "simplecompiler/Pass.h"
-#include "simplecompiler/AST.h"
-#include "simplecompiler/Assemble.h"
-#include "simplecompiler/AstBuilder.h"
-#include "simplecompiler/AstVerifier.h"
-#include "simplecompiler/ByteCodeModule.h"
-#include "simplecompiler/ByteCodePrinter.h"
-#include "simplecompiler/ImplicitCallTransformer.h"
-#include "simplecompiler/Node.h"
-#include "simplecompiler/Parser.h"
-#include "simplecompiler/Print.h"
-#include "simplecompiler/SymbolTable.h"
-#include "simplecompiler/SyntaxChecker.h"
-#include "simplecompiler/Tokenize.h"
-#include "simplecompiler/TypeChecker.h"
+#include "simplecc/Pass.h"
+#include "simplecc/AST.h"
+#include "simplecc/Assemble.h"
+#include "simplecc/AstBuilder.h"
+#include "simplecc/AstVerifier.h"
+#include "simplecc/ByteCodeModule.h"
+#include "simplecc/ByteCodePrinter.h"
+#include "simplecc/ImplicitCallTransformer.h"
+#include "simplecc/Node.h"
+#include "simplecc/Parser.h"
+#include "simplecc/Print.h"
+#include "simplecc/SymbolTable.h"
+#include "simplecc/SyntaxChecker.h"
+#include "simplecc/Tokenize.h"
+#include "simplecc/TypeChecker.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
-#include "simplecompiler/ASTGraph.h"
-#include "simplecompiler/CSTGraph.h"
-#include "simplecompiler/EmitLLVM.h"
+#include "simplecc/ASTGraph.h"
+#include "simplecc/CSTGraph.h"
+#include "simplecc/EmitLLVM.h"
 
 #include <llvm/ADT/Optional.h>
 #include <llvm/Support/raw_ostream.h>
@@ -27,7 +27,7 @@
 #include <cstring>
 #include <system_error>
 
-namespace simplecompiler {
+namespace simplecc {
 
 /// Helper class template to register a Pass.
 template <typename PassT> struct RegisterPass {
@@ -440,4 +440,4 @@ void PassRegistry::dump() const {
   }
 }
 
-} // namespace simplecompiler
+} // namespace simplecc

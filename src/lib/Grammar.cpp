@@ -1,5 +1,5 @@
 
-#include "simplecompiler/Grammar.h"
+#include "simplecc/Grammar.h"
 
 const char *TokenNames[7] = {"NAME", "OP",     "ERRORTOKEN", "ENDMARKER",
                              "CHAR", "NUMBER", "STRING"};

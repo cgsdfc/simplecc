@@ -1,6 +1,6 @@
-#include "simplecompiler/MipsSupport.h"
+#include "simplecc/MipsSupport.h"
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 void AsciizLabel::FormatImpl(std::ostream &O) const {
   O << "string_" << StringID;

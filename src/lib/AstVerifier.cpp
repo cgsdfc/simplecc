@@ -1,8 +1,8 @@
-#include "simplecompiler/AstVerifier.h"
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/Visitor.h"
+#include "simplecc/AstVerifier.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/Visitor.h"
 
-namespace simplecompiler {
+namespace simplecc {
 class AstVerifier : ChildrenVisitor<AstVerifier> {
 
   /// Helper to check each condition in one single statement.
@@ -103,4 +103,4 @@ private:
 
 bool VerifyAST(Program *P) { return AstVerifier().Verify(P); }
 
-} // namespace simplecompiler
+} // namespace simplecc

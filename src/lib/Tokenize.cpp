@@ -1,5 +1,5 @@
-#include "simplecompiler/Tokenize.h"
-#include "simplecompiler/ErrorManager.h"
+#include "simplecc/Tokenize.h"
+#include "simplecc/ErrorManager.h"
 
 #include <algorithm>
 #include <cassert>
@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 static bool IsBlank(const String &line) {
   for (auto ch : line)
@@ -55,7 +55,7 @@ static void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
   os << std::left << std::setw(15) << Quote(token.getString()) << "\n";
 }
 
-namespace simplecompiler {
+namespace simplecc {
 void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
   unsigned lnum = 0;
   String line;
@@ -142,7 +142,7 @@ void PrintTokens(const std::vector<TokenInfo> &tokens, std::ostream &os) {
     DumpTokenInfo(os, token);
   }
 }
-} // namespace simplecompiler
+} // namespace simplecc
 
 void TokenInfo::Format(std::ostream &os) const {
   os << "TokenInfo("

@@ -1,6 +1,6 @@
-#include "simplecompiler/Types.h"
+#include "simplecc/Types.h"
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 ArrayType::ArrayType(VarDecl *VD)
     : ElemType(VD->getType()), Size(VD->getSize()) {
@@ -109,7 +109,7 @@ void SymbolEntry::Format(std::ostream &O) const {
     << GetScope() << ", " << GetLocation() << ")";
 }
 
-namespace simplecompiler {
+namespace simplecc {
 std::ostream &operator<<(std::ostream &O, Scope S) {
   switch (S) {
   case Scope::Global:
@@ -118,4 +118,4 @@ std::ostream &operator<<(std::ostream &O, Scope S) {
     return O << "Local";
   }
 }
-} // namespace simplecompiler
+} // namespace simplecc

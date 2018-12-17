@@ -1,6 +1,6 @@
 
-#include "simplecompiler/Opcode.h"
-namespace simplecompiler {
+#include "simplecc/Opcode.h"
+namespace simplecc {
 const char *CStringFromOpcode(Opcode val) {
   switch (val) {
   case Opcode::LOAD_LOCAL:
@@ -71,4 +71,4 @@ const char *CStringFromOpcode(Opcode val) {
     return "POP_TOP";
   }
 }
-} // namespace simplecompiler
+} // namespace simplecc

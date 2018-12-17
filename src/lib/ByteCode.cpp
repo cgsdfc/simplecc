@@ -1,11 +1,11 @@
-#include "simplecompiler/ByteCode.h"
-#include "simplecompiler/ErrorManager.h"
+#include "simplecc/ByteCode.h"
+#include "simplecc/ErrorManager.h"
 
 #include <cassert>
 #include <iomanip>
 #include <iostream>
 
-namespace simplecompiler {
+namespace simplecc {
 
 ByteCode ByteCode::Create(Opcode Op, int Val) {
   ByteCode B(Op);
@@ -106,4 +106,4 @@ void ByteCode::Format(std::ostream &O) const {
   }
 }
 
-} // namespace simplecompiler
+} // namespace simplecc

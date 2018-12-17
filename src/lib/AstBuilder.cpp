@@ -1,7 +1,7 @@
-#include "simplecompiler/AstBuilder.h"
-#include "simplecompiler/AST.h"
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/Node.h"
+#include "simplecc/AstBuilder.h"
+#include "simplecc/AST.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/Node.h"
 
 #include <cassert>
 #include <sstream>
@@ -9,7 +9,8 @@
 #include <vector>
 
 namespace {
-using namespace simplecompiler;
+using namespace simplecc;
+
 Expr *MakeChar(Node *node) {
   return new Char(static_cast<int>(node->getValue()[1]), node->getLocation());
 }
@@ -19,7 +20,7 @@ Expr *MakeNum(Node *node) {
 }
 } // namespace
 
-namespace simplecompiler {
+namespace simplecc {
 
 class AstBuilder {
   Program *visit_program(Node *node) {
@@ -432,8 +433,8 @@ class AstBuilder {
 public:
   Program *Build(const Node *N) { return visit_program(const_cast<Node *>(N)); }
 };
-} // namespace simplecompiler
+} // namespace simplecc
 
-Program *simplecompiler::BuildAstFromNode(const Node *node) {
+Program *simplecc::BuildAstFromNode(const Node *node) {
   return AstBuilder().Build(node);
 }

@@ -1,12 +1,12 @@
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/Pass.h"
-#include "simplecompiler/Print.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/Pass.h"
+#include "simplecc/Print.h"
 
 #include <cassert>
 #include <cstdio>   // for getchar()
 #include <iostream> // for cin
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 int main(int argc, char **argv) {
   /// Prompt the user for an input filename.

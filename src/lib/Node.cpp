@@ -1,10 +1,10 @@
-#include "simplecompiler/Node.h"
-#include "simplecompiler/ErrorManager.h"
+#include "simplecc/Node.h"
+#include "simplecc/ErrorManager.h"
 
 #include <algorithm>
 #include <iostream>
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 Node::~Node() {
   std::for_each(children.begin(), children.end(), [](Node *N) { delete N; });

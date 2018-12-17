@@ -1,9 +1,9 @@
-#include "simplecompiler/SyntaxChecker.h"
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/Visitor.h"
+#include "simplecc/SyntaxChecker.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/Visitor.h"
 
 namespace {
-using namespace simplecompiler;
+using namespace simplecc;
 
 class SyntaxChecker : private VisitorBase<SyntaxChecker> {
   ErrorManager EM;
@@ -97,6 +97,6 @@ public:
 };
 } // namespace
 
-bool simplecompiler::CheckSyntax(Program *P) {
+bool simplecc::CheckSyntax(Program *P) {
   return SyntaxChecker().Check(P);
 }

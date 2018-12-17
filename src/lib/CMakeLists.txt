@@ -1,4 +1,4 @@
-set(EXEC_NAME simplec)
+set(EXEC_NAME simplecc)
 
 set(SOURCE_FILES
   ./ByteCodePrinter.cpp

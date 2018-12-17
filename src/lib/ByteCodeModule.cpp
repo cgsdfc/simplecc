@@ -1,13 +1,13 @@
-#include "simplecompiler/ByteCodeModule.h"
-#include "simplecompiler/ByteCodeBuilder.h"
-#include "simplecompiler/ByteCodeFunction.h"
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/Visitor.h"
+#include "simplecc/ByteCodeModule.h"
+#include "simplecc/ByteCodeBuilder.h"
+#include "simplecc/ByteCodeFunction.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/Visitor.h"
 
 #include <cassert>
 #include <utility>
 
-namespace simplecompiler {
+namespace simplecc {
 
 class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
 
@@ -249,4 +249,4 @@ void ByteCodeModule::Build(Program *P, const SymbolTable &S) {
   clear();
   ByteCodeCompiler().Compile(P, S, *this);
 }
-} // namespace simplecompiler
+} // namespace simplecc

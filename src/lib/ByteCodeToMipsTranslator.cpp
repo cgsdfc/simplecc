@@ -1,8 +1,8 @@
-#include "simplecompiler/ByteCodeToMipsTranslator.h"
-#include "simplecompiler/LocalContext.h"
+#include "simplecc/ByteCodeToMipsTranslator.h"
+#include "simplecc/LocalContext.h"
 #include <cassert>
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 // Push a register onto the stack
 void ByteCodeToMipsTranslator::PUSH(const char *R) {

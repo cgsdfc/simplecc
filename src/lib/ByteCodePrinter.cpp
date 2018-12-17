@@ -1,11 +1,11 @@
-#include "simplecompiler/ByteCodePrinter.h"
-#include "simplecompiler/Print.h"
-#include "simplecompiler/Visitor.h"
+#include "simplecc/ByteCodePrinter.h"
+#include "simplecc/Print.h"
+#include "simplecc/Visitor.h"
 
 #include <cassert>
 #include <iostream>
 
-namespace simplecompiler {
+namespace simplecc {
 /// This class handles the formatting of the result of an epxression
 /// It is a union of factor Expr and temporary
 class ExprValue {
@@ -293,4 +293,4 @@ private:
 
 void PrintByteCode(Program *P, std::ostream &O) { ByteCodePrinter(O).Print(P); }
 
-} // namespace simplecompiler
+} // namespace simplecc

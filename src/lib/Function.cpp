@@ -1,1 +1,1 @@
-#include "simplecompiler/Function.h"
+#include "simplecc/Function.h"

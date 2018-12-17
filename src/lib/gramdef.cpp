@@ -1,4 +1,4 @@
-#include "simplecompiler/Grammar.h"
+#include "simplecc/Grammar.h"
 #include <cstdio>
 
 using std::printf;

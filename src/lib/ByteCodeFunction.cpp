@@ -1,12 +1,12 @@
-#include "simplecompiler/ByteCodeFunction.h"
-#include "simplecompiler/ByteCodeModule.h"
+#include "simplecc/ByteCodeFunction.h"
+#include "simplecc/ByteCodeModule.h"
 
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <utility> // pair
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 ByteCodeFunction::ByteCodeFunction(ByteCodeModule *M) : Parent(M) {
   /// Owned by Module

@@ -1,6 +1,6 @@
-#include "simplecompiler/CSTGraph.h"
-#include "simplecompiler/Node.h"
-#include "simplecompiler/Print.h"
+#include "simplecc/CSTGraph.h"
+#include "simplecc/Node.h"
+#include "simplecc/Print.h"
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/ADT/iterator.h>
@@ -13,7 +13,7 @@
 #include <stack>
 #include <string>
 
-namespace simplecompiler {
+namespace simplecc {
 using CSTGraphTy = const Node *;
 
 class NodeIteratorImpl {
@@ -92,24 +92,24 @@ private:
   pointer NodeRef;
 };
 
-} // namespace simplecompiler
+} // namespace simplecc
 
 namespace llvm {
-using simplecompiler::Node;
+using simplecc::Node;
 using CSTGraphTy = Node *;
 
 /// Specialized GraphTraits
 template <> struct GraphTraits<CSTGraphTy> {
   using NodeRef = CSTGraphTy;
-  using nodes_iterator = simplecompiler::NodeIterator;
+  using nodes_iterator = simplecc::NodeIterator;
   using ChildIteratorType = Node::const_iterator;
 
   static nodes_iterator nodes_begin(const CSTGraphTy &G) {
-    return simplecompiler::NodeIterator::begin(G);
+    return simplecc::NodeIterator::begin(G);
   }
 
   static nodes_iterator nodes_end(const CSTGraphTy &) {
-    return simplecompiler::NodeIterator::end();
+    return simplecc::NodeIterator::end();
   }
 
   static ChildIteratorType child_begin(NodeRef N) { return N->begin(); }
@@ -138,7 +138,7 @@ template <> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
 
 } // namespace llvm
 
-namespace simplecompiler {
+namespace simplecc {
 void PrintAllNodes(Node *Root) {
   for (const Node *N : NodeIterator::getIter(Root)) {
     Print(std::cout, N->getTypeName(), N->getValue(), N->getLocation());
@@ -149,4 +149,4 @@ void WriteCSTGraph(Node *Root, llvm::raw_ostream &os) {
   llvm::WriteGraph(os, Root);
 }
 
-} // namespace simplecompiler
+} // namespace simplecc

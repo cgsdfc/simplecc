@@ -1,14 +1,14 @@
-#include "simplecompiler/Parser.h"
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/Grammar.h"
-#include "simplecompiler/Node.h"
-#include "simplecompiler/TokenInfo.h"
+#include "simplecc/Parser.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/Grammar.h"
+#include "simplecc/Node.h"
+#include "simplecc/TokenInfo.h"
 
 #include <algorithm>
 #include <stack>
 #include <vector>
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 namespace {
 struct StackEntry {
@@ -183,7 +183,7 @@ Node *Parser::ParseTokens(const std::vector<TokenInfo> &tokens) {
   return nullptr;
 }
 
-Node *simplecompiler::ParseTokens(const std::vector<TokenInfo> &tokens) {
+Node *simplecc::ParseTokens(const std::vector<TokenInfo> &tokens) {
   Parser parser(&CompilerGrammar);
   return parser.ParseTokens(tokens);
 }

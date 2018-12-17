@@ -1,1 +1,1 @@
-#include "simplecompiler/BasicBlock.h"
+#include "simplecc/BasicBlock.h"

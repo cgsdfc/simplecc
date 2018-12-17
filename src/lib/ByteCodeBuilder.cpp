@@ -1,9 +1,9 @@
-#include "simplecompiler/ByteCodeBuilder.h"
-#include "simplecompiler/AST.h"
-#include "simplecompiler/ByteCode.h"
-#include "simplecompiler/ByteCodeFunction.h"
+#include "simplecc/ByteCodeBuilder.h"
+#include "simplecc/AST.h"
+#include "simplecc/ByteCode.h"
+#include "simplecc/ByteCodeFunction.h"
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 Opcode ByteCodeBuilder::MakeSubScr(ExprContextKind ctx) {
   switch (ctx) {

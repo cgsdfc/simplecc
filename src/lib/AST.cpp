@@ -1,10 +1,10 @@
 
-#include "simplecompiler/AST.h"
+#include "simplecc/AST.h"
 #include <cassert>
 #include <iostream>
 #include <vector>
 
-namespace simplecompiler {
+namespace simplecc {
 
 // Format Optional Ast
 std::ostream &operator<<(std::ostream &os, const AST *ast) {
@@ -466,4 +466,4 @@ const char *CStringFromBasicTypeKind(BasicTypeKind val) {
   }
 }
 
-} // namespace simplecompiler
+} // namespace simplecc

@@ -1,9 +1,9 @@
-#include "simplecompiler/LocalContext.h"
-#include "simplecompiler/ByteCode.h"
-#include "simplecompiler/ByteCodeFunction.h"
-#include "simplecompiler/Types.h"
+#include "simplecc/LocalContext.h"
+#include "simplecc/ByteCode.h"
+#include "simplecc/ByteCodeFunction.h"
+#include "simplecc/Types.h"
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 // Return the bytes for n entries
 inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }

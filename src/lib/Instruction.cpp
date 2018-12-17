@@ -1,1 +1,1 @@
-#include "simplecompiler/Instruction.h"
+#include "simplecc/Instruction.h"

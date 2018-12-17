@@ -1,7 +1,7 @@
-#include "simplecompiler/Module.h"
+#include "simplecc/Module.h"
 #include <string>
 #include <utility>
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 Module::Module(std::string Name) : Name(std::move(Name)), Functions() {}

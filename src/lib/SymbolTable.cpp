@@ -1,12 +1,12 @@
-#include "simplecompiler/SymbolTable.h"
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/Visitor.h"
+#include "simplecc/SymbolTable.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/Visitor.h"
 
 #include <cassert>
 #include <iostream>
 #include <unordered_map>
 
-namespace simplecompiler {
+namespace simplecc {
 
 /// This all-in-one class does what MakeLocal(), MakeGlobal()
 /// and LocalResolver do and in a uniform Visitor fashion.
@@ -202,4 +202,4 @@ const SymbolEntry &SymbolTableView::operator[](const String &Name) const {
   return TheTable->find(Name)->second;
 }
 
-} // namespace simplecompiler
+} // namespace simplecc

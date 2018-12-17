@@ -1,11 +1,11 @@
-#include "simplecompiler/Assemble.h"
-#include "simplecompiler/MipsAssemblyWriter.h"
+#include "simplecc/Assemble.h"
+#include "simplecc/MipsAssemblyWriter.h"
 
 #include <iostream>
 
-namespace simplecompiler {
+namespace simplecc {
 void AssembleMips(const ByteCodeModule &M, std::ostream &O) {
   MipsAssemblyWriter().Write(M, O);
 }
 
-} // namespace simplecompiler
+} // namespace simplecc

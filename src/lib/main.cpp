@@ -1,5 +1,5 @@
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/Pass.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/Pass.h"
 
 #include <algorithm>
 #include <cstring>
@@ -9,7 +9,7 @@
 #include <vector>
 
 using namespace TCLAP;
-using namespace simplecompiler;
+using namespace simplecc;
 
 class CommandLine {
   CmdLine Parser;

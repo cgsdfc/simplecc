@@ -1,7 +1,7 @@
-#include "simplecompiler/EmitLLVM.h"
-#include "simplecompiler/ErrorManager.h"
-#include "simplecompiler/SymbolTable.h"
-#include "simplecompiler/Visitor.h"
+#include "simplecc/EmitLLVM.h"
+#include "simplecc/ErrorManager.h"
+#include "simplecc/SymbolTable.h"
+#include "simplecc/Visitor.h"
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>
@@ -21,7 +21,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace simplecompiler {
+namespace simplecc {
 using llvm::AllocaInst;
 using llvm::BasicBlock;
 using llvm::Constant;
@@ -38,7 +38,7 @@ using llvm::StringRef;
 using llvm::Type;
 using llvm::Value;
 
-/// A class that translates simplecompiler's type system to LLVM's type system.
+/// A class that translates simplecc's type system to LLVM's type system.
 /// Provides helpers to convert objects of different types to their LLVM
 /// counterparts.
 class LLVMTypeMap {
@@ -769,9 +769,9 @@ public:
   const Program *getProgram() const { return TheProgram; }
   Program *getProgram() { return TheProgram; }
 };
-} // namespace simplecompiler
+} // namespace simplecc
 
-namespace simplecompiler {
+namespace simplecc {
 
 /// Compile a program to LLVM IR, dump resultant code to stderr.
 /// Return true for success.
@@ -801,4 +801,4 @@ bool CompileToLLVMIR(String InputFilename, Program *P, const SymbolTable &S,
   return true;
 }
 
-} // namespace simplecompiler
+} // namespace simplecc

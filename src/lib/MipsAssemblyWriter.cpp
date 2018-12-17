@@ -1,14 +1,14 @@
-#include "simplecompiler/MipsAssemblyWriter.h"
-#include "simplecompiler/ByteCodeFunction.h"
-#include "simplecompiler/ByteCodeModule.h"
-#include "simplecompiler/ByteCodeToMipsTranslator.h"
-#include "simplecompiler/MipsSupport.h"
-#include "simplecompiler/Types.h" // SymbolEntry
+#include "simplecc/MipsAssemblyWriter.h"
+#include "simplecc/ByteCodeFunction.h"
+#include "simplecc/ByteCodeModule.h"
+#include "simplecc/ByteCodeToMipsTranslator.h"
+#include "simplecc/MipsSupport.h"
+#include "simplecc/Types.h" // SymbolEntry
 
 #include <iostream>
 #include <numeric> // accumulate()
 
-using namespace simplecompiler;
+using namespace simplecc;
 
 void MipsAssemblyWriter::WriteData(Printer &W, const ByteCodeModule &Module) {
   W.WriteLine(".data");
