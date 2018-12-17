@@ -3,6 +3,6 @@
 
 namespace simplecompiler {
 class Program;
-bool CheckSyntax(Program *node);
+bool CheckSyntax(Program *P);
 } // namespace simplecompiler
 #endif

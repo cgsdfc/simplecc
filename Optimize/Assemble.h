@@ -4,6 +4,6 @@
 
 namespace simplecompiler {
 class ByteCodeModule;
-void AssembleMips(const ByteCodeModule &module, std::ostream &os);
+void AssembleMips(const ByteCodeModule &M, std::ostream &O);
 } // namespace simplecompiler
 #endif
