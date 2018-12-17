@@ -1,7 +1,7 @@
 
 #ifndef OPCODE_DISPATCHER
 #define OPCODE_DISPATCHER
-#include "ByteCode.h"
+#include "simplecompiler/ByteCode.h"
 
 namespace simplecompiler {
 template <class Derived> class OpcodeDispatcher {

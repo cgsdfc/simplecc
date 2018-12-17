@@ -1,6 +1,6 @@
-#include "CSTGraph.h"
-#include "Node.h"
-#include "Print.h"
+#include "simplecompiler/CSTGraph.h"
+#include "simplecompiler/Node.h"
+#include "simplecompiler/Print.h"
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/ADT/iterator.h>

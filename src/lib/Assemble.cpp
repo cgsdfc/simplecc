@@ -1,5 +1,5 @@
-#include "Assemble.h"
-#include "MipsAssemblyWriter.h"
+#include "simplecompiler/Assemble.h"
+#include "simplecompiler/MipsAssemblyWriter.h"
 
 #include <iostream>
 

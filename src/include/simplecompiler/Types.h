@@ -1,6 +1,6 @@
 #ifndef TYPES_H
 #define TYPES_H
-#include "AST.h"
+#include "simplecompiler/AST.h"
 #include <cassert>
 
 /// Types of simplecompiler

@@ -1,5 +1,5 @@
-#include "ByteCodeFunction.h"
-#include "ByteCodeModule.h"
+#include "simplecompiler/ByteCodeFunction.h"
+#include "simplecompiler/ByteCodeModule.h"
 
 #include <algorithm>
 #include <iomanip>

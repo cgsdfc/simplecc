@@ -1,5 +1,5 @@
-#include "ErrorManager.h"
-#include "Pass.h"
+#include "simplecompiler/ErrorManager.h"
+#include "simplecompiler/Pass.h"
 
 #include <algorithm>
 #include <cstring>

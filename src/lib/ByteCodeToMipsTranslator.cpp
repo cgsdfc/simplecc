@@ -1,5 +1,5 @@
-#include "ByteCodeToMipsTranslator.h"
-#include "LocalContext.h"
+#include "simplecompiler/ByteCodeToMipsTranslator.h"
+#include "simplecompiler/LocalContext.h"
 #include <cassert>
 
 using namespace simplecompiler;

@@ -1,6 +1,6 @@
 #ifndef BYTE_CODE_MODULE_H
 #define BYTE_CODE_MODULE_H
-#include "Types.h"
+#include "simplecompiler/Types.h"
 
 #include <iostream>
 #include <unordered_map>

@@ -1,7 +1,7 @@
 #ifndef BYTE_CODE_FUNCTION_H
 #define BYTE_CODE_FUNCTION_H
-#include "ByteCode.h"
-#include "SymbolTable.h"
+#include "simplecompiler/ByteCode.h"
+#include "simplecompiler/SymbolTable.h"
 
 #include <iostream>
 #include <utility> // move()

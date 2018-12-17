@@ -1,5 +1,5 @@
 
-#include "Opcode.h"
+#include "simplecompiler/Opcode.h"
 namespace simplecompiler {
 const char *CStringFromOpcode(Opcode val) {
   switch (val) {

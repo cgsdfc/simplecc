@@ -1,5 +1,5 @@
-#include "ByteCode.h"
-#include "ErrorManager.h"
+#include "simplecompiler/ByteCode.h"
+#include "simplecompiler/ErrorManager.h"
 
 #include <cassert>
 #include <iomanip>

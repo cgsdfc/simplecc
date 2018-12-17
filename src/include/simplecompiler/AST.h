@@ -2,7 +2,7 @@
 #ifndef AST_H
 #define AST_H
 
-#include "TokenInfo.h"
+#include "simplecompiler/TokenInfo.h"
 
 #include <iostream>
 #include <string>

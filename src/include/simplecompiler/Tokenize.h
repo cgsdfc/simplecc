@@ -1,7 +1,7 @@
 #ifndef TOKENIZE_H
 #define TOKENIZE_H
-#include "Grammar.h"
-#include "TokenInfo.h"
+#include "simplecompiler/Grammar.h"
+#include "simplecompiler/TokenInfo.h"
 
 #include <iostream>
 #include <vector>

@@ -1,9 +1,9 @@
-#include "MipsAssemblyWriter.h"
-#include "ByteCodeFunction.h"
-#include "ByteCodeModule.h"
-#include "ByteCodeToMipsTranslator.h"
-#include "MipsSupport.h"
-#include "Types.h" // SymbolEntry
+#include "simplecompiler/MipsAssemblyWriter.h"
+#include "simplecompiler/ByteCodeFunction.h"
+#include "simplecompiler/ByteCodeModule.h"
+#include "simplecompiler/ByteCodeToMipsTranslator.h"
+#include "simplecompiler/MipsSupport.h"
+#include "simplecompiler/Types.h" // SymbolEntry
 
 #include <iostream>
 #include <numeric> // accumulate()

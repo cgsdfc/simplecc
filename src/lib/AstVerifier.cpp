@@ -1,6 +1,6 @@
-#include "AstVerifier.h"
-#include "ErrorManager.h"
-#include "Visitor.h"
+#include "simplecompiler/AstVerifier.h"
+#include "simplecompiler/ErrorManager.h"
+#include "simplecompiler/Visitor.h"
 
 namespace simplecompiler {
 class AstVerifier : ChildrenVisitor<AstVerifier> {

@@ -1,6 +1,6 @@
-#include "ByteCodePrinter.h"
-#include "Print.h"
-#include "Visitor.h"
+#include "simplecompiler/ByteCodePrinter.h"
+#include "simplecompiler/Print.h"
+#include "simplecompiler/Visitor.h"
 
 #include <cassert>
 #include <iostream>

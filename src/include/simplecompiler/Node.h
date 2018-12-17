@@ -1,8 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "Grammar.h"
-#include "TokenInfo.h"
+#include "simplecompiler/Grammar.h"
+#include "simplecompiler/TokenInfo.h"
 
 #include <cassert>
 #include <iostream>

@@ -1,8 +1,8 @@
 // XXX: Since this pass **modifies** the AST, it is important
 // to run a verify pass on it to ensure it didn't break any invariant.
-#include "ImplicitCallTransformer.h"
-#include "SymbolTable.h"
-#include "Visitor.h"
+#include "simplecompiler/ImplicitCallTransformer.h"
+#include "simplecompiler/SymbolTable.h"
+#include "simplecompiler/Visitor.h"
 
 #include <cassert>
 

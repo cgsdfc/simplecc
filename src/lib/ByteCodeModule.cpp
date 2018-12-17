@@ -1,8 +1,8 @@
-#include "ByteCodeModule.h"
-#include "ByteCodeBuilder.h"
-#include "ByteCodeFunction.h"
-#include "ErrorManager.h"
-#include "Visitor.h"
+#include "simplecompiler/ByteCodeModule.h"
+#include "simplecompiler/ByteCodeBuilder.h"
+#include "simplecompiler/ByteCodeFunction.h"
+#include "simplecompiler/ErrorManager.h"
+#include "simplecompiler/Visitor.h"
 
 #include <cassert>
 #include <utility>

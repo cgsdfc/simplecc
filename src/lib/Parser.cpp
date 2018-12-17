@@ -1,8 +1,8 @@
-#include "Parser.h"
-#include "ErrorManager.h"
-#include "Grammar.h"
-#include "Node.h"
-#include "TokenInfo.h"
+#include "simplecompiler/Parser.h"
+#include "simplecompiler/ErrorManager.h"
+#include "simplecompiler/Grammar.h"
+#include "simplecompiler/Node.h"
+#include "simplecompiler/TokenInfo.h"
 
 #include <algorithm>
 #include <stack>

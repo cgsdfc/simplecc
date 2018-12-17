@@ -1,5 +1,5 @@
-#include "Node.h"
-#include "ErrorManager.h"
+#include "simplecompiler/Node.h"
+#include "simplecompiler/ErrorManager.h"
 
 #include <algorithm>
 #include <iostream>

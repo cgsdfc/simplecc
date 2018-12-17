@@ -1,7 +1,7 @@
 #ifndef BYTE_CODE_H
 #define BYTE_CODE_H
 
-#include "Opcode.h"
+#include "simplecompiler/Opcode.h"
 
 #include <cassert>
 #include <iostream>

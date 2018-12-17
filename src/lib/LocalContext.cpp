@@ -1,7 +1,7 @@
-#include "LocalContext.h"
-#include "ByteCode.h"
-#include "ByteCodeFunction.h"
-#include "Types.h"
+#include "simplecompiler/LocalContext.h"
+#include "simplecompiler/ByteCode.h"
+#include "simplecompiler/ByteCodeFunction.h"
+#include "simplecompiler/Types.h"
 
 using namespace simplecompiler;
 

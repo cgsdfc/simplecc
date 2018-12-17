@@ -1,6 +1,6 @@
-#include "ErrorManager.h"
-#include "Pass.h"
-#include "Print.h"
+#include "simplecompiler/ErrorManager.h"
+#include "simplecompiler/Pass.h"
+#include "simplecompiler/Print.h"
 
 #include <cassert>
 #include <cstdio>   // for getchar()

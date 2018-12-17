@@ -1,8 +1,8 @@
 #ifndef BYTE_CODE_TO_MIPS_TRANSLATOR_H
 #define BYTE_CODE_TO_MIPS_TRANSLATOR_H
-#include "MipsSupport.h"
-#include "OpcodeDispatcher.h"
-#include "Print.h"
+#include "simplecompiler/MipsSupport.h"
+#include "simplecompiler/OpcodeDispatcher.h"
+#include "simplecompiler/Print.h"
 
 #include <iostream>
 #include <utility>

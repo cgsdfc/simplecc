@@ -1,7 +1,7 @@
-#include "ASTGraph.h"
-#include "Print.h"
-#include "TokenInfo.h" // for Location
-#include "Visitor.h"
+#include "simplecompiler/ASTGraph.h"
+#include "simplecompiler/Print.h"
+#include "simplecompiler/TokenInfo.h" // for Location
+#include "simplecompiler/Visitor.h"
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/ADT/iterator.h>

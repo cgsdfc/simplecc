@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "TokenInfo.h"
+#include "simplecompiler/TokenInfo.h"
 #include <vector>
 
 namespace simplecompiler {

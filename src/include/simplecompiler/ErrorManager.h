@@ -1,8 +1,8 @@
 #ifndef ERROR_MANAGER_H
 #define ERROR_MANAGER_H
 
-#include "Print.h"
-#include "TokenInfo.h"
+#include "simplecompiler/Print.h"
+#include "simplecompiler/TokenInfo.h"
 
 #include <iostream>
 #include <sstream>

@@ -1,5 +1,5 @@
 
-#include "AST.h"
+#include "simplecompiler/AST.h"
 #include <cassert>
 #include <iostream>
 #include <vector>

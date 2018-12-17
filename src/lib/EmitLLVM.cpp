@@ -1,7 +1,7 @@
-#include "EmitLLVM.h"
-#include "ErrorManager.h"
-#include "SymbolTable.h"
-#include "Visitor.h"
+#include "simplecompiler/EmitLLVM.h"
+#include "simplecompiler/ErrorManager.h"
+#include "simplecompiler/SymbolTable.h"
+#include "simplecompiler/Visitor.h"
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>

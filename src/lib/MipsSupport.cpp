@@ -1,4 +1,4 @@
-#include "MipsSupport.h"
+#include "simplecompiler/MipsSupport.h"
 
 using namespace simplecompiler;
 

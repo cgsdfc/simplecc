@@ -1,6 +1,6 @@
-#include "SymbolTable.h"
-#include "ErrorManager.h"
-#include "Visitor.h"
+#include "simplecompiler/SymbolTable.h"
+#include "simplecompiler/ErrorManager.h"
+#include "simplecompiler/Visitor.h"
 
 #include <cassert>
 #include <iostream>

@@ -1,7 +1,7 @@
-#include "ByteCodeBuilder.h"
-#include "AST.h"
-#include "ByteCode.h"
-#include "ByteCodeFunction.h"
+#include "simplecompiler/ByteCodeBuilder.h"
+#include "simplecompiler/AST.h"
+#include "simplecompiler/ByteCode.h"
+#include "simplecompiler/ByteCodeFunction.h"
 
 using namespace simplecompiler;
 

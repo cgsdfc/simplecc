@@ -1,6 +1,6 @@
 #ifndef TOKENINFO_H
 #define TOKENINFO_H
-#include "Grammar.h"
+#include "simplecompiler/Grammar.h"
 
 #include <iostream>
 #include <string>
