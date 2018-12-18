@@ -20,7 +20,7 @@ void MipsAssemblyWriter::WriteData(Printer &W, const ByteCodeModule &Module) {
       W.WriteLine(GL, ".word", 0);
       continue;
     }
-    W.WriteLine(GL, ".space", BytesFromEntries(E.AsArray().GetSize()));
+    W.WriteLine(GL, ".space", BytesFromEntries(E.AsArray().getSize()));
   }
 
   W.WriteLine();
@@ -43,7 +43,7 @@ unsigned MipsAssemblyWriter::GetLocalObjectsInBytes(
       TheFunction.local_begin(), TheFunction.local_end(),
       TheFunction.GetFormalArgumentCount(),
       [](unsigned Entries, const SymbolEntry &E) {
-        return Entries + (E.IsArray() ? E.AsArray().GetSize() : 1);
+        return Entries + (E.IsArray() ? E.AsArray().getSize() : 1);
       });
   return BytesFromEntries(Entries);
 }

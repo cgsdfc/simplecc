@@ -45,8 +45,8 @@ const char *SymbolEntry::GetTypeName() const {
   return "Variable";
 }
 
-BasicTypeKind FuncType::GetArgTypeAt(unsigned Idx) const {
-  assert(Idx < GetArgCount());
+BasicTypeKind FuncType::getArgTypeAt(unsigned Idx) const {
+  assert(Idx < getArgCount());
   auto Arg = TheFuncDef->getArgs()[Idx];
   return static_cast<ArgDecl *>(Arg)->getType();
 }

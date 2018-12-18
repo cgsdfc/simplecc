@@ -74,19 +74,19 @@ public:
 
   /// Convert an ArrayType.
   Type *getType(const ArrayType &A) const {
-    return llvm::ArrayType::get(getType(A.GetElementType()), A.GetSize());
+    return llvm::ArrayType::get(getType(A.getElementType()), A.getSize());
   }
 
   /// Convert a VarType.
-  Type *getType(const VarType &V) const { return getType(V.GetType()); }
+  Type *getType(const VarType &V) const { return getType(V.getType()); }
 
   /// Convert a FuncType.
   /// Note: If this function is main(), ensure it return int.
   FunctionType *getType(const FuncType &F) const {
-    Type *ReturnType = getType(F.GetReturnType());
-    std::vector<Type *> ArgTypes(F.GetArgCount());
-    for (int i = 0; i < F.GetArgCount(); i++) {
-      ArgTypes[i] = getType(F.GetArgTypeAt(i));
+    Type *ReturnType = getType(F.getReturnType());
+    std::vector<Type *> ArgTypes(F.getArgCount());
+    for (int i = 0; i < F.getArgCount(); i++) {
+      ArgTypes[i] = getType(F.getArgTypeAt(i));
     }
     return FunctionType::get(ReturnType, ArgTypes, false);
   }
@@ -95,7 +95,7 @@ public:
     return getType(FuncType(FD));
   }
 
-  Type *getType(const ConstType &C) const { return getType(C.GetType()); }
+  Type *getType(const ConstType &C) const { return getType(C.getType()); }
 
   Type *getTypeFromConstDecl(ConstDecl *CD) const {
     return getType(CD->getType());
@@ -112,7 +112,7 @@ public:
 
   /// Convert a Constant value.
   Value *getConstant(const ConstType &C) const {
-    return ConstantInt::get(getType(C.GetType()), C.GetValue(), true);
+    return ConstantInt::get(getType(C.getType()), C.getValue(), true);
   }
 
   /// Convert a Num node to int value.

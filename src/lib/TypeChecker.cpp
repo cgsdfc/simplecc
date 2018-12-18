@@ -28,7 +28,7 @@ void TypeChecker::visitRead(Read *RD) {
       continue;
     }
     /// set the Expr type for this.
-    TheTable->setExprType(E, Entry.AsVariable().GetType());
+    TheTable->setExprType(E, Entry.AsVariable().getType());
   }
 }
 
@@ -121,7 +121,7 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
   }
 
   auto Ty = Entry.AsFunction();
-  auto NumFormal = Ty.GetArgCount();
+  auto NumFormal = Ty.getArgCount();
   auto NumActual = C->getArgs().size();
   if (NumFormal != NumActual) {
     EM.TypeError(C->getLoc(), "function", Quote(C->getFunc()), "expects",
@@ -132,7 +132,7 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
   auto Size = std::min(NumFormal, NumActual);
   for (int I = 0; I < Size; I++) {
     auto ActualTy = visitExpr(C->getArgs()[I]);
-    auto FormalTy = Ty.GetArgTypeAt(I);
+    auto FormalTy = Ty.getArgTypeAt(I);
     if (ActualTy != FormalTy) {
       EM.TypeError(C->getArgs()[I]->getLoc(), "argument", I + 1,
                    "of function", Quote(C->getFunc()), "must be",
@@ -140,7 +140,7 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
                    CStringFromBasicTypeKind(ActualTy));
     }
   }
-  return Ty.GetReturnType();
+  return Ty.getReturnType();
 }
 
 BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
@@ -156,7 +156,7 @@ BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
   if (EM.IsOk(Errs) && Idx != BasicTypeKind::Int) {
     EM.TypeError(SB->getLoc(), "Array index must be int");
   }
-  return Entry.AsArray().GetElementType();
+  return Entry.AsArray().getElementType();
 }
 
 BasicTypeKind TypeChecker::visitName(Name *N) {
@@ -172,8 +172,8 @@ BasicTypeKind TypeChecker::visitName(Name *N) {
     return BasicTypeKind::Void;
   }
   if (Entry.IsConstant())
-    return Entry.AsConstant().GetType();
-  return Entry.AsVariable().GetType();
+    return Entry.AsConstant().getType();
+  return Entry.AsVariable().getType();
 }
 
 // not actually used, for instantiation only

@@ -33,7 +33,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
     for (auto E : RD->getNames()) {
       auto N = static_cast<Name *>(E);
       const auto &Entry = TheLocalTable[N->getId()];
-      Builder.CreateRead(Entry.AsVariable().GetType());
+      Builder.CreateRead(Entry.AsVariable().getType());
       Builder.CreateStore(Entry.GetScope(), Entry.GetName());
     }
   }
@@ -178,7 +178,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitName(Name *N) {
     const auto &Entry = TheLocalTable[N->getId()];
     if (Entry.IsConstant()) {
-      Builder.CreateLoadConst(Entry.AsConstant().GetValue());
+      Builder.CreateLoadConst(Entry.AsConstant().getValue());
       return;
     }
     N->getCtx() == ExprContextKind::Load

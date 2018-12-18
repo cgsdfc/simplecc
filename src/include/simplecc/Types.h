@@ -14,9 +14,9 @@ class FuncType {
 
 public:
   explicit FuncType(FuncDef *FD) : TheFuncDef(FD) {}
-  BasicTypeKind GetReturnType() const { return TheFuncDef->getReturnType(); }
-  BasicTypeKind GetArgTypeAt(unsigned Idx) const;
-  size_t GetArgCount() const { return TheFuncDef->getArgs().size(); }
+  BasicTypeKind getReturnType() const { return TheFuncDef->getReturnType(); }
+  BasicTypeKind getArgTypeAt(unsigned Idx) const;
+  size_t getArgCount() const { return TheFuncDef->getArgs().size(); }
 };
 
 class VarType {
@@ -25,7 +25,7 @@ class VarType {
 public:
   explicit VarType(BasicTypeKind type) : type(type) {}
   explicit VarType(Decl *D);
-  BasicTypeKind GetType() const { return type; }
+  BasicTypeKind getType() const { return type; }
 };
 
 class ArrayType {
@@ -34,8 +34,8 @@ class ArrayType {
 
 public:
   explicit ArrayType(VarDecl *VD);
-  BasicTypeKind GetElementType() const { return ElemType; }
-  unsigned GetSize() const { return Size; }
+  BasicTypeKind getElementType() const { return ElemType; }
+  unsigned getSize() const { return Size; }
 };
 
 class ConstType {
@@ -44,8 +44,8 @@ class ConstType {
 
 public:
   explicit ConstType(ConstDecl *CD);
-  int GetValue() const { return value; }
-  BasicTypeKind GetType() const { return type; }
+  int getValue() const { return value; }
+  BasicTypeKind getType() const { return type; }
 };
 
 // An entry in the SymbolTable with type and scope information about

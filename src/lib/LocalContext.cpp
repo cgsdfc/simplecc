@@ -25,7 +25,7 @@ void LocalContext::InitializeLocalOffsets() {
   /// Allocate space for non-arg local variables.
   for (const SymbolEntry &Var : TheFunction->GetLocalVariables()) {
     if (Var.IsArray()) {
-      Off -= BytesFromEntries(Var.AsArray().GetSize());
+      Off -= BytesFromEntries(Var.AsArray().getSize());
       LocalOffsets.emplace(Var.GetName(), Off + BytesFromEntries(1));
       continue;
     }
