@@ -3,6 +3,7 @@
 #include "simplecc/SymbolTable.h"
 #include "simplecc/Visitor.h"
 #include "simplecc/LLVMTypeMap.h"
+#include "simplecc/LLVMValueMap.h"
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>
@@ -38,63 +39,6 @@ using llvm::Module;
 using llvm::StringRef;
 using llvm::Type;
 using llvm::Value;
-
-
-/// A class that convert values of different types to LLVM counterparts.
-class LLVMValueMap : public LLVMTypeMap {
-  llvm::Module &TheModule;
-
-public:
-  LLVMValueMap(llvm::Module &M, LLVMContext &Context)
-      : LLVMTypeMap(Context), TheModule(M) {}
-
-  /// Convert a Constant value.
-  Value *getConstant(const ConstType &C) const {
-    return ConstantInt::get(getType(C.getType()), C.getValue(), true);
-  }
-
-  /// Convert a Num node to int value.
-  Constant *getInt(int N) const {
-    return ConstantInt::get(getType(BasicTypeKind::Int), N, false);
-  }
-
-  /// Convert a Char node to char value.
-  Constant *getChar(char C) const {
-    return ConstantInt::get(getType(BasicTypeKind::Character), C, false);
-  }
-
-  // Convert a constant expression.
-  Constant *getConstantFromExpr(Expr *E) const {
-    switch (E->GetKind()) {
-    case Expr::Num:
-      return getInt(static_cast<Num *>(E)->getN());
-    case Expr::Char:
-      return getChar(static_cast<Char *>(E)->getC());
-    default:
-      llvm_unreachable("Expr must be Num or Char");
-    }
-  }
-
-  /// Convert a bool value.
-  Constant *getBool(bool B) const {
-    return B ? ConstantInt::getTrue(getContext())
-             : ConstantInt::getFalse(getContext());
-  }
-
-  Constant *getGlobalInitializer(VarDecl *VD) {
-    if (VD->getIsArray()) {
-      return llvm::ConstantAggregateZero::get(getTypeFromVarDecl(VD));
-    }
-    switch (VD->getType()) {
-    case BasicTypeKind::Int:
-      return getInt(0);
-    case BasicTypeKind::Character:
-      return getChar(0);
-    default:
-      llvm_unreachable("Void cannot be");
-    }
-  }
-};
 
 /// This class emits LLVM IR from an AST.
 ///

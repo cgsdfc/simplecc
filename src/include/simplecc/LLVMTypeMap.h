@@ -12,7 +12,7 @@ using llvm::LLVMContext;
 using llvm::Type;
 using llvm::FunctionType;
 
-/// A class that translates simplecc's type system to LLVM's type system.
+/// This class translates simplecc's type system to LLVM's type system.
 /// Provides helpers to convert objects of different types to their LLVM
 /// counterparts.
 class LLVMTypeMap {
