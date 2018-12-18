@@ -12,19 +12,6 @@
 
 using namespace simplecc;
 
-void ChildrenCollector::Collect(const simplecc::AstRef &R) {
-  Children.clear();
-  if (auto D = R.get<Decl>())
-    return ChildrenVisitor::visitDecl(D);
-  if (auto S = R.get<Stmt>())
-    return ChildrenVisitor::visitStmt(S);
-  if (auto E = R.get<Expr>())
-    return ChildrenVisitor::visitExpr(E);
-  if (auto P = R.get<Program>())
-    return ChildrenVisitor::visitProgram(P);
-  // ArgDecl has no children
-}
-
 const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
   auto iter = Edges.find(R.get());
   if (iter != Edges.end())
@@ -39,11 +26,6 @@ const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
   return Result.first->second;
 }
 
-/// Add a child.
-template<typename AstT> void ChildrenCollector::AddChild(AstT *Ptr) {
-  AstRef *AR = Parent->getNodeOrCreate(Ptr);
-  Children.push_back(AR);
-}
 
 namespace simplecc {
 /// Print all ast nodes from a root.
@@ -59,7 +41,6 @@ void WriteASTGraph(Program *P, llvm::raw_ostream &O) {
   AstGraph Graph(P);
   llvm::WriteGraph(O, Graph);
 }
-
 } // namespace simplecc
 
 
@@ -107,5 +88,4 @@ template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
     return DV.makeDescription(*N);
   }
 };
-
 } // namespace llvm

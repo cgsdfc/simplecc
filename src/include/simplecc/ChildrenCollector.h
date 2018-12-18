@@ -1,10 +1,10 @@
 #ifndef SIMPLECOMPILER_CHILDRENCOLLECTOR_H
 #define SIMPLECOMPILER_CHILDRENCOLLECTOR_H
 #include "simplecc/Visitor.h"
+#include "simplecc/ASTGraph.h"
 
 namespace simplecc {
 class AstRef;
-class AstGraph;
 
 /// Collect children of an AstRef into a vector for later use.
 class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
@@ -32,6 +32,12 @@ private:
   /// Used to construct an AstRef.
   AstGraph *Parent;
 };
+
+/// Add a child.
+template<typename AstT> void ChildrenCollector::AddChild(AstT *Ptr) {
+  AstRef *AR = Parent->getNodeOrCreate(Ptr);
+  Children.push_back(AR);
+}
 }
 
 #endif //SIMPLECOMPILER_CHILDRENCOLLECTOR_H
