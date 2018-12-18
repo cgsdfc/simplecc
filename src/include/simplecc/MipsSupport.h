@@ -7,7 +7,7 @@ namespace simplecc {
 using String = std::string;
 
 // Return the bytes for n entries
-inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
+inline constexpr int BytesFromEntries(int NumEntry) { return 4 * NumEntry; }
 
 enum class MipsSyscallCode : unsigned {
   PRINT_STRING = 4,
@@ -18,8 +18,8 @@ enum class MipsSyscallCode : unsigned {
   EXIT_PROGRAM = 10,
 };
 
-inline std::ostream &operator<<(std::ostream &os, MipsSyscallCode syscall) {
-  return os << static_cast<unsigned>(syscall);
+inline std::ostream &operator<<(std::ostream &O, MipsSyscallCode syscall) {
+  return O << static_cast<unsigned>(syscall);
 }
 
 /// CRTP base for label.

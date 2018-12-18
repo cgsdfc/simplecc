@@ -44,7 +44,7 @@ public:
   /// Build itself from a program
   bool Build(Program *P);
 
-  void setExprType(Expr *E, BasicTypeKind T);
+  void setExprType(Expr *E, BasicTypeKind Ty);
 
   // Return local symbol table for a function
   SymbolTableView getLocalTable(FuncDef *FD) const;

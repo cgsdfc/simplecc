@@ -40,16 +40,6 @@ static void ToLowerInplace(String &string) {
   std::transform(string.begin(), string.end(), string.begin(), ::tolower);
 }
 
-static void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
-  auto &&loc = token.getLocation();
-  std::ostringstream oss;
-  oss << loc.getLineNo() << ',' << loc.getColOffset() << ":";
-  auto &&token_range = oss.str();
-
-  os << std::left << std::setw(20) << token_range;
-  os << std::left << std::setw(15) << token.getTypeName();
-  os << std::left << std::setw(15) << Quote(token.getString()) << "\n";
-}
 
 namespace simplecc {
 void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
@@ -133,19 +123,31 @@ void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
   Output.emplace_back(Symbol::ENDMARKER, "", Location(lnum, 0), "");
 }
 
-void PrintTokens(const std::vector<TokenInfo> &tokens, std::ostream &os) {
-  for (auto &&token : tokens) {
-    DumpTokenInfo(os, token);
-  }
+static void DumpTokenInfo(std::ostream &O, const TokenInfo &T) {
+  auto &&Loc = T.getLocation();
+  std::ostringstream OS;
+  OS << Loc.getLineNo() << ',' << Loc.getColOffset() << ":";
+  auto &&Range = OS.str();
+
+  O << std::left << std::setw(20) << Range;
+  O << std::left << std::setw(15) << T.getTypeName();
+  O << std::left << std::setw(15) << Quote(T.getString()) << "\n";
 }
+
+void PrintTokens(const std::vector<TokenInfo> &Tokens, std::ostream &O) {
+  std::for_each(Tokens.begin(), Tokens.end(), [&O](const TokenInfo &T) {
+    DumpTokenInfo(O, T);
+  });
+}
+
 } // namespace simplecc
 
-void TokenInfo::Format(std::ostream &os) const {
-  os << "TokenInfo("
+void TokenInfo::Format(std::ostream &O) const {
+  O << "TokenInfo("
      << "type=" << getTypeName() << ", "
-     << "string=" << Quote(string) << ", "
-     << "start=" << start << ", "
-     << "line=" << Quote(line) << ")";
+     << "string=" << Quote(getString()) << ", "
+     << getLocation() << ", "
+     << "line=" << Quote(getLine()) << ")";
 }
 
-const char *TokenInfo::getTypeName() const { return GetSymbolName(type); }
+const char *TokenInfo::getTypeName() const { return getSymbolName(Type); }

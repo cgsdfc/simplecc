@@ -10,56 +10,57 @@
 
 namespace simplecc {
 class Node {
-  Symbol type;
-  String value;
-  std::vector<Node *> children;
-  Location location;
-
   String FormatValue() const;
-
 public:
-  Node(Symbol type, const String &value, const Location &location)
-      : type(type), value(value), children(), location(location) {}
+  using ChildrenListT = std::vector<Node *>;
+
+  Node(Symbol Ty, const String &Val, const Location &L)
+      : Type(Ty), Value(Val), Children(), Loc(L) {}
 
   ~Node();
 
-  using iterator = decltype(children)::iterator;
-  using const_iterator = decltype(children)::const_iterator;
+  /// Iterator Interface to children Nodes.
+  using iterator = ChildrenListT::iterator;
+  using const_iterator = ChildrenListT::const_iterator;
 
-  iterator begin() { return std::begin(children); }
-  iterator end() { return std::end(children); }
+  iterator begin() { return std::begin(Children); }
+  iterator end() { return std::end(Children); }
 
-  const_iterator begin() const { return std::begin(children); }
-  const_iterator end() const { return std::end(children); }
+  const_iterator begin() const { return std::begin(Children); }
+  const_iterator end() const { return std::end(Children); }
 
-  const std::vector<Node *> getChildren() const { return children; }
+  const std::vector<Node *> &getChildren() const { return Children; }
+  std::vector<Node *> &getChildren() { return Children; }
 
-  void AddChild(Node *child) { children.push_back(child); }
+  void AddChild(Node *child) { Children.push_back(child); }
 
-  Node *FirstChild() { return children[0]; }
+  Node *FirstChild() { return getChild(0); }
 
-  Node *LastChild() { return *(children.end() - 1); }
+  Node *LastChild() { return getChild(getNumChildren() - 1); }
 
-  void Format(std::ostream &os) const;
+  void Format(std::ostream &O) const;
 
-  Node *getChild(unsigned pos) const {
-    assert(0 <= pos && pos < getNumChildren());
-    return children[pos];
+  Node *getChild(unsigned Idx) const {
+    assert(getNumChildren() >= 0 && Idx < getNumChildren());
+    return Children[Idx];
   }
 
-  unsigned getNumChildren() const { return children.size(); }
+  unsigned getNumChildren() const { return Children.size(); }
 
-  Symbol GetType() const { return type; }
-  Symbol getType() const { return type; }
+  Symbol getType() const { return Type; }
   const char *getTypeName() const;
-  const Location &GetLocation() const { return location; }
-  const Location &getLocation() const { return location; }
-  const String &GetValue() const { return value; }
-  const String &getValue() const { return value; }
+  const Location &getLocation() const { return Loc; }
+  const String &getValue() const { return Value; }
+
+private:
+  Symbol Type;
+  String Value;
+  ChildrenListT Children;
+  Location Loc;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const Node &node) {
-  node.Format(os);
+inline std::ostream &operator<<(std::ostream &os, const Node &N) {
+  N.Format(os);
   return os;
 }
 } // namespace simplecc

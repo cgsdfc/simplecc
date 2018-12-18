@@ -1,36 +1,35 @@
 #include "simplecc/Node.h"
 #include "simplecc/ErrorManager.h"
 
-#include <algorithm>
-#include <iostream>
+#include <algorithm> // for_each
 
 using namespace simplecc;
 
 Node::~Node() {
-  std::for_each(children.begin(), children.end(), [](Node *N) { delete N; });
+  std::for_each(Children.begin(), Children.end(), [](Node *N) { delete N; });
 }
 
 String Node::FormatValue() const {
-  return type != Symbol::ENDMARKER && value.empty() ? "None" : Quote(value);
+  return Type != Symbol::ENDMARKER && Value.empty() ? "None" : Quote(Value);
 }
 
-void Node::Format(std::ostream &os) const {
-  os << "Node(";
-  os << "type=" << getTypeName() << ", ";
-  os << "value=" << FormatValue() << ", ";
-  os << "context=" << location << ", ";
-  os << "children=";
-  if (children.empty()) {
-    os << "None)";
+void Node::Format(std::ostream &O) const {
+  O << "Node(";
+  O << "type=" << getTypeName() << ", ";
+  O << "value=" << FormatValue() << ", ";
+  O << Loc << ", ";
+  O << "children=";
+  if (Children.empty()) {
+    O << "None)";
   } else {
-    os << "[";
-    for (int i = 0; i < children.size(); i++) {
-      children[i]->Format(os);
-      if (i != children.size() - 1)
-        os << ", ";
+    O << "[";
+    for (int i = 0; i < Children.size(); i++) {
+      Children[i]->Format(O);
+      if (i != Children.size() - 1)
+        O << ", ";
     }
-    os << "])";
+    O << "])";
   }
 }
 
-const char *Node::getTypeName() const { return GetSymbolName(type); }
+const char *Node::getTypeName() const { return getSymbolName(Type); }

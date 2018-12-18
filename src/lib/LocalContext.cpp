@@ -1,12 +1,9 @@
 #include "simplecc/LocalContext.h"
 #include "simplecc/ByteCode.h"
 #include "simplecc/ByteCodeFunction.h"
-#include "simplecc/Types.h"
+#include "simplecc/MipsSupport.h" // BytesFromEntries()
 
 using namespace simplecc;
-
-// Return the bytes for n entries
-inline constexpr int BytesFromEntries(int n_entries) { return 4 * n_entries; }
 
 /// Initialize the **local offset** dictionary for a function.
 /// The LocalOffsets is where local variables live on the stack.

@@ -1,10 +1,6 @@
 #include "simplecc/SymbolTable.h"
 #include "simplecc/SymbolTableBuilder.h"
 
-#include <cassert>
-#include <iostream>
-#include <utility> // pair
-
 using namespace simplecc;
 
 void SymbolTable::Format(std::ostream &O) const {
@@ -49,11 +45,10 @@ BasicTypeKind SymbolTable::getExprType(Expr *E) const {
   return ExprTypes.find(E)->second;
 }
 
-void SymbolTable::setExprType(Expr *E, BasicTypeKind T) {
-  ExprTypes.emplace(E, T);
+void SymbolTable::setExprType(Expr *E, BasicTypeKind Ty) {
+  ExprTypes.emplace(E, Ty);
 }
 
-// public interface
 bool SymbolTable::Build(Program *P) {
   clear();
   return SymbolTableBuilder().Build(P, *this);
@@ -62,6 +57,6 @@ bool SymbolTable::Build(Program *P) {
 /// Return the SymbolEntry for a name.
 /// Assert on failure.
 const SymbolEntry &SymbolTableView::operator[](const String &Name) const {
-  assert(TheTable->count(Name));
+  assert(TheTable->count(Name) && "Undefined Name");
   return TheTable->find(Name)->second;
 }

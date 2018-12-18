@@ -1,6 +1,4 @@
 #include "simplecc/SyntaxChecker.h"
-#include "simplecc/ErrorManager.h"
-#include "simplecc/Visitor.h"
 
 using namespace simplecc;
 
@@ -65,8 +63,8 @@ void SyntaxChecker::visitVarDecl(VarDecl *VD) {
 }
 
 void SyntaxChecker::visitFuncDef(FuncDef *FD) {
-  for (auto arg : FD->getArgs()) {
-    VisitorBase::visitDecl(arg);
+  for (auto Arg : FD->getArgs()) {
+    VisitorBase::visitDecl(Arg);
   }
   for (auto D : FD->getDecls()) {
     VisitorBase::visitDecl(D);
