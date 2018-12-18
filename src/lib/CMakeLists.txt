@@ -27,7 +27,8 @@ set(SOURCE_FILES
   ./MipsSupport.cpp
   ./MipsAssemblyWriter.cpp
   ./Tokenize.cpp
-  ./SymbolTableBuilder.cpp)
+  ./SymbolTableBuilder.cpp
+  ./ByteCodeCompiler.cpp)
 
 set(EXTRA_LIBRARIES "")
 
