@@ -22,20 +22,20 @@ namespace simplecc {
 /// after the SymbolTable pass and right before the TypeChecker pass.
 //
 class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
-  void visitWrite(Write *node);
-  void visitAssign(Assign *node);
-  void visitFor(For *node);
-  void visitWhile(While *node);
-  void visitReturn(Return *node);
-  void visitIf(If *node);
-  void visitCall(Call *node);
-  void visitBinOp(BinOp *node);
+  void visitWrite(Write *W);
+  void visitAssign(Assign *A);
+  void visitFor(For *F);
+  void visitWhile(While *W);
+  void visitReturn(Return *R);
+  void visitIf(If *I);
+  void visitCall(Call *C);
+  void visitBinOp(BinOp *B);
   void visitFuncDef(FuncDef *FD);
 
-  void visitBoolOp(BoolOp *node) { TransformExpr(node->value); }
-  void visitParenExpr(ParenExpr *node) { TransformExpr(node->value); }
-  void visitUnaryOp(UnaryOp *node) { TransformExpr(node->operand); }
-  void visitSubscript(Subscript *node) { TransformExpr(node->index); }
+  void visitBoolOp(BoolOp *B) { TransformExpr(B->value); }
+  void visitParenExpr(ParenExpr *PE) { TransformExpr(PE->value); }
+  void visitUnaryOp(UnaryOp *U) { TransformExpr(U->operand); }
+  void visitSubscript(Subscript *SB) { TransformExpr(SB->index); }
 
   void TransformExpr(Expr *&E);
 

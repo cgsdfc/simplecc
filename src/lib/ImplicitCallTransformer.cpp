@@ -5,58 +5,58 @@
 
 using namespace simplecc;
 
-void ImplicitCallTransformer::visitWrite(Write *node) {
-  if (node->getValue()) {
-    TransformExpr(node->value);
+void ImplicitCallTransformer::visitWrite(Write *W) {
+  if (W->getValue()) {
+    TransformExpr(W->value);
   }
 }
 
-void ImplicitCallTransformer::visitAssign(Assign *node) {
+void ImplicitCallTransformer::visitAssign(Assign *A) {
   /// Don't transform the target!
-  visitExpr(node->getTarget());
-  TransformExpr(node->value);
+  visitExpr(A->getTarget());
+  TransformExpr(A->value);
 }
 
-void ImplicitCallTransformer::visitFor(For *node) {
-  visitStmt(node->initial);
-  TransformExpr(node->condition);
-  visitStmt(node->getStep());
-  for (auto s : node->getBody()) {
+void ImplicitCallTransformer::visitFor(For *F) {
+  visitStmt(F->initial);
+  TransformExpr(F->condition);
+  visitStmt(F->getStep());
+  for (auto s : F->getBody()) {
     visitStmt(s);
   }
 }
 
-void ImplicitCallTransformer::visitWhile(While *node) {
-  TransformExpr(node->condition);
-  for (auto s : node->getBody()) {
+void ImplicitCallTransformer::visitWhile(While *W) {
+  TransformExpr(W->condition);
+  for (auto s : W->getBody()) {
     visitStmt(s);
   }
 }
 
-void ImplicitCallTransformer::visitReturn(Return *node) {
-  if (node->getValue()) {
-    TransformExpr(node->value);
+void ImplicitCallTransformer::visitReturn(Return *R) {
+  if (R->getValue()) {
+    TransformExpr(R->value);
   }
 }
 
-void ImplicitCallTransformer::visitIf(If *node) {
-  TransformExpr(node->test);
-  for (auto s : node->getBody()) {
+void ImplicitCallTransformer::visitIf(If *I) {
+  TransformExpr(I->test);
+  for (auto s : I->getBody()) {
     visitStmt(s);
   }
-  for (auto s : node->getOrelse()) {
+  for (auto s : I->getOrelse()) {
     visitStmt(s);
   }
 }
 
-void ImplicitCallTransformer::visitBinOp(BinOp *node) {
-  TransformExpr(node->left);
-  TransformExpr(node->right);
+void ImplicitCallTransformer::visitBinOp(BinOp *B) {
+  TransformExpr(B->left);
+  TransformExpr(B->right);
 }
 
-void ImplicitCallTransformer::visitCall(Call *node) {
-  for (int I = 0, Size = node->getArgs().size(); I < Size; I++) {
-    TransformExpr(node->args[I]);
+void ImplicitCallTransformer::visitCall(Call *C) {
+  for (int I = 0, Size = C->getArgs().size(); I < Size; I++) {
+    TransformExpr(C->args[I]);
   }
 }
 
