@@ -76,10 +76,10 @@ void ImplicitCallTransformer::visitFuncDef(FuncDef *FD) {
 void ImplicitCallTransformer::TransformExpr(Expr *&E) {
   if (!IsInstance<Name>(E))
     return visitExpr(E);
-  if (Name *N = static_cast<Name *>(E);
-      !TheLocalTable[N->getId()].IsFunction())
+  Name *N = static_cast<Name *>(E);
+  if (!TheLocalTable[N->getId()].IsFunction())
     return visitExpr(E);
-  Call *C = new Call(static_cast<Name *>(E)->getId(), {}, E->getLoc());
+  Call *C = new Call(N->getId(), {}, E->getLoc());
   delete E;
   E = C;
 }
