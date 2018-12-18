@@ -402,7 +402,7 @@ void AstBuilder::visit_var_decl(Node *N, std::vector<Decl *> &Decls) {
 
 Decl *AstBuilder::visit_var_item(Node *N, BasicTypeKind Ty) {
   auto name = N->FirstChild();
-  bool IsArray = N->getNumChildren() == 1;
+  bool IsArray = N->getNumChildren() > 1;
   int Size = IsArray ? visit_subscript2(N->getChild(1)) : 0;
   return new VarDecl(Ty, /* is_array */ IsArray, /* size */ Size,
       /* name */ name->getValue(), name->getLocation());
