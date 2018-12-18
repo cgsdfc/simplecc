@@ -8,7 +8,8 @@ using llvm::ConstantInt;
 using llvm::Constant;
 using llvm::Value;
 
-/// This class converts values of different types to LLVM counterparts.
+/// This class converts values of different types (mostly constants)
+/// to LLVM counterparts.
 class LLVMValueMap : public LLVMTypeMap {
   llvm::Module &TheModule;
 

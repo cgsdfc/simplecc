@@ -43,6 +43,7 @@ if (USE_LLVM)
             ./ChildrenCollector.cpp
             ./LLVMTypeMap.cpp
             ./LLVMValueMap.cpp
+            ./LLVMIRCompiler.cpp
             ./EmitLLVM.cpp)
     list(APPEND EXTRA_LIBRARIES ${llvm_libs})
     add_definitions(-DSIMPLE_COMPILER_USE_LLVM)
