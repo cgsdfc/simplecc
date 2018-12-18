@@ -97,6 +97,4 @@ public:
 };
 } // namespace
 
-bool simplecc::CheckSyntax(Program *P) {
-  return SyntaxChecker().Check(P);
-}
+bool simplecc::CheckSyntax(Program *P) { return SyntaxChecker().Check(P); }

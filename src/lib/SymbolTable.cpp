@@ -145,13 +145,13 @@ public:
 
 void SymbolTable::Format(std::ostream &O) const {
   O << "Global:\n";
-  for (const std::pair<String, SymbolEntry> &Pair : GlobalTable) {
+  for (const std::pair<const String, SymbolEntry> &Pair : GlobalTable) {
     O << "  " << Pair.first << ": " << Pair.second << "\n";
   }
   O << "\n";
-  for (const std::pair<FuncDef *, TableType> &Pair : LocalTables) {
+  for (const std::pair<FuncDef *const, TableType> &Pair : LocalTables) {
     O << "Local(" << Pair.first->getName() << "):\n";
-    for (const std::pair<String, SymbolEntry> &Item : Pair.second) {
+    for (const std::pair<const String, SymbolEntry> &Item : Pair.second) {
       O << "  " << Item.first << ": " << Item.second << "\n";
     }
     O << "\n";
