@@ -5,185 +5,149 @@
 #include "simplecc/TokenInfo.h"
 
 #include <algorithm>
-#include <stack>
 #include <vector>
 
 using namespace simplecc;
 
-namespace {
-struct StackEntry {
-  DFA *dfa;
-  int state;
-  Node *node;
-
-  StackEntry(DFA *dfa, int state, Node *node)
-      : dfa(dfa), state(state), node(node) {}
-
-  void Dump() const {
-    PrintErrs("state:", state);
-    PrintErrs("dfa", dfa->name);
-  }
-};
-
-class Parser {
-  std::stack<StackEntry> stack;
-  Grammar *grammar;
-  Node *rootnode;
-  ErrorManager e;
-
-  int Classify(const TokenInfo &token);
-  void Shift(const TokenInfo &token, int newstate);
-  void Push(Symbol type, DFA *newdfa, int newstate, const Location &location);
-  void Pop();
-  bool AddToken(const TokenInfo &token);
-
-  static bool IsInFirst(DFA *dfa, int label) {
-    auto end = dfa->first + dfa->n_first;
-    return std::find(dfa->first, end, label) != end;
-  }
-
-  static bool IsAcceptOnlyState(DFAState *state) {
-    return state->is_final && state->n_arcs == 1;
-  }
-
-public:
-  explicit Parser(Grammar *grammar);
-  Node *ParseTokens(const std::vector<TokenInfo> &tokens);
-};
-
-} // namespace
-
-Parser::Parser(Grammar *grammar)
-    : stack(), grammar(grammar), rootnode(nullptr), e() {
-  auto start = grammar->start;
-  Node *newnode = new Node(static_cast<Symbol>(start), "", Location(0, 0));
-  stack.push(StackEntry(grammar->dfas[start - NT_OFFSET], 0, newnode));
+Parser::Parser(Grammar *G)
+    : TheStack(), TheGrammar(G), EM() {
+  auto Start = G->start;
+  Node *Root = new Node(static_cast<Symbol>(Start), "", Location(0, 0));
+  TheStack.push(StackEntry(G->dfas[Start - NT_OFFSET], 0, Root));
 }
 
-int Parser::Classify(const TokenInfo &token) {
-  if (token.getType() == Symbol::NAME || token.getType() == Symbol::OP) {
-    for (int i = 1; i < grammar->n_labels; i++) {
-      const Label &l = grammar->labels[i];
-      if (l.string && l.string == token.getString())
-        return i;
+bool Parser::IsAcceptOnlyState(DFAState *State) {
+  return State->is_final && State->n_arcs == 1;
+}
+
+bool Parser::IsInFirst(DFA *D, int Label) {
+  auto end = D->first + D->n_first;
+  return std::find(D->first, end, Label) != end;
+}
+
+int Parser::Classify(const TokenInfo &T) {
+  if (T.getType() == Symbol::NAME || T.getType() == Symbol::OP) {
+    for (int I = 1; I < TheGrammar->n_labels; I++) {
+      const Label &L = TheGrammar->labels[I];
+      if (L.string && L.string == T.getString())
+        return I;
     }
   }
-  for (int i = 1; i < grammar->n_labels; i++) {
-    const Label &l = grammar->labels[i];
-    if (l.type == static_cast<int>(token.getType()) && l.string == nullptr) {
-      return i;
+  for (int I = 1; I < TheGrammar->n_labels; I++) {
+    const Label &L = TheGrammar->labels[I];
+    if (L.type == static_cast<int>(T.getType()) && L.string == nullptr) {
+      return I;
     }
   }
-  e.SyntaxError(token.getLocation(), "unexpected", Quote(token.getString()));
+  EM.SyntaxError(T.getLocation(), "unexpected", Quote(T.getString()));
   return -1;
 }
 
-void Parser::Shift(const TokenInfo &token, int newstate) {
-  StackEntry &tos = stack.top();
-  tos.node->AddChild(
-      new Node(token.getType(), token.getString(), token.getLocation()));
-  tos.state = newstate;
+void Parser::Shift(const TokenInfo &T, int NewState) {
+  StackEntry &Top = TheStack.top();
+  Top.node->AddChild(
+      new Node(T.getType(), T.getString(), T.getLocation()));
+  Top.state = NewState;
 }
 
-void Parser::Push(Symbol type, DFA *newdfa, int newstate,
-                  const Location &location) {
-  StackEntry &tos = stack.top();
-  Node *newnode = new Node(type, "", location);
-  tos.state = newstate;
-  stack.push(StackEntry(newdfa, 0, newnode));
+void Parser::Push(Symbol Ty, DFA *NewDFA, int NewState,
+                  const Location &Loc) {
+  StackEntry &Top = TheStack.top();
+  Node *newnode = new Node(Ty, "", Loc);
+  Top.state = NewState;
+  TheStack.push(StackEntry(NewDFA, 0, newnode));
 }
 
 void Parser::Pop() {
-  StackEntry tos = stack.top();
-  stack.pop();
-  Node *newnode = tos.node;
+  StackEntry Top = TheStack.top();
+  TheStack.pop();
+  Node *NewNode = Top.node;
 
-  if (stack.size()) {
-    stack.top().node->AddChild(newnode);
+  if (TheStack.size()) {
+    TheStack.top().node->AddChild(NewNode);
   } else {
-    rootnode = newnode;
+    RootNode = NewNode;
   }
 }
 
-bool Parser::AddToken(const TokenInfo &token) {
-  int label = Classify(token);
-  if (label < 0) {
+int Parser::AddToken(const TokenInfo &T) {
+  int Label = Classify(T);
+  if (Label < 0) {
     return -1;
   }
 
   while (true) {
-    StackEntry &tos = stack.top();
-    DFA *dfa = tos.dfa;
-    DFAState *states = dfa->states;
-    DFAState *state = &states[tos.state];
-    bool flag = true;
+    StackEntry &Top = TheStack.top();
+    DFA *dfa = Top.dfa;
+    DFAState *States = dfa->states;
+    DFAState *TheState = &States[Top.state];
+    bool Flag = true;
 
-    for (int i = 0; i < state->n_arcs; ++i) {
-      Arc &arc = state->arcs[i];
-      auto type = static_cast<Symbol>(grammar->labels[arc.label].type);
-      int newstate = arc.state;
+    for (int I = 0; I < TheState->n_arcs; ++I) {
+      Arc &arc = TheState->arcs[I];
+      auto Ty = static_cast<Symbol>(TheGrammar->labels[arc.label].type);
+      int NewState = arc.state;
 
-      if (label == arc.label) {
-        Shift(token, newstate);
+      if (Label == arc.label) {
+        Shift(T, NewState);
 
-        while (IsAcceptOnlyState(&states[newstate])) {
+        while (IsAcceptOnlyState(&States[NewState])) {
           Pop();
-          if (stack.empty()) {
+          if (TheStack.empty()) {
             return true;
           }
-          newstate = stack.top().state;
-          states = stack.top().dfa->states;
+          NewState = TheStack.top().state;
+          States = TheStack.top().dfa->states;
         }
         return false;
-      }
 
-      else if (IsNonterminal(type)) {
-        DFA *itsdfa = grammar->dfas[static_cast<int>(type) - NT_OFFSET];
-        if (IsInFirst(itsdfa, label)) {
-          Push(type, itsdfa, newstate, token.getLocation());
-          flag = false;
+      } else if (IsNonterminal(Ty)) {
+        DFA *NewDFA = TheGrammar->dfas[static_cast<int>(Ty) - NT_OFFSET];
+        if (IsInFirst(NewDFA, Label)) {
+          Push(Ty, NewDFA, NewState, T.getLocation());
+          Flag = false;
           break;
         }
       }
     }
 
-    if (flag) {
-      if (state->is_final) {
+    if (Flag  ) {
+      if (TheState->is_final) {
         Pop();
-        if (stack.empty()) {
-          e.SyntaxError(token.getLocation(), "too much input");
+        if (TheStack.empty()) {
+          EM.SyntaxError(T.getLocation(), "too much input");
           return -1;
         }
       } else {
-        e.SyntaxError(token.getLocation(), "unexpected",
-                      Quote(token.getLine()));
+        EM.SyntaxError(T.getLocation(), "unexpected",
+                       Quote(T.getLine()));
         return -1;
       }
     }
   }
 }
 
-Node *Parser::ParseTokens(const std::vector<TokenInfo> &tokens) {
-  for (const auto &token : tokens) {
-    if (token.getType() == Symbol::ERRORTOKEN) {
-      e.SyntaxError(token.getLocation(), "error token",
-                    Quote(token.getString()));
+Node *Parser::ParseTokens(const std::vector<TokenInfo> &Tokens) {
+  for (const auto &T : Tokens) {
+    if (T.getType() == Symbol::ERRORTOKEN) {
+      EM.SyntaxError(T.getLocation(), "error token",
+                     Quote(T.getString()));
       return nullptr;
     }
-    int ret = AddToken(token);
-    if (ret == 1) {
-      return rootnode;
+    int RC = AddToken(T);
+    if (RC == 1) {
+      return RootNode;
     }
-    if (ret < 0) {
+    if (RC < 0) {
       return nullptr;
     }
   }
-  auto last = tokens.end() - 1;
-  e.SyntaxError(last->getLocation(), "incomplete input");
+  auto LastToken = Tokens.end() - 1;
+  EM.SyntaxError(LastToken->getLocation(), "incomplete input");
   return nullptr;
 }
 
-Node *simplecc::ParseTokens(const std::vector<TokenInfo> &tokens) {
-  Parser parser(&CompilerGrammar);
-  return parser.ParseTokens(tokens);
+Node *simplecc::ParseTokens(const std::vector<TokenInfo> &Tokens) {
+  Parser P(&CompilerGrammar);
+  return P.ParseTokens(Tokens);
 }
