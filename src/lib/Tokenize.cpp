@@ -1,6 +1,7 @@
 #include "simplecc/Tokenize.h"
 #include "simplecc/ErrorManager.h"
 
+#include <cctype>
 #include <algorithm>
 #include <iomanip>
 
