@@ -20,12 +20,12 @@ public:
 };
 
 class VarType {
-  BasicTypeKind type;
+  BasicTypeKind Type;
 
 public:
-  explicit VarType(BasicTypeKind type) : type(type) {}
+  explicit VarType(BasicTypeKind Ty) : Type(Ty) {}
   explicit VarType(Decl *D);
-  BasicTypeKind getType() const { return type; }
+  BasicTypeKind getType() const { return Type; }
 };
 
 class ArrayType {
@@ -39,23 +39,23 @@ public:
 };
 
 class ConstType {
-  int value;
-  BasicTypeKind type;
+  int Value;
+  BasicTypeKind Type;
 
 public:
   explicit ConstType(ConstDecl *CD);
-  int getValue() const { return value; }
-  BasicTypeKind getType() const { return type; }
+  int getValue() const { return Value; }
+  BasicTypeKind getType() const { return Type; }
 };
 
 // An entry in the SymbolTable with type and scope information about
 // a name within a block (global or local).
 class SymbolEntry {
-  Scope scope;
-  Decl *decl = nullptr;
+  Scope TheScope;
+  Decl *TheDecl = nullptr;
 
 public:
-  SymbolEntry(Scope scope, Decl *decl) : scope(scope), decl(decl) {}
+  SymbolEntry(Scope scope, Decl *decl) : TheScope(scope), TheDecl(decl) {}
   /// This constructs an invalid SymbolEntry.
   SymbolEntry() = default;
 
@@ -65,24 +65,23 @@ public:
   bool IsArray() const;
   ArrayType AsArray() const;
 
+  bool IsFormalArgument() const;
   bool IsVariable() const;
   VarType AsVariable() const;
 
   bool IsConstant() const;
   ConstType AsConstant() const;
 
-  const char *GetTypeName() const;
+  const char *getTypeName() const;
 
-  const Location &GetLocation() const;
+  const Location &getLocation() const;
 
-  const String &GetName() const;
+  const String &getName() const;
 
-  Scope GetScope() const { return scope; }
+  Scope getScope() const { return TheScope; }
 
-  bool IsGlobal() const { return Scope::Global == GetScope(); }
-  bool IsLocal() const { return Scope::Local == GetScope(); }
-
-  bool IsFormalArgument() const;
+  bool IsGlobal() const { return Scope::Global == getScope(); }
+  bool IsLocal() const { return Scope::Local == getScope(); }
 
   void Format(std::ostream &os) const;
 };

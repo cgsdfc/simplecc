@@ -610,13 +610,13 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     for (auto &&Pair : Local) {
       const SymbolEntry &E = Pair.second;
       if (E.IsLocal()) {
-        assert(LocalValues.count(E.GetName()) &&
+        assert(LocalValues.count(E.getName()) &&
                "Local Decl must have been handled");
         continue;
       }
-      auto GV = GlobalValues[E.GetName()];
+      auto GV = GlobalValues[E.getName()];
       assert(GV && "Global Value must exist");
-      LocalValues.emplace(E.GetName(), GV);
+      LocalValues.emplace(E.getName(), GV);
     }
 
     /// Generate the body

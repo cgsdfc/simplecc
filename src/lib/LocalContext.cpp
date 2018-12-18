@@ -18,7 +18,7 @@ void LocalContext::InitializeLocalOffsets() {
 
   /// Allocate space for formal arguments.
   for (const SymbolEntry &Arg : TheFunction->GetFormalArguments()) {
-    LocalOffsets.emplace(Arg.GetName(), Off);
+    LocalOffsets.emplace(Arg.getName(), Off);
     Off -= BytesFromEntries(1);
   }
 
@@ -26,12 +26,12 @@ void LocalContext::InitializeLocalOffsets() {
   for (const SymbolEntry &Var : TheFunction->GetLocalVariables()) {
     if (Var.IsArray()) {
       Off -= BytesFromEntries(Var.AsArray().getSize());
-      LocalOffsets.emplace(Var.GetName(), Off + BytesFromEntries(1));
+      LocalOffsets.emplace(Var.getName(), Off + BytesFromEntries(1));
       continue;
     }
     /// Variable:
     assert(Var.IsVariable());
-    LocalOffsets.emplace(Var.GetName(), Off);
+    LocalOffsets.emplace(Var.getName(), Off);
     Off -= BytesFromEntries(1);
   }
 }

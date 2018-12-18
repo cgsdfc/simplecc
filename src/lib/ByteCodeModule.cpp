@@ -34,7 +34,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
       auto N = static_cast<Name *>(E);
       const auto &Entry = TheLocalTable[N->getId()];
       Builder.CreateRead(Entry.AsVariable().getType());
-      Builder.CreateStore(Entry.GetScope(), Entry.GetName());
+      Builder.CreateStore(Entry.getScope(), Entry.getName());
     }
   }
 
@@ -168,7 +168,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitSubscript(Subscript *SB) {
     const auto &Entry = TheLocalTable[SB->getName()];
     // load array
-    Builder.CreateLoad(Entry.GetScope(), SB->getName());
+    Builder.CreateLoad(Entry.getScope(), SB->getName());
     // calculate index
     visitExpr(SB->getIndex());
     // do subscript
@@ -182,8 +182,8 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
       return;
     }
     N->getCtx() == ExprContextKind::Load
-        ? Builder.CreateLoad(Entry.GetScope(), N->getId())
-        : Builder.CreateStore(Entry.GetScope(), N->getId());
+        ? Builder.CreateLoad(Entry.getScope(), N->getId())
+        : Builder.CreateStore(Entry.getScope(), N->getId());
   }
 
   void visitFuncDef(FuncDef *FD) {

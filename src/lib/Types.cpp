@@ -7,14 +7,14 @@ ArrayType::ArrayType(VarDecl *VD)
   assert(VD->getIsArray());
 }
 
-ConstType::ConstType(ConstDecl *CD) : type(CD->getType()) {
+ConstType::ConstType(ConstDecl *CD) : Type(CD->getType()) {
   auto Val = CD->getValue();
   switch (Val->GetKind()) {
   case Expr::Char:
-    value = static_cast<Char *>(Val)->getC();
+    Value = static_cast<Char *>(Val)->getC();
     break;
   case Expr::Num:
-    value = static_cast<Num *>(Val)->getN();
+    Value = static_cast<Num *>(Val)->getN();
     break;
   default:
     assert(false && "Value of ConstDecl must be a Constant!");
@@ -24,17 +24,17 @@ ConstType::ConstType(ConstDecl *CD) : type(CD->getType()) {
 VarType::VarType(Decl *D) {
   switch (D->GetKind()) {
   case Decl::ArgDecl:
-    type = static_cast<ArgDecl *>(D)->getType();
+    Type = static_cast<ArgDecl *>(D)->getType();
     break;
   case Decl::VarDecl:
-    type = static_cast<VarDecl *>(D)->getType();
+    Type = static_cast<VarDecl *>(D)->getType();
     break;
   default:
     assert(false && "Decl not for Variable!");
   }
 }
 
-const char *SymbolEntry::GetTypeName() const {
+const char *SymbolEntry::getTypeName() const {
   if (IsFunction())
     return "Function";
   if (IsArray())
@@ -46,67 +46,67 @@ const char *SymbolEntry::GetTypeName() const {
 }
 
 BasicTypeKind FuncType::getArgTypeAt(unsigned Idx) const {
-  assert(Idx < getArgCount());
+  assert(Idx < getArgCount() && "Arg index out of range");
   auto Arg = TheFuncDef->getArgs()[Idx];
   return static_cast<ArgDecl *>(Arg)->getType();
 }
 
 VarType SymbolEntry::AsVariable() const {
   assert(IsVariable());
-  return VarType(decl);
+  return VarType(TheDecl);
 }
 
 FuncType SymbolEntry::AsFunction() const {
   assert(IsFunction());
-  return FuncType(static_cast<FuncDef *>(decl));
+  return FuncType(static_cast<FuncDef *>(TheDecl));
 }
 
 ArrayType SymbolEntry::AsArray() const {
   assert(IsArray());
-  return ArrayType(static_cast<VarDecl *>(decl));
+  return ArrayType(static_cast<VarDecl *>(TheDecl));
 }
 
 ConstType SymbolEntry::AsConstant() const {
   assert(IsConstant());
-  return ConstType(static_cast<ConstDecl *>(decl));
+  return ConstType(static_cast<ConstDecl *>(TheDecl));
 }
 
 bool SymbolEntry::IsArray() const {
-  return decl && IsInstance<VarDecl>(decl) &&
-         static_cast<VarDecl *>(decl)->getIsArray();
+  return TheDecl && IsInstance<VarDecl>(TheDecl) &&
+         static_cast<VarDecl *>(TheDecl)->getIsArray();
 }
 
 bool SymbolEntry::IsVariable() const {
-  return decl && (IsInstance<ArgDecl>(decl) ||
-                  (IsInstance<VarDecl>(decl) &&
-                   !static_cast<VarDecl *>(decl)->getIsArray()));
+  return TheDecl && (IsInstance<ArgDecl>(TheDecl) ||
+                  (IsInstance<VarDecl>(TheDecl) &&
+                   !static_cast<VarDecl *>(TheDecl)->getIsArray()));
 }
 
 bool SymbolEntry::IsConstant() const {
-  return decl && IsInstance<ConstDecl>(decl);
+  return TheDecl && IsInstance<ConstDecl>(TheDecl);
 }
 
 bool SymbolEntry::IsFunction() const {
-  return decl && IsInstance<FuncDef>(decl);
+  return TheDecl && IsInstance<FuncDef>(TheDecl);
 }
 
 bool SymbolEntry::IsFormalArgument() const {
-  return decl && IsInstance<ArgDecl>(decl);
+  return TheDecl && IsInstance<ArgDecl>(TheDecl);
 }
 
-const Location &SymbolEntry::GetLocation() const {
-  assert(decl);
-  return decl->getLoc();
+const Location &SymbolEntry::getLocation() const {
+  assert(TheDecl);
+  return TheDecl->getLoc();
 }
 
-const String &SymbolEntry::GetName() const {
-  assert(decl);
-  return decl->getName();
+const String &SymbolEntry::getName() const {
+  assert(TheDecl);
+  return TheDecl->getName();
 }
 
 void SymbolEntry::Format(std::ostream &O) const {
-  O << "SymbolEntry(" << GetName() << ", " << GetTypeName() << ", "
-    << GetScope() << ", " << GetLocation() << ")";
+  O << "SymbolEntry(" << getName() << ", " << getTypeName() << ", "
+    << getScope() << ", " << getLocation() << ")";
 }
 
 namespace simplecc {

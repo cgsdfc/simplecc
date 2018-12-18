@@ -23,8 +23,8 @@ void TypeChecker::visitRead(Read *RD) {
     assert(N);
     const auto &Entry = TheLocalTable[N->getId()];
     if (!Entry.IsVariable()) {
-      EM.TypeError(N->getLoc(), "cannot use scanf() on", Entry.GetTypeName(),
-                   Entry.GetName());
+      EM.TypeError(N->getLoc(), "cannot use scanf() on", Entry.getTypeName(),
+                   Entry.getName());
       continue;
     }
     /// set the Expr type for this.
@@ -115,7 +115,7 @@ BasicTypeKind TypeChecker::visitParenExpr(ParenExpr *PE) {
 BasicTypeKind TypeChecker::visitCall(Call *C) {
   const auto &Entry = TheLocalTable[C->getFunc()];
   if (!Entry.IsFunction()) {
-    EM.TypeError(C->getLoc(), Entry.GetTypeName(), Entry.GetName(),
+    EM.TypeError(C->getLoc(), Entry.getTypeName(), Entry.getName(),
                  "cannot be called as a function");
     return BasicTypeKind::Void;
   }
@@ -146,7 +146,7 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
 BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
   const auto &Entry = TheLocalTable[SB->getName()];
   if (!Entry.IsArray()) {
-    EM.TypeError(SB->getLoc(), Entry.GetTypeName(), Entry.GetName(),
+    EM.TypeError(SB->getLoc(), Entry.getTypeName(), Entry.getName(),
                  "cannot be subscripted as an array");
     return BasicTypeKind::Void;
   }
@@ -162,12 +162,12 @@ BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
 BasicTypeKind TypeChecker::visitName(Name *N) {
   const auto &Entry = TheLocalTable[N->getId()];
   if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
-    EM.TypeError(N->getLoc(), Entry.GetTypeName(), Entry.GetName(),
+    EM.TypeError(N->getLoc(), Entry.getTypeName(), Entry.getName(),
                  "cannot be used in an expression");
     return BasicTypeKind::Void;
   }
   if (N->getCtx() == ExprContextKind::Store && !Entry.IsVariable()) {
-    EM.TypeError(N->getLoc(), Entry.GetTypeName(), Entry.GetName(),
+    EM.TypeError(N->getLoc(), Entry.getTypeName(), Entry.getName(),
                  "cannot be assigned to");
     return BasicTypeKind::Void;
   }

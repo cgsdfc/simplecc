@@ -15,7 +15,7 @@ void MipsAssemblyWriter::WriteData(Printer &W, const ByteCodeModule &Module) {
   W.WriteLine("# Global objects");
 
   for (const SymbolEntry &E : Module.GetGlobalVariables()) {
-    GlobalLabel GL(E.GetName(), /* NeedColon */ true);
+    GlobalLabel GL(E.getName(), /* NeedColon */ true);
     if (!E.IsArray()) {
       W.WriteLine(GL, ".word", 0);
       continue;
