@@ -7,65 +7,49 @@
 #include <iostream>
 #include <sstream>
 #include <utility>
+#include <cassert>
 
 namespace simplecc {
 inline String Quote(const String &string) { return '\'' + string + '\''; }
 
 class ErrorManager : private Printer {
-  int error_count;
-
-  template <typename... Args>
-  void ErrorWithLocation(const char *etype, const Location &loc,
-                         Args &&... args) {
-    std::ostringstream os;
-    loc.FormatCompact(os);
-    WriteLine(etype, "at", os.str(), std::forward<Args>(args)...);
-    ++error_count;
-  }
-
+  int ErrorCount = 0;
+  const char *ErrorType;
 public:
-  ErrorManager() : Printer(std::cerr), error_count(0) {}
-
-  void clear() { error_count = 0; }
-
-  template <typename... Args> void Error(Args &&... args) {
-    WriteLine("Error:", std::forward<Args>(args)...);
-    ++error_count;
+  ErrorManager(const char *ET = nullptr) : Printer(std::cerr) {
+    setErrorType(ET);
   }
 
-  void FileReadError(const String &filename) {
-    WriteLine("FileReadError:", "File", Quote(filename), "does not exist");
-    ++error_count;
+  void setErrorType(const char *ET) {
+    ErrorType = ET == nullptr ? "Error" : ET;
   }
 
-  void FileWriteError(const String &filename) {
-    WriteLine("FileWriteError: File", Quote(filename), "cannot be written to");
-    ++error_count;
+  const char *getErrorType() const {
+    assert(ErrorType && "ErrorType not set!");
+    return ErrorType;
   }
 
-  template <typename... Args>
-  void SyntaxError(const Location &loc, Args &&... args) {
-    ErrorWithLocation("SyntaxError", loc, std::forward<Args>(args)...);
+  template<typename... Args>
+  void Error(const Location &loc, Args &&... args) {
+    getOuts() << getErrorType() << " at ";
+    loc.FormatCompact(getOuts());
+    getOuts() << " ";
+    WriteLine(std::forward<Args>(args)...);
+    ++ErrorCount;
   }
 
-  template <typename... Args>
-  void NameError(const Location &loc, Args &&... args) {
-    ErrorWithLocation("NameError", loc, std::forward<Args>(args)...);
+  template <typename ... Args>
+  void Error(Args &&... args) {
+    getOuts() << getErrorType() << ": ";
+    WriteLine(std::forward<Args>(args)...);
+    ++ErrorCount;
   }
 
-  template <typename... Args>
-  void TypeError(const Location &loc, Args &&... args) {
-    ErrorWithLocation("TypeError", loc, std::forward<Args>(args)...);
-  }
+  void clear() { ErrorCount = 0; }
 
-  template <typename... Args> void InternalError(Args &&... args) {
-    WriteLine("InternalError", std::forward<Args>(args)...);
-    ++error_count;
-  }
+  int getErrorCount() const { return ErrorCount; }
 
-  int GetErrorCount() const { return error_count; }
-
-  bool IsOk(int prev_count = 0) const { return prev_count == GetErrorCount(); }
+  bool IsOk(int Prev = 0) const { return Prev == getErrorCount(); }
 };
 
 } // namespace simplecc

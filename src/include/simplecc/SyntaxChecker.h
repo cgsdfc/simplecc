@@ -21,7 +21,7 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
   void visitFuncDef(FuncDef *FD);
 
 public:
-  SyntaxChecker() : VisitorBase(), EM() {}
+  SyntaxChecker() : VisitorBase(), EM("SyntaxError") {}
   bool Check(Program *P);
 
 };

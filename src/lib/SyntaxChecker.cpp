@@ -4,7 +4,7 @@ using namespace simplecc;
 
 void SyntaxChecker::visitProgram(Program *P) {
   if (P->getDecls().size() == 0) {
-    EM.SyntaxError(Location(0, 0), "expected main() at the end of input");
+    EM.Error(Location(0, 0), "expected main() at the end of input");
     return;
   }
   for (auto D : P->getDecls()) {
@@ -27,14 +27,14 @@ void SyntaxChecker::visitProgram(Program *P) {
 
   if (DeclIter != DeclEnd) {
     auto D = *DeclIter;
-    EM.SyntaxError(D->getLoc(), "unexpected", D->GetClassName(),
+    EM.Error(D->getLoc(), "unexpected", D->GetClassName(),
                    Quote(D->getName()));
   }
 
   // check the last declaration is the main function
   auto FD = subclass_cast<FuncDef>(P->getDecls().back());
   if (!(FD && FD->getName() == "main")) {
-    EM.SyntaxError(FD->getLoc(), "expected main() at the end of input");
+    EM.Error(FD->getLoc(), "expected main() at the end of input");
   }
 }
 
@@ -42,11 +42,11 @@ void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
   {
     if (CD->getType() == BasicTypeKind::Int &&
         !IsInstance<Num>(CD->getValue())) {
-      EM.SyntaxError(CD->getLoc(), "const int", Quote(CD->getName()),
+      EM.Error(CD->getLoc(), "const int", Quote(CD->getName()),
                      "expects an integer");
     } else if (CD->getType() == BasicTypeKind::Character &&
         !IsInstance<Char>(CD->getValue())) {
-      EM.SyntaxError(CD->getLoc(), "const char", Quote(CD->getName()),
+      EM.Error(CD->getLoc(), "const char", Quote(CD->getName()),
                      "expects a character");
     }
   }
@@ -54,10 +54,10 @@ void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
 
 void SyntaxChecker::visitVarDecl(VarDecl *VD) {
   if (VD->getType() == BasicTypeKind::Void) {
-    EM.SyntaxError(VD->getLoc(), "cannot declare", Quote(VD->getName()),
+    EM.Error(VD->getLoc(), "cannot declare", Quote(VD->getName()),
                    "as a void variable");
   } else if (VD->getIsArray() && VD->getSize() == 0) {
-    EM.SyntaxError(VD->getLoc(), "array size of", Quote(VD->getName()),
+    EM.Error(VD->getLoc(), "array size of", Quote(VD->getName()),
                    "cannot be 0");
   }
 }
@@ -72,14 +72,14 @@ void SyntaxChecker::visitFuncDef(FuncDef *FD) {
 
   if (FD->getName() == "main") {
     if (FD->getReturnType() != BasicTypeKind::Void) {
-      EM.SyntaxError(FD->getLoc(), "main() must return void");
+      EM.Error(FD->getLoc(), "main() must return void");
     }
   }
 }
 
 void SyntaxChecker::visitArgDecl(ArgDecl *AD) {
   if (AD->getType() == BasicTypeKind::Void) {
-    EM.SyntaxError(AD->getLoc(), "cannot declare void argument");
+    EM.Error(AD->getLoc(), "cannot declare void argument");
   }
 }
 

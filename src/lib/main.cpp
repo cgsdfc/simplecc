@@ -3,10 +3,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <fstream>
-#include <iterator>
 #include <tclap/CmdLine.h>
-#include <vector>
 
 using namespace TCLAP;
 using namespace simplecc;
@@ -53,12 +50,12 @@ public:
     String OutputFile = OutputArg.isSet() ? OutputArg.getValue() : "";
 
     if (!PM.setInputFile(InputFile)) {
-      EM.FileReadError(InputFile);
+      EM.Error("cannot open", InputFile);
       return 1;
     }
 
     if (!PM.setOutputFile(OutputFile)) {
-      EM.FileWriteError(OutputFile);
+      EM.Error("cannot open", OutputFile);
       return 1;
     }
 

@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
   PassManager PM;
   /// If the supplied filename isn't readable.
   if (!PM.setInputFile(Filename)) {
-    EM.FileReadError(Filename);
+    EM.Error("cannot open", Filename);
     return 1;
   }
 

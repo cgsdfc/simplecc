@@ -21,7 +21,7 @@ void Test3(int Arg) {
 void main() {
   IntVar = 1;
   Printf(IntVar);
-  CharArray[0] = 2;
+  CharArray[0] = 'a';
   Test1;
   Test2;
 }

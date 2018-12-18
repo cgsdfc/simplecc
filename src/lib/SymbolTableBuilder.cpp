@@ -5,13 +5,13 @@ using namespace simplecc;
 void SymbolTableBuilder::DefineLocalDecl(Decl *D) {
   assert(TheLocal && "TheLocal must be set!");
   if (TheLocal->count(D->getName())) {
-    EM.NameError(D->getLoc(), "redefinition of identifier", D->getName(),
+    EM.Error(D->getLoc(), "redefinition of identifier", D->getName(),
                  "in function", TheFuncDef->getName());
     return;
   }
   if (TheGlobal->count(D->getName()) &&
       (*TheGlobal)[D->getName()].IsFunction()) {
-    EM.NameError(D->getLoc(), "local identifier", D->getName(), "in function",
+    EM.Error(D->getLoc(), "local identifier", D->getName(), "in function",
                  TheFuncDef->getName(), "shallows a global function");
     return;
   }
@@ -22,7 +22,7 @@ void SymbolTableBuilder::DefineLocalDecl(Decl *D) {
 void SymbolTableBuilder::DefineGlobalDecl(Decl *D) {
   assert(TheGlobal && "TheGlobal must be set!");
   if (TheGlobal->count(D->getName())) {
-    EM.NameError(D->getLoc(), "redefinition of identifier", D->getName(),
+    EM.Error(D->getLoc(), "redefinition of identifier", D->getName(),
                  "in <module>");
     return;
   }
@@ -39,7 +39,7 @@ void SymbolTableBuilder::ResolveName(const String &Name, const Location &L) {
     return;
   }
   /// Undefined
-  EM.NameError(L, "undefined identifier", Name, "in function",
+  EM.Error(L, "undefined identifier", Name, "in function",
                TheFuncDef->getName());
 }
 
@@ -68,7 +68,8 @@ void SymbolTableBuilder::visitDecl(Decl *D) {
   case Decl::ArgDecl:
     /* Fall through */
     return TheLocal ? DefineLocalDecl(D) : DefineGlobalDecl(D);
-  default:EM.InternalError("Unhandled Decl subclass!");
+  default:
+    assert(false && "Unhandled Decl subclass!");
   }
 }
 
@@ -77,6 +78,7 @@ bool SymbolTableBuilder::Build(Program *P, SymbolTable &S) {
   S.clear();
   setTable(&S);
   setGlobal(&S.getGlobal());
+  EM.setErrorType("NameError");
   visitProgram(P);
   return EM.IsOk();
 }

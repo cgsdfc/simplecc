@@ -9,7 +9,7 @@ class AstVerifier : ChildrenVisitor<AstVerifier> {
   void AssertThat(bool Pred, const char *ErrMsg) {
     if (Pred)
       return;
-    EM.InternalError(ErrMsg);
+    EM.Error(ErrMsg);
   }
 
   void visitRead(Read *RD) {
@@ -91,6 +91,7 @@ public:
   ~AstVerifier() = default;
 
   bool Verify(Program *P) {
+    EM.setErrorType("InternalError");
     visitProgram(P);
     return EM.IsOk();
   }
