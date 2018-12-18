@@ -28,7 +28,7 @@ public:
     return StringLiterals;
   }
   /// For a string literal, this method returns the corresponding ID.
-  unsigned GetStringLiteralID(const String &Str);
+  unsigned getStringLiteralID(const String &Str);
 
   /// Function and global variables interface.
   const FunctionListTy &getFunctionList() const { return FunctionList; }

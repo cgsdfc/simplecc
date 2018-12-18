@@ -2,11 +2,7 @@
 #include "simplecc/ErrorManager.h"
 
 #include <algorithm>
-#include <cassert>
-#include <cctype>
 #include <iomanip>
-#include <sstream>
-#include <string>
 
 using namespace simplecc;
 
@@ -51,7 +47,7 @@ static void DumpTokenInfo(std::ostream &os, const TokenInfo &token) {
   auto &&token_range = oss.str();
 
   os << std::left << std::setw(20) << token_range;
-  os << std::left << std::setw(15) << token.GetTypeName();
+  os << std::left << std::setw(15) << token.getTypeName();
   os << std::left << std::setw(15) << Quote(token.getString()) << "\n";
 }
 
@@ -146,10 +142,10 @@ void PrintTokens(const std::vector<TokenInfo> &tokens, std::ostream &os) {
 
 void TokenInfo::Format(std::ostream &os) const {
   os << "TokenInfo("
-     << "type=" << GetTypeName() << ", "
+     << "type=" << getTypeName() << ", "
      << "string=" << Quote(string) << ", "
      << "start=" << start << ", "
      << "line=" << Quote(line) << ")";
 }
 
-const char *TokenInfo::GetTypeName() const { return GetSymbolName(type); }
+const char *TokenInfo::getTypeName() const { return GetSymbolName(type); }

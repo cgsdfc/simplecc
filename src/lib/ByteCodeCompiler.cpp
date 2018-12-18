@@ -124,7 +124,7 @@ void ByteCodeCompiler::visitCall(Call *C) {
 }
 
 void ByteCodeCompiler::visitStr(simplecc::Str *S) {
-  Builder.CreateLoadString(TheModule->GetStringLiteralID(S->getS()));
+  Builder.CreateLoadString(TheModule->getStringLiteralID(S->getS()));
 }
 
 void ByteCodeCompiler::visitSubscript(Subscript *SB) {

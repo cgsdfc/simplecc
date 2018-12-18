@@ -23,7 +23,7 @@ ByteCodeModule::~ByteCodeModule() {
   std::for_each(begin(), end(), [](ByteCodeFunction *F) { delete F; });
 }
 
-unsigned ByteCodeModule::GetStringLiteralID(const String &Str) {
+unsigned ByteCodeModule::getStringLiteralID(const String &Str) {
   auto ID = StringLiterals.size();
   return StringLiterals.emplace(Str, ID).first->second;
 }

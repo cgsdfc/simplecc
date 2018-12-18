@@ -1,7 +1,3 @@
-//
-// Created by cgsdfc on 18-12-18.
-//
-
 #ifndef SIMPLECOMPILER_BYTECODECOMPILER_H
 #define SIMPLECOMPILER_BYTECODECOMPILER_H
 #include "SymbolTable.h"

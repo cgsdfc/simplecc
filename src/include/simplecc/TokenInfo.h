@@ -60,7 +60,7 @@ public:
   TokenInfo(TokenInfo &&) = default;
 
   void Format(std::ostream &os) const;
-  const char *GetTypeName() const;
+  const char *getTypeName() const;
   const Location &getLocation() const { return start; }
   const String &getString() const { return string; }
   const String &getLine() const { return line; }

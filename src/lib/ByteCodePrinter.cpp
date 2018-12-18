@@ -2,9 +2,6 @@
 #include "simplecc/Print.h"
 #include "simplecc/Visitor.h"
 
-#include <cassert>
-#include <iostream>
-
 namespace simplecc {
 /// This class handles the formatting of the result of an epxression
 /// It is a union of factor Expr and temporary
@@ -88,7 +85,7 @@ inline std::ostream &operator<<(std::ostream &O, const LineLabel &L) {
   return O;
 }
 
-/// This class prints a program in the quarternary form.
+/// This class prints a program in the quartenary form.
 class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
 
   void visitConstDecl(ConstDecl *CD) {
