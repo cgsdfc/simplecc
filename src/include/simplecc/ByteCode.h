@@ -49,51 +49,51 @@ public:
 
   /// ByteCode operand inspectation.
   static bool HasIntOperand(Opcode op);
-  bool HasIntOperand() const { return HasIntOperand(GetOpcode()); }
+  bool HasIntOperand() const { return HasIntOperand(getOpcode()); }
 
   static bool HasStrOperand(Opcode op);
-  bool HasStrOperand() const { return HasStrOperand(GetOpcode()); }
+  bool HasStrOperand() const { return HasStrOperand(getOpcode()); }
 
   static bool HasNoOperand(Opcode op);
-  bool HasNoOperand() const { return HasNoOperand(GetOpcode()); }
+  bool HasNoOperand() const { return HasNoOperand(getOpcode()); }
 
   static bool IsJumpXXX(Opcode op);
-  bool IsJumpXXX() const { return IsJumpXXX(GetOpcode()); }
+  bool IsJumpXXX() const { return IsJumpXXX(getOpcode()); }
 
-  void SetSourceLineno(unsigned Line) { SourceLineno = Line; }
-  unsigned GetSourceLineno() const { return SourceLineno; }
+  void setSourceLineno(unsigned Line) { SourceLineno = Line; }
+  unsigned getSourceLineno() const { return SourceLineno; }
 
   /// set the jump target for this ByteCode if this is a jump.
-  void SetJumpTarget(unsigned Target) {
+  void setJumpTarget(unsigned Target) {
     assert(IsJumpXXX() && "SetJumpTarget() on non-jump ByteCode");
     IntOperand = Target;
   }
 
-  unsigned GetJumpTarget() const {
+  unsigned getJumpTarget() const {
     assert(IsJumpXXX() && "GetJumpTarget() on non-jump ByteCode");
     return IntOperand;
   }
 
-  void SetByteCodeOffset(unsigned Offset) { ByteCodeOffset = Offset; }
-  unsigned GetByteCodeOffset() const { return ByteCodeOffset; }
+  void setByteCodeOffset(unsigned Offset) { ByteCodeOffset = Offset; }
+  unsigned getByteCodeOffset() const { return ByteCodeOffset; }
 
-  Opcode GetOpcode() const { return Op; }
-  const char *GetOpcodeName() const { return CStringFromOpcode(GetOpcode()); }
+  Opcode getOpcode() const { return Op; }
+  const char *getOpcodeName() const { return CStringFromOpcode(getOpcode()); }
 
-  int GetIntOperand() const {
+  int getIntOperand() const {
     assert(HasIntOperand());
     return IntOperand;
   }
-  void SetIntOperand(int Val) {
+  void setIntOperand(int Val) {
     assert(HasIntOperand());
     IntOperand = Val;
   }
 
-  const char *GetStrOperand() const {
+  const char *getStrOperand() const {
     assert(HasStrOperand());
     return StrOperand;
   }
-  void SetStrOperand(const char *Val) {
+  void setStrOperand(const char *Val) {
     assert(HasStrOperand());
     StrOperand = Val;
   }

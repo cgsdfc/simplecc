@@ -9,20 +9,20 @@ namespace simplecc {
 
 ByteCode ByteCode::Create(Opcode Op, int Val) {
   ByteCode B(Op);
-  B.SetIntOperand(Val);
+  B.setIntOperand(Val);
   return B;
 }
 
 ByteCode ByteCode::Create(Opcode Op, const char *Val) {
   ByteCode B(Op);
-  B.SetStrOperand(Val);
+  B.setStrOperand(Val);
   return B;
 }
 
 ByteCode ByteCode::Create(Opcode Op, const char *Str, int Int) {
   ByteCode B(Op);
-  B.SetStrOperand(Str);
-  B.SetIntOperand(Int);
+  B.setStrOperand(Str);
+  B.setIntOperand(Int);
   return B;
 }
 
@@ -94,15 +94,15 @@ bool ByteCode::HasNoOperand(Opcode Op) {
 
 void ByteCode::Format(std::ostream &O) const {
   /* O << std::setw(4) << GetSourceLineno(); */
-  O << std::left << std::setw(4) << GetByteCodeOffset();
-  O << std::left << std::setw(25) << GetOpcode();
+  O << std::left << std::setw(4) << getByteCodeOffset();
+  O << std::left << std::setw(25) << getOpcode();
 
   if (HasIntOperand()) {
-    O << std::setw(10) << GetIntOperand();
+    O << std::setw(10) << getIntOperand();
   }
 
   if (HasStrOperand()) {
-    O << std::setw(20) << GetStrOperand();
+    O << std::setw(20) << getStrOperand();
   }
 }
 

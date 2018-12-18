@@ -42,7 +42,7 @@ void LocalContext::InitializeJumpTargets() {
   JumpTargets.clear();
   for (const ByteCode &C : *TheFunction) {
     if (C.IsJumpXXX()) {
-      JumpTargets.insert(C.GetIntOperand());
+      JumpTargets.insert(C.getIntOperand());
     }
   }
 }

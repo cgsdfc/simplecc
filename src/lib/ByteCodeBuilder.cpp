@@ -125,8 +125,8 @@ unsigned ByteCodeBuilder::Insert(ByteCode Code) {
 
   /// Fill in other members of Code.
   auto Off = TheFunction.size();
-  Code.SetSourceLineno(getLineNo());
-  Code.SetByteCodeOffset(Off);
+  Code.setSourceLineno(getLineNo());
+  Code.setByteCodeOffset(Off);
 
   /// Insert Code at the back of the function.
   TheFunction.GetByteCodeList().push_back(std::move(Code));
@@ -135,7 +135,7 @@ unsigned ByteCodeBuilder::Insert(ByteCode Code) {
 
 void ByteCodeBuilder::setJumpTargetAt(unsigned Idx, unsigned Target) {
   ByteCode &TheCode = getInsertPoint()->getByteCodeAt(Idx);
-  TheCode.SetJumpTarget(Target);
+  TheCode.setJumpTarget(Target);
 }
 
 unsigned ByteCodeBuilder::getSize() const { return getInsertPoint()->size(); }

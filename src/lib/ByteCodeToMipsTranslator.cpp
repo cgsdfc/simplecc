@@ -37,8 +37,8 @@ void ByteCodeToMipsTranslator::HandleBinarySubscr(const ByteCode &C) {
 }
 
 void ByteCodeToMipsTranslator::HandleLoadLocal(const ByteCode &C) {
-  auto offset = TheContext.GetLocalOffset(C.GetStrOperand());
-  if (TheContext.IsVariable(C.GetStrOperand())) {
+  auto offset = TheContext.GetLocalOffset(C.getStrOperand());
+  if (TheContext.IsVariable(C.getStrOperand())) {
     WriteLine("lw $t0,", offset, "($fp)");
   } else {
     WriteLine("addi $t0, $fp,", offset);
@@ -47,34 +47,34 @@ void ByteCodeToMipsTranslator::HandleLoadLocal(const ByteCode &C) {
 }
 
 void ByteCodeToMipsTranslator::HandleLoadGlobal(const ByteCode &C) {
-  GlobalLabel GL(C.GetStrOperand(), /* NeedColon */ false);
+  GlobalLabel GL(C.getStrOperand(), /* NeedColon */ false);
   WriteLine("la $t0,", GL);
-  if (TheContext.IsVariable(C.GetStrOperand())) {
+  if (TheContext.IsVariable(C.getStrOperand())) {
     WriteLine("lw $t0, 0($t0)");
   }
   PUSH("$t0");
 }
 
 void ByteCodeToMipsTranslator::HandleLoadConst(const ByteCode &C) {
-  WriteLine("li $t0,", C.GetIntOperand());
+  WriteLine("li $t0,", C.getIntOperand());
   PUSH("$t0");
 }
 
 void ByteCodeToMipsTranslator::HandleLoadString(const ByteCode &C) {
-  AsciizLabel AL(C.GetIntOperand(), /* NeedColon */ false);
+  AsciizLabel AL(C.getIntOperand(), /* NeedColon */ false);
   WriteLine("la $t0,", AL);
   PUSH("$t0");
 }
 
 void ByteCodeToMipsTranslator::HandleStoreGlobal(const ByteCode &C) {
   POP("$t0");
-  GlobalLabel GL(C.GetStrOperand(), /* NeedColon */ false);
+  GlobalLabel GL(C.getStrOperand(), /* NeedColon */ false);
   WriteLine("sw $t0,", GL);
 }
 
 void ByteCodeToMipsTranslator::HandleStoreLocal(const ByteCode &C) {
   POP("$t0");
-  auto offset = TheContext.GetLocalOffset(C.GetStrOperand());
+  auto offset = TheContext.GetLocalOffset(C.getStrOperand());
   WriteLine("sw $t0,", offset, "($fp)");
 }
 
@@ -107,9 +107,9 @@ void ByteCodeToMipsTranslator::HandleUnaryNegative(const ByteCode &C) {
 }
 
 void ByteCodeToMipsTranslator::HandleCallFunction(const ByteCode &C) {
-  GlobalLabel Fn(C.GetStrOperand(), /* NeedColon */ false);
+  GlobalLabel Fn(C.getStrOperand(), /* NeedColon */ false);
   WriteLine("jal", Fn);
-  auto bytes = BytesFromEntries(C.GetIntOperand());
+  auto bytes = BytesFromEntries(C.getIntOperand());
   if (bytes) {
     WriteLine("addi $sp, $sp", bytes);
   }
@@ -191,12 +191,12 @@ void ByteCodeToMipsTranslator::HandleUnaryJumpIf(const char *op,
                                                  const ByteCode &C) {
   POP("$t0");
   WriteLine(op, "$t0",
-            JumpTargetLabel(TheContext.getName(), C.GetIntOperand(),
+            JumpTargetLabel(TheContext.getName(), C.getIntOperand(),
                             /* NeedColon */ false));
 }
 
 void ByteCodeToMipsTranslator::HandleJumpForward(const ByteCode &C) {
-  WriteLine("j", JumpTargetLabel(TheContext.getName(), C.GetIntOperand(),
+  WriteLine("j", JumpTargetLabel(TheContext.getName(), C.getIntOperand(),
                                  /* NeedColon */ false));
 }
 
@@ -204,7 +204,7 @@ void ByteCodeToMipsTranslator::HandleBinaryJumpIf(const char *Op,
                                                   const ByteCode &C) {
   POP("$t0"); // TOS
   POP("$t1"); // TOS1
-  JumpTargetLabel Label(TheContext.getName(), C.GetIntOperand(),
+  JumpTargetLabel Label(TheContext.getName(), C.getIntOperand(),
                         /* NeedColon */ false);
   WriteLine(Op, "$t1, $t0,", Label);
 }
@@ -212,12 +212,12 @@ void ByteCodeToMipsTranslator::HandleBinaryJumpIf(const char *Op,
 /// ByteCodeToMipsTranslator::Wrap OpcodeDispatcher::dispatch() to provide label
 /// generation.
 void ByteCodeToMipsTranslator::Write(const ByteCode &C) {
-  unsigned Off = C.GetByteCodeOffset();
+  unsigned Off = C.getByteCodeOffset();
   /// If this is a JumpTarget, emit a label.
   if (TheContext.IsJumpTarget(Off)) {
     WriteLine(JumpTargetLabel(TheContext.getName(), Off, /* NeedColon */ true));
   }
-  WriteLine("#", C.GetOpcodeName());
+  WriteLine("#", C.getOpcodeName());
   OpcodeDispatcher::dispatch(C);
   WriteLine();
 }
