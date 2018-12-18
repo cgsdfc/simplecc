@@ -4,124 +4,125 @@
 #include <cctype>
 #include <algorithm>
 #include <iomanip>
+#include <string> // getline()
 
 using namespace simplecc;
 
-static bool IsBlank(const String &line) {
-  for (auto ch : line)
-    if (!std::isspace(ch))
+static bool IsBlank(const String &Line) {
+  for (auto Chr : Line)
+    if (!std::isspace(Chr))
       return false;
   return true;
 }
 
-static bool IsValidChar(char ch) {
-  static const String valid_chars("+-*/_");
-  return valid_chars.find(ch) != String::npos || std::isalnum(ch);
+static inline bool IsValidChar(char Chr) {
+  static const String ValidChars("+-*/_");
+  return ValidChars.find(Chr) != String::npos || std::isalnum(Chr);
 }
 
-static bool IsValidStrChar(char ch) {
-  return ch == 32 || ch == 33 || (35 <= ch && ch <= 126);
+static inline bool IsValidStrChar(char Chr) {
+  return Chr == 32 || Chr == 33 || (35 <= Chr && Chr <= 126);
 }
 
-static bool IsNameBegin(char ch) { return ch == '_' || std::isalpha(ch); }
+static inline bool IsNameBegin(char Chr) { return Chr == '_' || std::isalpha(Chr); }
 
-static bool IsNameMiddle(char ch) { return ch == '_' || std::isalnum(ch); }
+static inline bool IsNameMiddle(char Chr) { return Chr == '_' || std::isalnum(Chr); }
 
-static bool IsSpecial(char ch) {
-  static String special("[](){};:,");
-  return special.find(ch) != String::npos;
+static inline bool IsSpecial(char Chr) {
+  static String Special("[](){};:,");
+  return Special.find(Chr) != String::npos;
 }
 
-static bool IsOperator(char ch) {
-  static String operators("+-*/<>!=");
-  return operators.find(ch) != String::npos;
+static inline bool IsOperator(char Chr) {
+  static String Operators("+-*/<>!=");
+  return Operators.find(Chr) != String::npos;
 }
 
-static void ToLowerInplace(String &string) {
-  std::transform(string.begin(), string.end(), string.begin(), ::tolower);
+static inline void ToLowerInplace(String &Str) {
+  std::transform(Str.begin(), Str.end(), Str.begin(), ::tolower);
 }
 
 
 namespace simplecc {
 void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
-  unsigned lnum = 0;
-  String line;
+  unsigned Lineno = 0;
+  String TheLine;
 
   Output.clear();
-  while (std::getline(Input, line)) {
-    ++lnum;
-    if (IsBlank(line))
+  while (std::getline(Input, TheLine)) {
+    ++Lineno;
+    if (IsBlank(TheLine))
       continue;
 
-    unsigned pos = 0;
-    unsigned max = line.size();
+    unsigned Pos = 0;
+    unsigned Max = TheLine.size();
 
-    while (pos < max) {
-      Location start(lnum, pos);
-      Symbol type = Symbol::ERRORTOKEN;
+    while (Pos < Max) {
+      Location Start(Lineno, Pos);
+      Symbol Type = Symbol::ERRORTOKEN;
 
-      if (std::isdigit(line[pos])) {
-        while (std::isdigit(line[pos])) {
-          ++pos;
+      if (std::isdigit(TheLine[Pos])) {
+        while (std::isdigit(TheLine[Pos])) {
+          ++Pos;
         }
-        type = Symbol::NUMBER;
-      } else if (line[pos] == '\'') {
-        ++pos;
-        if (IsValidChar(line[pos])) {
-          ++pos;
-          if (line[pos] == '\'') {
-            ++pos;
-            type = Symbol::CHAR;
+        Type = Symbol::NUMBER;
+      } else if (TheLine[Pos] == '\'') {
+        ++Pos;
+        if (IsValidChar(TheLine[Pos])) {
+          ++Pos;
+          if (TheLine[Pos] == '\'') {
+            ++Pos;
+            Type = Symbol::CHAR;
           }
         }
-      } else if (line[pos] == '\"') {
-        ++pos;
-        while (IsValidStrChar(line[pos])) {
-          ++pos;
+      } else if (TheLine[Pos] == '\"') {
+        ++Pos;
+        while (IsValidStrChar(TheLine[Pos])) {
+          ++Pos;
         }
-        if (line[pos] == '\"') {
-          ++pos;
-          type = Symbol::STRING;
+        if (TheLine[Pos] == '\"') {
+          ++Pos;
+          Type = Symbol::STRING;
         }
-      } else if (IsNameBegin(line[pos])) {
-        ++pos;
-        while (IsNameMiddle(line[pos]))
-          ++pos;
-        type = Symbol::NAME;
-      } else if (IsSpecial(line[pos])) {
-        ++pos;
-        type = Symbol::OP;
-      } else if (IsOperator(line[pos])) {
-        char chr = line[pos];
-        ++pos;
+      } else if (IsNameBegin(TheLine[Pos])) {
+        ++Pos;
+        while (IsNameMiddle(TheLine[Pos]))
+          ++Pos;
+        Type = Symbol::NAME;
+      } else if (IsSpecial(TheLine[Pos])) {
+        ++Pos;
+        Type = Symbol::OP;
+      } else if (IsOperator(TheLine[Pos])) {
+        char chr = TheLine[Pos];
+        ++Pos;
         if (chr == '>' || chr == '<' || chr == '=') {
-          type = Symbol::OP;
-          if (line[pos] == '=') {
-            ++pos;
+          Type = Symbol::OP;
+          if (TheLine[Pos] == '=') {
+            ++Pos;
           }
         } else if (chr == '!') {
-          if (line[pos] == '=') {
-            ++pos;
-            type = Symbol::OP;
+          if (TheLine[Pos] == '=') {
+            ++Pos;
+            Type = Symbol::OP;
           }
         } else {
-          type = Symbol::OP;
+          Type = Symbol::OP;
         }
-      } else if (std::isspace(line[pos])) {
-        while (std::isspace(line[pos]))
-          ++pos;
+      } else if (std::isspace(TheLine[Pos])) {
+        while (std::isspace(TheLine[Pos]))
+          ++Pos;
         continue;
       } else {
-        ++pos; // ERRORTOKEN
+        ++Pos; // ERRORTOKEN
       }
-      String token(line.begin() + start.getColOffset(), line.begin() + pos);
-      if (type == Symbol::NAME) {
-        ToLowerInplace(token);
+      String Str(TheLine.begin() + Start.getColOffset(), TheLine.begin() + Pos);
+      if (Type == Symbol::NAME) {
+        ToLowerInplace(Str);
       }
-      Output.emplace_back(type, token, start, line);
+      Output.emplace_back(Type, Str, Start, TheLine);
     }
   }
-  Output.emplace_back(Symbol::ENDMARKER, "", Location(lnum, 0), "");
+  Output.emplace_back(Symbol::ENDMARKER, "", Location(Lineno, 0), "");
 }
 
 static void DumpTokenInfo(std::ostream &O, const TokenInfo &T) {

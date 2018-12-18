@@ -24,7 +24,7 @@ ByteCodeModule::~ByteCodeModule() {
 }
 
 unsigned ByteCodeModule::getStringLiteralID(const String &Str) {
-  auto ID = StringLiterals.size();
+  unsigned ID = StringLiterals.size();
   return StringLiterals.emplace(Str, ID).first->second;
 }
 
