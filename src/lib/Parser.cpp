@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <simplecc/Parser.h>
 
 using namespace simplecc;
 
@@ -45,26 +46,26 @@ int Parser::Classify(const TokenInfo &T) {
 
 void Parser::Shift(const TokenInfo &T, int NewState) {
   StackEntry &Top = TheStack.top();
-  Top.node->AddChild(
+  Top.getNode()->AddChild(
       new Node(T.getType(), T.getString(), T.getLocation()));
-  Top.state = NewState;
+  Top.setState(NewState);
 }
 
 void Parser::Push(Symbol Ty, DFA *NewDFA, int NewState,
                   const Location &Loc) {
   StackEntry &Top = TheStack.top();
-  Node *newnode = new Node(Ty, "", Loc);
-  Top.state = NewState;
-  TheStack.push(StackEntry(NewDFA, 0, newnode));
+  Top.setState(NewState);
+  Node *NewNode = new Node(Ty, "", Loc);
+  TheStack.push(StackEntry(NewDFA, /* State */ 0, NewNode));
 }
 
 void Parser::Pop() {
   StackEntry Top = TheStack.top();
   TheStack.pop();
-  Node *NewNode = Top.node;
+  Node *NewNode = Top.getNode();
 
   if (TheStack.size()) {
-    TheStack.top().node->AddChild(NewNode);
+    TheStack.top().getNode()->AddChild(NewNode);
   } else {
     RootNode = NewNode;
   }
@@ -78,9 +79,9 @@ int Parser::AddToken(const TokenInfo &T) {
 
   while (true) {
     StackEntry &Top = TheStack.top();
-    DFA *dfa = Top.dfa;
-    DFAState *States = dfa->states;
-    DFAState *TheState = &States[Top.state];
+    DFA *D = Top.getDFA();
+    DFAState *States = D->states;
+    DFAState *TheState = &States[Top.getState()];
     bool Flag = true;
 
     for (int I = 0; I < TheState->n_arcs; ++I) {
@@ -96,8 +97,8 @@ int Parser::AddToken(const TokenInfo &T) {
           if (TheStack.empty()) {
             return true;
           }
-          NewState = TheStack.top().state;
-          States = TheStack.top().dfa->states;
+          NewState = TheStack.top().getState();
+          States = TheStack.top().getDFA()->states;
         }
         return false;
 
@@ -111,7 +112,7 @@ int Parser::AddToken(const TokenInfo &T) {
       }
     }
 
-    if (Flag  ) {
+    if (Flag) {
       if (TheState->is_final) {
         Pop();
         if (TheStack.empty()) {
@@ -150,4 +151,9 @@ Node *Parser::ParseTokens(const std::vector<TokenInfo> &Tokens) {
 Node *simplecc::ParseTokens(const std::vector<TokenInfo> &Tokens) {
   Parser P(&CompilerGrammar);
   return P.ParseTokens(Tokens);
+}
+
+void Parser::StackEntry::Format(std::ostream &O) const {
+  Print(O, "state:", TheState);
+  Print(O, "dfa:", TheDFA->name);
 }

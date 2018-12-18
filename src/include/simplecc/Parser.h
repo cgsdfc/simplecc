@@ -5,22 +5,40 @@
 
 #include <stack>
 #include <vector>
+#include <iostream>
 
 namespace simplecc {
 class Node;
 
 class Parser {
-  struct StackEntry {
-    DFA *dfa;
-    int state;
-    Node *node;
 
-    StackEntry(DFA *dfa, int state, Node *node)
-        : dfa(dfa), state(state), node(node) {}
+  class StackEntry {
+    DFA *TheDFA;
+    int TheState;
+    Node *TheNode;
 
-    void Dump() const {
-      PrintErrs("state:", state);
-      PrintErrs("dfa", dfa->name);
+  public:
+    StackEntry(DFA *D, int State, Node *N)
+        : TheDFA(D), TheState(State), TheNode(N) {}
+
+    DFA *getDFA() const {
+      return TheDFA;
+    }
+
+    int getState() const {
+      return TheState;
+    }
+
+    Node *getNode() const {
+      return TheNode;
+    }
+
+    void setState(int S) { TheState = S; }
+
+    void Format(std::ostream &O) const;
+    friend std::ostream &operator<<(std::ostream &os, const StackEntry &entry) {
+      entry.Format(os);
+      return os;
     }
   };
 
@@ -43,6 +61,7 @@ private:
   Node *RootNode = nullptr;
   ErrorManager EM;
 };
+
 
 Node *ParseTokens(const std::vector<TokenInfo> &Tokens);
 } // namespace simplecc
