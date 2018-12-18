@@ -41,6 +41,7 @@ if (USE_LLVM)
             ./DescriptionVisitor.cpp
             ./NodeIterator.cpp
             ./ChildrenCollector.cpp
+            ./LLVMTypeMap.cpp
             ./EmitLLVM.cpp)
     list(APPEND EXTRA_LIBRARIES ${llvm_libs})
     add_definitions(-DSIMPLE_COMPILER_USE_LLVM)

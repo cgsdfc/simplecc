@@ -2,6 +2,7 @@
 #include "simplecc/ErrorManager.h"
 #include "simplecc/SymbolTable.h"
 #include "simplecc/Visitor.h"
+#include "simplecc/LLVMTypeMap.h"
 
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>
@@ -38,69 +39,6 @@ using llvm::StringRef;
 using llvm::Type;
 using llvm::Value;
 
-/// A class that translates simplecc's type system to LLVM's type system.
-/// Provides helpers to convert objects of different types to their LLVM
-/// counterparts.
-class LLVMTypeMap {
-  LLVMContext &TheContext;
-
-protected:
-  LLVMContext &getContext() const { return TheContext; }
-
-public:
-  explicit LLVMTypeMap(LLVMContext &Context) : TheContext(Context) {}
-
-  /// Convert a basic type.
-  Type *getType(BasicTypeKind Type) const {
-    switch (Type) {
-    case BasicTypeKind::Character:
-      return Type::getInt8Ty(TheContext);
-    case BasicTypeKind::Int:
-      return Type::getInt32Ty(TheContext);
-    case BasicTypeKind::Void:
-      return Type::getVoidTy(TheContext);
-    }
-  }
-
-  Type *getCharType() const { return getType(BasicTypeKind::Character); }
-  Type *getIntType() const { return getType(BasicTypeKind::Int); }
-  Type *getBoolType() const { return Type::getInt1Ty(TheContext); }
-
-  Type *getTypeFromVarDecl(VarDecl *VD) const {
-    if (VD->getIsArray())
-      return getType(ArrayType(VD));
-    return getType(VarType(VD->getType()));
-  }
-
-  /// Convert an ArrayType.
-  Type *getType(const ArrayType &A) const {
-    return llvm::ArrayType::get(getType(A.getElementType()), A.getSize());
-  }
-
-  /// Convert a VarType.
-  Type *getType(const VarType &V) const { return getType(V.getType()); }
-
-  /// Convert a FuncType.
-  /// Note: If this function is main(), ensure it return int.
-  FunctionType *getType(const FuncType &F) const {
-    Type *ReturnType = getType(F.getReturnType());
-    std::vector<Type *> ArgTypes(F.getArgCount());
-    for (int i = 0; i < F.getArgCount(); i++) {
-      ArgTypes[i] = getType(F.getArgTypeAt(i));
-    }
-    return FunctionType::get(ReturnType, ArgTypes, false);
-  }
-
-  FunctionType *getTypeFromFuncDef(FuncDef *FD) const {
-    return getType(FuncType(FD));
-  }
-
-  Type *getType(const ConstType &C) const { return getType(C.getType()); }
-
-  Type *getTypeFromConstDecl(ConstDecl *CD) const {
-    return getType(CD->getType());
-  }
-};
 
 /// A class that convert values of different types to LLVM counterparts.
 class LLVMValueMap : public LLVMTypeMap {
@@ -220,10 +158,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   /// Helper to create IR that loads a string literal (global string ptr).
   Value *getString(StringRef Str) { return Builder.CreateGlobalStringPtr(Str); }
 
-  /// VisitorBase boilderplate.
-  /* void visitStmt(Stmt *s) { return VisitorBase::visitStmt<void>(s); } */
-  /* void visitDecl(Decl *node) { return VisitorBase::visitDecl<void>(node); }
-   */
+
   Value *visitExpr(Expr *E) { return VisitorBase::visitExpr<Value *>(E); }
   void visitArgDecl(ArgDecl *) {}
 
