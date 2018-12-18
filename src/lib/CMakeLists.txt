@@ -37,6 +37,7 @@ if (USE_LLVM)
             ./CSTGraph.cpp
             ./ASTGraph.cpp
             ./AstRef.cpp
+            ./AstIterator.cpp
             ./EmitLLVM.cpp)
     list(APPEND EXTRA_LIBRARIES ${llvm_libs})
     add_definitions(-DSIMPLE_COMPILER_USE_LLVM)

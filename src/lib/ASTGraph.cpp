@@ -1,5 +1,4 @@
 #include "simplecc/ASTGraph.h"
-#include "simplecc/AstRef.h"
 #include "simplecc/Print.h"
 #include "simplecc/TokenInfo.h" // for Location
 #include "simplecc/Visitor.h"
@@ -11,7 +10,6 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator> // for forward_iterator_tag
-#include <map>
 #include <memory> // for make_unique
 #include <sstream>
 #include <stack>
@@ -49,100 +47,6 @@ public:
   void Collect(const AstRef &R);
 };
 
-/// Implementation of AstIterator
-class AstIteratorImpl {
-  std::vector<AstRef *> TheStack;
-  AstGraph *Parent;
-
-public:
-  /// Begin Iterator.
-  AstIteratorImpl(Program *Ptr, AstGraph *G);
-
-  /// End Iterator.
-  AstIteratorImpl() : TheStack() {}
-  /// Return the next node in the graph.
-  AstRef *getNext();
-};
-
-/// Iterator to all nodes of a graph.
-class AstIterator
-    : private AstIteratorImpl,
-      public llvm::iterator_facade_base<AstIterator, std::forward_iterator_tag,
-                                        AstRef *> {
-
-public:
-  AstIterator(Program *P, AstGraph *G) : AstIteratorImpl(P, G) { operator++(); }
-
-  AstIterator() : AstIteratorImpl(), Ref() {}
-
-  AstRef *operator*() const { return Ref; }
-  bool operator==(const AstIterator &O) const { return O.Ref == Ref; }
-
-  AstIterator &operator++() {
-    Ref = getNext();
-    return *this;
-  }
-
-private:
-  AstRef *Ref;
-};
-
-// A class that keeps all the edges of an AstRef
-class AstGraph {
-public:
-  AstGraph(Program *P) : TheProgram(P), Edges(), Nodes() {}
-
-  using NodeIterator = AstIterator;
-  using ChildIteratorType = ChildrenCollector::ChildrenIterator;
-
-  /// Iterate over all nodes.
-  NodeIterator nodes_begin() const {
-    return NodeIterator(TheProgram, const_cast<AstGraph *>(this));
-  }
-
-  NodeIterator nodes_end() const { return NodeIterator(); }
-
-  llvm::iterator_range<NodeIterator> nodes() {
-    return llvm::make_range(nodes_begin(), nodes_end());
-  }
-
-  /// Iterate all children of one node.
-  ChildIteratorType child_begin(const AstRef &R) {
-    return std::begin(getEdgeOrCreate(R));
-  }
-
-  ChildIteratorType child_end(const AstRef &R) {
-    return std::end(getEdgeOrCreate(R));
-  }
-
-  llvm::iterator_range<ChildIteratorType> children(const AstRef &R) {
-    return llvm::make_range(child_begin(R), child_end(R));
-  }
-
-  /// For use in GraphTraits.
-  static ChildIteratorType ChildBegin(const AstRef &N) {
-    return N.getParent()->child_begin(N);
-  }
-
-  static ChildIteratorType ChildEnd(const AstRef &N) {
-    return N.getParent()->child_end(N);
-  }
-
-  /// Lazily create edges for a Node.
-  const std::vector<AstRef *> &getEdgeOrCreate(const AstRef &R);
-
-  /// Lazily create a node, namely an AstRef
-  template<typename AstT> AstRef *getNodeOrCreate(AstT *Ptr);
-
-private:
-  /// Root of AST.
-  Program *TheProgram;
-  /// Lazily created edges for each node.
-  std::map<AST *, std::vector<AstRef *>> Edges;
-  /// Lazily created nodes.
-  std::map<AST *, std::unique_ptr<AstRef>> Nodes;
-};
-
 void ChildrenCollector::Collect(const simplecc::AstRef &R) {
   if (auto D = R.get<Decl>())
     return ChildrenVisitor::visitDecl(D);
@@ -167,34 +71,6 @@ const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
   auto Result = Edges.emplace(R.get(), std::move(E));
   assert(Result.second && "Emplace must succeed");
   return Result.first->second;
-}
-
-template<typename AstT>
-AstRef *AstGraph::getNodeOrCreate(AstT *Ptr) {
-  auto iter = Nodes.find(Ptr);
-  if (iter != Nodes.end())
-    return iter->second.get();
-  auto Result = Nodes.emplace(Ptr, std::make_unique<AstRef>(Ptr, this));
-  assert(Result.second && "Emplace must succeed");
-  return Result.first->second.get();
-
-}
-
-AstIteratorImpl::AstIteratorImpl(Program *Ptr, AstGraph *G)
-    : TheStack(), Parent(G) {
-  auto AR = Parent->getNodeOrCreate(Ptr);
-  TheStack.push_back(AR);
-}
-
-AstRef *AstIteratorImpl::getNext() {
-  if (TheStack.empty()) {
-    return nullptr;
-  }
-  auto TOS = TheStack.back();
-  TheStack.pop_back();
-  const auto &LazyEdges = Parent->getEdgeOrCreate(*TOS);
-  std::copy(LazyEdges.begin(), LazyEdges.end(), std::back_inserter(TheStack));
-  return TOS;
 }
 
 /// Add a child.
@@ -346,11 +222,11 @@ template<> struct GraphTraits<AstGraph> {
   static nodes_iterator nodes_end(const AstGraph &G) { return G.nodes_end(); }
 
   static ChildIteratorType child_begin(NodeRef N) {
-    return AstGraph::ChildBegin(*N);
+    return (*N).getParent()->child_begin(*N);
   }
 
   static ChildIteratorType child_end(NodeRef N) {
-    return AstGraph::ChildEnd(*N);
+    return (*N).getParent()->child_end(*N);
   }
 };
 
