@@ -43,7 +43,7 @@ Decl *AstBuilder::visit_const_item(Node *node, BasicTypeKind type) {
   Expr *val;
 
   if (konstant->getType() == Symbol::CHAR) {
-    val = MakeChar(konstant);
+    val = makeChar(konstant);
   } else {
     assert(konstant->getType() == Symbol::integer);
     val = new Num(visit_integer(konstant), konstant->getLocation());
@@ -116,10 +116,10 @@ Expr *AstBuilder::visit_atom(Node *node, ExprContextKind context) {
     return visit_atom_trailer(trailer, first->getValue(), context);
   }
   if (first->getType() == Symbol::NUMBER) {
-    return MakeNum(first);
+    return makeNum(first);
   }
   if (first->getType() == Symbol::CHAR) {
-    return MakeChar(first);
+    return makeChar(first);
   } else {
     assert(first->getValue() == "(");
     auto value = visit_expr(node->getChild(1));
@@ -289,7 +289,7 @@ Stmt *AstBuilder::visit_for_stmt(Node *node) {
   assert(num->getType() == Symbol::NUMBER);
   auto expr1 =
       new Name(name2->getValue(), ExprContextKind::Load, name2->getLocation());
-  auto expr2 = MakeNum(num);
+  auto expr2 = makeNum(num);
   auto expr3 = new BinOp(expr1, OperatorKindFromString(op->getValue()), expr2,
                          name2->getLocation());
   auto step = new Assign(new Name(target->getValue(), ExprContextKind::Store,
@@ -425,11 +425,11 @@ int AstBuilder::visit_subscript2(Node *node) {
   return std::stoi(node->getChild(1)->getValue());
 }
 
-Expr *AstBuilder::MakeChar(Node *node) {
-  return new Char(static_cast<int>(node->getValue()[1]), node->getLocation());
+Expr *AstBuilder::makeChar(Node *N) {
+  return new Char(static_cast<int>(N->getValue()[1]), N->getLocation());
 }
 
-Expr *AstBuilder::MakeNum(Node *node) {
+Expr *AstBuilder::makeNum(Node *node) {
   return new Num(std::stoi(node->getValue()), node->getLocation());
 }
 
