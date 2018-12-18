@@ -145,7 +145,7 @@ BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
   const auto &Entry = TheLocalTable[SB->getName()];
   if (!Entry.IsArray()) {
     EM.Error(SB->getLoc(), Entry.getTypeName(), Entry.getName(),
-                 "cannot be subscripted as an array");
+                 "cannot be subscriptted as an array");
     return BasicTypeKind::Void;
   }
 
@@ -154,6 +154,8 @@ BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
   if (EM.IsOk(Errs) && Idx != BasicTypeKind::Int) {
     EM.Error(SB->getLoc(), "Array index must be int");
   }
+  /// TODO: Bound check.
+
   return Entry.AsArray().getElementType();
 }
 

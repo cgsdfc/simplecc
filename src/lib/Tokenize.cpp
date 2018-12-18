@@ -8,6 +8,14 @@
 
 using namespace simplecc;
 
+static inline bool IsValidStrChar(char Chr) {
+  return Chr == 32 || Chr == 33 || (35 <= Chr && Chr <= 126);
+}
+
+static inline bool IsNameBegin(char Chr) { return Chr == '_' || std::isalpha(Chr); }
+
+static inline bool IsNameMiddle(char Chr) { return Chr == '_' || std::isalnum(Chr); }
+
 static bool IsBlank(const String &Line) {
   for (auto Chr : Line)
     if (!std::isspace(Chr))
@@ -20,21 +28,13 @@ static inline bool IsValidChar(char Chr) {
   return ValidChars.find(Chr) != String::npos || std::isalnum(Chr);
 }
 
-static inline bool IsValidStrChar(char Chr) {
-  return Chr == 32 || Chr == 33 || (35 <= Chr && Chr <= 126);
-}
-
-static inline bool IsNameBegin(char Chr) { return Chr == '_' || std::isalpha(Chr); }
-
-static inline bool IsNameMiddle(char Chr) { return Chr == '_' || std::isalnum(Chr); }
-
 static inline bool IsSpecial(char Chr) {
-  static String Special("[](){};:,");
+  static const String Special("[](){};:,");
   return Special.find(Chr) != String::npos;
 }
 
 static inline bool IsOperator(char Chr) {
-  static String Operators("+-*/<>!=");
+  static const String Operators("+-*/<>!=");
   return Operators.find(Chr) != String::npos;
 }
 

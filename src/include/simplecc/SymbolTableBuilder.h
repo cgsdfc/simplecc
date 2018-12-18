@@ -1,7 +1,3 @@
-//
-// Created by cgsdfc on 18-12-18.
-//
-
 #ifndef SIMPLECOMPILER_SYMBOLTABLEBUILDER_H
 #define SIMPLECOMPILER_SYMBOLTABLEBUILDER_H
 #include "simplecc/Visitor.h"
