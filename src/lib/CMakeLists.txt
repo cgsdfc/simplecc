@@ -26,25 +26,26 @@ set(SOURCE_FILES
   ./ByteCodeToMipsTranslator.cpp
   ./MipsSupport.cpp
   ./MipsAssemblyWriter.cpp
-  ./Tokenize.cpp)
+  ./Tokenize.cpp
+  ./SymbolTableBuilder.cpp)
 
 set(EXTRA_LIBRARIES "")
 
 if (USE_LLVM)
-  list(APPEND SOURCE_FILES
-    ./CSTGraph.cpp
-    ./ASTGraph.cpp
-    ./EmitLLVM.cpp)
-  list(APPEND EXTRA_LIBRARIES ${llvm_libs})
-  add_definitions(-DSIMPLE_COMPILER_USE_LLVM)
-  include_directories(${LLVM_INCLUDE_DIRS})
-  add_definitions(${LLVM_DEFINITIONS})
-endif(USE_LLVM)
+    list(APPEND SOURCE_FILES
+            ./CSTGraph.cpp
+            ./ASTGraph.cpp
+            ./EmitLLVM.cpp)
+    list(APPEND EXTRA_LIBRARIES ${llvm_libs})
+    add_definitions(-DSIMPLE_COMPILER_USE_LLVM)
+    include_directories(${LLVM_INCLUDE_DIRS})
+    add_definitions(${LLVM_DEFINITIONS})
+endif (USE_LLVM)
 
 if (MSVC)
-  list(APPEND SOURCE_FILES ./windows_main.cpp)
+    list(APPEND SOURCE_FILES ./windows_main.cpp)
 else ()
-  list(APPEND SOURCE_FILES ./main.cpp)
+    list(APPEND SOURCE_FILES ./main.cpp)
 endif ()
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
