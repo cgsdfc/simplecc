@@ -2,6 +2,7 @@
 #include "simplecc/Print.h"
 #include "simplecc/TokenInfo.h" // for Location
 #include "simplecc/Visitor.h"
+#include "simplecc/DescriptionVisitor.h"
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/ADT/iterator.h>
@@ -9,11 +10,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <iterator> // for forward_iterator_tag
-#include <memory> // for make_unique
-#include <sstream>
-#include <stack>
-#include <string>
 #include <utility>     // for move
 #include <vector>
 
@@ -37,9 +33,6 @@ class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
   void visitStmt(Stmt *S) { AddChild(S); }
 
 public:
-  /// The type used to iterate all the children of a node.
-  using ChildrenIterator = std::vector<AstRef *>::const_iterator;
-
   ChildrenCollector(std::vector<AstRef *> &Vec, AstGraph *G)
       : Children(Vec), Parent(G) {}
 
@@ -48,6 +41,7 @@ public:
 };
 
 void ChildrenCollector::Collect(const simplecc::AstRef &R) {
+  Children.clear();
   if (auto D = R.get<Decl>())
     return ChildrenVisitor::visitDecl(D);
   if (auto S = R.get<Stmt>())
@@ -65,8 +59,8 @@ const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
     return iter->second;
 
   std::vector<AstRef *> E;
-  ChildrenCollector CC(E, this);
-  CC.Collect(R);
+  ChildrenCollector C(E, this);
+  C.Collect(R);
 
   auto Result = Edges.emplace(R.get(), std::move(E));
   assert(Result.second && "Emplace must succeed");
@@ -95,115 +89,6 @@ void WriteASTGraph(Program *P, llvm::raw_ostream &O) {
 
 } // namespace simplecc
 
-namespace simplecc {
-
-/// This class generates a description for each AST node.
-class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
-public:
-  /// Return a descriptive string for AR.
-  String makeDescription(const AstRef &AR) {
-    switch (AR.getKind()) {
-#define HANDLE_AST_TYPE(NAME)                                                \
-  case AstKind::NAME:                                                          \
-    return visit##NAME(static_cast<NAME *>(AR.get()));
-    HANDLE_AST_TYPE(Decl)
-    HANDLE_AST_TYPE(Expr)
-    HANDLE_AST_TYPE(Stmt)
-#undef HANDLE_AST_TYPE
-    default:return "";
-    }
-  }
-
-  /// VisitorBase boilderplate code.
-  String visitDecl(Decl *D) { return VisitorBase::visitDecl<String>(D); }
-  String visitExpr(Expr *E) { return VisitorBase::visitExpr<String>(E); }
-  String visitStmt(Stmt *S) { return VisitorBase::visitStmt<String>(S); }
-
-  String visitConstDecl(ConstDecl *CD) {
-    std::ostringstream O;
-    /// lambda to extract the numeric value of a Num or Char.
-    auto MakeCV = [](Expr *E) {
-      if (auto x = subclass_cast<Char>(E))
-        return x->getC();
-      if (auto x = subclass_cast<Num>(E))
-        return x->getN();
-      assert(false && "Unknown Expr class");
-    };
-
-    O << "const " << CStringFromBasicTypeKind(CD->getType()) << " "
-      << CD->getName() << " = " << MakeCV(CD->getValue());
-    return O.str();
-  }
-
-  String visitVarDecl(VarDecl *VD) {
-    std::ostringstream O;
-    O << CStringFromBasicTypeKind(VD->getType()) << " " << VD->getName();
-    if (VD->getIsArray()) {
-      O << "[" << VD->getSize() << "]";
-    }
-    return O.str();
-  }
-
-  String visitFuncDef(FuncDef *FD) {
-    std::ostringstream O;
-    Print(O, CStringFromBasicTypeKind(FD->getReturnType()), FD->getName());
-    return O.str();
-  }
-
-  String visitArgDecl(ArgDecl *A) {
-    std::ostringstream O;
-    Print(O, CStringFromBasicTypeKind(A->getType()), A->getName());
-    return O.str();
-  }
-
-  String visitBinOp(BinOp *BO) { return CStringFromOperatorKind(BO->getOp()); }
-
-  String visitUnaryOp(UnaryOp *UO) {
-    return CStringFromUnaryopKind(UO->getOp());
-  }
-
-  String visitBoolOp(BoolOp *BO) { return ""; }
-
-  String visitParenExpr(ParenExpr *PE) { return "()"; }
-
-  String visitName(Name *N) { return N->getId(); }
-
-  String visitNum(Num *N) {
-    std::ostringstream O;
-    O << N->getN();
-    return O.str();
-  }
-
-  String visitChar(Char *C) {
-    std::ostringstream O;
-    O << "'" << C->getC() << "'";
-    return O.str();
-  }
-
-  String visitStr(Str *S) {
-    std::ostringstream O;
-    O << S->getS();
-    return O.str();
-  }
-
-  String visitCall(Call *C) { return C->getFunc(); }
-
-  String visitRead(Read *) { return "scanf"; }
-
-  String visitWrite(Write *) { return "printf"; }
-
-  String visitAssign(Assign *) { return "="; }
-
-  String visitSubscript(Subscript *SB) { return SB->getName(); }
-
-  String visitExprStmt(ExprStmt *ES) { return ""; }
-  String visitFor(For *) { return ""; }
-  String visitIf(If *) { return ""; }
-  String visitWhile(While *) { return ""; }
-  String visitReturn(Return *) { return ""; }
-};
-
-} // namespace simplecc
 
 namespace llvm {
 using simplecc::AstGraph;
