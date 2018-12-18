@@ -30,7 +30,7 @@ public:
   bool IsJumpTarget(unsigned Off) const { return JumpTargets.count(Off); }
 
   // Return the offset of local name relatited to frame pointer
-  signed int GetLocalOffset(const char *Name) const;
+  signed int getLocalOffset(const char *Name) const;
 
   // Return whether a name is a variable
   bool IsVariable(const char *Name) const;

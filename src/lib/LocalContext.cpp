@@ -27,7 +27,7 @@ void LocalContext::InitializeLocalOffsets() {
       continue;
     }
     /// Variable:
-    assert(Var.IsVariable());
+    assert(Var.IsVariable() && "Local objects must be Variable or Array");
     LocalOffsets.emplace(Var.getName(), Off);
     Off -= BytesFromEntries(1);
   }
@@ -45,7 +45,7 @@ void LocalContext::InitializeJumpTargets() {
 }
 
 // Return the offset of local name relatited to frame pointer
-signed int LocalContext::GetLocalOffset(const char *Name) const {
+signed int LocalContext::getLocalOffset(const char *Name) const {
   assert(LocalOffsets.count(Name) && "Undefined Name");
   return LocalOffsets.find(Name)->second;
 }

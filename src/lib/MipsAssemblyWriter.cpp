@@ -37,7 +37,7 @@ void MipsAssemblyWriter::WriteData(Printer &W, const ByteCodeModule &Module) {
 
 // Return the total bytes consumed by local objects, including
 // variables, arrays and formal arguments.
-unsigned MipsAssemblyWriter::GetLocalObjectsInBytes(
+int MipsAssemblyWriter::getLocalObjectsInBytes(
     const ByteCodeFunction &TheFunction) const {
   unsigned Entries = std::accumulate(
       TheFunction.local_begin(), TheFunction.local_end(),
@@ -101,7 +101,7 @@ void MipsAssemblyWriter::WritePrologue(Printer &W,
     W.WriteLine();
   }
 
-  signed Off = GetLocalObjectsInBytes(TheFunction);
+  signed Off = getLocalObjectsInBytes(TheFunction);
   if (Off != 0) {
     W.WriteLine("# Make room for local objects");
     W.WriteLine("addi $sp, $sp,", -Off);
@@ -124,8 +124,8 @@ void MipsAssemblyWriter::WriteEpilogue(Printer &W,
 }
 
 void MipsAssemblyWriter::Write(const ByteCodeModule &M, std::ostream &O) {
-  Printer W(O);
-  WriteData(W, M);
-  W.WriteLine();
-  WriteText(W, M);
+  Printer ThePrinter(O);
+  WriteData(ThePrinter, M);
+  ThePrinter.WriteLine();
+  WriteText(ThePrinter, M);
 }

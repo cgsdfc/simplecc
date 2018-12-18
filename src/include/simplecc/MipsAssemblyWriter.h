@@ -12,7 +12,7 @@ class ByteCodeModule;
 class MipsAssemblyWriter {
   // Return the total bytes consumed by local objects, including
   // variables, arrays and formal arguments.
-  unsigned GetLocalObjectsInBytes(const ByteCodeFunction &TheFunction) const;
+  int getLocalObjectsInBytes(const ByteCodeFunction &TheFunction) const;
 
   void WriteData(Printer &W, const ByteCodeModule &Module);
   void WriteText(Printer &W, const ByteCodeModule &Module);

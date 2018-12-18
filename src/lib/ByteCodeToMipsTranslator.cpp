@@ -37,7 +37,7 @@ void ByteCodeToMipsTranslator::HandleBinarySubscr(const ByteCode &C) {
 }
 
 void ByteCodeToMipsTranslator::HandleLoadLocal(const ByteCode &C) {
-  auto offset = TheContext.GetLocalOffset(C.getStrOperand());
+  auto offset = TheContext.getLocalOffset(C.getStrOperand());
   if (TheContext.IsVariable(C.getStrOperand())) {
     WriteLine("lw $t0,", offset, "($fp)");
   } else {
@@ -74,7 +74,7 @@ void ByteCodeToMipsTranslator::HandleStoreGlobal(const ByteCode &C) {
 
 void ByteCodeToMipsTranslator::HandleStoreLocal(const ByteCode &C) {
   POP("$t0");
-  auto offset = TheContext.GetLocalOffset(C.getStrOperand());
+  auto offset = TheContext.getLocalOffset(C.getStrOperand());
   WriteLine("sw $t0,", offset, "($fp)");
 }
 
