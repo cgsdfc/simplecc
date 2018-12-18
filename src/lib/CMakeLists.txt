@@ -39,6 +39,7 @@ if (USE_LLVM)
             ./AstRef.cpp
             ./AstIterator.cpp
             ./DescriptionVisitor.cpp
+            ./NodeIterator.cpp
             ./EmitLLVM.cpp)
     list(APPEND EXTRA_LIBRARIES ${llvm_libs})
     add_definitions(-DSIMPLE_COMPILER_USE_LLVM)

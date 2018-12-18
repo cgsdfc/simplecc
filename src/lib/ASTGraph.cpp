@@ -6,7 +6,6 @@
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/Support/GraphWriter.h>
 
-#include <algorithm>
 #include <iostream>
 #include <utility>     // for move
 #include <vector>
