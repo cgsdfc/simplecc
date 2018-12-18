@@ -1,11 +1,9 @@
 #include "simplecc/ASTGraph.h"
 #include "simplecc/Print.h"
-#include "simplecc/TokenInfo.h" // for Location
-#include "simplecc/Visitor.h"
 #include "simplecc/DescriptionVisitor.h"
+#include "simplecc/ChildrenCollector.h"
 
 #include <llvm/ADT/GraphTraits.h>
-#include <llvm/ADT/iterator.h>
 #include <llvm/Support/GraphWriter.h>
 
 #include <algorithm>
@@ -13,32 +11,7 @@
 #include <utility>     // for move
 #include <vector>
 
-namespace simplecc {
-/// Collect children of an AstRef into a vector for later use.
-class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
-  friend class ChildrenVisitor<ChildrenCollector>;
-  friend class VisitorBase<ChildrenCollector>;
-
-  /// Keep a reference to the output vector.
-  std::vector<AstRef *> &Children;
-  /// Used to construct an AstRef.
-  AstGraph *Parent;
-
-  /// Add a child.
-  template<typename AstT> void AddChild(AstT *Ptr);
-
-  /// For ChildrenVisitor to hook in
-  void visitExpr(Expr *E) { AddChild(E); }
-  void visitDecl(Decl *D) { AddChild(D); }
-  void visitStmt(Stmt *S) { AddChild(S); }
-
-public:
-  ChildrenCollector(std::vector<AstRef *> &Vec, AstGraph *G)
-      : Children(Vec), Parent(G) {}
-
-  /// Call this to do the collecting. Otherwise, nothing will happen.
-  void Collect(const AstRef &R);
-};
+using namespace simplecc;
 
 void ChildrenCollector::Collect(const simplecc::AstRef &R) {
   Children.clear();
@@ -73,6 +46,7 @@ template<typename AstT> void ChildrenCollector::AddChild(AstT *Ptr) {
   Children.push_back(AR);
 }
 
+namespace simplecc {
 /// Print all ast nodes from a root.
 void PrintAllAstNodes(Program *P, std::ostream &os) {
   AstGraph Graph(P);
