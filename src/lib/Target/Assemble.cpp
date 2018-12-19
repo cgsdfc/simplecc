@@ -1,5 +1,5 @@
-#include "simplecc/Codegen/Assemble.h"
-#include "simplecc/Codegen/MipsAssemblyWriter.h"
+#include "simplecc/Target/Assemble.h"
+#include "simplecc/Target/MipsAssemblyWriter.h"
 
 #include <iostream>
 

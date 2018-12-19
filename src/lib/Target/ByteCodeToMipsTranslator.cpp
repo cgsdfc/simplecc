@@ -1,5 +1,5 @@
-#include "simplecc/Codegen/ByteCodeToMipsTranslator.h"
-#include "simplecc/Codegen/LocalContext.h"
+#include "simplecc/Target/ByteCodeToMipsTranslator.h"
+#include "simplecc/Target/LocalContext.h"
 #include <cassert>
 
 using namespace simplecc;

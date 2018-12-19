@@ -1,4 +1,3 @@
-
 #ifndef OPCODE_DISPATCHER
 #define OPCODE_DISPATCHER
 #include "simplecc/Codegen/ByteCode.h"

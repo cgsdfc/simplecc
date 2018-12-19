@@ -1,4 +1,4 @@
-#include "simplecc/Codegen/MipsSupport.h"
+#include "simplecc/Target/MipsSupport.h"
 
 using namespace simplecc;
 

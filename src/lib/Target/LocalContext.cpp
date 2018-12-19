@@ -1,7 +1,7 @@
-#include "simplecc/Codegen/LocalContext.h"
+#include "simplecc/Target/LocalContext.h"
 #include "simplecc/Codegen/ByteCode.h"
 #include "simplecc/Codegen/ByteCodeFunction.h"
-#include "simplecc/Codegen/MipsSupport.h" // BytesFromEntries()
+#include "simplecc/Target/MipsSupport.h" // BytesFromEntries()
 
 using namespace simplecc;
 

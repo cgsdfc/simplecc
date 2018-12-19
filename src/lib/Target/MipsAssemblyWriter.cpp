@@ -1,8 +1,8 @@
-#include "simplecc/Codegen/MipsAssemblyWriter.h"
+#include "simplecc/Target/MipsAssemblyWriter.h"
 #include "simplecc/Codegen/ByteCodeFunction.h"
 #include "simplecc/Codegen/ByteCodeModule.h"
-#include "simplecc/Codegen/ByteCodeToMipsTranslator.h"
-#include "simplecc/Codegen/MipsSupport.h"
+#include "simplecc/Target/ByteCodeToMipsTranslator.h"
+#include "simplecc/Target/MipsSupport.h"
 #include "simplecc/Analysis/Types.h" // SymbolEntry
 
 #include <iostream>
