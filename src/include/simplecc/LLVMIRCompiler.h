@@ -139,12 +139,13 @@ private:
   /// But we developer can make mistakes and this EM will tell.
   ErrorManager EM;
 
-public:
   LLVMIRCompiler(String Name, Program *P, const SymbolTable &S);
+
+public:
   /// Don't put instance on the stack. It is about 1K.
   /// Use this factory method instead.
-  static std::unique_ptr<LLVMIRCompiler> Create(String Name, Program *P,
-                                                const SymbolTable &S);
+  static LLVMIRCompiler *Create(String Name, Program *P,
+                                const SymbolTable &S);
 
   /// No copy no move.
   LLVMIRCompiler(const LLVMIRCompiler &) = delete;

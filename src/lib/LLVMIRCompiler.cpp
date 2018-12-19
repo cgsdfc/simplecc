@@ -18,9 +18,9 @@ LLVMIRCompiler::LLVMIRCompiler(String Name, Program *P, const SymbolTable &S)
 
 LLVMIRCompiler::~LLVMIRCompiler() = default;
 
-std::unique_ptr<LLVMIRCompiler> LLVMIRCompiler::Create(String Name, Program *P,
-                                                       const SymbolTable &S) {
-  return std::make_unique<LLVMIRCompiler>(Name, P, S);
+LLVMIRCompiler *LLVMIRCompiler::Create(String Name, Program *P,
+                                       const SymbolTable &S) {
+  return new LLVMIRCompiler(Name, P, S);
 }
 
 /// Compile the program, return OK or not.

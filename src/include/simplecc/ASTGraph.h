@@ -4,11 +4,14 @@
 #include "simplecc/AstRef.h"
 #include "simplecc/AST.h"
 
+#include <llvm/ADT/STLExtras.h>
+
 #include <iostream>
 #include <map>
 #include <vector>
 #include <memory> // for make_unique
 #include <cassert>
+
 
 namespace llvm {
 class raw_ostream;
@@ -71,7 +74,7 @@ AstRef *AstGraph::getNodeOrCreate(AstT *Ptr) {
   auto iter = Nodes.find(Ptr);
   if (iter != Nodes.end())
     return iter->second.get();
-  auto Result = Nodes.emplace(Ptr, std::make_unique<AstRef>(Ptr, this));
+  auto Result = Nodes.emplace(Ptr, llvm::make_unique<AstRef>(Ptr, this));
   assert(Result.second && "Emplace must succeed");
   return Result.first->second.get();
 }

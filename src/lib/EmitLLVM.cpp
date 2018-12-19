@@ -3,6 +3,7 @@
 
 #include <llvm/Support/raw_ostream.h>
 #include <system_error>
+#include <memory>
 
 namespace simplecc {
 
@@ -10,7 +11,7 @@ namespace simplecc {
 /// Return true for success.
 bool CompileToLLVMIR(String InputFilename, Program *P, const SymbolTable &S,
                      String OutputFilename) {
-  auto TheCompiler = LLVMIRCompiler::Create(InputFilename, P, S);
+  auto TheCompiler = std::unique_ptr<LLVMIRCompiler>(LLVMIRCompiler::Create(InputFilename, P, S));
 
   /// Compile to llvm::Module, fail fast.
   bool OK = TheCompiler->Compile();

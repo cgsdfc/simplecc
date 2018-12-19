@@ -422,7 +422,7 @@ static std::unique_ptr<PassRegistry> ThePassRegistry;
 
 PassRegistry &getGlobalRegistry() {
   if (!ThePassRegistry) {
-    ThePassRegistry = std::make_unique<PassRegistry>();
+    ThePassRegistry = std::unique_ptr<PassRegistry>(new PassRegistry());
   }
   return *ThePassRegistry;
 }
