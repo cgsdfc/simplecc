@@ -1,50 +1,50 @@
 set(EXEC_NAME simplecc)
 
 set(SOURCE_FILES
-  ./ByteCodePrinter.cpp
-  ./Assemble.cpp
-  ./ByteCode.cpp
-  ./ByteCodeModule.cpp
-  ./Opcode.cpp
-  ./AST.cpp
-  ./Grammar.cpp
-  ./TypeChecker.cpp
-  ./SymbolTable.cpp
-  ./SyntaxChecker.cpp
-  ./AstBuilder.cpp
-  ./Parser.cpp
-  ./gramdef.cpp
-  ./Node.cpp
-  ./Pass.cpp
-  ./Module.cpp
-  ./Types.cpp
-  ./ImplicitCallTransformer.cpp
-  ./AstVerifier.cpp
-  ./ByteCodeBuilder.cpp
-  ./ByteCodeFunction.cpp
-  ./LocalContext.cpp
-  ./ByteCodeToMipsTranslator.cpp
-  ./MipsSupport.cpp
-  ./MipsAssemblyWriter.cpp
-  ./Tokenize.cpp
-  ./SymbolTableBuilder.cpp
-  ./ByteCodeCompiler.cpp)
+        Analysis/ByteCodePrinter.cpp
+        Codegen/Assemble.cpp
+        Codegen/ByteCode.cpp
+        Codegen/ByteCodeModule.cpp
+        Codegen/Opcode.cpp
+        Parse/AST.cpp
+        Parse/Grammar.cpp
+        Analysis/TypeChecker.cpp
+        Analysis/SymbolTable.cpp
+        Analysis/SyntaxChecker.cpp
+        Parse/AstBuilder.cpp
+        Parse/Parser.cpp
+        Parse/gramdef.cpp
+        Parse/Node.cpp
+        Support/Pass.cpp
+        Optimize/Module.cpp
+        Analysis/Types.cpp
+        Analysis/ImplicitCallTransformer.cpp
+        Analysis/AstVerifier.cpp
+        Codegen/ByteCodeBuilder.cpp
+        Codegen/ByteCodeFunction.cpp
+        Codegen/LocalContext.cpp
+        Codegen/ByteCodeToMipsTranslator.cpp
+        Codegen/MipsSupport.cpp
+        Codegen/MipsAssemblyWriter.cpp
+        Lex/Tokenize.cpp
+        Analysis/SymbolTableBuilder.cpp
+        Codegen/ByteCodeCompiler.cpp)
 
 set(EXTRA_LIBRARIES "")
 
 if (USE_LLVM)
     list(APPEND SOURCE_FILES
-            ./CSTGraph.cpp
-            ./ASTGraph.cpp
-            ./AstRef.cpp
-            ./AstIterator.cpp
-            ./DescriptionVisitor.cpp
-            ./NodeIterator.cpp
-            ./ChildrenCollector.cpp
-            ./LLVMTypeMap.cpp
-            ./LLVMValueMap.cpp
-            ./LLVMIRCompiler.cpp
-            ./EmitLLVM.cpp)
+            Visualize/CSTGraph.cpp
+            Visualize/ASTGraph.cpp
+            Visualize/AstRef.cpp
+            Visualize/AstIterator.cpp
+            Visualize/DescriptionVisitor.cpp
+            Visualize/NodeIterator.cpp
+            Visualize/ChildrenCollector.cpp
+            LLVM/LLVMTypeMap.cpp
+            LLVM/LLVMValueMap.cpp
+            LLVM/LLVMIRCompiler.cpp
+            LLVM/EmitLLVM.cpp)
     list(APPEND EXTRA_LIBRARIES ${llvm_libs})
     add_definitions(-DSIMPLE_COMPILER_USE_LLVM)
     include_directories(${LLVM_INCLUDE_DIRS})
@@ -52,9 +52,9 @@ if (USE_LLVM)
 endif (USE_LLVM)
 
 if (MSVC)
-    list(APPEND SOURCE_FILES ./windows_main.cpp)
+    list(APPEND SOURCE_FILES Driver/windows_main.cpp)
 else ()
-    list(APPEND SOURCE_FILES ./main.cpp)
+    list(APPEND SOURCE_FILES Driver/main.cpp)
 endif ()
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
