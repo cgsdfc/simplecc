@@ -1,50 +1,74 @@
 set(EXEC_NAME simplecc)
 
 set(SOURCE_FILES
-        Analysis/ByteCodePrinter.cpp
-        Codegen/Assemble.cpp
-        Codegen/ByteCode.cpp
-        Codegen/ByteCodeModule.cpp
-        Codegen/Opcode.cpp
+        # First thing first, tokenize.
+        Lex/Tokenize.cpp
+
+        # Turn tokens into CST, then into AST.
         Parse/AST.cpp
         Parse/Grammar.cpp
-        Analysis/TypeChecker.cpp
-        Analysis/SymbolTable.cpp
-        Analysis/SyntaxChecker.cpp
         Parse/AstBuilder.cpp
         Parse/Parser.cpp
         Parse/gramdef.cpp
         Parse/Node.cpp
-        Support/Pass.cpp
-        Optimize/Module.cpp
+
+        # Perform various analyses (or checks) on the AST.
+        Analysis/TypeChecker.cpp
+        Analysis/SymbolTable.cpp
+        Analysis/SyntaxChecker.cpp
         Analysis/Types.cpp
         Analysis/ImplicitCallTransformer.cpp
         Analysis/AstVerifier.cpp
+        Analysis/SymbolTableBuilder.cpp
+
+        # Generate ByteCode from the AST.
+        Codegen/ByteCodePrinter.cpp
+        Codegen/ByteCode.cpp
+        Codegen/ByteCodeModule.cpp
         Codegen/ByteCodeBuilder.cpp
         Codegen/ByteCodeFunction.cpp
-        Codegen/LocalContext.cpp
-        Codegen/ByteCodeToMipsTranslator.cpp
-        Codegen/MipsSupport.cpp
-        Codegen/MipsAssemblyWriter.cpp
-        Lex/Tokenize.cpp
-        Analysis/SymbolTableBuilder.cpp
-        Codegen/ByteCodeCompiler.cpp)
+        Codegen/Opcode.cpp
+        Codegen/ByteCodeCompiler.cpp
+
+        # Turn the ByteCode into MIPS assembly.
+        Target/Assemble.cpp
+        Target/LocalContext.cpp
+        Target/ByteCodeToMipsTranslator.cpp
+        Target/MipsSupport.cpp
+        Target/MipsAssemblyWriter.cpp
+
+        Support/Pass.cpp
+
+        # Optimization is not implemented currently.
+        # That's why they come last.
+        Optimize/Module.cpp
+        Optimize/Function.cpp
+        Optimize/Instruction.cpp
+        Optimize/BasicBlock.cpp
+        )
 
 set(EXTRA_LIBRARIES "")
 
 if (USE_LLVM)
     list(APPEND SOURCE_FILES
+            # Visualize the CST.
             Visualize/CSTGraph.cpp
+            Visualize/NodeIterator.cpp
+
+            # Visualize the AST.
             Visualize/ASTGraph.cpp
             Visualize/AstRef.cpp
             Visualize/AstIterator.cpp
             Visualize/DescriptionVisitor.cpp
-            Visualize/NodeIterator.cpp
             Visualize/ChildrenCollector.cpp
+
+            # Generate LLVM IR from the AST.
             LLVM/LLVMTypeMap.cpp
             LLVM/LLVMValueMap.cpp
             LLVM/LLVMIRCompiler.cpp
-            LLVM/EmitLLVM.cpp)
+            LLVM/EmitLLVM.cpp
+
+            )
     list(APPEND EXTRA_LIBRARIES ${llvm_libs})
     add_definitions(-DSIMPLE_COMPILER_USE_LLVM)
     include_directories(${LLVM_INCLUDE_DIRS})
