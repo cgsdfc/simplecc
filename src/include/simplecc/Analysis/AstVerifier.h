@@ -45,7 +45,5 @@ private:
   friend class VisitorBase<AstVerifier>;
   ErrorManager EM;
 };
-
-bool VerifyAST(Program *P);
 } // namespace simplecc
 #endif
