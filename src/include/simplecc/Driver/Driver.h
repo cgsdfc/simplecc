@@ -9,10 +9,11 @@
 #include <utility>
 #include <iostream>
 #include <fstream>
+#include <memory>
 
-#ifdef SIMPLE_COMPILER_USE_LLVM
-#include <llvm/Support/raw_ostream.h>
-#endif
+namespace llvm {
+class raw_ostream;
+}
 
 namespace simplecc {
 class Node;
@@ -25,7 +26,10 @@ class Node;
 /// return D.status();
 ///
 class Driver {
+  /// Return a ptr to the output stream. Nullptr on failure.
   std::ostream *getStdOstream();
+
+  /// Return a ptr to the input stream. Nullptr on failure.
   std::istream *getStdIstream();
 
   bool doTokenize();
@@ -54,7 +58,7 @@ public:
   void runDumpCst();
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
-  llvm::raw_ostream *getLLVMRawOstream();
+  std::unique_ptr<llvm::raw_ostream> getLLVMRawOstream();
   void runEmitLLVMIR();
   void runWriteAstGraph();
   void runWriteCstGraph();
@@ -67,12 +71,6 @@ public:
 private:
   std::string InputFile;
   std::string OutputFile;
-
-#ifdef SIMPLE_COMPILER_USE_LLVM
-  // Since raw_fd_ostream has no default ctr, we have to
-  // put it on the heap.
-  std::unique_ptr<llvm::raw_fd_ostream> LLVMRawFdOstream;
-#endif
 
   std::ifstream StdIFStream;
   std::ofstream StdOFStream;

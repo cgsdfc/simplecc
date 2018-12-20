@@ -1,7 +1,6 @@
 #include "simplecc/Driver/CommandLine.h"
 #include "simplecc/Support/Print.h"
 #include "simplecc/Driver/Driver.h"
-#include <cassert>
 
 using namespace simplecc;
 
@@ -11,6 +10,12 @@ static tclap::SwitchArg PrintASTSwitch("", "print-ast", "print the abstract synt
 static tclap::SwitchArg PrintBytecodeSwitch("", "print-school-ir", "print IR in the format required by school", false);
 static tclap::SwitchArg PrintByteCodeModuleSwitch("", "print-bc-ir", "print IR in the byte code form", false);
 static tclap::SwitchArg AssemblySwitch("", "asm", "emit MIPS assembly", false);
+
+#ifdef SIMPLE_COMPILER_USE_LLVM
+static tclap::SwitchArg AstGraphSwitch("", "ast-graph", "print the dot file for the AST", false);
+static tclap::SwitchArg CstGraphSwitch("", "cst-graph", "print the dot file for the CST", false);
+static tclap::SwitchArg EmitLLVMIRSwitch("", "emit-llvm", "emit LLVM IR", false);
+#endif
 
 CommandLine::CommandLine() :
     Parser("Simple Compiler", ' ', "2.0"),
@@ -26,6 +31,13 @@ CommandLine::CommandLine() :
   Switches.push_back(&PrintBytecodeSwitch);
   Switches.push_back(&PrintByteCodeModuleSwitch);
   Switches.push_back(&AssemblySwitch);
+
+#ifdef SIMPLE_COMPILER_USE_LLVM
+  Switches.push_back(&AstGraphSwitch);
+  Switches.push_back(&CstGraphSwitch);
+  Switches.push_back(&EmitLLVMIRSwitch);
+#endif
+
   Parser.xorAdd(Switches);
 }
 
@@ -54,6 +66,14 @@ int CommandLine::run(int Argc, char **Argv) {
     TheDriver->runDumpByteCodeModule();
   } else if (AssemblySwitch.isSet()) {
     TheDriver->runAssembleMips();
+#ifdef SIMPLE_COMPILER_USE_LLVM
+  } else if (CstGraphSwitch.isSet()) {
+    TheDriver->runWriteCstGraph();
+  } else if (AstGraphSwitch.isSet()) {
+    TheDriver->runWriteAstGraph();
+  } else if (EmitLLVMIRSwitch.isSet()) {
+    TheDriver->runEmitLLVMIR();
+#endif
   } else {
     assert(false && "Unhandled command line switch!");
   }

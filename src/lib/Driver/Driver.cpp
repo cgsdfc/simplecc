@@ -5,13 +5,10 @@
 #include "simplecc/Codegen/Compile.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
+#include <llvm/Support/raw_ostream.h>
 #include "simplecc/Visualize/Visualize.h"
 #include "simplecc/LLVM/EmitLLVM.h"
 #endif
-
-#include <system_error>
-#include <vector>
-#include <simplecc/Driver/Driver.h>
 
 using namespace simplecc;
 
@@ -164,13 +161,24 @@ void Driver::runDumpByteCodeModule() {
   Print(*OS, TheModule);
 }
 
-#ifdef SIMPLE_COMPILER_USE_LLVM
+void Driver::runDumpSymbolTable() {
+  if (!doAnalyses())
+    return;
+  auto OS = getStdOstream();
+  if (!OS)
+    return;
+  Print(*OS, AM.getSymbolTable());
+}
 
+#ifdef SIMPLE_COMPILER_USE_LLVM
 void Driver::runEmitLLVMIR() {
   if (!doAnalyses())
     return;
+  auto OS = getLLVMRawOstream();
+  if (!OS)
+    return;
   bool Result = CompileToLLVMIR(getInputFile(), TheProgram.get(),
-                                AM.getSymbolTable(), getOutputFile());
+                                AM.getSymbolTable(), *OS);
   if (!Result) {
     EM.increaseErrorCount();
   }
@@ -195,17 +203,17 @@ void Driver::runWriteCstGraph() {
   WriteCSTGraph(TheCST.get(), *OS);
 }
 
-llvm::raw_ostream *Driver::getLLVMRawOstream() {
+std::unique_ptr<llvm::raw_ostream> Driver::getLLVMRawOstream() {
   std::error_code EC;
-  LLVMRawFdOstream.reset(new llvm::raw_fd_ostream(InputFile, EC));
+  auto OS = llvm::make_unique<llvm::raw_fd_ostream>(getOutputFile(), EC);
+
   if (EC) {
     // Destroy the raw_fd_ostream as told by their doc.
-    LLVMRawFdOstream.release();
+    OS.release();
     EM.setErrorType("FileWriteError");
-    EM.Error(Quote(getInputFile()));
+    EM.Error(Quote(getOutputFile()));
     return nullptr;
   }
-  return LLVMRawFdOstream.get();
+  return std::move(OS);
 }
-
 #endif
