@@ -15,13 +15,13 @@ class ByteCodeModule {
 public:
   using GlobalVariableListTy = std::vector<SymbolEntry>;
   using FunctionListTy = std::vector<ByteCodeFunction *>;
-  using StringLiteralTable = std::unordered_map<String, int>;
+  using StringLiteralTable = std::unordered_map<String, unsigned>;
 
   ByteCodeModule() = default;
   ~ByteCodeModule();
 
   /// String literal interface.
-  const StringLiteralTable &GetStringLiteralTable() const {
+  const StringLiteralTable &getStringLiteralTable() const {
     return StringLiterals;
   }
   /// For a string literal, this method returns the corresponding ID.
@@ -44,7 +44,7 @@ public:
   const_iterator begin() const { return FunctionList.begin(); }
   const_iterator end() const { return FunctionList.end(); }
 
-  /// FunctionList Forwading Interface
+  /// FunctionList Forwarding Interface
   bool empty() const { return FunctionList.empty(); }
   unsigned size() const { return FunctionList.size(); }
   ByteCodeFunction *front() const { return FunctionList.front(); }

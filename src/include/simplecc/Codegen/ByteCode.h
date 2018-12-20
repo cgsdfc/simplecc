@@ -71,7 +71,8 @@ public:
 
   unsigned getJumpTarget() const {
     assert(IsJumpXXX() && "GetJumpTarget() on non-jump ByteCode");
-    return IntOperand;
+    assert(IntOperand >= 0 && "Negative JumpTarget!");
+    return static_cast<unsigned>(IntOperand);
   }
 
   void setByteCodeOffset(unsigned Offset) { ByteCodeOffset = Offset; }

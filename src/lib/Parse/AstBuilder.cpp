@@ -31,7 +31,7 @@ void AstBuilder::visit_const_decl(Node *N, std::vector<Decl *> &Decls) {
   auto TypeName = N->getChild(1);
   auto Ty = visit_type_name(TypeName);
 
-  for (int i = 2, len = N->getNumChildren() - 1; i < len; i += 2) {
+  for (unsigned i = 2, len = N->getNumChildren() - 1; i < len; i += 2) {
     auto Child = N->getChild(i);
     Decls.push_back(visit_const_item(Child, Ty));
   }
@@ -39,14 +39,14 @@ void AstBuilder::visit_const_decl(Node *N, std::vector<Decl *> &Decls) {
 
 Decl *AstBuilder::visit_const_item(Node *N, BasicTypeKind Ty) {
   auto name = N->FirstChild();
-  auto konstant = N->getChild(2);
+  auto constant = N->getChild(2);
   Expr *val;
 
-  if (konstant->getType() == Symbol::CHAR) {
-    val = makeChar(konstant);
+  if (constant->getType() == Symbol::CHAR) {
+    val = makeChar(constant);
   } else {
-    assert(konstant->getType() == Symbol::integer);
-    val = new Num(visit_integer(konstant), konstant->getLocation());
+    assert(constant->getType() == Symbol::integer);
+    val = new Num(visit_integer(constant), constant->getLocation());
   }
   return new ConstDecl(Ty, val, name->getValue(), name->getLocation());
 }
@@ -237,7 +237,7 @@ Expr *AstBuilder::visit_binop(Node *N, ExprContextKind Context) {
   auto result = visit_expr(N->FirstChild(), Context);
   auto nops = (N->getNumChildren() - 1) / 2;
 
-  for (int i = 0; i < nops; i++) {
+  for (unsigned i = 0; i < nops; i++) {
     auto next_oper = N->getChild(i * 2 + 1);
     auto op = OperatorKindFromString(next_oper->getValue());
     auto tmp = visit_expr(N->getChild(i * 2 + 2), Context);
@@ -304,7 +304,7 @@ void AstBuilder::visit_paralist(Node *N, std::vector<Decl *> &ParamList) {
 
   int n_items = (N->getNumChildren() - 1) / 3;
 
-  for (int i = 0; i < n_items; i++) {
+  for (unsigned i = 0; i < n_items; i++) {
     auto TypeName = N->getChild(1 + i * 3);
     auto Name = N->getChild(2 + i * 3);
 
@@ -367,7 +367,7 @@ void AstBuilder::visit_compound_stmt(Node *N, std::vector<Decl *> &FnDecls,
 Stmt *AstBuilder::visit_read_stmt(Node *N) {
 
   std::vector<Expr *> Names;
-  for (int i = 1, len = N->getNumChildren(); i < len; i++) {
+  for (unsigned i = 1, len = N->getNumChildren(); i < len; i++) {
     auto Child = N->getChild(i);
     if (Child->getType() == Symbol::NAME) {
       Names.push_back(new Name(Child->getValue(), ExprContextKind::Store,
@@ -430,7 +430,3 @@ Expr *AstBuilder::makeChar(Node *N) {
 Expr *AstBuilder::makeNum(Node *N) {
   return new Num(std::stoi(N->getValue()), N->getLocation());
 }
-
-namespace simplecc {
-Program *BuildAstFromNode(const Node *N) { return AstBuilder().Build(N); }
-} // namespace simplecc
