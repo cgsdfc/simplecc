@@ -10,11 +10,7 @@ class Program;
 class AstVerifier : ChildrenVisitor<AstVerifier> {
 
   /// Helper to check each condition in one single statement.
-  void AssertThat(bool Pred, const char *ErrMsg) {
-    if (Pred)
-      return;
-    EM.Error(ErrMsg);
-  }
+  void AssertThat(bool Predicate, const char *ErrMsg);
 
   void visitRead(Read *RD);
 

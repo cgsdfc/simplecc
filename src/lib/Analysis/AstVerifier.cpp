@@ -84,6 +84,12 @@ bool AstVerifier::Verify(Program *P) {
   return EM.IsOk();
 }
 
+void AstVerifier::AssertThat(bool Predicate, const char *ErrMsg) {
+  if (Predicate)
+    return;
+  EM.Error(ErrMsg);
+}
+
 namespace simplecc {
 bool VerifyAST(Program *P) { return AstVerifier().Verify(P); }
 } // namespace simplecc
