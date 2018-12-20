@@ -2,11 +2,16 @@
 #include "simplecc/Target/Assemble.h"
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Parse/Parse.h"
-#include "simplecc/Codegen/ByteCodePrinter.h"
-#include "simplecc/Codegen/ByteCodeCompiler.h"
+#include "simplecc/Codegen/Compile.h"
+
+#ifdef SIMPLE_COMPILER_USE_LLVM
+#include "simplecc/Visualize/Visualize.h"
+#include "simplecc/LLVM/EmitLLVM.h"
+#endif
 
 #include <system_error>
 #include <vector>
+#include <simplecc/Driver/Driver.h>
 
 using namespace simplecc;
 
@@ -15,8 +20,8 @@ std::ostream *Driver::getStdOstream() {
     return &std::cout;
   StdOFStream.open(OutputFile);
   if (StdOFStream.fail()) {
-    EM.setErrorType("IOError");
-    EM.Error("cannot open", OutputFile, "for writing");
+    EM.setErrorType("FileWriteError");
+    EM.Error(Quote(OutputFile));
     return nullptr;
   }
   return &StdOFStream;
@@ -27,8 +32,8 @@ std::istream *Driver::getStdIstream() {
     return &std::cin;
   StdIFStream.open(InputFile);
   if (StdIFStream.fail()) {
-    EM.setErrorType("IOError");
-    EM.Error("cannot open", InputFile, "for reading");
+    EM.setErrorType("FileReadError");
+    EM.Error(Quote(InputFile));
     return nullptr;
   }
   return &StdIFStream;
@@ -68,7 +73,7 @@ bool Driver::doCodeGen() {
   if (!doAnalyses())
     return false;
   // Codegen never fails.
-  ByteCodeCompiler().Compile(TheProgram.get(), AM.getSymbolTable(), TheModule);
+  CompileToByteCode(TheProgram.get(), AM.getSymbolTable(), TheModule);
   return true;
 }
 
@@ -80,6 +85,16 @@ bool Driver::doAssemble() {
     return false;
   AssembleMips(TheModule, *OStream);
   return true;
+}
+
+std::unique_ptr<Node> Driver::doBuildCST() {
+  if (!doTokenize())
+    return nullptr;
+  std::unique_ptr<Node> TheCST = BuildCST(TheTokens);
+  if (!TheCST) {
+    EM.increaseErrorCount();
+  }
+  return TheCST;
 }
 
 void Driver::runPrintTokens() {
@@ -131,17 +146,13 @@ void Driver::runAnalysisOnly() {
 }
 
 void Driver::runDumpCst() {
-  if (!doTokenize())
+  auto TheCST = doBuildCST();
+  if (!TheCST)
     return;
-  std::unique_ptr<Node> N = BuildCST(TheTokens);
-  if (!N) {
-    EM.increaseErrorCount();
-    return;
-  }
   auto OS = getStdOstream();
   if (!OS)
     return;
-  Print(*OS, *N);
+  Print(*OS, *TheCST);
 }
 
 void Driver::runDumpByteCodeModule() {
@@ -152,3 +163,49 @@ void Driver::runDumpByteCodeModule() {
     return;
   Print(*OS, TheModule);
 }
+
+#ifdef SIMPLE_COMPILER_USE_LLVM
+
+void Driver::runEmitLLVMIR() {
+  if (!doAnalyses())
+    return;
+  bool Result = CompileToLLVMIR(getInputFile(), TheProgram.get(),
+                                AM.getSymbolTable(), getOutputFile());
+  if (!Result) {
+    EM.increaseErrorCount();
+  }
+}
+
+void Driver::runWriteAstGraph() {
+  if (!doAnalyses())
+    return;
+  auto OS = getLLVMRawOstream();
+  if (!OS)
+    return;
+  WriteASTGraph(TheProgram.get(), *OS);
+}
+
+void Driver::runWriteCstGraph() {
+  auto TheCST = doBuildCST();
+  if (!TheCST)
+    return;
+  auto OS = getLLVMRawOstream();
+  if (!OS)
+    return;
+  WriteCSTGraph(TheCST.get(), *OS);
+}
+
+llvm::raw_ostream *Driver::getLLVMRawOstream() {
+  std::error_code EC;
+  LLVMRawFdOstream.reset(new llvm::raw_fd_ostream(InputFile, EC));
+  if (EC) {
+    // Destroy the raw_fd_ostream as told by their doc.
+    LLVMRawFdOstream.release();
+    EM.setErrorType("FileWriteError");
+    EM.Error(Quote(getInputFile()));
+    return nullptr;
+  }
+  return LLVMRawFdOstream.get();
+}
+
+#endif

@@ -20,9 +20,6 @@ public:
   ByteCodeModule() = default;
   ~ByteCodeModule();
 
-  /// Populate this Module with ByteCode.
-  void Build(Program *P, const SymbolTable &S);
-
   /// String literal interface.
   const StringLiteralTable &GetStringLiteralTable() const {
     return StringLiterals;

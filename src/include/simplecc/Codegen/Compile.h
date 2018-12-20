@@ -1,12 +1,14 @@
 #ifndef SIMPLECOMPILER_COMPILE_H
 #define SIMPLECOMPILER_COMPILE_H
+#include <iostream>
 
 namespace simplecc {
 class Program;
 class SymbolTable;
 class ByteCodeModule;
 
-void Compile(Program *P, const SymbolTable &S, ByteCodeModule &Module);
+void PrintByteCode(Program *P, std::ostream &O);
+void CompileToByteCode(Program *P, const SymbolTable &S, ByteCodeModule &M);
 }
 
 #endif //SIMPLECOMPILER_COMPILE_H

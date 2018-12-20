@@ -200,7 +200,3 @@ void LineLabel::Format(std::ostream &O) const {
   if (!IsInlined)
     O << ":";
 }
-
-namespace simplecc {
-void PrintByteCode(Program *P, std::ostream &O) { ByteCodePrinter(O).Print(P); }
-} // namespace simplecc

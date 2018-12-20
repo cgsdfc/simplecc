@@ -7,11 +7,6 @@
 
 using namespace simplecc;
 
-void ByteCodeModule::Build(Program *P, const SymbolTable &S) {
-  clear();
-  ByteCodeCompiler().Compile(P, S, *this);
-}
-
 void ByteCodeModule::clear() {
   FunctionList.clear();
   StringLiterals.clear();

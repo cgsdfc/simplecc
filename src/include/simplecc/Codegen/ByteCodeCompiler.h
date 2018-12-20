@@ -85,7 +85,7 @@ public:
   ByteCodeCompiler() = default;
 
   // public interface
-  void Compile(Program *P, const SymbolTable &S, ByteCodeModule &Module);
+  void Compile(Program *P, const SymbolTable &S, ByteCodeModule &M);
 
 private:
   friend class ChildrenVisitor<ByteCodeCompiler>;

@@ -6,16 +6,10 @@
 
 #include <llvm/ADT/STLExtras.h>
 
-#include <iostream>
 #include <map>
 #include <vector>
 #include <memory> // for make_unique
 #include <cassert>
-
-
-namespace llvm {
-class raw_ostream;
-}
 
 namespace simplecc {
 class Program;
@@ -78,9 +72,6 @@ AstRef *AstGraph::getNodeOrCreate(AstT *Ptr) {
   assert(Result.second && "Emplace must succeed");
   return Result.first->second.get();
 }
-
-void PrintAllAstNodes(Program *P, std::ostream &O);
-void WriteASTGraph(Program *P, llvm::raw_ostream &O);
 } // namespace simplecc
 
 #endif

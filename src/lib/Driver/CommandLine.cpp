@@ -8,12 +8,12 @@ using namespace simplecc;
 static tclap::SwitchArg TokenizeSwitch("", "tokenize", "tokenize the input", false);
 static tclap::SwitchArg PrintCSTSwitch("", "print-cst", "print the concrete syntax tree", false);
 static tclap::SwitchArg PrintASTSwitch("", "print-ast", "print the abstract syntax tree", false);
-static tclap::SwitchArg PrintBytecodeSwitch("", "print-bc", "print byte code sequence", false);
-static tclap::SwitchArg PrintByteCodeModuleSwitch("", "print-module", "print byte code module", false);
+static tclap::SwitchArg PrintBytecodeSwitch("", "print-school-ir", "print IR in the format required by school", false);
+static tclap::SwitchArg PrintByteCodeModuleSwitch("", "print-bc-ir", "print IR in the byte code form", false);
 static tclap::SwitchArg AssemblySwitch("", "asm", "emit MIPS assembly", false);
 
 CommandLine::CommandLine() :
-    Parser("Simple Compiler Debugging helper", ' ', "0.0.1"),
+    Parser("Simple Compiler", ' ', "2.0"),
     InputArg("input", "input file (default to stdin)", false, "",
              "input-file"),
     OutputArg("o", "output", "output file (default to stdout)", false, "",

@@ -115,6 +115,5 @@ private:
   unsigned LabelCounter = 0;
 };
 
-void PrintByteCode(Program *P, std::ostream &O);
 } // namespace simplecc
 #endif

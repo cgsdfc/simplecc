@@ -182,9 +182,10 @@ void ByteCodeCompiler::visitProgram(Program *P) {
 }
 
 // public interface
-void ByteCodeCompiler::Compile(Program *P, const SymbolTable &S, ByteCodeModule &Module) {
+void ByteCodeCompiler::Compile(Program *P, const SymbolTable &S, ByteCodeModule &M) {
   EM.clear();
+  M.clear();
   setTable(&S);
-  setModule(&Module);
+  setModule(&M);
   visitProgram(P);
 }

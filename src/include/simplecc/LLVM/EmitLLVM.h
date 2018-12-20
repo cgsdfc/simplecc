@@ -3,12 +3,11 @@
 #include <string>
 
 namespace simplecc {
-using String = std::string;
 class Program;
 class SymbolTable;
 
-bool CompileToLLVMIR(String InputFilename, Program *P, const SymbolTable &S,
-                     String OutputFilename);
+bool CompileToLLVMIR(std::string InputFile, Program *P, const SymbolTable &S,
+                     std::string OutputFile);
 } // namespace simplecc
 
 #endif

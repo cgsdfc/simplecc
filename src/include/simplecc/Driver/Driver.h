@@ -15,7 +15,7 @@
 #endif
 
 namespace simplecc {
-
+class Node;
 /// This class exposes a high-level interface to the system in terms of InputFile and OutputFile.
 /// It exposes different parts of the system through member functions. It provides both
 /// do-all style methods and low level functions such as tokenizing a file.
@@ -29,6 +29,7 @@ class Driver {
   std::istream *getStdIstream();
 
   bool doTokenize();
+  std::unique_ptr<Node> doBuildCST();
   bool doParse();
   bool doAnalyses();
   bool doCodeGen();
@@ -50,12 +51,13 @@ public:
   void runAnalysisOnly();
   void runDumpSymbolTable();
   void runDumpAst();
-
   void runDumpCst();
+
 #ifdef SIMPLE_COMPILER_USE_LLVM
-  bool runEmitLLVMIR();
-  bool runWriteAstGraph();
-  bool runWriteCstGraph();
+  llvm::raw_ostream *getLLVMRawOstream();
+  void runEmitLLVMIR();
+  void runWriteAstGraph();
+  void runWriteCstGraph();
 #endif
 
   int status() const { return !EM.IsOk(); }
@@ -65,6 +67,12 @@ public:
 private:
   std::string InputFile;
   std::string OutputFile;
+
+#ifdef SIMPLE_COMPILER_USE_LLVM
+  // Since raw_fd_ostream has no default ctr, we have to
+  // put it on the heap.
+  std::unique_ptr<llvm::raw_fd_ostream> LLVMRawFdOstream;
+#endif
 
   std::ifstream StdIFStream;
   std::ofstream StdOFStream;

@@ -139,13 +139,9 @@ private:
   /// But we developer can make mistakes and this EM will tell.
   ErrorManager EM;
 
-  LLVMIRCompiler(String Name, Program *P, const SymbolTable &S);
-
 public:
   /// Don't put instance on the stack. It is about 1K.
-  /// Use this factory method instead.
-  static LLVMIRCompiler *Create(String Name, Program *P,
-                                const SymbolTable &S);
+  LLVMIRCompiler(String Name, Program *P, const SymbolTable &S);
 
   /// No copy no move.
   LLVMIRCompiler(const LLVMIRCompiler &) = delete;

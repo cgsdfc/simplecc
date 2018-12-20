@@ -1,4 +1,4 @@
-#include "simplecc/Visualize/CSTGraph.h"
+#include "simplecc/Visualize/Visualize.h"
 #include "simplecc/Parse/Node.h"
 #include "simplecc/Visualize/NodeIterator.h"
 #include "simplecc/Support/Print.h"

@@ -9,9 +9,10 @@ namespace simplecc {
 
 /// Compile a program to LLVM IR, dump resultant code to stderr.
 /// Return true for success.
-bool CompileToLLVMIR(String InputFilename, Program *P, const SymbolTable &S,
-                     String OutputFilename) {
-  auto TheCompiler = std::unique_ptr<LLVMIRCompiler>(LLVMIRCompiler::Create(InputFilename, P, S));
+bool CompileToLLVMIR(std::string InputFile, Program *P, const SymbolTable &S,
+                     std::string OutputFile) {
+
+  std::unique_ptr<LLVMIRCompiler> TheCompiler(new LLVMIRCompiler(std::move(InputFile), P, S));
 
   /// Compile to llvm::Module, fail fast.
   bool OK = TheCompiler->Compile();
@@ -20,11 +21,7 @@ bool CompileToLLVMIR(String InputFilename, Program *P, const SymbolTable &S,
 
   /// Try to open the output file, fail fast.
   std::error_code EC;
-  /// raw_fd_ostream treat "-" specially as opening stdout.
-  /// We honor its behavior.
-  if (OutputFilename.empty())
-    OutputFilename = "-";
-  llvm::raw_fd_ostream OS(OutputFilename, EC);
+  llvm::raw_fd_ostream OS(OutputFile, EC);
   if (EC) {
     llvm::errs() << EC.message() << "\n";
     return false;

@@ -1,4 +1,5 @@
 #include "simplecc/Visualize/ASTGraph.h"
+#include "simplecc/Visualize/Visualize.h"
 #include "simplecc/Support/Print.h"
 #include "simplecc/Visualize/DescriptionVisitor.h"
 #include "simplecc/Visualize/ChildrenCollector.h"
@@ -25,23 +26,6 @@ const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
   assert(Result.second && "Emplace must succeed");
   return Result.first->second;
 }
-
-
-namespace simplecc {
-/// Print all ast nodes from a root.
-void PrintAllAstNodes(Program *P, std::ostream &O) {
-  AstGraph Graph(P);
-  for (auto AR : Graph.nodes()) {
-    Print(O, AR->getClassName(), AR->getLocation());
-  }
-}
-
-/// Write an AstGraph to dot format.
-void WriteASTGraph(Program *P, llvm::raw_ostream &O) {
-  AstGraph Graph(P);
-  llvm::WriteGraph(O, Graph);
-}
-} // namespace simplecc
 
 
 namespace llvm {
@@ -89,3 +73,19 @@ template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
   }
 };
 } // namespace llvm
+
+namespace simplecc {
+/// Write an AstGraph to dot format.
+void WriteASTGraph(Program *P, llvm::raw_ostream &O) {
+  AstGraph Graph(P);
+  llvm::WriteGraph(O, Graph);
+}
+
+/// Print all ast nodes from a root.
+void PrintAllAstNodes(Program *P, std::ostream &O) {
+  AstGraph Graph(P);
+  for (auto AR : Graph.nodes()) {
+    Print(O, AR->getClassName(), AR->getLocation());
+  }
+}
+}

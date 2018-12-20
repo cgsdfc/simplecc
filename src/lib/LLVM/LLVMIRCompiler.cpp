@@ -19,11 +19,6 @@ LLVMIRCompiler::LLVMIRCompiler(String Name, Program *P, const SymbolTable &S)
 
 LLVMIRCompiler::~LLVMIRCompiler() = default;
 
-LLVMIRCompiler *LLVMIRCompiler::Create(String Name, Program *P,
-                                       const SymbolTable &S) {
-  return new LLVMIRCompiler(Name, P, S);
-}
-
 /// Compile the program, return OK or not.
 bool LLVMIRCompiler::Compile() {
   visitProgram(TheProgram);

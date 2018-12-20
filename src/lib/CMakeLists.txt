@@ -31,6 +31,7 @@ set(SOURCE_FILES
         Codegen/ByteCodeFunction.cpp
         Codegen/Opcode.cpp
         Codegen/ByteCodeCompiler.cpp
+        Codegen/Compile.cpp
 
         # Turn the ByteCode into MIPS assembly.
         Target/Assemble.cpp
