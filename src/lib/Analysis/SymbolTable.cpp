@@ -49,11 +49,6 @@ void SymbolTable::setExprType(Expr *E, BasicTypeKind Ty) {
   ExprTypes.emplace(E, Ty);
 }
 
-bool SymbolTable::Build(Program *P) {
-  clear();
-  return SymbolTableBuilder().Build(P, *this);
-}
-
 /// Return the SymbolEntry for a name.
 /// Assert on failure.
 const SymbolEntry &SymbolTableView::operator[](const String &Name) const {
