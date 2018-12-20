@@ -33,11 +33,6 @@ class Driver {
   bool doCodeGen();
   bool doAssemble();
 
-
-#ifdef SIMPLE_COMPILER_USE_LLVM
-  llvm::raw_ostream *getLLVMRawOstream();
-#endif
-
 public:
   Driver() = default;
 
@@ -64,6 +59,7 @@ public:
   int status() const { return !EM.IsOk(); }
   void clear();
 
+  void runDumpByteCodeModule();
 private:
   std::string InputFile;
   std::string OutputFile;
@@ -72,10 +68,6 @@ private:
   std::ofstream StdOFStream;
 
   std::vector<TokenInfo> Tokens;
-
-#ifdef SIMPLE_COMPILER_USE_LLVM
-  llvm::raw_fd_ostream LLVMFDOstream;
-#endif
 
   AnalysisManager AM;
   std::unique_ptr<Program> TheProgram;

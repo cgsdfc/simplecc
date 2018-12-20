@@ -1,13 +1,12 @@
-#include <simplecc/Driver/Driver.h>
-
+#include "simplecc/Driver/Driver.h"
 #include "simplecc/Target/Assemble.h"
-#include <simplecc/Lex/Tokenize.h>
-#include <simplecc/Parse/Parse.h>
-#include <simplecc/Codegen/ByteCodeCompiler.h>
+#include "simplecc/Lex/Tokenize.h"
+#include "simplecc/Parse/Parse.h"
+#include "simplecc/Codegen/ByteCodePrinter.h"
+#include "simplecc/Codegen/ByteCodeCompiler.h"
 
 #include <system_error>
 #include <vector>
-#include <simplecc/Codegen/ByteCodePrinter.h>
 
 using namespace simplecc;
 
@@ -104,9 +103,6 @@ void Driver::clear() {
   StdIFStream.clear();
   StdOFStream.clear();
   Tokens.clear();
-#ifdef SIMPLE_COMPILER_USE_LLVM
-  LLVMFDOstream.clear_error();
-#endif
   AM.clear();
   TheProgram.release();
   TheModule.clear();
@@ -148,4 +144,13 @@ void Driver::runDumpCst() {
   if (!OS)
     return;
   Print(*OS, *N);
+}
+
+void Driver::runDumpByteCodeModule() {
+  if (!doCodeGen())
+    return;
+  auto OS = getStdOstream();
+  if (!OS)
+    return;
+  Print(*OS, TheModule);
 }
