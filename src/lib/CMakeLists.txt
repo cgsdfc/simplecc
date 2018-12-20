@@ -11,6 +11,7 @@ set(SOURCE_FILES
         Parse/Parser.cpp
         Parse/gramdef.cpp
         Parse/Node.cpp
+        Parse/Parse.cpp
 
         # Perform various analyses (or checks) on the AST.
         Analysis/TypeChecker.cpp
@@ -20,6 +21,7 @@ set(SOURCE_FILES
         Analysis/ImplicitCallTransformer.cpp
         Analysis/AstVerifier.cpp
         Analysis/SymbolTableBuilder.cpp
+        Analysis/AnalysisManager.cpp
 
         # Generate ByteCode from the AST.
         Codegen/ByteCodePrinter.cpp
@@ -37,6 +39,7 @@ set(SOURCE_FILES
         Target/MipsSupport.cpp
         Target/MipsAssemblyWriter.cpp
 
+        Driver/Driver.cpp
         Support/Pass.cpp
 
         # Optimization is not implemented currently.
@@ -45,7 +48,7 @@ set(SOURCE_FILES
         Optimize/Function.cpp
         Optimize/Instruction.cpp
         Optimize/BasicBlock.cpp
-        )
+        Driver/Driver.cpp)
 
 set(EXTRA_LIBRARIES "")
 

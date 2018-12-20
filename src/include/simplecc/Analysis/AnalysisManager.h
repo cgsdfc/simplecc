@@ -20,8 +20,13 @@ public:
   const SymbolTable &getSymbolTable() const {
     return TheTable;
   }
+
   SymbolTable &getSymbolTable() {
     return TheTable;
+  }
+
+  void clear() {
+    TheTable.clear();
   }
 };
 }

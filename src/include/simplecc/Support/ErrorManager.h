@@ -35,19 +35,20 @@ public:
     loc.FormatCompact(getOuts());
     getOuts() << " ";
     WriteLine(std::forward<Args>(args)...);
-    ++ErrorCount;
+   increaseErrorCount();
   }
 
   template <typename ... Args>
   void Error(Args &&... args) {
     getOuts() << getErrorType() << ": ";
     WriteLine(std::forward<Args>(args)...);
-    ++ErrorCount;
+    increaseErrorCount();
   }
 
   void clear() { ErrorCount = 0; }
 
   int getErrorCount() const { return ErrorCount; }
+  void increaseErrorCount() { ++ErrorCount; }
 
   bool IsOk(int Prev = 0) const { return Prev == getErrorCount(); }
 };
