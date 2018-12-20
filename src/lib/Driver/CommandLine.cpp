@@ -29,8 +29,6 @@ CommandLine::CommandLine() :
   Parser.xorAdd(Switches);
 }
 
-CommandLine::~CommandLine() = default;
-
 int CommandLine::run(int Argc, char **Argv) {
   try {
     Parser.parse(Argc, Argv);
@@ -40,7 +38,7 @@ int CommandLine::run(int Argc, char **Argv) {
   }
 
   /// Create the Driver instance.
-  TheDriver.reset(new Driver());
+  std::unique_ptr<Driver> TheDriver(new Driver());
   TheDriver->setInputFile(InputArg.isSet() ? InputArg.getValue() : "-");
   TheDriver->setOutputFile(OutputArg.isSet() ? OutputArg.getValue() : "-");
 

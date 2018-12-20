@@ -40,7 +40,6 @@ set(SOURCE_FILES
         Target/MipsAssemblyWriter.cpp
 
         Driver/Driver.cpp
-        Support/Pass.cpp
 
         # Optimization is not implemented currently.
         # That's why they come last.
