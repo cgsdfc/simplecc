@@ -173,7 +173,7 @@ BasicTypeKind TypeChecker::visitName(Name *N) {
 
 // not actually used, for instantiation only
 BasicTypeKind TypeChecker::visitStr(Str *) {
-  assert(false && "TypeCheker::visitStr() shall not be called");
+  assert(false && "visitStr() shall not be called");
   return BasicTypeKind::Void;
 }
 

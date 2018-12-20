@@ -27,7 +27,7 @@ void ByteCodeToMipsTranslator::POP(const char *R) {
 
 void ByteCodeToMipsTranslator::HandleBinarySubscr(const ByteCode &C) {
   // elements of smaller index are stored at higher address
-  // as opposed to C convension.
+  // as opposed to C convention.
   POP("$t0");                     // index
   POP("$t1");                     // base
   WriteLine("sll $t0, $t0, 2");   // offset = index * 4

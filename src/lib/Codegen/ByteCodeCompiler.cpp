@@ -160,7 +160,7 @@ void ByteCodeCompiler::visitFuncDef(FuncDef *FD) {
   ChildrenVisitor::visitFuncDef(FD);
 
   // It is important we always return since we don't
-  // construct any BasicBlock to detect inproper returns.
+  // construct any BasicBlock to detect improper returns.
   Builder.CreateReturnNone();
 }
 

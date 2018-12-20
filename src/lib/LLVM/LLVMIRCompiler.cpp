@@ -106,7 +106,7 @@ Value *LLVMIRCompiler::visitName(Name *Nn) {
 /// BoolOp has two forms, indicated by getHasCmpop() and should be handled
 /// separatly: The mission of visitBoolOp() is to evaluate the condition
 /// expression and produce a bool value that indicates whether the condition
-/// is true. We have thoese in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
+/// is true. We have those in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
 /// => bool -- already a bool. Form-2: <Expr> => int -- not a bool yet,
 /// compare it to int(0).
 Value *LLVMIRCompiler::visitBoolOp(BoolOp *B) {
@@ -187,7 +187,7 @@ void LLVMIRCompiler::visitIf(If *I) {
 void LLVMIRCompiler::visitWhile(While *W) {
   /// Get the Parent to put BasicBlock's in it.
   Function *TheFunction = Builder.GetInsertBlock()->getParent();
-  /// Create the BB for `loop`, which contains evalation the condition
+  /// Create the BB for `loop`, which contains evalution the condition
   // and ends with a conditional branch.
   BasicBlock *Loop = BasicBlock::Create(TheContext, "loop", TheFunction);
   /// Create an unconditional branch to the loop in the current BB.
@@ -318,7 +318,7 @@ void LLVMIRCompiler::visitRead(Read *RD) {
   };
 
   for (Expr *E : RD->getNames()) {
-    Name * Nn = static_cast<Name *>(E);
+    auto Nn = static_cast<Name *>(E);
     Value *FmtV = getString(SelectFmtSpc(Nn));
     Value *Var = LocalValues[Nn->getId()];
     assert(Var && "Var must be created");
