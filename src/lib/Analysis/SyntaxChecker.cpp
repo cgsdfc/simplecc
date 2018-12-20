@@ -3,10 +3,11 @@
 using namespace simplecc;
 
 void SyntaxChecker::visitProgram(Program *P) {
-  if (P->getDecls().size() == 0) {
+  if (P->getDecls().empty()) {
     EM.Error(Location(0, 0), "expected main() at the end of input");
     return;
   }
+
   for (auto D : P->getDecls()) {
     VisitorBase::visitDecl(D);
   }
@@ -28,14 +29,15 @@ void SyntaxChecker::visitProgram(Program *P) {
   if (DeclIter != DeclEnd) {
     auto D = *DeclIter;
     EM.Error(D->getLoc(), "unexpected", D->GetClassName(),
-                   Quote(D->getName()));
+             Quote(D->getName()));
   }
 
   // check the last declaration is the main function
-  auto FD = subclass_cast<FuncDef>(P->getDecls().back());
-  if (!(FD && FD->getName() == "main")) {
-    EM.Error(FD->getLoc(), "expected main() at the end of input");
-  }
+  Decl *LastDecl = P->getDecls().back();
+  if (IsInstance<FuncDef>(LastDecl) && LastDecl->getName() == "main")
+    return;
+
+  EM.Error(LastDecl->getLoc(), "expected main() at the end of input");
 }
 
 void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
@@ -43,11 +45,11 @@ void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
     if (CD->getType() == BasicTypeKind::Int &&
         !IsInstance<Num>(CD->getValue())) {
       EM.Error(CD->getLoc(), "const int", Quote(CD->getName()),
-                     "expects an integer");
+               "expects an integer");
     } else if (CD->getType() == BasicTypeKind::Character &&
         !IsInstance<Char>(CD->getValue())) {
       EM.Error(CD->getLoc(), "const char", Quote(CD->getName()),
-                     "expects a character");
+               "expects a character");
     }
   }
 }
@@ -55,10 +57,10 @@ void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
 void SyntaxChecker::visitVarDecl(VarDecl *VD) {
   if (VD->getType() == BasicTypeKind::Void) {
     EM.Error(VD->getLoc(), "cannot declare", Quote(VD->getName()),
-                   "as a void variable");
+             "as a void variable");
   } else if (VD->getIsArray() && VD->getSize() == 0) {
     EM.Error(VD->getLoc(), "array size of", Quote(VD->getName()),
-                   "cannot be 0");
+             "cannot be 0");
   }
 }
 
