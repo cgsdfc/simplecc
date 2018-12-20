@@ -65,7 +65,5 @@ private:
   FuncDef *TheFuncDef;
   ErrorManager EM;
 };
-
-bool CheckType(Program *P, SymbolTable &S);
 } // namespace simplecc
 #endif

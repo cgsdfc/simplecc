@@ -54,7 +54,5 @@ private:
   SymbolTableView TheLocalTable;
   const SymbolTable *TheTable;
 };
-
-void TransformImplicitCall(Program *P, const SymbolTable &S);
 } // namespace simplecc
 #endif

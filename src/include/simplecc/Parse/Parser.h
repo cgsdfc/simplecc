@@ -61,8 +61,5 @@ private:
   Node *RootNode = nullptr;
   ErrorManager EM;
 };
-
-
-Node *ParseTokens(const std::vector<TokenInfo> &Tokens);
 } // namespace simplecc
 #endif

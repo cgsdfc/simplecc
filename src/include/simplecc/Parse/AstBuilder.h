@@ -108,8 +108,6 @@ class AstBuilder {
 public:
   Program *Build(const Node *N) { return visit_program(const_cast<Node *>(N)); }
 };
-
-Program *BuildAstFromNode(const Node *N);
 } // namespace simplecc
 
 #endif

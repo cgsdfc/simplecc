@@ -1,7 +1,6 @@
 // XXX: Since this pass **modifies** the AST, it is important
 // to run a verify pass on it to ensure it didn't break any invariant.
 #include "simplecc/Analysis/ImplicitCallTransformer.h"
-#include <cassert>
 
 using namespace simplecc;
 
@@ -90,9 +89,3 @@ void ImplicitCallTransformer::Transform(Program *P, const SymbolTable &S) {
   setTable(&S);
   visitProgram(P);
 }
-
-namespace simplecc {
-void TransformImplicitCall(Program *P, const SymbolTable &S) {
-  ImplicitCallTransformer().Transform(P, S);
-}
-} // namespace simplecc

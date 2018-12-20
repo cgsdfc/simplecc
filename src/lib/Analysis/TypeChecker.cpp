@@ -3,11 +3,6 @@
 
 using namespace simplecc;
 
-namespace simplecc {
-bool CheckType(Program *P, SymbolTable &S) { return TypeChecker().Check(P, S); }
-} // namespace simplecc
-
-
 bool TypeChecker::Check(Program *P, SymbolTable &S) {
   EM.setErrorType("TypeError");
   setTable(&S);

@@ -145,11 +145,6 @@ Node *Parser::ParseTokens(const std::vector<TokenInfo> &Tokens) {
   return nullptr;
 }
 
-Node *simplecc::ParseTokens(const std::vector<TokenInfo> &Tokens) {
-  Parser P(&CompilerGrammar);
-  return P.ParseTokens(Tokens);
-}
-
 void Parser::StackEntry::Format(std::ostream &O) const {
   Print(O, "state:", TheState);
   Print(O, "dfa:", TheDFA->name);
