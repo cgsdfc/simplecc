@@ -59,7 +59,6 @@ void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
 void SyntaxChecker::visitVarDecl(VarDecl *VD) {
   if (VD->getType() == BasicTypeKind::Void) {
     EM.Error(VD->getLoc(), "cannot declare void variable");
-    return;
   }
   if (VD->getIsArray() && VD->getSize() == 0) {
     EM.Error(VD->getLoc(), "array size cannot be 0");
