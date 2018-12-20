@@ -31,9 +31,7 @@ class AstBuilder {
   void visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
                           std::vector<Decl *> &Decls);
 
-  void visit_funcdef(BasicTypeKind return_type, const String &Name,
-                     Node *decl_trailer, const Location &location,
-                     std::vector<Decl *> &Decls);
+  Decl *visit_funcdef(BasicTypeKind return_type, const String &Name, Node *decl_trailer, const Location &location);
 
   /// paralist: '(' type_name NAME (',' type_name NAME)* ')'
   void visit_paralist(Node *N, std::vector<Decl *> &paralist);
