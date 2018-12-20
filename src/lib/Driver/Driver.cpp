@@ -39,14 +39,14 @@ bool Driver::doTokenize() {
   if (!Istream)
     return false;
   // Tokenize never fails.
-  Tokenize(*Istream, Tokens);
+  Tokenize(*Istream, TheTokens);
   return true;
 }
 
 bool Driver::doParse() {
   if (!doTokenize())
     return false;
-  TheProgram = BuildAST(Tokens);
+  TheProgram = BuildAST(TheTokens);
   if (TheProgram)
     return true;
   EM.increaseErrorCount();
@@ -88,21 +88,19 @@ void Driver::runPrintTokens() {
     return;
   if (!doTokenize())
     return;
-  PrintTokens(Tokens, *Ostream);
+  PrintTokens(TheTokens, *Ostream);
 }
 
 void Driver::runAssembleMips() {
   doAssemble();
 }
 
-
-
 void Driver::clear() {
   InputFile.clear();
   OutputFile.clear();
   StdIFStream.clear();
   StdOFStream.clear();
-  Tokens.clear();
+  TheTokens.clear();
   AM.clear();
   TheProgram.release();
   TheModule.clear();
@@ -135,7 +133,7 @@ void Driver::runAnalysisOnly() {
 void Driver::runDumpCst() {
   if (!doTokenize())
     return;
-  std::unique_ptr<Node> N = BuildCST(Tokens);
+  std::unique_ptr<Node> N = BuildCST(TheTokens);
   if (!N) {
     EM.increaseErrorCount();
     return;

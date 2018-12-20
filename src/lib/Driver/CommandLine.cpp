@@ -1,5 +1,6 @@
 #include "simplecc/Driver/CommandLine.h"
 #include "simplecc/Support/Print.h"
+#include "simplecc/Driver/Driver.h"
 #include <cassert>
 
 using namespace simplecc;
@@ -28,6 +29,8 @@ CommandLine::CommandLine() :
   Parser.xorAdd(Switches);
 }
 
+CommandLine::~CommandLine() = default;
+
 int CommandLine::run(int Argc, char **Argv) {
   try {
     Parser.parse(Argc, Argv);
@@ -36,23 +39,25 @@ int CommandLine::run(int Argc, char **Argv) {
     return 1;
   }
 
-  TheDriver.setInputFile(InputArg.isSet() ? InputArg.getValue() : "-");
-  TheDriver.setOutputFile(OutputArg.isSet() ? OutputArg.getValue() : "-");
+  /// Create the Driver instance.
+  TheDriver.reset(new Driver());
+  TheDriver->setInputFile(InputArg.isSet() ? InputArg.getValue() : "-");
+  TheDriver->setOutputFile(OutputArg.isSet() ? OutputArg.getValue() : "-");
 
   if (TokenizeSwitch.isSet()) {
-    TheDriver.runPrintTokens();
+    TheDriver->runPrintTokens();
   } else if (PrintCSTSwitch.isSet()) {
-    TheDriver.runDumpCst();
+    TheDriver->runDumpCst();
   } else if (PrintASTSwitch.isSet()) {
-    TheDriver.runDumpAst();
+    TheDriver->runDumpAst();
   } else if (PrintBytecodeSwitch.isSet()) {
-    TheDriver.runPrintByteCode();
+    TheDriver->runPrintByteCode();
   } else if (PrintByteCodeModuleSwitch.isSet()) {
-    TheDriver.runDumpByteCodeModule();
+    TheDriver->runDumpByteCodeModule();
   } else if (AssemblySwitch.isSet()) {
-    TheDriver.runAssembleMips();
+    TheDriver->runAssembleMips();
   } else {
     assert(false && "Unhandled command line switch!");
   }
-  return TheDriver.status();
+  return TheDriver->status();
 }

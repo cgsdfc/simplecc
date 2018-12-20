@@ -23,6 +23,7 @@ namespace simplecc {
 /// D.setInputFile("aaa");
 /// D.runAssembleMips();
 /// return D.status();
+///
 class Driver {
   std::ostream *getStdOstream();
   std::istream *getStdIstream();
@@ -45,11 +46,12 @@ public:
   void runAssembleMips();
   void runPrintTokens();
   void runPrintByteCode();
+  void runDumpByteCodeModule();
   void runAnalysisOnly();
   void runDumpSymbolTable();
   void runDumpAst();
-  void runDumpCst();
 
+  void runDumpCst();
 #ifdef SIMPLE_COMPILER_USE_LLVM
   bool runEmitLLVMIR();
   bool runWriteAstGraph();
@@ -57,9 +59,9 @@ public:
 #endif
 
   int status() const { return !EM.IsOk(); }
+
   void clear();
 
-  void runDumpByteCodeModule();
 private:
   std::string InputFile;
   std::string OutputFile;
@@ -67,8 +69,7 @@ private:
   std::ifstream StdIFStream;
   std::ofstream StdOFStream;
 
-  std::vector<TokenInfo> Tokens;
-
+  std::vector<TokenInfo> TheTokens;
   AnalysisManager AM;
   std::unique_ptr<Program> TheProgram;
   ByteCodeModule TheModule;
