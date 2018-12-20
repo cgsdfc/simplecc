@@ -1,4 +1,3 @@
-
 #ifndef AST_H
 #define AST_H
 
@@ -6,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace simplecc {
@@ -77,8 +77,8 @@ public:
   std::string name;
   Location loc;
 
-  Decl(int Kind, const std::string &name, const Location &loc)
-      : AST(), Kind(Kind), name(name), loc(loc) {}
+  Decl(int Kind, std::string name, const Location &loc)
+      : AST(), Kind(Kind), name(std::move(name)), loc(loc) {}
 
   enum DeclKind { ConstDecl, VarDecl, FuncDef, ArgDecl };
 
@@ -194,11 +194,11 @@ public:
   std::vector<Decl *> decls;
   std::vector<Stmt *> stmts;
 
-  FuncDef(BasicTypeKind return_type, const std::vector<Decl *> &args,
-          const std::vector<Decl *> &decls, const std::vector<Stmt *> &stmts,
+  FuncDef(BasicTypeKind return_type, std::vector<Decl *> args,
+          std::vector<Decl *> decls, std::vector<Stmt *> stmts,
           const std::string &name, const Location &loc)
-      : Decl(Decl::FuncDef, name, loc), return_type(return_type), args(args),
-        decls(decls), stmts(stmts) {}
+      : Decl(Decl::FuncDef, name, loc), return_type(return_type), args(std::move(args)),
+        decls(std::move(decls)), stmts(std::move(stmts)) {}
 
   // Disable copy and move.
   FuncDef(const FuncDef &) = delete;
@@ -251,8 +251,8 @@ class Read : public Stmt {
 public:
   std::vector<Expr *> names;
 
-  Read(const std::vector<Expr *> &names, const Location &loc)
-      : Stmt(Stmt::Read, loc), names(names) {}
+  Read(std::vector<Expr *> names, const Location &loc)
+      : Stmt(Stmt::Read, loc), names(std::move(names)) {}
 
   // Disable copy and move.
   Read(const Read &) = delete;
@@ -331,9 +331,9 @@ public:
   std::vector<Stmt *> body;
 
   For(Stmt *initial, Expr *condition, Stmt *step,
-      const std::vector<Stmt *> &body, const Location &loc)
+      std::vector<Stmt *> body, const Location &loc)
       : Stmt(Stmt::For, loc), initial(initial), condition(condition),
-        step(step), body(body) {}
+        step(step), body(std::move(body)) {}
 
   // Disable copy and move.
   For(const For &) = delete;
@@ -361,8 +361,8 @@ public:
   Expr *condition;
   std::vector<Stmt *> body;
 
-  While(Expr *condition, const std::vector<Stmt *> &body, const Location &loc)
-      : Stmt(Stmt::While, loc), condition(condition), body(body) {}
+  While(Expr *condition, std::vector<Stmt *> body, const Location &loc)
+      : Stmt(Stmt::While, loc), condition(condition), body(std::move(body)) {}
 
   // Disable copy and move.
   While(const While &) = delete;
@@ -413,9 +413,9 @@ public:
   std::vector<Stmt *> body;
   std::vector<Stmt *> orelse;
 
-  If(Expr *test, const std::vector<Stmt *> &body,
-     const std::vector<Stmt *> &orelse, const Location &loc)
-      : Stmt(Stmt::If, loc), test(test), body(body), orelse(orelse) {}
+  If(Expr *test, std::vector<Stmt *> body,
+     std::vector<Stmt *> orelse, const Location &loc)
+      : Stmt(Stmt::If, loc), test(test), body(std::move(body)), orelse(std::move(orelse)) {}
 
   // Disable copy and move.
   If(const If &) = delete;
@@ -572,9 +572,9 @@ public:
   std::string func;
   std::vector<Expr *> args;
 
-  Call(const std::string &func, const std::vector<Expr *> &args,
+  Call(std::string func, std::vector<Expr *> args,
        const Location &loc)
-      : Expr(Expr::Call, loc), func(func), args(args) {}
+      : Expr(Expr::Call, loc), func(std::move(func)), args(std::move(args)) {}
 
   // Disable copy and move.
   Call(const Call &) = delete;
@@ -622,7 +622,7 @@ class Str : public Expr {
 public:
   std::string s;
 
-  Str(const std::string &s, const Location &loc) : Expr(Expr::Str, loc), s(s) {}
+  Str(std::string s, const Location &loc) : Expr(Expr::Str, loc), s(std::move(s)) {}
 
   // Disable copy and move.
   Str(const Str &) = delete;
@@ -670,9 +670,9 @@ public:
   Expr *index;
   ExprContextKind ctx;
 
-  Subscript(const std::string &name, Expr *index, ExprContextKind ctx,
+  Subscript(std::string name, Expr *index, ExprContextKind ctx,
             const Location &loc)
-      : Expr(Expr::Subscript, loc), name(name), index(index), ctx(ctx) {}
+      : Expr(Expr::Subscript, loc), name(std::move(name)), index(index), ctx(ctx) {}
 
   // Disable copy and move.
   Subscript(const Subscript &) = delete;
@@ -698,8 +698,8 @@ public:
   std::string id;
   ExprContextKind ctx;
 
-  Name(const std::string &id, ExprContextKind ctx, const Location &loc)
-      : Expr(Expr::Name, loc), id(id), ctx(ctx) {}
+  Name(std::string id, ExprContextKind ctx, const Location &loc)
+      : Expr(Expr::Name, loc), id(std::move(id)), ctx(ctx) {}
 
   // Disable copy and move.
   Name(const Name &) = delete;
@@ -725,7 +725,7 @@ class Program : public AST {
 public:
   std::vector<Decl *> decls;
 
-  Program(const std::vector<Decl *> &decls) : AST(), decls(decls) {}
+  explicit Program(std::vector<Decl *> decls) : AST(), decls(std::move(decls)) {}
 
   // Disable copy and move.
   Program(const Program &) = delete;

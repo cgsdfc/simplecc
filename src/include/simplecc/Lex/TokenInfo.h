@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <string>
-
+#include <utility>
 namespace simplecc {
 using String = std::string;
 
@@ -39,9 +39,9 @@ inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
 
 class TokenInfo {
 public:
-  TokenInfo(Symbol Ty, const String &S, const Location &Loc,
-            const String &Line)
-      : Type(Ty), Str(S), Loc(Loc), Line(Line) {}
+  TokenInfo(Symbol Ty, String S, const Location &Loc,
+            String Line)
+      : Type(Ty), Str(std::move(S)), Loc(Loc), Line(std::move(Line)) {}
 
   TokenInfo(const TokenInfo &) = default;
   TokenInfo(TokenInfo &&) = default;
