@@ -24,7 +24,7 @@ public:
   Constant *getInt(int N) const ;
 
   /// Convert a Char node to char value.
-  Constant *getChar(char C) const;
+  Constant *getChar(int C) const;
 
   // Convert a constant expression.
   Constant *getConstantFromExpr(Expr *E) const;

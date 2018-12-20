@@ -44,16 +44,16 @@ class LineLabel {
   /// No of this label
   unsigned No;
   /// Which form it takes
-  bool IsInlined;
+  bool IsInline = false;
 
 public:
-  LineLabel(unsigned No) : No(No), IsInlined(false) {}
+  LineLabel(unsigned No) : No(No) {}
   LineLabel(const LineLabel &) = default;
   LineLabel &operator=(const LineLabel &) = default;
 
-  /// Setter of inlined, for use in operator<<()
-  LineLabel &Inline(bool inlined) {
-    this->IsInlined = inlined;
+  /// Setter of inline, for use in operator<<()
+  LineLabel &Inline(bool B) {
+    this->IsInline = B;
     return *this;
   }
   void Format(std::ostream &O) const;
@@ -101,7 +101,7 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   unsigned getTempCounter() const { return TempCounter; }
 
 public:
-  ByteCodePrinter(std::ostream &O) :w(O) {}
+  ByteCodePrinter(std::ostream &O) : w(O) {}
   ~ByteCodePrinter() = default;
 
   void Print(Program *P) { visitProgram(P); }

@@ -99,7 +99,7 @@ int Parser::AddToken(const TokenInfo &T) {
         }
         return false;
 
-      } else if (IsNonterminal(Ty)) {
+      } else if (IsNonTerminal(Ty)) {
         DFA *NewDFA = TheGrammar->dfas[static_cast<int>(Ty) - NT_OFFSET];
         if (IsInFirst(NewDFA, Label)) {
           Push(Ty, NewDFA, NewState, T.getLocation());

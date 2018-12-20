@@ -34,6 +34,6 @@ Constant *LLVMValueMap::getInt(int N) const {
   return ConstantInt::get(getType(BasicTypeKind::Int), N, false);
 }
 
-Constant *LLVMValueMap::getChar(char C) const {
+Constant *LLVMValueMap::getChar(int C) const {
   return ConstantInt::get(getType(BasicTypeKind::Character), C, false);
 }

@@ -197,6 +197,6 @@ void ExprValue::Format(std::ostream &O) const {
 
 void LineLabel::Format(std::ostream &O) const {
   O << "Label_" << No;
-  if (!IsInlined)
+  if (!IsInline)
     O << ":";
 }

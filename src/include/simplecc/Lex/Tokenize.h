@@ -1,6 +1,5 @@
 #ifndef TOKENIZE_H
 #define TOKENIZE_H
-#include "simplecc/Parse/Grammar.h"
 #include "TokenInfo.h"
 
 #include <iostream>

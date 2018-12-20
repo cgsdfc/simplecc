@@ -8,16 +8,11 @@
 namespace simplecc {
 using String = std::string;
 
-inline bool IsTerminal(Symbol S) {
-  return static_cast<int>(S) < NT_OFFSET;
-}
+bool IsTerminal(Symbol S);
 
-inline bool IsNonterminal(Symbol S) { return !IsTerminal(S); }
+inline bool IsNonTerminal(Symbol S) { return !IsTerminal(S); }
 
-inline const char *getSymbolName(Symbol S) {
-  auto Val = static_cast<int>(S);
-  return IsTerminal(S) ? TokenNames[Val] : SymbolNames[Val - NT_OFFSET];
-}
+const char *getSymbolName(Symbol S);
 
 class Location {
   unsigned Line;
@@ -32,13 +27,9 @@ public:
 
   unsigned getColOffset() const { return Column; }
 
-  void Format(std::ostream &O) const {
-    O << "Location(" << Line << ", " << Column << ")";
-  }
+  void Format(std::ostream &O) const;
 
-  void FormatCompact(std::ostream &O) const {
-    O << Line << ":" << Column << ":";
-  }
+  void FormatCompact(std::ostream &O) const;
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Location &loc) {

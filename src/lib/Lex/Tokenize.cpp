@@ -55,7 +55,7 @@ void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
       continue;
 
     unsigned Pos = 0;
-    unsigned Max = TheLine.size();
+    auto Max = TheLine.size();
 
     while (Pos < Max) {
       Location Start(Lineno, Pos);
@@ -142,6 +142,15 @@ void PrintTokens(const std::vector<TokenInfo> &Tokens, std::ostream &O) {
   });
 }
 
+const char *getSymbolName(Symbol S) {
+  auto Val = static_cast<int>(S);
+  return IsTerminal(S) ? TokenNames[Val] : SymbolNames[Val - NT_OFFSET];
+}
+
+bool IsTerminal(Symbol S) {
+  return static_cast<int>(S) < NT_OFFSET;
+}
+
 } // namespace simplecc
 
 void TokenInfo::Format(std::ostream &O) const {
@@ -150,6 +159,14 @@ void TokenInfo::Format(std::ostream &O) const {
      << "string=" << Quote(getString()) << ", "
      << getLocation() << ", "
      << "line=" << Quote(getLine()) << ")";
+}
+
+void Location::Format(std::ostream &O) const {
+  O << "Location(" << Line << ", " << Column << ")";
+}
+
+void Location::FormatCompact(std::ostream &O) const {
+  O << Line << ":" << Column << ":";
 }
 
 const char *TokenInfo::getTypeName() const { return getSymbolName(Type); }
