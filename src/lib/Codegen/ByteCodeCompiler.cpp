@@ -172,7 +172,7 @@ void ByteCodeCompiler::visitProgram(Program *P) {
       break;
     case Decl::VarDecl:
       // Collect global objects.
-      TheModule->GetGlobalVariables().push_back(
+      TheModule->getGlobalVariables().push_back(
           TheTable->getGlobalEntry(D->getName()));
       break;
     default:

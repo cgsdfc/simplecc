@@ -79,7 +79,7 @@ AstRef *AstGraph::getNodeOrCreate(AstT *Ptr) {
   return Result.first->second.get();
 }
 
-void PrintAllAstNodes(Program *P, std::ostream &os);
+void PrintAllAstNodes(Program *P, std::ostream &O);
 void WriteASTGraph(Program *P, llvm::raw_ostream &O);
 } // namespace simplecc
 

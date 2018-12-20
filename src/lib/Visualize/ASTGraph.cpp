@@ -29,10 +29,10 @@ const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
 
 namespace simplecc {
 /// Print all ast nodes from a root.
-void PrintAllAstNodes(Program *P, std::ostream &os) {
+void PrintAllAstNodes(Program *P, std::ostream &O) {
   AstGraph Graph(P);
   for (auto AR : Graph.nodes()) {
-    Print(os, AR->getClassName(), AR->getLocation());
+    Print(O, AR->getClassName(), AR->getLocation());
   }
 }
 

@@ -34,10 +34,10 @@ public:
   const FunctionListTy &getFunctionList() const { return FunctionList; }
   FunctionListTy &getFunctionList() { return FunctionList; }
 
-  const GlobalVariableListTy &GetGlobalVariables() const {
+  const GlobalVariableListTy &getGlobalVariables() const {
     return GlobalVariables;
   }
-  GlobalVariableListTy &GetGlobalVariables() { return GlobalVariables; }
+  GlobalVariableListTy &getGlobalVariables() { return GlobalVariables; }
 
   /// Iterator Interface
   using iterator = FunctionListTy::iterator;

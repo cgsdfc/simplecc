@@ -29,7 +29,7 @@ unsigned ByteCodeModule::getStringLiteralID(const String &Str) {
 }
 
 void ByteCodeModule::Format(std::ostream &O) const {
-  for (const SymbolEntry &GV : GetGlobalVariables()) {
+  for (const SymbolEntry &GV : getGlobalVariables()) {
     O << GV << "\n";
   }
 
