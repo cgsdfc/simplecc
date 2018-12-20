@@ -44,7 +44,7 @@ void LocalContext::InitializeJumpTargets() {
   }
 }
 
-// Return the offset of local name relatited to frame pointer
+// Return the offset of local name related to frame pointer
 signed int LocalContext::getLocalOffset(const char *Name) const {
   assert(LocalOffsets.count(Name) && "Undefined Name");
   return LocalOffsets.find(Name)->second;

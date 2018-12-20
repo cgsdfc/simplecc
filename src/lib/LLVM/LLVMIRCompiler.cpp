@@ -155,7 +155,7 @@ Value *LLVMIRCompiler::visitBinOp(BinOp *B) {
 
 void LLVMIRCompiler::visitIf(If *I) {
   Function *TheFunction = Builder.GetInsertBlock()->getParent();
-  /// Emit the condition evalation, which continues in the current BasicBlock.
+  /// Emit the condition evaluation, which continues in the current BasicBlock.
   Value *CondV = visitExpr(I->getTest());
   /// Create the targets for the conditional branch that ends the current
   /// BasicBlock.
@@ -194,7 +194,7 @@ void LLVMIRCompiler::visitWhile(While *W) {
   Builder.CreateBr(Loop);
   /// Begin to emit instructions of the loop BB.
   Builder.SetInsertPoint(Loop);
-  /// Emit the condition evalation.
+  /// Emit the condition evaluation.
   Value *CondV = visitExpr(W->getCondition());
 
   /// Create the targets of a conditional branch that ends loop BB.
@@ -393,7 +393,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   /// Setup arguments.
   for (llvm::Argument &Val : TheFunction->args()) {
     auto Idx = Val.getArgNo();
-    ArgDecl *V = static_cast<ArgDecl *>(FD->getArgs()[Idx]);
+    auto *V = static_cast<ArgDecl *>(FD->getArgs()[Idx]);
     Val.setName(V->getName());
     /// Argument is never array.
     auto Ptr =

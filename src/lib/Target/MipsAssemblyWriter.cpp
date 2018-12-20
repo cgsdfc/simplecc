@@ -26,8 +26,8 @@ void MipsAssemblyWriter::WriteData(Printer &W, const ByteCodeModule &Module) {
   W.WriteLine();
   W.WriteLine("# String literals");
 
-  for (const std::pair<String, unsigned> &Item :
-       Module.GetStringLiteralTable()) {
+  for (const std::pair<const String, unsigned> &Item :
+      Module.getStringLiteralTable()) {
     W.WriteLine(AsciizLabel(Item.second, /* NeedColon */ true), ".asciiz",
                 EscapedString(Item.first));
   }

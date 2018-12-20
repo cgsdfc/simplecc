@@ -29,7 +29,7 @@ void ByteCodeModule::Format(std::ostream &O) const {
   }
 
   O << "\n";
-  for (const std::pair<String, unsigned> &Pair : GetStringLiteralTable()) {
+  for (const std::pair<const String, unsigned> &Pair : getStringLiteralTable()) {
     O << std::setw(4) << Pair.second << ": " << Pair.first << "\n";
   }
 
