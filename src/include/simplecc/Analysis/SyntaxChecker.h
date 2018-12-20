@@ -25,7 +25,5 @@ public:
   bool Check(Program *P);
 
 };
-
-bool CheckSyntax(Program *P);
 } // namespace simplecc
 #endif
