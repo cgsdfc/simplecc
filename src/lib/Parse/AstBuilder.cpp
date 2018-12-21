@@ -65,17 +65,17 @@ void AstBuilder::visit_declaration(Node *N, std::vector<Decl *> &Decls) {
   if (name->getValue() == "main") {
     std::vector<Decl *> FnDecls;
     std::vector<Stmt *> FnStmts;
-
     auto Ty = visit_type_name(TypeName);
     visit_compound_stmt(N->LastChild(), FnDecls, FnStmts);
     Decls.push_back(new FuncDef(Ty, {},
                                 std::move(FnDecls),
                                 std::move(FnStmts), "main", TypeName->getLocation()));
-  } else {
-    auto decl_trailer = N->LastChild();
-    assert(decl_trailer->getType() == Symbol::decl_trailer);
-    visit_decl_trailer(decl_trailer, TypeName, name, Decls);
+    return;
   }
+
+  auto decl_trailer = N->LastChild();
+  assert(decl_trailer->getType() == Symbol::decl_trailer);
+  visit_decl_trailer(decl_trailer, TypeName, name, Decls);
 }
 
 std::vector<Expr *> AstBuilder::visit_arglist(Node *N) {
@@ -150,24 +150,23 @@ void AstBuilder::visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
   if (first->getValue() == ";") {
     Decls.push_back(new VarDecl(Ty, false, 0, Name->getValue(),
                                 TypeName->getLocation()));
-  } else if (first->getType() == Symbol::paralist ||
+    return;
+  }
+
+  if (first->getType() == Symbol::paralist ||
       first->getType() == Symbol::compound_stmt) {
     Decls.push_back(visit_funcdef(Ty, Name->getValue(), N, TypeName->getLocation()));
-  } else {
-    if (first->getType() == Symbol::subscript2) {
-      auto size = visit_subscript2(first);
-      Decls.push_back(
-          new VarDecl(Ty, true, size, Name->getValue(), N->getLocation()));
-    } else {
-      Decls.push_back(
-          new VarDecl(Ty, false, 0, Name->getValue(), N->getLocation()));
-    }
+    return;
+  }
 
-    for (auto C : N->getChildren()) {
-      if (C->getType() != Symbol::var_item)
-        continue;
-      Decls.push_back(visit_var_item(C, Ty));
-    }
+  bool IsArray = first->getType() == Symbol::subscript2;
+  unsigned ArraySize = IsArray ? visit_subscript2(first) : 0;
+  Decls.push_back(new VarDecl(Ty, IsArray, ArraySize, Name->getValue(), N->getLocation()));
+
+  for (auto C : N->getChildren()) {
+    if (C->getType() != Symbol::var_item)
+      continue;
+    Decls.push_back(visit_var_item(C, Ty));
   }
 }
 
@@ -183,24 +182,27 @@ void AstBuilder::visit_stmt(Node *N, std::vector<Stmt *> &Stmts) {
 
   auto first = N->FirstChild();
   if (first->getType() == Symbol::flow_stmt) {
-    Stmts.push_back(visit_flow_stmt(first));
-  } else if (first->getType() == Symbol::NAME) {
+    return Stmts.push_back(visit_flow_stmt(first));
+  }
+
+  if (first->getType() == Symbol::NAME) {
     if (N->getNumChildren() == 2) {
       auto call = new Call(first->getValue(), {}, first->getLocation());
-      Stmts.push_back(new ExprStmt(call, N->getLocation()));
-    } else {
-      Stmts.push_back(visit_stmt_trailer(N->getChild(1), first));
+      return Stmts.push_back(new ExprStmt(call, N->getLocation()));
     }
-  } else if (first->getValue() == "{") {
+    return Stmts.push_back(visit_stmt_trailer(N->getChild(1), first));
+  }
+
+  if (first->getValue() == "{") {
     for (auto C : N->getChildren()) {
-      if (C->getType() == Symbol::stmt) {
+      if (C->getType() != Symbol::stmt) {
         visit_stmt(C, Stmts);
       }
     }
-  } else {
-    // discard the empty stmt -- ';'
-    assert(first->getValue() == ";" && N->getNumChildren() == 1);
+    return;
   }
+  // discard the empty stmt -- ';'
+  assert(first->getValue() == ";" && N->getNumChildren() == 1);
 }
 
 Stmt *AstBuilder::visit_flow_stmt(Node *N) {
@@ -246,7 +248,7 @@ Expr *AstBuilder::visit_binop(Node *N, ExprContextKind Context) {
   return result;
 }
 
-Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, const String &Name,
+Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, String Name,
                                 Node *decl_trailer, const Location &location) {
   std::vector<Decl *> ParamList;
   std::vector<Decl *> FnDecls;
@@ -257,7 +259,10 @@ Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, const String &Name,
   }
 
   visit_compound_stmt(decl_trailer->LastChild(), FnDecls, FnStmts);
-  return new FuncDef(RetTy, std::move(ParamList), std::move(FnDecls), std::move(FnStmts), Name, location);
+  return new FuncDef(RetTy,
+                     std::move(ParamList),
+                     std::move(FnDecls),
+                     std::move(FnStmts), std::move(Name), location);
 }
 
 Expr *AstBuilder::visit_condition(Node *N) {
@@ -285,11 +290,14 @@ Stmt *AstBuilder::visit_for_stmt(Node *N) {
   auto L =
       new class Name(name2->getValue(), ExprContextKind::Load, name2->getLocation());
   auto R = makeNum(num);
-  auto BO = new BinOp(/* left */ L, /* op */ OperatorKindFromString(op->getValue()), /* right */ R,
-                                 name2->getLocation());
-  auto Step = new Assign(/* target */ new Name(target->getValue(), ExprContextKind::Store,
-                                               target->getLocation()),
-      /* value */ BO, /* loc */ target->getLocation());
+  auto BO = new BinOp(
+      /* left */ L,
+      /* op */ OperatorKindFromString(op->getValue()),
+      /* right */ R, name2->getLocation());
+  auto Step = new Assign(
+      /* target */ new Name(target->getValue(), ExprContextKind::Store, target->getLocation()),
+      /* value */ BO,
+      /* loc */ target->getLocation());
 
   // body: stmt*
   std::vector<Stmt *> Body;
@@ -348,12 +356,13 @@ Stmt *AstBuilder::visit_stmt_trailer(Node *N, Node *Name) {
 void AstBuilder::visit_compound_stmt(Node *N, std::vector<Decl *> &FnDecls,
                                      std::vector<Stmt *> &FnStmts) {
   for (auto C : N->getChildren()) {
-    if (C->getType() == Symbol::const_decl) {
-      visit_const_decl(C, FnDecls);
-    } else if (C->getType() == Symbol::var_decl) {
-      visit_var_decl(C, FnDecls);
-    } else if (C->getType() == Symbol::stmt) {
-      visit_stmt(C, FnStmts);
+    switch (C->getType()) {
+    case Symbol::const_decl:visit_const_decl(C, FnDecls);
+      break;
+    case Symbol::var_decl:visit_var_decl(C, FnDecls);
+      break;
+    case Symbol::stmt: visit_stmt(C, FnStmts);
+      break;
     }
   }
 }
@@ -399,8 +408,7 @@ Decl *AstBuilder::visit_var_item(Node *N, BasicTypeKind Ty) {
   return new VarDecl(Ty,
       /* is_array */ IsArray,
       /* size */ Size,
-      /* name */ name->getValue(),
-                     name->getLocation());
+      /* name */ name->getValue(), name->getLocation());
 }
 
 Stmt *AstBuilder::visit_while_stmt(Node *N) {
