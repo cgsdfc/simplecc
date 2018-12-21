@@ -27,9 +27,9 @@ public:
   void Initialize(const ByteCodeFunction &F);
 
   // Return if an offset is a jump target
-  bool IsJumpTarget(unsigned Off) const { return JumpTargets.count(Off); }
+  bool IsJumpTarget(unsigned Off) const { return JumpTargets.find(Off) != JumpTargets.end(); }
 
-  // Return the offset of local name relatited to frame pointer
+  // Return the offset of local name related to frame pointer
   signed int getLocalOffset(const char *Name) const;
 
   // Return whether a name is a variable

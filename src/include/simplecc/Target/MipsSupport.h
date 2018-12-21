@@ -29,7 +29,7 @@ protected:
   bool NeedColon;
 
 public:
-  LabelBase(bool N) : NeedColon(N) {}
+  explicit LabelBase(bool N) : NeedColon(N) {}
   void Format(std::ostream &O) const {
     static_cast<const Derived *>(this)->FormatImpl(O);
     if (NeedColon)
