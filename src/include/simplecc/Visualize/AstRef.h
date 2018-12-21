@@ -20,7 +20,6 @@ enum class AstKind {
 
 /// Template magic to map type to AstKind enum.
 template<typename AstT> struct AstTraits {
-  /// Issue an error if unspecialized AstTraits was used.
   static const AstKind Kind = AstT::UnknownAstKindError;
 };
 
@@ -58,10 +57,6 @@ public:
   AstKind getKind() const { return Kind; }
 
   bool operator==(const AstRef &O) const { return Ref == O.Ref; }
-
-  /// Emptiness test. !empty() === bool().
-  bool empty() const { return nullptr == Ref; }
-  operator bool() const { return !empty(); }
 
   /// get() without a type argument returns the **raw** AST pointer.
   AST *get() const { return Ref; }

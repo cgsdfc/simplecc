@@ -55,7 +55,7 @@ template<> struct GraphTraits<AstGraph> {
 
 /// Specialized DOTGraphTraits for AstGraph.
 template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
-  DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
+  explicit DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
 
   static std::string getGraphName(const AstGraph &) {
     return "Abstract Syntax Tree";

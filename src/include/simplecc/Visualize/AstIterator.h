@@ -11,7 +11,7 @@ class AstGraph;
 /// Implementation of AstIterator
 class AstIteratorImpl {
   std::vector<AstRef *> TheStack;
-  AstGraph *Parent;
+  AstGraph *Parent = nullptr;
 
 public:
   /// Begin Iterator.
@@ -32,7 +32,7 @@ class AstIterator
 public:
   AstIterator(Program *P, AstGraph *G) : AstIteratorImpl(P, G) { operator++(); }
 
-  AstIterator() : AstIteratorImpl(), Ref() {}
+  AstIterator() : AstIteratorImpl() {}
 
   AstRef *operator*() const { return Ref; }
   bool operator==(const AstIterator &O) const { return O.Ref == Ref; }
@@ -43,7 +43,7 @@ public:
   }
 
 private:
-  AstRef *Ref;
+  AstRef *Ref = nullptr;
 };
 }
 

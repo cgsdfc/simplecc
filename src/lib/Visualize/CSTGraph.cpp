@@ -34,7 +34,7 @@ template <> struct GraphTraits<CSTGraphTy> {
 };
 
 template <> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
-  DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
+  explicit DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
 
   static std::string getGraphName(const CSTGraphTy &) {
     return "Concrete Syntax Tree";

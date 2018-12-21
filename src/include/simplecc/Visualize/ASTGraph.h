@@ -19,7 +19,7 @@ class AST;
 // A class that keeps all the edges of an AstRef
 class AstGraph {
 public:
-  AstGraph(Program *P) : TheProgram(P), Edges(), Nodes() {}
+  explicit AstGraph(Program *P) : TheProgram(P), Edges(), Nodes() {}
 
   using NodeIterator = AstIterator;
   using ChildIteratorType = std::vector<AstRef *>::const_iterator;
@@ -42,10 +42,6 @@ public:
 
   ChildIteratorType child_end(const AstRef &R) {
     return std::end(getEdgeOrCreate(R));
-  }
-
-  llvm::iterator_range<ChildIteratorType> children(const AstRef &R) {
-    return llvm::make_range(child_begin(R), child_end(R));
   }
 
   /// Lazily create edges for a Node.

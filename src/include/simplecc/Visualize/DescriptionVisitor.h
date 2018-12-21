@@ -9,7 +9,7 @@ class AstRef;
 class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   friend class VisitorBase<DescriptionVisitor>;
 
-  /// VisitorBase boilderplate code.
+  /// VisitorBase boilerplate code.
   String visitDecl(Decl *D) { return VisitorBase::visitDecl<String>(D); }
   String visitExpr(Expr *E) { return VisitorBase::visitExpr<String>(E); }
   String visitStmt(Stmt *S) { return VisitorBase::visitStmt<String>(S); }
