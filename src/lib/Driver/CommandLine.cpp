@@ -10,6 +10,7 @@ static tclap::SwitchArg PrintASTSwitch("", "print-ast", "print the abstract synt
 static tclap::SwitchArg PrintBytecodeSwitch("", "print-school-ir", "print IR in the format required by school", false);
 static tclap::SwitchArg PrintByteCodeModuleSwitch("", "print-bc-ir", "print IR in the byte code form", false);
 static tclap::SwitchArg AssemblySwitch("", "asm", "emit MIPS assembly", false);
+static tclap::SwitchArg CheckOnlySwitch("", "check-only", "merely perform checks on the input", false);
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 static tclap::SwitchArg AstGraphSwitch("", "ast-graph", "print the dot file for the AST", false);
@@ -31,6 +32,7 @@ CommandLine::CommandLine() :
   Switches.push_back(&PrintBytecodeSwitch);
   Switches.push_back(&PrintByteCodeModuleSwitch);
   Switches.push_back(&AssemblySwitch);
+  Switches.push_back(&CheckOnlySwitch);
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
   Switches.push_back(&AstGraphSwitch);
@@ -66,6 +68,8 @@ int CommandLine::run(int Argc, char **Argv) {
     TheDriver->runDumpByteCodeModule();
   } else if (AssemblySwitch.isSet()) {
     TheDriver->runAssembleMips();
+  } else if (CheckOnlySwitch.isSet()) {
+    TheDriver->runAnalysisOnly();
 #ifdef SIMPLE_COMPILER_USE_LLVM
   } else if (CstGraphSwitch.isSet()) {
     TheDriver->runWriteCstGraph();
