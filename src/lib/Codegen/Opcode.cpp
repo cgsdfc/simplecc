@@ -1,5 +1,5 @@
-
 #include "simplecc/Codegen/Opcode.h"
+
 namespace simplecc {
 const char *CStringFromOpcode(Opcode val) {
   switch (val) {

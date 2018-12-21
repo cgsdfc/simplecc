@@ -4,7 +4,7 @@
 
 namespace simplecc {
 void PrintByteCode(Program *P, std::ostream &O) {
-  ByteCodePrinter(O).Print(P);
+  ByteCodePrinter(O).PrintByteCode(P);
 }
 
 void CompileToByteCode(Program *P, const SymbolTable &S, ByteCodeModule &M) {

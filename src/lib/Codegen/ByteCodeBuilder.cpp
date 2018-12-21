@@ -129,7 +129,7 @@ unsigned ByteCodeBuilder::Insert(ByteCode Code) {
   Code.setByteCodeOffset(Off);
 
   /// Insert Code at the back of the function.
-  TheFunction.GetByteCodeList().push_back(std::move(Code));
+  TheFunction.GetByteCodeList().push_back(Code);
   return Off;
 }
 

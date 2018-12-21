@@ -7,8 +7,8 @@
 #include <cassert>
 
 namespace simplecc {
-/// This class handles the formatting of the result of an epxression
-/// It is a union of factor Expr and temporary
+/// This class handles the formatting of the result of an expression
+/// It is a discriminated union of a factor Expr and a temporary.
 class ExprValue {
   Expr *Factor;
   int Temporary;
@@ -21,12 +21,8 @@ public:
   ExprValue(const ExprValue &) = default;
   ExprValue &operator=(const ExprValue &) = default;
 
-  explicit ExprValue(int Temp) : Factor(nullptr), Temporary(Temp) {
-    assert(Check());
-  }
-  explicit ExprValue(Expr *Factor) : Factor(Factor), Temporary(-1) {
-    assert(Check());
-  }
+  explicit ExprValue(int Temp);
+  explicit ExprValue(Expr *Factor);
 
   void Format(std::ostream &O) const;
 };
@@ -37,7 +33,7 @@ inline std::ostream &operator<<(std::ostream &O, const ExprValue &Val) {
 }
 
 /// This class handles the formatting of a label of two form:
-/// inline form like GOTO Label_1 and non-inlined form like:
+/// inline form like GOTO Label_1 and non-inline form like:
 /// Label_1:
 /// printf t0
 class LineLabel {
@@ -47,7 +43,7 @@ class LineLabel {
   bool IsInline = false;
 
 public:
-  LineLabel(unsigned No) : No(No) {}
+  explicit LineLabel(unsigned No) : No(No) {}
   LineLabel(const LineLabel &) = default;
   LineLabel &operator=(const LineLabel &) = default;
 
@@ -64,7 +60,7 @@ inline std::ostream &operator<<(std::ostream &O, const LineLabel &L) {
   return O;
 }
 
-/// This class prints a program in the quartenary form.
+/// This class prints a program in the form required by the school.
 class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   void visitConstDecl(ConstDecl *CD);
   void visitVarDecl(VarDecl *VD);
@@ -101,10 +97,10 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   unsigned getTempCounter() const { return TempCounter; }
 
 public:
-  ByteCodePrinter(std::ostream &O) : w(O) {}
+  explicit ByteCodePrinter(std::ostream &O) : w(O) {}
   ~ByteCodePrinter() = default;
 
-  void Print(Program *P) { visitProgram(P); }
+  void PrintByteCode(Program *P) { visitProgram(P); }
 
 private:
   friend class ChildrenVisitor<ByteCodePrinter>;

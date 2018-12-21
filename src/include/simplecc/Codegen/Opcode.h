@@ -1,4 +1,3 @@
-
 #ifndef OPCODE_H
 #define OPCODE_H
 #include <iostream>

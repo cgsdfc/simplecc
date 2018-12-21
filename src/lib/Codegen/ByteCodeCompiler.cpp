@@ -107,7 +107,7 @@ void ByteCodeCompiler::visitReturn(Return *R) {
 
 unsigned ByteCodeCompiler::CompileBoolOp(BoolOp *B) {
   if (B->getHasCmpop()) {
-    BinOp *BO = static_cast<BinOp *>(B->getValue());
+    auto BO = static_cast<BinOp *>(B->getValue());
     visitExpr(BO->getLeft());
     visitExpr(BO->getRight());
     return Builder.CreateJump(BO->getOp());

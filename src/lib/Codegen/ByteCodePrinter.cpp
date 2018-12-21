@@ -184,15 +184,27 @@ bool ExprValue::Check() const {
 void ExprValue::Format(std::ostream &O) const {
   if (!Factor) {
     O << "t" << Temporary;
-  } else if (auto C = subclass_cast<Char>(Factor)) {
-    O << "'" << static_cast<char>(C->getC()) << "'";
-  } else if (auto N = subclass_cast<Num>(Factor)) {
-    O << N->getN();
-  } else if (auto N = subclass_cast<Name>(Factor)) {
-    O << N->getId();
-  } else {
-    O << static_cast<Str *>(Factor)->getS();
+    return;
   }
+  switch (Factor->GetKind()) {
+  case Expr::Char:O << "'" << char(static_cast<Char *>(Factor)->getC()) << "'";
+    break;
+  case Expr::Num:O << static_cast<Num *>(Factor)->getN();
+    break;
+  case Expr::Name:O << static_cast<Name *>(Factor)->getId();
+    break;
+  case Expr::Str:O << static_cast<Str *>(Factor)->getS();
+    break;
+  default:assert(false && "Unhandled Factor Expr");
+  }
+}
+
+ExprValue::ExprValue(int Temp) : Factor(nullptr), Temporary(Temp) {
+  assert(Check());
+}
+
+ExprValue::ExprValue(Expr *Factor) : Factor(Factor), Temporary(-1) {
+  assert(Check());
 }
 
 void LineLabel::Format(std::ostream &O) const {
