@@ -16,8 +16,7 @@ void TypeChecker::visitRead(Read *RD) {
     assert(N);
     const auto &Entry = TheLocalTable[N->getId()];
     if (!Entry.IsVariable()) {
-      EM.Error(N->getLoc(), "cannot use scanf() on", Entry.getTypeName(),
-                   Entry.getName());
+      EM.Error(N->getLoc(), "scanf() only applies to variables.");
       continue;
     }
     /// set the Expr type for this.
@@ -38,10 +37,9 @@ void TypeChecker::visitReturn(Return *R) {
 
   // order a strict match
   if (ShouldReturn != ActuallyReturn) {
-    EM.Error(R->getLoc(), "return type mismatched:", "function",
-                 Quote(TheFuncDef->getName()), "must return",
-                 CStringFromBasicTypeKind(ShouldReturn), "not",
-                 CStringFromBasicTypeKind(ActuallyReturn));
+    EM.Error(R->getLoc(), "function",
+             TheFuncDef->getName(), "must return",
+             CStringFromBasicTypeKind(ShouldReturn));
   }
 }
 
@@ -51,15 +49,14 @@ void TypeChecker::visitAssign(Assign *A) {
   auto LHS = visitExpr(A->getTarget());
 
   if (EM.IsOk(Errs) && LHS != RHS) {
-    EM.Error(A->getLoc(), "type mismatched in assignment:",
-                 CStringFromBasicTypeKind(LHS), "=",
-                 CStringFromBasicTypeKind(RHS));
+    EM.Error(A->getLoc(), "cannot assign",
+             CStringFromBasicTypeKind(RHS), "to", CStringFromBasicTypeKind(LHS));
   }
 }
 
 // check the operand of BoolOp, restrict to int
 void TypeChecker::CheckBoolOpOperand(Expr *E) {
-  auto Msg = "operands of condition must be of type int";
+  auto Msg = "operands of condition must be all int";
   auto Errs = EM.getErrorCount();
   auto T = visitExpr(E);
   if (EM.IsOk(Errs) && T != BasicTypeKind::Int) {
@@ -80,7 +77,7 @@ BasicTypeKind TypeChecker::visitBoolOp(BoolOp *B) {
 
 // check the operand of Expr, restrict to NOT void
 BasicTypeKind TypeChecker::CheckExprOperand(Expr *E) {
-  auto Msg = "void value cannot be used in an expression";
+  auto Msg = "using void value in an expression";
   auto Errs = EM.getErrorCount();
   auto T = visitExpr(E);
   if (EM.IsOk(Errs) && T == BasicTypeKind::Void) {
@@ -108,8 +105,7 @@ BasicTypeKind TypeChecker::visitParenExpr(ParenExpr *PE) {
 BasicTypeKind TypeChecker::visitCall(Call *C) {
   const auto &Entry = TheLocalTable[C->getFunc()];
   if (!Entry.IsFunction()) {
-    EM.Error(C->getLoc(), Entry.getTypeName(), Entry.getName(),
-                 "cannot be called as a function");
+    EM.Error(C->getLoc(), Entry.getName(), "is not a function");
     return BasicTypeKind::Void;
   }
 
@@ -117,8 +113,8 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
   auto NumFormal = Ty.getArgCount();
   auto NumActual = C->getArgs().size();
   if (NumFormal != NumActual) {
-    EM.Error(C->getLoc(), "function", Quote(C->getFunc()), "expects",
-                 NumFormal, "arguments, got", NumActual);
+    EM.Error(C->getLoc(), "function", C->getFunc(), "expects",
+             NumFormal, "arguments, got", NumActual);
   }
 
   // check args
@@ -128,9 +124,8 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
     auto FormalTy = Ty.getArgTypeAt(I);
     if (ActualTy != FormalTy) {
       EM.Error(C->getArgs()[I]->getLoc(), "argument", I + 1,
-                   "of function", Quote(C->getFunc()), "must be",
-                   CStringFromBasicTypeKind(FormalTy), ", not",
-                   CStringFromBasicTypeKind(ActualTy));
+               "of function", C->getFunc(), "must be a(an)",
+               CStringFromBasicTypeKind(FormalTy));
     }
   }
   return Ty.getReturnType();
@@ -139,15 +134,14 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
 BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
   const auto &Entry = TheLocalTable[SB->getName()];
   if (!Entry.IsArray()) {
-    EM.Error(SB->getLoc(), Entry.getTypeName(), Entry.getName(),
-                 "cannot be subscriptted as an array");
+    EM.Error(SB->getLoc(), Entry.getName(), "is not an array");
     return BasicTypeKind::Void;
   }
 
   int Errs = EM.getErrorCount();
   auto Idx = visitExpr(SB->getIndex());
   if (EM.IsOk(Errs) && Idx != BasicTypeKind::Int) {
-    EM.Error(SB->getLoc(), "Array index must be int");
+    EM.Error(SB->getLoc(), "array index must be int");
   }
   /// TODO: Bound check.
 
@@ -157,13 +151,11 @@ BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
 BasicTypeKind TypeChecker::visitName(Name *N) {
   const auto &Entry = TheLocalTable[N->getId()];
   if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
-    EM.Error(N->getLoc(), Entry.getTypeName(), Entry.getName(),
-                 "cannot be used in an expression");
+    EM.Error(N->getLoc(), "using an array in an expression");
     return BasicTypeKind::Void;
   }
   if (N->getCtx() == ExprContextKind::Store && !Entry.IsVariable()) {
-    EM.Error(N->getLoc(), Entry.getTypeName(), Entry.getName(),
-                 "cannot be assigned to");
+    EM.Error(N->getLoc(), "only variables can be assigned to");
     return BasicTypeKind::Void;
   }
   if (Entry.IsConstant())
