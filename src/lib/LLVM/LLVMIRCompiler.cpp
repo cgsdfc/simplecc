@@ -19,10 +19,10 @@ LLVMIRCompiler::LLVMIRCompiler(String Name, Program *P, const SymbolTable &S)
 
 LLVMIRCompiler::~LLVMIRCompiler() = default;
 
-/// Compile the program, return OK or not.
+/// Compile the program, return true if errors happened.
 bool LLVMIRCompiler::Compile() {
   visitProgram(TheProgram);
-  return EM.IsOk();
+  return !EM.IsOk();
 }
 
 /// This helper visits a list of statements, skip those that appear **after**

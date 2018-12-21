@@ -80,7 +80,7 @@ bool SymbolTableBuilder::Build(Program *P, SymbolTable &S) {
   setGlobal(&S.getGlobal());
   EM.setErrorType("NameError");
   visitProgram(P);
-  return EM.IsOk();
+  return !EM.IsOk();
 }
 
 void SymbolTableBuilder::clear() {

@@ -14,7 +14,7 @@ public:
   ~AnalysisManager();
 
   /// Run **all** the analyses on the Program.
-  /// Return OK or not.
+  /// Return true if errors happened.
   bool runAllAnalyses(Program *P);
 
   const SymbolTable &getSymbolTable() const {

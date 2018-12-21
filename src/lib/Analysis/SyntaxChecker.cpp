@@ -82,5 +82,5 @@ void SyntaxChecker::visitArgDecl(ArgDecl *AD) {
 
 bool SyntaxChecker::Check(Program *P) {
   visitProgram(P);
-  return EM.IsOk();
+  return !EM.IsOk();
 }

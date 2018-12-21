@@ -11,13 +11,12 @@ bool CompileToLLVMIR(std::string InputFile, Program *P, const SymbolTable &S,
   std::unique_ptr<LLVMIRCompiler> TheCompiler(new LLVMIRCompiler(std::move(InputFile), P, S));
 
   /// Compile to llvm::Module, fail fast.
-  bool OK = TheCompiler->Compile();
-  if (!OK)
-    return false;
+  if (TheCompiler->Compile())
+    return true;
 
   /// Write out the human-readable bitcode.
   TheCompiler->getModule().print(OS, nullptr);
-  return true;
+  return false;
 }
 
 } // namespace simplecc

@@ -81,7 +81,7 @@ void AstVerifier::visitProgram(simplecc::Program *P) {
 bool AstVerifier::Verify(Program *P) {
   EM.setErrorType("InternalError");
   visitProgram(P);
-  return EM.IsOk();
+  return !EM.IsOk();
 }
 
 void AstVerifier::AssertThat(bool Predicate, const char *ErrMsg) {

@@ -11,28 +11,28 @@ using namespace simplecc;
 AnalysisManager::~AnalysisManager() = default;
 
 bool AnalysisManager::runAllAnalyses(Program *P) {
-  if (!SyntaxChecker().Check(P)) {
-    return false;
+  if (SyntaxChecker().Check(P)) {
+    return true;
   }
 
-  if (!SymbolTableBuilder().Build(P, TheTable)) {
-    return false;
+  if (SymbolTableBuilder().Build(P, TheTable)) {
+    return true;
   }
 
   ImplicitCallTransformer().Transform(P, TheTable);
 
-  if (!TypeChecker().Check(P, TheTable)) {
-    return false;
+  if (TypeChecker().Check(P, TheTable)) {
+    return true;
   }
 
-  if (!ArrayBoundChecker().Check(P, TheTable)) {
-    return false;
+  if (ArrayBoundChecker().Check(P, TheTable)) {
+    return true;
   }
 
-  if (!AstVerifier().Verify(P)) {
+  if (AstVerifier().Verify(P)) {
     PrintErrs("Program should be well-formed after all analyses run!");
-    return false;
+    return true;
   }
 
-  return true;
+  return false;
 }

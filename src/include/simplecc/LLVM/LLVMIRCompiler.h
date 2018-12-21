@@ -151,7 +151,7 @@ public:
 
   ~LLVMIRCompiler();
 
-  /// Compile the program, return OK or not.
+  /// Compile the program, return true if errors happened.
   bool Compile();
 
   /// Access the compiled Module.

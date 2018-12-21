@@ -7,7 +7,7 @@ bool TypeChecker::Check(Program *P, SymbolTable &S) {
   EM.setErrorType("TypeError");
   setTable(&S);
   visitProgram(P);
-  return EM.IsOk();
+  return !EM.IsOk();
 }
 
 void TypeChecker::visitRead(Read *RD) {

@@ -12,6 +12,18 @@
 
 using namespace simplecc;
 
+void Driver::clear() {
+  InputFile.clear();
+  OutputFile.clear();
+  StdIFStream.clear();
+  StdOFStream.clear();
+  TheTokens.clear();
+  AM.clear();
+  TheProgram.release();
+  TheModule.clear();
+  EM.clear();
+}
+
 std::ostream *Driver::getStdOstream() {
   if (OutputFile == "-")
     return &std::cout;
@@ -39,53 +51,53 @@ std::istream *Driver::getStdIstream() {
 bool Driver::doTokenize() {
   auto Istream = getStdIstream();
   if (!Istream)
-    return false;
+    return true;
   // Tokenize never fails.
   Tokenize(*Istream, TheTokens);
-  return true;
+  return false;
 }
 
 bool Driver::doParse() {
-  if (!doTokenize())
-    return false;
+  if (doTokenize())
+    return true;
   TheProgram = BuildAST(TheTokens);
   if (TheProgram)
-    return true;
+    return false;
   EM.increaseErrorCount();
-  return false;
+  return true;
 }
 
 bool Driver::doAnalyses() {
-  if (!doParse())
-    return false;
+  if (doParse())
+    return true;
   assert(TheProgram && "Null Program!");
   bool Result = AM.runAllAnalyses(TheProgram.get());
   if (Result)
-    return true;
+    return false;
   EM.increaseErrorCount();
-  return false;
+  return true;
 }
 
 bool Driver::doCodeGen() {
-  if (!doAnalyses())
-    return false;
+  if (doAnalyses())
+    return true;
   // Codegen never fails.
   CompileToByteCode(TheProgram.get(), AM.getSymbolTable(), TheModule);
-  return true;
+  return false;
 }
 
 bool Driver::doAssemble() {
   auto OStream = getStdOstream();
   if (!OStream)
     return false;
-  if (!doCodeGen())
-    return false;
+  if (doCodeGen())
+    return true;
   AssembleMips(TheModule, *OStream);
-  return true;
+  return false;
 }
 
 std::unique_ptr<Node> Driver::doBuildCST() {
-  if (!doTokenize())
+  if (doTokenize())
     return nullptr;
   std::unique_ptr<Node> TheCST = BuildCST(TheTokens);
   if (!TheCST) {
@@ -98,7 +110,7 @@ void Driver::runPrintTokens() {
   auto Ostream = getStdOstream();
   if (!Ostream)
     return;
-  if (!doTokenize())
+  if (doTokenize())
     return;
   PrintTokens(TheTokens, *Ostream);
 }
@@ -107,20 +119,8 @@ void Driver::runAssembleMips() {
   doAssemble();
 }
 
-void Driver::clear() {
-  InputFile.clear();
-  OutputFile.clear();
-  StdIFStream.clear();
-  StdOFStream.clear();
-  TheTokens.clear();
-  AM.clear();
-  TheProgram.release();
-  TheModule.clear();
-  EM.clear();
-}
-
 void Driver::runPrintByteCode() {
-  if (!doAnalyses())
+  if (doAnalyses())
     return;
   auto OStream = getStdOstream();
   if (!OStream)
@@ -129,7 +129,7 @@ void Driver::runPrintByteCode() {
 }
 
 void Driver::runDumpAst() {
-  if (!doAnalyses())
+  if (doAnalyses())
     return;
   auto OStream = getStdOstream();
   if (!OStream)
@@ -153,7 +153,7 @@ void Driver::runDumpCst() {
 }
 
 void Driver::runDumpByteCodeModule() {
-  if (!doCodeGen())
+  if (doCodeGen())
     return;
   auto OS = getStdOstream();
   if (!OS)
@@ -162,7 +162,7 @@ void Driver::runDumpByteCodeModule() {
 }
 
 void Driver::runDumpSymbolTable() {
-  if (!doAnalyses())
+  if (doAnalyses())
     return;
   auto OS = getStdOstream();
   if (!OS)
@@ -172,7 +172,7 @@ void Driver::runDumpSymbolTable() {
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 void Driver::runEmitLLVMIR() {
-  if (!doAnalyses())
+  if (doAnalyses())
     return;
   auto OS = getLLVMRawOstream();
   if (!OS)
@@ -185,7 +185,7 @@ void Driver::runEmitLLVMIR() {
 }
 
 void Driver::runWriteAstGraph() {
-  if (!doAnalyses())
+  if (doAnalyses())
     return;
   auto OS = getLLVMRawOstream();
   if (!OS)

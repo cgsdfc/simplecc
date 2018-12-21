@@ -60,5 +60,5 @@ void ArrayBoundChecker::visitFuncDef(FuncDef *FD) {
 bool ArrayBoundChecker::Check(Program *P, const SymbolTable &S) {
   TheTable = &S;
   visitProgram(P);
-  return EM.IsOk();
+  return !EM.IsOk();
 }

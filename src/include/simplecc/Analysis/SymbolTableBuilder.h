@@ -57,7 +57,7 @@ public:
   SymbolTableBuilder(SymbolTableBuilder &&) = default;
 
   /// Build a SymbolTable from a program.
-  /// Return OK or not.
+  /// Return true if errors happened.
   /// Note: the table will be cleared first.
   bool Build(Program *P, SymbolTable &S);
 };
