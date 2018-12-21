@@ -49,10 +49,10 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
 
 public:
   /// Default construct and destruct.
-  SymbolTableBuilder() = default;
+  SymbolTableBuilder() { clear(); }
   ~SymbolTableBuilder() = default;
 
-  /// Trivially copyable and moveable.
+  /// Trivially copyable and movable.
   SymbolTableBuilder(const SymbolTableBuilder &) = default;
   SymbolTableBuilder(SymbolTableBuilder &&) = default;
 
