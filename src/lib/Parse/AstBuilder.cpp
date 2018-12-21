@@ -160,7 +160,7 @@ void AstBuilder::visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
   }
 
   bool IsArray = first->getType() == Symbol::subscript2;
-  unsigned ArraySize = IsArray ? visit_subscript2(first) : 0;
+  int ArraySize = IsArray ? visit_subscript2(first) : 0;
   Decls.push_back(new VarDecl(Ty, IsArray, ArraySize, Name->getValue(), N->getLocation()));
 
   for (auto C : N->getChildren()) {
@@ -249,7 +249,7 @@ Expr *AstBuilder::visit_binop(Node *N, ExprContextKind Context) {
 }
 
 Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, String Name,
-                                Node *decl_trailer, const Location &location) {
+                                Node *decl_trailer, const Location &L) {
   std::vector<Decl *> ParamList;
   std::vector<Decl *> FnDecls;
   std::vector<Stmt *> FnStmts;
@@ -262,7 +262,7 @@ Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, String Name,
   return new FuncDef(RetTy,
                      std::move(ParamList),
                      std::move(FnDecls),
-                     std::move(FnStmts), std::move(Name), location);
+                     std::move(FnStmts), Name, L);
 }
 
 Expr *AstBuilder::visit_condition(Node *N) {
@@ -363,6 +363,8 @@ void AstBuilder::visit_compound_stmt(Node *N, std::vector<Decl *> &FnDecls,
       break;
     case Symbol::stmt: visit_stmt(C, FnStmts);
       break;
+      // discard left brace & right brace.
+    default:continue;
     }
   }
 }

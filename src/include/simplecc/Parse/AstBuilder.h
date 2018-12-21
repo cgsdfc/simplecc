@@ -31,10 +31,10 @@ class AstBuilder {
   void visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
                           std::vector<Decl *> &Decls);
 
-  Decl *visit_funcdef(BasicTypeKind return_type, String Name, Node *decl_trailer, const Location &location);
+  Decl *visit_funcdef(BasicTypeKind RetTy, String Name, Node *decl_trailer, const Location &L);
 
   /// paralist: '(' type_name NAME (',' type_name NAME)* ')'
-  void visit_paralist(Node *N, std::vector<Decl *> &paralist);
+  void visit_paralist(Node *N, std::vector<Decl *> &ParamList);
 
   /// type_name: 'int' | 'char' | 'void'
   BasicTypeKind visit_type_name(Node *N);
@@ -50,7 +50,7 @@ class AstBuilder {
   Decl *visit_var_item(Node *N, BasicTypeKind Ty);
 
   /// stmt: flow_stmt | '{' stmt* '}' | NAME [stmt_trailer] ';' | ';'
-  void visit_stmt(Node *N, std::vector<Stmt *> &stmts);
+  void visit_stmt(Node *N, std::vector<Stmt *> &Stmts);
 
   /// stmt_trailer: arglist | ['[' expr ']'] '=' expr
   Stmt *visit_stmt_trailer(Node *N, Node *Name);

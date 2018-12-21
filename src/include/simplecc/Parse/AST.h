@@ -133,9 +133,9 @@ public:
   BasicTypeKind type;
   Expr *value;
 
-  ConstDecl(BasicTypeKind type, Expr *value, const std::string &name,
+  ConstDecl(BasicTypeKind type, Expr *value, std::string name,
             const Location &loc)
-      : Decl(Decl::ConstDecl, name, loc), type(type), value(value) {}
+      : Decl(Decl::ConstDecl, std::move(name), loc), type(type), value(value) {}
 
   // Disable copy and move.
   ConstDecl(const ConstDecl &) = delete;
@@ -161,9 +161,9 @@ public:
   int is_array;
   int size;
 
-  VarDecl(BasicTypeKind type, int is_array, int size, const std::string &name,
+  VarDecl(BasicTypeKind type, int is_array, int size, std::string name,
           const Location &loc)
-      : Decl(Decl::VarDecl, name, loc), type(type), is_array(is_array),
+      : Decl(Decl::VarDecl, std::move(name), loc), type(type), is_array(is_array),
         size(size) {}
 
   // Disable copy and move.
@@ -196,8 +196,8 @@ public:
 
   FuncDef(BasicTypeKind return_type, std::vector<Decl *> args,
           std::vector<Decl *> decls, std::vector<Stmt *> stmts,
-          const std::string &name, const Location &loc)
-      : Decl(Decl::FuncDef, name, loc), return_type(return_type), args(std::move(args)),
+          std::string name, const Location &loc)
+      : Decl(Decl::FuncDef, std::move(name), loc), return_type(return_type), args(std::move(args)),
         decls(std::move(decls)), stmts(std::move(stmts)) {}
 
   // Disable copy and move.
@@ -227,8 +227,8 @@ class ArgDecl : public Decl {
 public:
   BasicTypeKind type;
 
-  ArgDecl(BasicTypeKind type, const std::string &name, const Location &loc)
-      : Decl(Decl::ArgDecl, name, loc), type(type) {}
+  ArgDecl(BasicTypeKind type, std::string name, const Location &loc)
+      : Decl(Decl::ArgDecl, std::move(name), loc), type(type) {}
 
   // Disable copy and move.
   ArgDecl(const ArgDecl &) = delete;
