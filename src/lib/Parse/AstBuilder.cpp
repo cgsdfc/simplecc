@@ -179,7 +179,6 @@ Stmt *AstBuilder::visit_return_stmt(Node *N) {
 }
 
 void AstBuilder::visit_stmt(Node *N, std::vector<Stmt *> &Stmts) {
-
   auto first = N->FirstChild();
   if (first->getType() == Symbol::flow_stmt) {
     return Stmts.push_back(visit_flow_stmt(first));
@@ -195,7 +194,7 @@ void AstBuilder::visit_stmt(Node *N, std::vector<Stmt *> &Stmts) {
 
   if (first->getValue() == "{") {
     for (auto C : N->getChildren()) {
-      if (C->getType() != Symbol::stmt) {
+      if (C->getType() == Symbol::stmt) {
         visit_stmt(C, Stmts);
       }
     }
