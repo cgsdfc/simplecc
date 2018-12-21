@@ -262,5 +262,6 @@ public:
   using VisitorBase<Derived>::visitStmt;
   using VisitorBase<Derived>::visitExpr;
 };
+
 } // namespace simplecc
 #endif

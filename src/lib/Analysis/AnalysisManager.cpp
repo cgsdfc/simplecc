@@ -1,10 +1,10 @@
 #include "simplecc/Analysis/AnalysisManager.h"
-
 #include "simplecc/Analysis/ImplicitCallTransformer.h"
 #include "simplecc/Analysis/AstVerifier.h"
 #include "simplecc/Analysis/SyntaxChecker.h"
 #include "simplecc/Analysis/TypeChecker.h"
 #include "simplecc/Analysis/SymbolTableBuilder.h"
+#include "simplecc/Analysis/ArrayBoundChecker.h"
 
 using namespace simplecc;
 
@@ -22,6 +22,10 @@ bool AnalysisManager::runAllAnalyses(Program *P) {
   ImplicitCallTransformer().Transform(P, TheTable);
 
   if (!TypeChecker().Check(P, TheTable)) {
+    return false;
+  }
+
+  if (!ArrayBoundChecker().Check(P, TheTable)) {
     return false;
   }
 

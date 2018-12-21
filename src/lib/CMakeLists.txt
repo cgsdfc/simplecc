@@ -22,6 +22,7 @@ set(SOURCE_FILES
         Analysis/AstVerifier.cpp
         Analysis/SymbolTableBuilder.cpp
         Analysis/AnalysisManager.cpp
+        Analysis/ArrayBoundChecker.cpp
 
         # Generate ByteCode from the AST.
         Codegen/ByteCodePrinter.cpp
