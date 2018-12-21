@@ -104,7 +104,7 @@ Value *LLVMIRCompiler::visitName(Name *Nn) {
 
 /// The tricky part of BoolOp:
 /// BoolOp has two forms, indicated by getHasCmpop() and should be handled
-/// separatly: The mission of visitBoolOp() is to evaluate the condition
+/// separately: The mission of visitBoolOp() is to evaluate the condition
 /// expression and produce a bool value that indicates whether the condition
 /// is true. We have those in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
 /// => bool -- already a bool. Form-2: <Expr> => int -- not a bool yet,
@@ -187,7 +187,7 @@ void LLVMIRCompiler::visitIf(If *I) {
 void LLVMIRCompiler::visitWhile(While *W) {
   /// Get the Parent to put BasicBlock's in it.
   Function *TheFunction = Builder.GetInsertBlock()->getParent();
-  /// Create the BB for `loop`, which contains evalution the condition
+  /// Create the BB for `loop`, which contains evaluation the condition
   // and ends with a conditional branch.
   BasicBlock *Loop = BasicBlock::Create(TheContext, "loop", TheFunction);
   /// Create an unconditional branch to the loop in the current BB.
@@ -445,7 +445,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   /// Generate the body
   visitStmtList(FD->getStmts());
 
-  /// Check for well-formness of all BBs. In particular, look for
+  /// Check for well-form of all BBs. In particular, look for
   /// any unterminated BB and try to add a Return to it.
   for (BasicBlock &BB : *TheFunction) {
     Instruction *Terminator = BB.getTerminator();

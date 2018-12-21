@@ -80,9 +80,9 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
   /// The tricky part of BoolOp:
   /// BoolOp has two forms, indicated by getHasCmpop() and should be handled
-  /// separatly: The mission of visitBoolOp() is to evaluate the condition
+  /// separately: The mission of visitBoolOp() is to evaluate the condition
   /// expression and produce a bool value that indicates whether the condition
-  /// is true. We have thoese in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
+  /// is true. We have these in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
   /// => bool -- already a bool. Form-2: <Expr> => int -- not a bool yet,
   /// compare it to int(0).
   Value *visitBoolOp(BoolOp *B);

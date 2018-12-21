@@ -21,15 +21,6 @@ Constant *LLVMValueMap::getConstantFromExpr(Expr *E) const {
   }
 }
 
-Value *LLVMValueMap::getConstant(const ConstType &C) const {
-  return ConstantInt::get(getType(C.getType()), C.getValue(), true);
-}
-
-Constant *LLVMValueMap::getBool(bool B) const {
-  return B ? ConstantInt::getTrue(getContext())
-           : ConstantInt::getFalse(getContext());
-}
-
 Constant *LLVMValueMap::getInt(int N) const {
   return ConstantInt::get(getType(BasicTypeKind::Int), N, false);
 }

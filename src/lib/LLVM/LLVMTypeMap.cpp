@@ -28,8 +28,3 @@ llvm::FunctionType *LLVMTypeMap::getType(const FuncType &F) const {
   }
   return FunctionType::get(ReturnType, ArgTypes, false);
 }
-
-
-
-
-

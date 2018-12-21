@@ -15,7 +15,7 @@ class FuncType {
 public:
   explicit FuncType(FuncDef *FD) : TheFuncDef(FD) {}
   BasicTypeKind getReturnType() const { return TheFuncDef->getReturnType(); }
-  BasicTypeKind getArgTypeAt(unsigned Idx) const;
+  BasicTypeKind getArgTypeAt(int Idx) const;
   size_t getArgCount() const { return TheFuncDef->getArgs().size(); }
 };
 

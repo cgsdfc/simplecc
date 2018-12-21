@@ -17,20 +17,14 @@ public:
   LLVMValueMap(llvm::Module &M, LLVMContext &Context)
       : LLVMTypeMap(Context), TheModule(M) {}
 
-  /// Convert a Constant value.
-  Value *getConstant(const ConstType &C) const;
-
-  /// Convert a Num node to int value.
+  /// Convert an int value.
   Constant *getInt(int N) const ;
 
-  /// Convert a Char node to char value.
+  /// Convert a char value.
   Constant *getChar(int C) const;
 
   // Convert a constant expression.
   Constant *getConstantFromExpr(Expr *E) const;
-
-  /// Convert a bool value.
-  Constant *getBool(bool B) const;
 
   Constant *getGlobalInitializer(VarDecl *VD);
 };
