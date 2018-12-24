@@ -141,7 +141,6 @@ BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
   if (EM.IsOk(Errs) && Idx != BasicTypeKind::Int) {
     EM.Error(SB->getLoc(), "array index must be int");
   }
-  /// TODO: Bound check.
 
   return Entry.AsArray().getElementType();
 }

@@ -18,7 +18,7 @@ public:
       : LLVMTypeMap(Context), TheModule(M) {}
 
   /// Convert an int value.
-  Constant *getInt(int N) const ;
+  Constant *getInt(int N) const;
 
   /// Convert a char value.
   Constant *getChar(int C) const;

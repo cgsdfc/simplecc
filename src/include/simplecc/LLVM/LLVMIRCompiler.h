@@ -82,9 +82,9 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   /// BoolOp has two forms, indicated by getHasCmpop() and should be handled
   /// separately: The mission of visitBoolOp() is to evaluate the condition
   /// expression and produce a bool value that indicates whether the condition
-  /// is true. We have these in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
-  /// => bool -- already a bool. Form-2: <Expr> => int -- not a bool yet,
-  /// compare it to int(0).
+  /// is true. We have these in grammar:
+  /// Form-1: <Expr> <RichCompareOp> <Expr> => bool -- already a bool.
+  /// Form-2: <Expr> => int -- not a bool yet, compare it to int(0).
   Value *visitBoolOp(BoolOp *B);
 
   void visitExprStmt(ExprStmt *ES) { visitExpr(ES->getValue()); }
@@ -129,8 +129,9 @@ private:
   /// Keep track of global name binding.
   /// Global Constant => GlobalVariable(IsConstant=true, ExternalLinkage).
   /// Global Array => GlobalVariable(Initializer=ConstantAggregateZero,
-  /// ExternalLinkage). Global Variable => GlobalVariable(Initializer=Zero,
-  /// ExternalLinkage). Global Function => Function(ExternalLinkage).
+  /// ExternalLinkage).
+  /// Global Variable => GlobalVariable(Initializer=Zero, ExternalLinkage).
+  /// Global Function => Function(ExternalLinkage).
   /// printf/scanf => External Function Declaration, Function(ExternalLinkage,
   /// BasicBlocks=None).
   std::unordered_map<String, Value *> GlobalValues;
