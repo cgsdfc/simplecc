@@ -17,33 +17,33 @@ public:
 template<class Derived> class ChildrenVisitor : public VisitorBase<Derived> {
 public:
   /// Decl subclasses.
-  void visitProgram(Program *node);
-  void visitConstDecl(ConstDecl *node);
-  void visitVarDecl(VarDecl *node) {}
-  void visitFuncDef(FuncDef *node);
-  void visitArgDecl(ArgDecl *node) {}
+  void visitProgram(Program *P);
+  void visitConstDecl(ConstDecl *CD);
+  void visitVarDecl(VarDecl *VD) {}
+  void visitFuncDef(FuncDef *FD);
+  void visitArgDecl(ArgDecl *AD) {}
 
   /// Stmt subclasses.
-  void visitRead(Read *node);
-  void visitWrite(Write *node);
-  void visitAssign(Assign *node);
-  void visitFor(For *node);
-  void visitWhile(While *node);
-  void visitReturn(Return *node);
-  void visitIf(If *node);
-  void visitExprStmt(ExprStmt *node);
+  void visitRead(Read *R);
+  void visitWrite(Write *W);
+  void visitAssign(Assign *A);
+  void visitFor(For *F);
+  void visitWhile(While *W);
+  void visitReturn(Return *R);
+  void visitIf(If *I);
+  void visitExprStmt(ExprStmt *ES);
 
   // Expr subclasses.
-  void visitBinOp(BinOp *node);
-  void visitParenExpr(ParenExpr *node);
-  void visitBoolOp(BoolOp *node);
-  void visitUnaryOp(UnaryOp *node);
-  void visitCall(Call *node);
-  void visitNum(Num *node) {}
-  void visitStr(Str *node) {}
-  void visitChar(Char *node) {}
-  void visitSubscript(Subscript *node);
-  void visitName(Name *node) {}
+  void visitBinOp(BinOp *B);
+  void visitParenExpr(ParenExpr *PE);
+  void visitBoolOp(BoolOp *B);
+  void visitUnaryOp(UnaryOp *U);
+  void visitCall(Call *C);
+  void visitNum(Num *N) {}
+  void visitStr(Str *S) {}
+  void visitChar(Char *C) {}
+  void visitSubscript(Subscript *SB);
+  void visitName(Name *N) {}
 
   /// Pull in VisitorBase's methods.
   using VisitorBase<Derived>::visitDecl;
@@ -58,15 +58,12 @@ RetTy VisitorBase<Derived>::visitDecl(Decl *D) {
   if (auto x = subclass_cast<ConstDecl>(D)) {
     return static_cast<Derived *>(this)->visitConstDecl(x);
   }
-
   if (auto x = subclass_cast<VarDecl>(D)) {
     return static_cast<Derived *>(this)->visitVarDecl(x);
   }
-
   if (auto x = subclass_cast<FuncDef>(D)) {
     return static_cast<Derived *>(this)->visitFuncDef(x);
   }
-
   if (auto x = subclass_cast<ArgDecl>(D)) {
     return static_cast<Derived *>(this)->visitArgDecl(x);
   }
@@ -79,31 +76,24 @@ RetTy VisitorBase<Derived>::visitStmt(Stmt *S) {
   if (auto x = subclass_cast<Read>(S)) {
     return static_cast<Derived *>(this)->visitRead(x);
   }
-
   if (auto x = subclass_cast<Write>(S)) {
     return static_cast<Derived *>(this)->visitWrite(x);
   }
-
   if (auto x = subclass_cast<Assign>(S)) {
     return static_cast<Derived *>(this)->visitAssign(x);
   }
-
   if (auto x = subclass_cast<For>(S)) {
     return static_cast<Derived *>(this)->visitFor(x);
   }
-
   if (auto x = subclass_cast<While>(S)) {
     return static_cast<Derived *>(this)->visitWhile(x);
   }
-
   if (auto x = subclass_cast<Return>(S)) {
     return static_cast<Derived *>(this)->visitReturn(x);
   }
-
   if (auto x = subclass_cast<If>(S)) {
     return static_cast<Derived *>(this)->visitIf(x);
   }
-
   if (auto x = subclass_cast<ExprStmt>(S)) {
     return static_cast<Derived *>(this)->visitExprStmt(x);
   }
@@ -116,39 +106,30 @@ RetTy VisitorBase<Derived>::visitExpr(Expr *E) {
   if (auto x = subclass_cast<BinOp>(E)) {
     return static_cast<Derived *>(this)->visitBinOp(x);
   }
-
   if (auto x = subclass_cast<ParenExpr>(E)) {
     return static_cast<Derived *>(this)->visitParenExpr(x);
   }
-
   if (auto x = subclass_cast<BoolOp>(E)) {
     return static_cast<Derived *>(this)->visitBoolOp(x);
   }
-
   if (auto x = subclass_cast<UnaryOp>(E)) {
     return static_cast<Derived *>(this)->visitUnaryOp(x);
   }
-
   if (auto x = subclass_cast<Call>(E)) {
     return static_cast<Derived *>(this)->visitCall(x);
   }
-
   if (auto x = subclass_cast<Num>(E)) {
     return static_cast<Derived *>(this)->visitNum(x);
   }
-
   if (auto x = subclass_cast<Str>(E)) {
     return static_cast<Derived *>(this)->visitStr(x);
   }
-
   if (auto x = subclass_cast<Char>(E)) {
     return static_cast<Derived *>(this)->visitChar(x);
   }
-
   if (auto x = subclass_cast<Subscript>(E)) {
     return static_cast<Derived *>(this)->visitSubscript(x);
   }
-
   if (auto x = subclass_cast<Name>(E)) {
     return static_cast<Derived *>(this)->visitName(x);
   }
@@ -157,146 +138,125 @@ RetTy VisitorBase<Derived>::visitExpr(Expr *E) {
 
 // Methods of ChildrenVisitor
 template<class Derived>
-void ChildrenVisitor<Derived>::visitProgram(Program *node) {
-  for (auto s : node->getDecls()) {
+void ChildrenVisitor<Derived>::visitProgram(Program *P) {
+  for (auto s : P->getDecls()) {
     static_cast<Derived *>(this)->visitDecl(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitConstDecl(ConstDecl *node) {
-  static_cast<Derived *>(this)->visitExpr(node->getValue());
+void ChildrenVisitor<Derived>::visitConstDecl(ConstDecl *CD) {
+  static_cast<Derived *>(this)->visitExpr(CD->getValue());
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitFuncDef(FuncDef *node) {
-  for (auto s : node->getArgs()) {
+void ChildrenVisitor<Derived>::visitFuncDef(FuncDef *FD) {
+  for (auto s : FD->getArgs()) {
     static_cast<Derived *>(this)->visitDecl(s);
   }
-
-  for (auto s : node->getDecls()) {
+  for (auto s : FD->getDecls()) {
     static_cast<Derived *>(this)->visitDecl(s);
   }
-
-  for (auto s : node->getStmts()) {
+  for (auto s : FD->getStmts()) {
     static_cast<Derived *>(this)->visitStmt(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitRead(Read *node) {
-
-  for (auto s : node->getNames()) {
+void ChildrenVisitor<Derived>::visitRead(Read *R) {
+  for (auto s : R->getNames()) {
     static_cast<Derived *>(this)->visitExpr(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitWrite(Write *node) {
-
-  if (auto s = node->getStr()) {
+void ChildrenVisitor<Derived>::visitWrite(Write *W) {
+  if (auto s = W->getStr()) {
     static_cast<Derived *>(this)->visitExpr(s);
   }
-
-  if (auto s = node->getValue()) {
+  if (auto s = W->getValue()) {
     static_cast<Derived *>(this)->visitExpr(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitAssign(Assign *node) {
-
-  static_cast<Derived *>(this)->visitExpr(node->getTarget());
-
-  static_cast<Derived *>(this)->visitExpr(node->getValue());
+void ChildrenVisitor<Derived>::visitAssign(Assign *A) {
+  static_cast<Derived *>(this)->visitExpr(A->getTarget());
+  static_cast<Derived *>(this)->visitExpr(A->getValue());
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitFor(For *node) {
-  static_cast<Derived *>(this)->visitStmt(node->getInitial());
-  static_cast<Derived *>(this)->visitExpr(node->getCondition());
-  static_cast<Derived *>(this)->visitStmt(node->getStep());
-
-  for (auto s : node->getBody()) {
+void ChildrenVisitor<Derived>::visitFor(For *F) {
+  static_cast<Derived *>(this)->visitStmt(F->getInitial());
+  static_cast<Derived *>(this)->visitExpr(F->getCondition());
+  static_cast<Derived *>(this)->visitStmt(F->getStep());
+  for (auto s : F->getBody()) {
     static_cast<Derived *>(this)->visitStmt(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitWhile(While *node) {
-  static_cast<Derived *>(this)->visitExpr(node->getCondition());
-
-  for (auto s : node->getBody()) {
+void ChildrenVisitor<Derived>::visitWhile(While *W) {
+  static_cast<Derived *>(this)->visitExpr(W->getCondition());
+  for (auto s : W->getBody()) {
     static_cast<Derived *>(this)->visitStmt(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitReturn(Return *node) {
-
-  if (auto s = node->getValue()) {
+void ChildrenVisitor<Derived>::visitReturn(Return *R) {
+  if (auto s = R->getValue()) {
     static_cast<Derived *>(this)->visitExpr(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitIf(If *node) {
-
-  static_cast<Derived *>(this)->visitExpr(node->getTest());
-
-  for (auto s : node->getBody()) {
+void ChildrenVisitor<Derived>::visitIf(If *I) {
+  static_cast<Derived *>(this)->visitExpr(I->getTest());
+  for (auto s : I->getBody()) {
     static_cast<Derived *>(this)->visitStmt(s);
   }
-
-  for (auto s : node->getOrelse()) {
+  for (auto s : I->getOrelse()) {
     static_cast<Derived *>(this)->visitStmt(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitExprStmt(ExprStmt *node) {
-
-  static_cast<Derived *>(this)->visitExpr(node->getValue());
+void ChildrenVisitor<Derived>::visitExprStmt(ExprStmt *ES) {
+  static_cast<Derived *>(this)->visitExpr(ES->getValue());
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitBinOp(BinOp *node) {
-
-  static_cast<Derived *>(this)->visitExpr(node->getLeft());
-
-  static_cast<Derived *>(this)->visitExpr(node->getRight());
+void ChildrenVisitor<Derived>::visitBinOp(BinOp *B) {
+  static_cast<Derived *>(this)->visitExpr(B->getLeft());
+  static_cast<Derived *>(this)->visitExpr(B->getRight());
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitParenExpr(ParenExpr *node) {
-
-  static_cast<Derived *>(this)->visitExpr(node->getValue());
+void ChildrenVisitor<Derived>::visitParenExpr(ParenExpr *PE) {
+  static_cast<Derived *>(this)->visitExpr(PE->getValue());
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitBoolOp(BoolOp *node) {
-
-  static_cast<Derived *>(this)->visitExpr(node->getValue());
+void ChildrenVisitor<Derived>::visitBoolOp(BoolOp *B) {
+  static_cast<Derived *>(this)->visitExpr(B->getValue());
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitUnaryOp(UnaryOp *node) {
-
-  static_cast<Derived *>(this)->visitExpr(node->getOperand());
+void ChildrenVisitor<Derived>::visitUnaryOp(UnaryOp *U) {
+  static_cast<Derived *>(this)->visitExpr(U->getOperand());
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitCall(Call *node) {
-
-  for (auto s : node->getArgs()) {
+void ChildrenVisitor<Derived>::visitCall(Call *C) {
+  for (auto s : C->getArgs()) {
     static_cast<Derived *>(this)->visitExpr(s);
   }
 }
 
 template<class Derived>
-void ChildrenVisitor<Derived>::visitSubscript(Subscript *node) {
-
-  static_cast<Derived *>(this)->visitExpr(node->getIndex());
+void ChildrenVisitor<Derived>::visitSubscript(Subscript *SB) {
+  static_cast<Derived *>(this)->visitExpr(SB->getIndex());
 }
 
 } // namespace simplecc
