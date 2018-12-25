@@ -1,8 +1,8 @@
-#include <simplecc/Driver/Driver.h>
 #include "simplecc/Support/Print.h"
+#include <simplecc/Driver/Driver.h>
 
-#include <memory> // for unique_ptr
 #include <iostream> // for cin
+#include <memory>   // for unique_ptr
 
 using namespace simplecc;
 

@@ -1,9 +1,9 @@
 #ifndef SIMPLECOMPILER_BYTECODECOMPILER_H
 #define SIMPLECOMPILER_BYTECODECOMPILER_H
 #include "simplecc/Analysis/SymbolTable.h"
-#include "ByteCodeBuilder.h"
-#include "simplecc/Support/ErrorManager.h"
 #include "simplecc/Analysis/Visitor.h"
+#include "simplecc/Codegen/ByteCodeBuilder.h"
+#include "simplecc/Support/ErrorManager.h"
 
 #include <cassert>
 #include <utility>
@@ -97,6 +97,6 @@ private:
   ByteCodeModule *TheModule = nullptr;
   ErrorManager EM;
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_BYTECODECOMPILER_H
+#endif // SIMPLECOMPILER_BYTECODECOMPILER_H

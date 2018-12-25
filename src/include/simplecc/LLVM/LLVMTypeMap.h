@@ -1,16 +1,16 @@
 #ifndef SIMPLECOMPILER_LLVMTYPEMAP_H
 #define SIMPLECOMPILER_LLVMTYPEMAP_H
-#include "simplecc/Parse/AST.h"
 #include "simplecc/Analysis/Types.h"
+#include "simplecc/Parse/AST.h"
 
-#include <llvm/IR/Type.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Type.h>
 
 namespace simplecc {
+using llvm::FunctionType;
 using llvm::LLVMContext;
 using llvm::Type;
-using llvm::FunctionType;
 
 /// This class translates simplecc's type system to LLVM's type system.
 /// Provides helpers to convert objects of different types to their LLVM
@@ -55,6 +55,6 @@ public:
     return getType(CD->getType());
   }
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_LLVMTYPEMAP_H
+#endif // SIMPLECOMPILER_LLVMTYPEMAP_H

@@ -4,9 +4,12 @@ using namespace simplecc;
 
 llvm::Type *LLVMTypeMap::getType(BasicTypeKind Type) const {
   switch (Type) {
-  case BasicTypeKind::Character:return Type::getInt8Ty(TheContext);
-  case BasicTypeKind::Int:return Type::getInt32Ty(TheContext);
-  case BasicTypeKind::Void:return Type::getVoidTy(TheContext);
+  case BasicTypeKind::Character:
+    return Type::getInt8Ty(TheContext);
+  case BasicTypeKind::Int:
+    return Type::getInt32Ty(TheContext);
+  case BasicTypeKind::Void:
+    return Type::getVoidTy(TheContext);
   }
 }
 

@@ -45,6 +45,6 @@ public:
 private:
   AstRef *Ref = nullptr;
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_ASTITERATOR_H
+#endif // SIMPLECOMPILER_ASTITERATOR_H

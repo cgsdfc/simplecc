@@ -37,16 +37,15 @@ void SyntaxChecker::visitProgram(Program *P) {
 
   // check the last declaration is the void main() function
   Decl *LastDecl = P->getDecls().back();
-  if (IsInstance<FuncDef>(LastDecl) && LastDecl->getName() == "main"
-      && static_cast<FuncDef *>(LastDecl)->getReturnType() == BasicTypeKind::Void)
+  if (IsInstance<FuncDef>(LastDecl) && LastDecl->getName() == "main" &&
+      static_cast<FuncDef *>(LastDecl)->getReturnType() == BasicTypeKind::Void)
     return;
 
   EM.Error(LastDecl->getLoc(), "the last declaration must be void main()");
 }
 
 void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
-  if (CD->getType() == BasicTypeKind::Int &&
-      !IsInstance<Num>(CD->getValue())) {
+  if (CD->getType() == BasicTypeKind::Int && !IsInstance<Num>(CD->getValue())) {
     EM.Error(CD->getLoc(), "expected int initializer");
   }
 

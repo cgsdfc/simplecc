@@ -164,7 +164,7 @@ ExprValue ByteCodePrinter::visitUnaryOp(UnaryOp *U) {
 
 ExprValue ByteCodePrinter::visitSubscript(Subscript *SB) {
   assert(SB->getCtx() == ExprContextKind::Load &&
-      "Store must be handle by visitAssign()");
+         "Store must be handle by visitAssign()");
   ExprValue Idx = visitExpr(SB->getIndex());
   ExprValue Result = MakeTemporary();
   w.getOuts() << Result << " = " << SB->getName() << "[" << Idx << "]\n";
@@ -177,7 +177,7 @@ bool ExprValue::Check() const {
     return Temporary >= 0;
   } else {
     return (IsInstance<Char>(Factor) || IsInstance<Num>(Factor) ||
-        IsInstance<Name>(Factor) || IsInstance<Str>(Factor));
+            IsInstance<Name>(Factor) || IsInstance<Str>(Factor));
   }
 }
 
@@ -187,15 +187,20 @@ void ExprValue::Format(std::ostream &O) const {
     return;
   }
   switch (Factor->GetKind()) {
-  case Expr::Char:O << "'" << char(static_cast<Char *>(Factor)->getC()) << "'";
+  case Expr::Char:
+    O << "'" << char(static_cast<Char *>(Factor)->getC()) << "'";
     break;
-  case Expr::Num:O << static_cast<Num *>(Factor)->getN();
+  case Expr::Num:
+    O << static_cast<Num *>(Factor)->getN();
     break;
-  case Expr::Name:O << static_cast<Name *>(Factor)->getId();
+  case Expr::Name:
+    O << static_cast<Name *>(Factor)->getId();
     break;
-  case Expr::Str:O << static_cast<Str *>(Factor)->getS();
+  case Expr::Str:
+    O << static_cast<Str *>(Factor)->getS();
     break;
-  default:assert(false && "Unhandled Factor Expr");
+  default:
+    assert(false && "Unhandled Factor Expr");
   }
 }
 

@@ -19,11 +19,11 @@ enum class AstKind {
 };
 
 /// Template magic to map type to AstKind enum.
-template<typename AstT> struct AstTraits {
+template <typename AstT> struct AstTraits {
   static const AstKind Kind = AstT::UnknownAstKindError;
 };
 
-#define HANDLE_AST_TYPE(NAME)                                                \
+#define HANDLE_AST_TYPE(NAME)                                                  \
   template <> struct AstTraits<NAME> {                                         \
     static const AstKind Kind = AstKind::NAME;                                 \
   };
@@ -47,7 +47,7 @@ class AstRef {
 public:
   /// Construct from one of the known subclasses of AST.
   /// Only AstGraph is allowed to create it.
-  template<typename AstT>
+  template <typename AstT>
   AstRef(AstT *Ptr, AstGraph *P)
       : Ref(Ptr), Kind(AstTraits<AstT>::Kind), Parent(P) {}
 
@@ -63,7 +63,7 @@ public:
 
   /// get<Type>() is like dynamic_cast<Type>() that tries to cast
   /// the raw AST* to Type* using the Kind indicator and fails back to nullptr.
-  template<typename AstT> AstT *get() const {
+  template <typename AstT> AstT *get() const {
     // non-empty most of the time.
     if (AstTraits<AstT>::Kind != getKind())
       return nullptr;
@@ -74,6 +74,6 @@ public:
   const Location &getLocation() const;
   AstGraph *getParent() const { return Parent; }
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_ASTREF_H
+#endif // SIMPLECOMPILER_ASTREF_H

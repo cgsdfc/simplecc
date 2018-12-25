@@ -1,11 +1,11 @@
 #ifndef PARSER_H
 #define PARSER_H
-#include "simplecc/Support/ErrorManager.h"
 #include "simplecc/Lex/TokenInfo.h"
+#include "simplecc/Support/ErrorManager.h"
 
+#include <iostream>
 #include <stack>
 #include <vector>
-#include <iostream>
 
 namespace simplecc {
 class Node;
@@ -21,17 +21,11 @@ class Parser {
     StackEntry(DFA *D, int State, Node *N)
         : TheDFA(D), TheState(State), TheNode(N) {}
 
-    DFA *getDFA() const {
-      return TheDFA;
-    }
+    DFA *getDFA() const { return TheDFA; }
 
-    int getState() const {
-      return TheState;
-    }
+    int getState() const { return TheState; }
 
-    Node *getNode() const {
-      return TheNode;
-    }
+    Node *getNode() const { return TheNode; }
 
     void setState(int S) { TheState = S; }
 

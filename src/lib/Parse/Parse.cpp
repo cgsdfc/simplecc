@@ -1,6 +1,6 @@
 #include "simplecc/Parse/Parse.h"
-#include "simplecc/Parse/Parser.h"
 #include "simplecc/Parse/AstBuilder.h"
+#include "simplecc/Parse/Parser.h"
 
 namespace simplecc {
 
@@ -16,4 +16,4 @@ std::unique_ptr<Program> BuildAST(const std::vector<TokenInfo> &TheTokens) {
   return std::unique_ptr<Program>(AstBuilder().Build(CST.get()));
 }
 
-}
+} // namespace simplecc

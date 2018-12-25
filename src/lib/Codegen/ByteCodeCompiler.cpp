@@ -1,6 +1,6 @@
 #include "simplecc/Codegen/ByteCodeCompiler.h"
-#include "simplecc/Codegen/ByteCodeModule.h"
 #include "simplecc/Codegen/ByteCodeFunction.h"
+#include "simplecc/Codegen/ByteCodeModule.h"
 
 using namespace simplecc;
 
@@ -18,7 +18,6 @@ void ByteCodeCompiler::visitVarDecl(VarDecl *VD) {
   auto TheFunction = Builder.getInsertPoint();
   TheFunction->GetLocalVariables().push_back(TheLocalTable[VD->getName()]);
 }
-
 
 void ByteCodeCompiler::visitRead(Read *RD) {
   for (auto E : RD->getNames()) {
@@ -64,8 +63,7 @@ void ByteCodeCompiler::visitFor(For *node) {
 
 void ByteCodeCompiler::visitWhile(While *W) {
   unsigned Loop = Builder.getSize();
-  unsigned JumpToEnd =
-      CompileBoolOp(static_cast<BoolOp *>(W->getCondition()));
+  unsigned JumpToEnd = CompileBoolOp(static_cast<BoolOp *>(W->getCondition()));
 
   for (auto s : W->getBody()) {
     visitStmt(s);
@@ -144,8 +142,8 @@ void ByteCodeCompiler::visitName(Name *N) {
     return;
   }
   N->getCtx() == ExprContextKind::Load
-  ? Builder.CreateLoad(Entry.getScope(), N->getId())
-  : Builder.CreateStore(Entry.getScope(), N->getId());
+      ? Builder.CreateLoad(Entry.getScope(), N->getId())
+      : Builder.CreateStore(Entry.getScope(), N->getId());
 }
 
 void ByteCodeCompiler::visitFuncDef(FuncDef *FD) {
@@ -182,7 +180,8 @@ void ByteCodeCompiler::visitProgram(Program *P) {
 }
 
 // public interface
-void ByteCodeCompiler::Compile(Program *P, const SymbolTable &S, ByteCodeModule &M) {
+void ByteCodeCompiler::Compile(Program *P, const SymbolTable &S,
+                               ByteCodeModule &M) {
   EM.clear();
   M.clear();
   setTable(&S);

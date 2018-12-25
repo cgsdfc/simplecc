@@ -78,8 +78,8 @@ bool SymbolEntry::IsArray() const {
 
 bool SymbolEntry::IsVariable() const {
   return TheDecl && (IsInstance<ArgDecl>(TheDecl) ||
-                  (IsInstance<VarDecl>(TheDecl) &&
-                   !static_cast<VarDecl *>(TheDecl)->getIsArray()));
+                     (IsInstance<VarDecl>(TheDecl) &&
+                      !static_cast<VarDecl *>(TheDecl)->getIsArray()));
 }
 
 bool SymbolEntry::IsConstant() const {

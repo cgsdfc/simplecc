@@ -27,11 +27,13 @@ class AstBuilder {
   /// declaration: type_name (NAME decl_trailer | 'main' '(' ')' compound_stmt )
   void visit_declaration(Node *N, std::vector<Decl *> &Decls);
 
-  /// decl_trailer: [ paralist ] compound_stmt | [subscript2] (',' var_item)* ';'
+  /// decl_trailer: [ paralist ] compound_stmt | [subscript2] (',' var_item)*
+  /// ';'
   void visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
                           std::vector<Decl *> &Decls);
 
-  Decl *visit_funcdef(BasicTypeKind RetTy, String Name, Node *decl_trailer, const Location &L);
+  Decl *visit_funcdef(BasicTypeKind RetTy, String Name, Node *decl_trailer,
+                      const Location &L);
 
   /// paralist: '(' type_name NAME (',' type_name NAME)* ')'
   void visit_paralist(Node *N, std::vector<Decl *> &ParamList);

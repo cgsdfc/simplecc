@@ -9,6 +9,7 @@ class Program;
 
 class AnalysisManager {
   SymbolTable TheTable;
+
 public:
   AnalysisManager() = default;
   ~AnalysisManager();
@@ -17,18 +18,12 @@ public:
   /// Return true if errors happened.
   bool runAllAnalyses(Program *P);
 
-  const SymbolTable &getSymbolTable() const {
-    return TheTable;
-  }
+  const SymbolTable &getSymbolTable() const { return TheTable; }
 
-  SymbolTable &getSymbolTable() {
-    return TheTable;
-  }
+  SymbolTable &getSymbolTable() { return TheTable; }
 
-  void clear() {
-    TheTable.clear();
-  }
+  void clear() { TheTable.clear(); }
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_ANALYSISMANAGER_H
+#endif // SIMPLECOMPILER_ANALYSISMANAGER_H

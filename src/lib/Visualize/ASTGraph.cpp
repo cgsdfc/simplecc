@@ -1,14 +1,14 @@
 #include "simplecc/Visualize/ASTGraph.h"
-#include "simplecc/Visualize/Visualize.h"
 #include "simplecc/Support/Print.h"
-#include "simplecc/Visualize/DescriptionVisitor.h"
 #include "simplecc/Visualize/ChildrenCollector.h"
+#include "simplecc/Visualize/DescriptionVisitor.h"
+#include "simplecc/Visualize/Visualize.h"
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/Support/GraphWriter.h>
 
 #include <iostream>
-#include <utility>     // for move
+#include <utility> // for move
 #include <vector>
 
 using namespace simplecc;
@@ -27,13 +27,12 @@ const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
   return Result.first->second;
 }
 
-
 namespace llvm {
 using simplecc::AstGraph;
 using simplecc::AstRef;
 
 /// Specialized GraphTraits for AstGraph
-template<> struct GraphTraits<AstGraph> {
+template <> struct GraphTraits<AstGraph> {
   using NodeRef = AstRef *;
   using nodes_iterator = AstGraph::NodeIterator;
   using ChildIteratorType = AstGraph::ChildIteratorType;
@@ -54,8 +53,9 @@ template<> struct GraphTraits<AstGraph> {
 };
 
 /// Specialized DOTGraphTraits for AstGraph.
-template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
-  explicit DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
+template <> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
+  explicit DOTGraphTraits(bool simple = false)
+      : DefaultDOTGraphTraits(simple) {}
 
   static std::string getGraphName(const AstGraph &) {
     return "Abstract Syntax Tree";
@@ -88,4 +88,4 @@ void PrintAllAstNodes(Program *P, std::ostream &O) {
     Print(O, AR->getClassName(), AR->getLocation());
   }
 }
-}
+} // namespace simplecc

@@ -3,8 +3,8 @@
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/Print.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 namespace simplecc {
 /// This class handles the formatting of the result of an expression
@@ -80,7 +80,9 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   ExprValue visitUnaryOp(UnaryOp *U);
   ExprValue visitSubscript(Subscript *SB);
 
-  ExprValue visitExpr(Expr *E) { return ChildrenVisitor::visitExpr<ExprValue>(E); }
+  ExprValue visitExpr(Expr *E) {
+    return ChildrenVisitor::visitExpr<ExprValue>(E);
+  }
   ExprValue visitParenExpr(ParenExpr *PE) { return visitExpr(PE->getValue()); }
   ExprValue visitName(Name *N) { return ExprValue(N); }
   ExprValue visitChar(Char *C) { return ExprValue(C); }

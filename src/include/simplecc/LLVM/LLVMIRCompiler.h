@@ -1,26 +1,26 @@
 #ifndef SIMPLECOMPILER_LLVMIRCOMPILER_H
 #define SIMPLECOMPILER_LLVMIRCOMPILER_H
 #include "simplecc/Analysis/Visitor.h"
-#include "LLVMValueMap.h"
+#include "simplecc/LLVM/LLVMValueMap.h"
 #include "simplecc/Support/ErrorManager.h"
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
 
 #include <unordered_map>
 
 namespace llvm {
 class Value;
 class Function;
-}
+} // namespace llvm
 
 namespace simplecc {
 class SymbolTable;
-using llvm::Value;
 using llvm::Function;
 using llvm::IRBuilder;
 using llvm::LLVMContext;
+using llvm::Value;
 
 /// This class emits LLVM IR from an AST.
 ///
@@ -168,6 +168,6 @@ public:
   Program *getProgram() { return TheProgram; }
 };
 
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_LLVMIRCOMPILER_H
+#endif // SIMPLECOMPILER_LLVMIRCOMPILER_H

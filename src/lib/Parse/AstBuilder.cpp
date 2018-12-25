@@ -1,7 +1,7 @@
 #include "simplecc/Parse/AstBuilder.h"
 #include "simplecc/Parse/AST.h"
-#include "simplecc/Support/ErrorManager.h"
 #include "simplecc/Parse/Node.h"
+#include "simplecc/Support/ErrorManager.h"
 
 #include <cassert>
 #include <sstream>
@@ -67,9 +67,8 @@ void AstBuilder::visit_declaration(Node *N, std::vector<Decl *> &Decls) {
     std::vector<Stmt *> FnStmts;
     auto Ty = visit_type_name(TypeName);
     visit_compound_stmt(N->LastChild(), FnDecls, FnStmts);
-    Decls.push_back(new FuncDef(Ty, {},
-                                std::move(FnDecls),
-                                std::move(FnStmts), "main", TypeName->getLocation()));
+    Decls.push_back(new FuncDef(Ty, {}, std::move(FnDecls), std::move(FnStmts),
+                                "main", TypeName->getLocation()));
     return;
   }
 
@@ -148,20 +147,22 @@ void AstBuilder::visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
   auto Ty = visit_type_name(TypeName);
 
   if (first->getValue() == ";") {
-    Decls.push_back(new VarDecl(Ty, false, 0, Name->getValue(),
-                                TypeName->getLocation()));
+    Decls.push_back(
+        new VarDecl(Ty, false, 0, Name->getValue(), TypeName->getLocation()));
     return;
   }
 
   if (first->getType() == Symbol::paralist ||
       first->getType() == Symbol::compound_stmt) {
-    Decls.push_back(visit_funcdef(Ty, Name->getValue(), N, TypeName->getLocation()));
+    Decls.push_back(
+        visit_funcdef(Ty, Name->getValue(), N, TypeName->getLocation()));
     return;
   }
 
   bool IsArray = first->getType() == Symbol::subscript2;
   int ArraySize = IsArray ? visit_subscript2(first) : 0;
-  Decls.push_back(new VarDecl(Ty, IsArray, ArraySize, Name->getValue(), N->getLocation()));
+  Decls.push_back(
+      new VarDecl(Ty, IsArray, ArraySize, Name->getValue(), N->getLocation()));
 
   for (auto C : N->getChildren()) {
     if (C->getType() != Symbol::var_item)
@@ -258,9 +259,7 @@ Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, String Name,
   }
 
   visit_compound_stmt(decl_trailer->LastChild(), FnDecls, FnStmts);
-  return new FuncDef(RetTy,
-                     std::move(ParamList),
-                     std::move(FnDecls),
+  return new FuncDef(RetTy, std::move(ParamList), std::move(FnDecls),
                      std::move(FnStmts), Name, L);
 }
 
@@ -274,7 +273,8 @@ Stmt *AstBuilder::visit_for_stmt(Node *N) {
   auto Nn = N->getChild(2);
   auto expr = N->getChild(4);
   auto Initial = new Assign(
-      /* target */ new Name(Nn->getValue(), ExprContextKind::Store, Nn->getLocation()),
+      /* target */ new Name(Nn->getValue(), ExprContextKind::Store,
+                            Nn->getLocation()),
       /* value */ visit_expr(expr), /* loc */ Nn->getLocation());
 
   // condition: expr
@@ -286,15 +286,16 @@ Stmt *AstBuilder::visit_for_stmt(Node *N) {
   auto op = N->getChild(11);
   auto num = N->getChild(12);
   assert(num->getType() == Symbol::NUMBER);
-  auto L =
-      new class Name(name2->getValue(), ExprContextKind::Load, name2->getLocation());
+  auto L = new class Name(name2->getValue(), ExprContextKind::Load,
+                          name2->getLocation());
   auto R = makeNum(num);
   auto BO = new BinOp(
       /* left */ L,
       /* op */ OperatorKindFromString(op->getValue()),
       /* right */ R, name2->getLocation());
   auto Step = new Assign(
-      /* target */ new Name(target->getValue(), ExprContextKind::Store, target->getLocation()),
+      /* target */ new Name(target->getValue(), ExprContextKind::Store,
+                            target->getLocation()),
       /* value */ BO,
       /* loc */ target->getLocation());
 
@@ -314,7 +315,7 @@ void AstBuilder::visit_paralist(Node *N, std::vector<Decl *> &ParamList) {
     ParamList.push_back(new ArgDecl(
         /* type */ visit_type_name(TypeName),
         /* name */ Name->getValue(),
-        /* loc */  TypeName->getLocation()));
+        /* loc */ TypeName->getLocation()));
   }
 }
 
@@ -339,15 +340,15 @@ Stmt *AstBuilder::visit_stmt_trailer(Node *N, Node *Name) {
   } else if (first->getValue() == "[") {
     auto Idx = visit_expr(N->getChild(1));
     auto Val = visit_expr(N->LastChild());
-    auto SB = new Subscript(Name->getValue(), Idx,
-                            ExprContextKind::Store, N->getLocation());
+    auto SB = new Subscript(Name->getValue(), Idx, ExprContextKind::Store,
+                            N->getLocation());
     return new Assign(SB, Val, Name->getLocation());
 
   } else {
     assert(first->getValue() == "=");
     auto Val = visit_expr(N->LastChild());
-    auto Target =
-        new class Name(Name->getValue(), ExprContextKind::Store, Name->getLocation());
+    auto Target = new class Name(Name->getValue(), ExprContextKind::Store,
+                                 Name->getLocation());
     return new Assign(Target, Val, Name->getLocation());
   }
 }
@@ -356,14 +357,18 @@ void AstBuilder::visit_compound_stmt(Node *N, std::vector<Decl *> &FnDecls,
                                      std::vector<Stmt *> &FnStmts) {
   for (auto C : N->getChildren()) {
     switch (C->getType()) {
-    case Symbol::const_decl:visit_const_decl(C, FnDecls);
+    case Symbol::const_decl:
+      visit_const_decl(C, FnDecls);
       break;
-    case Symbol::var_decl:visit_var_decl(C, FnDecls);
+    case Symbol::var_decl:
+      visit_var_decl(C, FnDecls);
       break;
-    case Symbol::stmt: visit_stmt(C, FnStmts);
+    case Symbol::stmt:
+      visit_stmt(C, FnStmts);
       break;
       // discard left brace & right brace.
-    default:continue;
+    default:
+      continue;
     }
   }
 }
@@ -407,9 +412,9 @@ Decl *AstBuilder::visit_var_item(Node *N, BasicTypeKind Ty) {
   bool IsArray = N->getNumChildren() > 1;
   int Size = IsArray ? visit_subscript2(N->getChild(1)) : 0;
   return new VarDecl(Ty,
-      /* is_array */ IsArray,
-      /* size */ Size,
-      /* name */ name->getValue(), name->getLocation());
+                     /* is_array */ IsArray,
+                     /* size */ Size,
+                     /* name */ name->getValue(), name->getLocation());
 }
 
 Stmt *AstBuilder::visit_while_stmt(Node *N) {

@@ -1,6 +1,6 @@
 #ifndef AST_VERIFIER_H
 #define AST_VERIFIER_H
-#include "Visitor.h"
+#include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 
 namespace simplecc {

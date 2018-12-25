@@ -1,7 +1,7 @@
 #ifndef MIPS_ASSEMBLY_WRITER_H
 #define MIPS_ASSEMBLY_WRITER_H
-#include "LocalContext.h"
 #include "simplecc/Support/Print.h"
+#include "simplecc/Target/LocalContext.h"
 
 #include <iostream>
 

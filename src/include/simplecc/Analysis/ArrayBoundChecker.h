@@ -1,7 +1,7 @@
 #ifndef SIMPLECOMPILER_ARRAYBOUNDCHECKER_H
 #define SIMPLECOMPILER_ARRAYBOUNDCHECKER_H
-#include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Analysis/SymbolTable.h"
+#include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 #include <utility> // for pair
 
@@ -23,6 +23,6 @@ private:
   SymbolTableView TheLocalTable;
   ErrorManager EM;
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_ARRAYBOUNDCHECKER_H
+#endif // SIMPLECOMPILER_ARRAYBOUNDCHECKER_H

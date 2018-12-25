@@ -8,7 +8,8 @@ namespace simplecc {
 bool CompileToLLVMIR(std::string InputFile, Program *P, const SymbolTable &S,
                      llvm::raw_ostream &OS) {
 
-  std::unique_ptr<LLVMIRCompiler> TheCompiler(new LLVMIRCompiler(std::move(InputFile), P, S));
+  std::unique_ptr<LLVMIRCompiler> TheCompiler(
+      new LLVMIRCompiler(std::move(InputFile), P, S));
 
   /// Compile to llvm::Module, fail fast.
   if (TheCompiler->Compile())

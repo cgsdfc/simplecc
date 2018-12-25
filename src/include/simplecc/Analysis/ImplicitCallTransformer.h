@@ -1,7 +1,7 @@
 #ifndef IMPLICIT_CALL_TRANSFORMER_H
 #define IMPLICIT_CALL_TRANSFORMER_H
 #include "simplecc/Analysis/SymbolTable.h"
-#include "Visitor.h"
+#include "simplecc/Analysis/Visitor.h"
 
 namespace simplecc {
 /// What is an implicit call and why we need to transform them?
@@ -15,8 +15,8 @@ namespace simplecc {
 /// information** to be recognized.
 ///
 /// Q2: Why we need to transform them?
-/// A2: Because to fully recognize form-2 we need to build a SymbolTable first so
-/// this can't be done in AstBuilder. On the other hand, to correctly perform
+/// A2: Because to fully recognize form-2 we need to build a SymbolTable first
+/// so this can't be done in AstBuilder. On the other hand, to correctly perform
 /// type check on the program, these implicit calls **must** be properly
 /// described by the AST. Therefore the AST needs a transformation pass right
 /// after the SymbolTable pass and right before the TypeChecker pass.

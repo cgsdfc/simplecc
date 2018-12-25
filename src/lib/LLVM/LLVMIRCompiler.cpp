@@ -3,10 +3,10 @@
 
 #include <llvm/IR/Verifier.h>
 
-using llvm::StringRef;
 using llvm::BasicBlock;
-using llvm::Instruction;
 using llvm::GlobalVariable;
+using llvm::Instruction;
+using llvm::StringRef;
 
 using namespace simplecc;
 
@@ -45,8 +45,10 @@ bool LLVMIRCompiler::visitStmtList(const std::vector<Stmt *> &StatementList) {
 Value *LLVMIRCompiler::visitUnaryOp(UnaryOp *U) {
   Value *Operand = visitExprPromoteToInt(U->getOperand());
   switch (U->getOp()) {
-  case UnaryopKind::USub:return Builder.CreateNeg(Operand, "neg");
-  case UnaryopKind::UAdd:return Operand;
+  case UnaryopKind::USub:
+    return Builder.CreateNeg(Operand, "neg");
+  case UnaryopKind::UAdd:
+    return Operand;
   }
 }
 
@@ -75,7 +77,9 @@ Function *LLVMIRCompiler::DeclareIOBuiltins(const char *Name) {
 }
 
 /// Helper to create IR that loads a string literal (global string ptr).
-Value *LLVMIRCompiler::getString(StringRef Str) { return Builder.CreateGlobalStringPtr(Str); }
+Value *LLVMIRCompiler::getString(StringRef Str) {
+  return Builder.CreateGlobalStringPtr(Str);
+}
 
 Value *LLVMIRCompiler::visitStr(Str *S) {
   /// Strip quotes first.
@@ -140,16 +144,26 @@ Value *LLVMIRCompiler::visitBinOp(BinOp *B) {
   Value *L = visitExprPromoteToInt(B->getLeft());
   Value *R = visitExprPromoteToInt(B->getRight());
   switch (B->getOp()) {
-  case OperatorKind::Add:return Builder.CreateAdd(L, R, "add");
-  case OperatorKind::Sub:return Builder.CreateSub(L, R, "sub");
-  case OperatorKind::Mult:return Builder.CreateMul(L, R, "mul");
-  case OperatorKind::Div:return Builder.CreateSDiv(L, R, "div");
-  case OperatorKind::Eq:return Builder.CreateICmpEQ(L, R, "eq");
-  case OperatorKind::NotEq:return Builder.CreateICmpNE(L, R, "ne");
-  case OperatorKind::Lt:return Builder.CreateICmpSLT(L, R, "lt");
-  case OperatorKind::LtE:return Builder.CreateICmpSLE(L, R, "le");
-  case OperatorKind::Gt:return Builder.CreateICmpSGT(L, R, "gt");
-  case OperatorKind::GtE:return Builder.CreateICmpSGE(L, R, "ge");
+  case OperatorKind::Add:
+    return Builder.CreateAdd(L, R, "add");
+  case OperatorKind::Sub:
+    return Builder.CreateSub(L, R, "sub");
+  case OperatorKind::Mult:
+    return Builder.CreateMul(L, R, "mul");
+  case OperatorKind::Div:
+    return Builder.CreateSDiv(L, R, "div");
+  case OperatorKind::Eq:
+    return Builder.CreateICmpEQ(L, R, "eq");
+  case OperatorKind::NotEq:
+    return Builder.CreateICmpNE(L, R, "ne");
+  case OperatorKind::Lt:
+    return Builder.CreateICmpSLT(L, R, "lt");
+  case OperatorKind::LtE:
+    return Builder.CreateICmpSLE(L, R, "le");
+  case OperatorKind::Gt:
+    return Builder.CreateICmpSGT(L, R, "gt");
+  case OperatorKind::GtE:
+    return Builder.CreateICmpSGE(L, R, "ge");
   }
 }
 
@@ -309,11 +323,13 @@ void LLVMIRCompiler::visitRead(Read *RD) {
   auto SelectFmtSpc = [this](Expr *Name) {
     auto T = TheTable.getExprType(Name);
     switch (T) {
-    case BasicTypeKind::Int:return "%d";
+    case BasicTypeKind::Int:
+      return "%d";
     case BasicTypeKind::Character:
       /// Skip one extra space.
       return " %c";
-    default:llvm_unreachable("Void cannot be!");
+    default:
+      llvm_unreachable("Void cannot be!");
     }
   };
 
@@ -386,8 +402,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   GlobalValues.emplace(FD->getName(), TheFunction);
 
   /// Create the entry point (Function body).
-  BasicBlock *EntryBlock =
-      BasicBlock::Create(TheContext, "entry", TheFunction);
+  BasicBlock *EntryBlock = BasicBlock::Create(TheContext, "entry", TheFunction);
   Builder.SetInsertPoint(EntryBlock);
 
   /// Setup arguments.
@@ -434,7 +449,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
     const SymbolEntry &E = Pair.second;
     if (E.IsLocal()) {
       assert(LocalValues.count(E.getName()) &&
-          "Local Decl must have been handled");
+             "Local Decl must have been handled");
       continue;
     }
     auto GV = GlobalValues[E.getName()];
@@ -465,9 +480,11 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
       /// Make implicit return of void Function explicit.
       Builder.CreateRetVoid();
       break;
-    case BasicTypeKind::Int:Builder.CreateRet(VM.getInt(0));
+    case BasicTypeKind::Int:
+      Builder.CreateRet(VM.getInt(0));
       break;
-    case BasicTypeKind::Character:Builder.CreateRet(VM.getChar(0));
+    case BasicTypeKind::Character:
+      Builder.CreateRet(VM.getChar(0));
       break;
     }
   }

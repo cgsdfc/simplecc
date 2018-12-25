@@ -1,11 +1,11 @@
 #ifndef SIMPLECOMPILER_LLVMVALUEMAP_H
 #define SIMPLECOMPILER_LLVMVALUEMAP_H
-#include "LLVMTypeMap.h"
+#include "simplecc/LLVM/LLVMTypeMap.h"
 #include <llvm/IR/Constants.h>
 
 namespace simplecc {
-using llvm::ConstantInt;
 using llvm::Constant;
+using llvm::ConstantInt;
 using llvm::Value;
 
 /// This class converts values of different types (mostly constants)
@@ -28,6 +28,6 @@ public:
 
   Constant *getGlobalInitializer(VarDecl *VD);
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_LLVMVALUEMAP_H
+#endif // SIMPLECOMPILER_LLVMVALUEMAP_H

@@ -1,7 +1,7 @@
 #ifndef EMIT_LLVM_H
 #define EMIT_LLVM_H
-#include <string>
 #include <llvm/Support/raw_ostream.h>
+#include <string>
 
 namespace simplecc {
 class Program;

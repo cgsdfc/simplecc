@@ -51,4 +51,4 @@ public:
 };
 
 } // namespace simplecc
-#endif //SIMPLECOMPILER_DESCRIPTIONVISITOR_H
+#endif // SIMPLECOMPILER_DESCRIPTIONVISITOR_H

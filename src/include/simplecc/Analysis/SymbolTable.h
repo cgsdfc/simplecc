@@ -1,8 +1,8 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 
+#include "simplecc/Analysis/Types.h"
 #include "simplecc/Parse/AST.h"
-#include "Types.h"
 
 #include <iostream>
 #include <unordered_map>

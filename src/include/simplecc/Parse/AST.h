@@ -163,8 +163,8 @@ public:
 
   VarDecl(BasicTypeKind type, int is_array, int size, std::string name,
           const Location &loc)
-      : Decl(Decl::VarDecl, std::move(name), loc), type(type), is_array(is_array),
-        size(size) {}
+      : Decl(Decl::VarDecl, std::move(name), loc), type(type),
+        is_array(is_array), size(size) {}
 
   // Disable copy and move.
   VarDecl(const VarDecl &) = delete;
@@ -197,8 +197,9 @@ public:
   FuncDef(BasicTypeKind return_type, std::vector<Decl *> args,
           std::vector<Decl *> decls, std::vector<Stmt *> stmts,
           std::string name, const Location &loc)
-      : Decl(Decl::FuncDef, std::move(name), loc), return_type(return_type), args(std::move(args)),
-        decls(std::move(decls)), stmts(std::move(stmts)) {}
+      : Decl(Decl::FuncDef, std::move(name), loc), return_type(return_type),
+        args(std::move(args)), decls(std::move(decls)),
+        stmts(std::move(stmts)) {}
 
   // Disable copy and move.
   FuncDef(const FuncDef &) = delete;
@@ -330,8 +331,8 @@ public:
   Stmt *step;
   std::vector<Stmt *> body;
 
-  For(Stmt *initial, Expr *condition, Stmt *step,
-      std::vector<Stmt *> body, const Location &loc)
+  For(Stmt *initial, Expr *condition, Stmt *step, std::vector<Stmt *> body,
+      const Location &loc)
       : Stmt(Stmt::For, loc), initial(initial), condition(condition),
         step(step), body(std::move(body)) {}
 
@@ -413,9 +414,10 @@ public:
   std::vector<Stmt *> body;
   std::vector<Stmt *> orelse;
 
-  If(Expr *test, std::vector<Stmt *> body,
-     std::vector<Stmt *> orelse, const Location &loc)
-      : Stmt(Stmt::If, loc), test(test), body(std::move(body)), orelse(std::move(orelse)) {}
+  If(Expr *test, std::vector<Stmt *> body, std::vector<Stmt *> orelse,
+     const Location &loc)
+      : Stmt(Stmt::If, loc), test(test), body(std::move(body)),
+        orelse(std::move(orelse)) {}
 
   // Disable copy and move.
   If(const If &) = delete;
@@ -572,8 +574,7 @@ public:
   std::string func;
   std::vector<Expr *> args;
 
-  Call(std::string func, std::vector<Expr *> args,
-       const Location &loc)
+  Call(std::string func, std::vector<Expr *> args, const Location &loc)
       : Expr(Expr::Call, loc), func(std::move(func)), args(std::move(args)) {}
 
   // Disable copy and move.
@@ -622,7 +623,8 @@ class Str : public Expr {
 public:
   std::string s;
 
-  Str(std::string s, const Location &loc) : Expr(Expr::Str, loc), s(std::move(s)) {}
+  Str(std::string s, const Location &loc)
+      : Expr(Expr::Str, loc), s(std::move(s)) {}
 
   // Disable copy and move.
   Str(const Str &) = delete;
@@ -672,7 +674,8 @@ public:
 
   Subscript(std::string name, Expr *index, ExprContextKind ctx,
             const Location &loc)
-      : Expr(Expr::Subscript, loc), name(std::move(name)), index(index), ctx(ctx) {}
+      : Expr(Expr::Subscript, loc), name(std::move(name)), index(index),
+        ctx(ctx) {}
 
   // Disable copy and move.
   Subscript(const Subscript &) = delete;
@@ -725,7 +728,8 @@ class Program : public AST {
 public:
   std::vector<Decl *> decls;
 
-  explicit Program(std::vector<Decl *> decls) : AST(), decls(std::move(decls)) {}
+  explicit Program(std::vector<Decl *> decls)
+      : AST(), decls(std::move(decls)) {}
 
   // Disable copy and move.
   Program(const Program &) = delete;

@@ -1,8 +1,8 @@
 #ifndef SIMPLECOMPILER_SYMBOLTABLEBUILDER_H
 #define SIMPLECOMPILER_SYMBOLTABLEBUILDER_H
-#include "Visitor.h"
+#include "simplecc/Analysis/SymbolTable.h"
+#include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
-#include "SymbolTable.h"
 
 namespace simplecc {
 /// This all-in-one class does what MakeLocal(), MakeGlobal()
@@ -61,6 +61,6 @@ public:
   /// Note: the table will be cleared first.
   bool Build(Program *P, SymbolTable &S);
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_SYMBOLTABLEBUILDER_H
+#endif // SIMPLECOMPILER_SYMBOLTABLEBUILDER_H

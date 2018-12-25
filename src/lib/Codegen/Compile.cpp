@@ -10,4 +10,4 @@ void PrintByteCode(Program *P, std::ostream &O) {
 void CompileToByteCode(Program *P, const SymbolTable &S, ByteCodeModule &M) {
   ByteCodeCompiler().Compile(P, S, M);
 }
-}
+} // namespace simplecc

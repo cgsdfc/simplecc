@@ -1,8 +1,9 @@
 #ifndef SIMPLECOMPILER_NODEITERATOR_H
 #define SIMPLECOMPILER_NODEITERATOR_H
 #include <llvm/ADT/iterator.h>
-#include <stack>
+
 #include <cassert>
+#include <stack>
 
 namespace simplecc {
 class Node;
@@ -10,6 +11,7 @@ class Node;
 class NodeIteratorImpl {
   /// Keep track of Node to visit
   std::stack<Node *> TheStack;
+
 public:
   /// begin
   NodeIteratorImpl(Node *R) : TheStack() {
@@ -26,7 +28,7 @@ class NodeIterator
     : public llvm::iterator_facade_base<NodeIterator, std::forward_iterator_tag,
                                         Node> {
   using Base =
-  llvm::iterator_facade_base<NodeIterator, std::forward_iterator_tag, Node>;
+      llvm::iterator_facade_base<NodeIterator, std::forward_iterator_tag, Node>;
   using Self = NodeIterator;
 
 public:
@@ -72,4 +74,4 @@ private:
 
 } // namespace simplecc
 
-#endif //SIMPLECOMPILER_NODEITERATOR_H
+#endif // SIMPLECOMPILER_NODEITERATOR_H

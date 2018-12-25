@@ -39,8 +39,7 @@ inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
 
 class TokenInfo {
 public:
-  TokenInfo(Symbol Ty, String S, const Location &Loc,
-            String Line)
+  TokenInfo(Symbol Ty, String S, const Location &Loc, String Line)
       : Type(Ty), Str(std::move(S)), Loc(Loc), Line(std::move(Line)) {}
 
   TokenInfo(const TokenInfo &) = default;

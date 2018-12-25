@@ -1,7 +1,7 @@
 #ifndef SYNTAX_CHECKER_H
 #define SYNTAX_CHECKER_H
+#include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
-#include "Visitor.h"
 
 namespace simplecc {
 class Program;
@@ -23,7 +23,6 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
 public:
   SyntaxChecker() : VisitorBase(), EM("SyntaxError") {}
   bool Check(Program *P);
-
 };
 } // namespace simplecc
 #endif

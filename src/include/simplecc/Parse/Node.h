@@ -1,8 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "Grammar.h"
 #include "simplecc/Lex/TokenInfo.h"
+#include "simplecc/Parse/Grammar.h"
 
 #include <cassert>
 #include <iostream>
@@ -11,6 +11,7 @@
 namespace simplecc {
 class Node {
   String FormatValue() const;
+
 public:
   using ChildrenListT = std::vector<Node *>;
 

@@ -12,5 +12,5 @@ void WriteASTGraph(Program *P, llvm::raw_ostream &O);
 
 void PrintAllNodes(Node *Root);
 void WriteCSTGraph(Node *Root, llvm::raw_ostream &O);
-}
-#endif //SIMPLECOMPILER_VISUALIZE_H
+} // namespace simplecc
+#endif // SIMPLECOMPILER_VISUALIZE_H

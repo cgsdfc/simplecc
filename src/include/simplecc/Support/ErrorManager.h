@@ -1,13 +1,13 @@
 #ifndef ERROR_MANAGER_H
 #define ERROR_MANAGER_H
 
-#include "Print.h"
 #include "simplecc/Lex/TokenInfo.h"
+#include "simplecc/Support/Print.h"
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <utility>
-#include <cassert>
 
 namespace simplecc {
 inline String Quote(const String &string) { return '\'' + string + '\''; }
@@ -15,6 +15,7 @@ inline String Quote(const String &string) { return '\'' + string + '\''; }
 class ErrorManager : private Printer {
   int ErrorCount = 0;
   const char *ErrorType;
+
 public:
   ErrorManager(const char *ET = nullptr) : Printer(std::cerr) {
     setErrorType(ET);
@@ -29,17 +30,15 @@ public:
     return ErrorType;
   }
 
-  template<typename... Args>
-  void Error(const Location &loc, Args &&... args) {
+  template <typename... Args> void Error(const Location &loc, Args &&... args) {
     getOuts() << getErrorType() << " at ";
     loc.FormatCompact(getOuts());
     getOuts() << " ";
     WriteLine(std::forward<Args>(args)...);
-   increaseErrorCount();
+    increaseErrorCount();
   }
 
-  template <typename ... Args>
-  void Error(Args &&... args) {
+  template <typename... Args> void Error(Args &&... args) {
     getOuts() << getErrorType() << ": ";
     WriteLine(std::forward<Args>(args)...);
     increaseErrorCount();

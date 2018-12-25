@@ -1,9 +1,9 @@
 #include "simplecc/Target/MipsAssemblyWriter.h"
+#include "simplecc/Analysis/Types.h" // SymbolEntry
 #include "simplecc/Codegen/ByteCodeFunction.h"
 #include "simplecc/Codegen/ByteCodeModule.h"
 #include "simplecc/Target/ByteCodeToMipsTranslator.h"
 #include "simplecc/Target/MipsSupport.h"
-#include "simplecc/Analysis/Types.h" // SymbolEntry
 
 #include <iostream>
 #include <numeric> // accumulate()
@@ -27,7 +27,7 @@ void MipsAssemblyWriter::WriteData(Printer &W, const ByteCodeModule &Module) {
   W.WriteLine("# String literals");
 
   for (const std::pair<const String, unsigned> &Item :
-      Module.getStringLiteralTable()) {
+       Module.getStringLiteralTable()) {
     W.WriteLine(AsciizLabel(Item.second, /* NeedColon */ true), ".asciiz",
                 EscapedString(Item.first));
   }

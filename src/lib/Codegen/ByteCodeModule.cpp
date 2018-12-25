@@ -2,8 +2,8 @@
 #include "simplecc/Codegen/ByteCodeCompiler.h"
 #include "simplecc/Codegen/ByteCodeFunction.h"
 
-#include <iomanip>
 #include <algorithm>
+#include <iomanip>
 
 using namespace simplecc;
 
@@ -29,7 +29,8 @@ void ByteCodeModule::Format(std::ostream &O) const {
   }
 
   O << "\n";
-  for (const std::pair<const String, unsigned> &Pair : getStringLiteralTable()) {
+  for (const std::pair<const String, unsigned> &Pair :
+       getStringLiteralTable()) {
     O << std::setw(4) << Pair.second << ": " << Pair.first << "\n";
   }
 

@@ -1,15 +1,15 @@
 #ifndef ASTGRAPH_H
 #define ASTGRAPH_H
-#include "AstIterator.h"
-#include "AstRef.h"
 #include "simplecc/Parse/AST.h"
+#include "simplecc/Visualize/AstIterator.h"
+#include "simplecc/Visualize/AstRef.h"
 
 #include <llvm/ADT/STLExtras.h>
 
-#include <map>
-#include <vector>
-#include <memory> // for make_unique
 #include <cassert>
+#include <map>
+#include <memory> // for make_unique
+#include <vector>
 
 namespace simplecc {
 class Program;
@@ -48,7 +48,7 @@ public:
   const std::vector<AstRef *> &getEdgeOrCreate(const AstRef &R);
 
   /// Lazily create a node, namely an AstRef
-  template<typename AstT> AstRef *getNodeOrCreate(AstT *Ptr);
+  template <typename AstT> AstRef *getNodeOrCreate(AstT *Ptr);
 
 private:
   /// Root of AST.
@@ -59,8 +59,7 @@ private:
   std::map<AST *, std::unique_ptr<AstRef>> Nodes;
 };
 
-template<typename AstT>
-AstRef *AstGraph::getNodeOrCreate(AstT *Ptr) {
+template <typename AstT> AstRef *AstGraph::getNodeOrCreate(AstT *Ptr) {
   auto iter = Nodes.find(Ptr);
   if (iter != Nodes.end())
     return iter->second.get();

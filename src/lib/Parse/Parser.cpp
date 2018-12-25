@@ -7,8 +7,7 @@
 
 using namespace simplecc;
 
-Parser::Parser(Grammar *G)
-    : TheStack(), TheGrammar(G), EM(ERROR_TYPE) {
+Parser::Parser(Grammar *G) : TheStack(), TheGrammar(G), EM(ERROR_TYPE) {
   auto Start = G->start;
   Node *Root = new Node(static_cast<Symbol>(Start), "", Location(0, 0));
   TheStack.push(StackEntry(G->dfas[Start - NT_OFFSET], 0, Root));
@@ -48,8 +47,7 @@ void Parser::Shift(const TokenInfo &T, int NewState) {
   Top.setState(NewState);
 }
 
-void Parser::Push(Symbol Ty, DFA *NewDFA, int NewState,
-                  const Location &Loc) {
+void Parser::Push(Symbol Ty, DFA *NewDFA, int NewState, const Location &Loc) {
   StackEntry &Top = TheStack.top();
   Top.setState(NewState);
   Node *NewNode = new Node(Ty, "", Loc);
@@ -117,8 +115,7 @@ int Parser::AddToken(const TokenInfo &T) {
           return -1;
         }
       } else {
-        EM.Error(T.getLocation(), "unexpected",
-                       Quote(T.getLine()));
+        EM.Error(T.getLocation(), "unexpected", Quote(T.getLine()));
         return -1;
       }
     }
@@ -128,8 +125,7 @@ int Parser::AddToken(const TokenInfo &T) {
 Node *Parser::ParseTokens(const std::vector<TokenInfo> &Tokens) {
   for (const auto &T : Tokens) {
     if (T.getType() == Symbol::ERRORTOKEN) {
-      EM.Error(T.getLocation(), "error token",
-                     Quote(T.getString()));
+      EM.Error(T.getLocation(), "error token", Quote(T.getString()));
       return nullptr;
     }
     int RC = AddToken(T);

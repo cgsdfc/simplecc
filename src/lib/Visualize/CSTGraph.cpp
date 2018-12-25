@@ -1,7 +1,7 @@
-#include "simplecc/Visualize/Visualize.h"
 #include "simplecc/Parse/Node.h"
-#include "simplecc/Visualize/NodeIterator.h"
 #include "simplecc/Support/Print.h"
+#include "simplecc/Visualize/NodeIterator.h"
+#include "simplecc/Visualize/Visualize.h"
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/Support/GraphWriter.h>
@@ -34,7 +34,8 @@ template <> struct GraphTraits<CSTGraphTy> {
 };
 
 template <> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
-  explicit DOTGraphTraits(bool simple = false) : DefaultDOTGraphTraits(simple) {}
+  explicit DOTGraphTraits(bool simple = false)
+      : DefaultDOTGraphTraits(simple) {}
 
   static std::string getGraphName(const CSTGraphTy &) {
     return "Concrete Syntax Tree";

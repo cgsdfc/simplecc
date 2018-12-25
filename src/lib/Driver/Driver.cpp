@@ -1,13 +1,13 @@
 #include "simplecc/Driver/Driver.h"
-#include "simplecc/Target/Assemble.h"
+#include "simplecc/Codegen/Compile.h"
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Parse/Parse.h"
-#include "simplecc/Codegen/Compile.h"
+#include "simplecc/Target/Assemble.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
-#include <llvm/Support/raw_ostream.h>
-#include "simplecc/Visualize/Visualize.h"
 #include "simplecc/LLVM/EmitLLVM.h"
+#include "simplecc/Visualize/Visualize.h"
+#include <llvm/Support/raw_ostream.h>
 #endif
 
 using namespace simplecc;
@@ -115,9 +115,7 @@ void Driver::runPrintTokens() {
   PrintTokens(TheTokens, *Ostream);
 }
 
-void Driver::runAssembleMips() {
-  doAssemble();
-}
+void Driver::runAssembleMips() { doAssemble(); }
 
 void Driver::runPrintByteCode() {
   if (doAnalyses())
@@ -138,9 +136,7 @@ void Driver::runDumpAst() {
   Print(*OStream, *TheProgram);
 }
 
-void Driver::runAnalysisOnly() {
-  doAnalyses();
-}
+void Driver::runAnalysisOnly() { doAnalyses(); }
 
 void Driver::runDumpCst() {
   auto TheCST = doBuildCST();

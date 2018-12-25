@@ -9,6 +9,6 @@ class ByteCodeModule;
 
 void PrintByteCode(Program *P, std::ostream &O);
 void CompileToByteCode(Program *P, const SymbolTable &S, ByteCodeModule &M);
-}
+} // namespace simplecc
 
-#endif //SIMPLECOMPILER_COMPILE_H
+#endif // SIMPLECOMPILER_COMPILE_H

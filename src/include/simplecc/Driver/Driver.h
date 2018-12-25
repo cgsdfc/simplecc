@@ -1,15 +1,15 @@
 #ifndef SIMPLECOMPILER_DRIVER_H
 #define SIMPLECOMPILER_DRIVER_H
-#include "simplecc/Support/ErrorManager.h"
-#include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Analysis/AnalysisManager.h"
 #include "simplecc/Codegen/ByteCodeModule.h"
+#include "simplecc/Lex/TokenInfo.h"
+#include "simplecc/Support/ErrorManager.h"
 
+#include <fstream>
+#include <iostream>
+#include <memory>
 #include <string>
 #include <utility>
-#include <iostream>
-#include <fstream>
-#include <memory>
 
 namespace llvm {
 class raw_ostream;
@@ -17,11 +17,10 @@ class raw_ostream;
 
 namespace simplecc {
 class Node;
-/// This class exposes a high-level interface to the system in terms of InputFile and OutputFile.
-/// It exposes different parts of the system through member functions. It provides both
-/// do-all style methods and low level functions such as tokenizing a file.
-/// Driver D;
-/// D.setInputFile("aaa");
+/// This class exposes a high-level interface to the system in terms of
+/// InputFile and OutputFile. It exposes different parts of the system through
+/// member functions. It provides both do-all style methods and low level
+/// functions such as tokenizing a file. Driver D; D.setInputFile("aaa");
 /// D.runAssembleMips();
 /// return D.status();
 ///
@@ -42,7 +41,7 @@ class Driver {
 public:
   Driver() = default;
 
-  void setInputFile(std::string Filename) { InputFile = std::move(Filename);}
+  void setInputFile(std::string Filename) { InputFile = std::move(Filename); }
   void setOutputFile(std::string Filename) { OutputFile = std::move(Filename); }
 
   std::string getInputFile() const { return InputFile; }
@@ -82,5 +81,5 @@ private:
   ErrorManager EM;
 };
 
-}
-#endif //SIMPLECOMPILER_DRIVER_H
+} // namespace simplecc
+#endif // SIMPLECOMPILER_DRIVER_H

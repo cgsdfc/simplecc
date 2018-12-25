@@ -37,8 +37,7 @@ void TypeChecker::visitReturn(Return *R) {
 
   // order a strict match
   if (ShouldReturn != ActuallyReturn) {
-    EM.Error(R->getLoc(),
-             TheFuncDef->getName(), "must return",
+    EM.Error(R->getLoc(), TheFuncDef->getName(), "must return",
              CStringFromBasicTypeKind(ShouldReturn));
   }
 }
@@ -49,8 +48,8 @@ void TypeChecker::visitAssign(Assign *A) {
   auto LHS = visitExpr(A->getTarget());
 
   if (EM.IsOk(Errs) && LHS != RHS) {
-    EM.Error(A->getLoc(), "cannot assign",
-             CStringFromBasicTypeKind(RHS), "to", CStringFromBasicTypeKind(LHS));
+    EM.Error(A->getLoc(), "cannot assign", CStringFromBasicTypeKind(RHS), "to",
+             CStringFromBasicTypeKind(LHS));
   }
 }
 
@@ -113,7 +112,8 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
   auto NumFormal = Ty.getArgCount();
   auto NumActual = C->getArgs().size();
   if (NumFormal != NumActual) {
-    EM.Error(C->getLoc(), C->getFunc(), "expects", NumFormal, "arguments, got", NumActual);
+    EM.Error(C->getLoc(), C->getFunc(), "expects", NumFormal, "arguments, got",
+             NumActual);
   }
 
   // check args
@@ -122,8 +122,8 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
     auto ActualTy = visitExpr(C->getArgs()[I]);
     auto FormalTy = Ty.getArgTypeAt(I);
     if (ActualTy != FormalTy) {
-      EM.Error(C->getArgs()[I]->getLoc(), "argument", I + 1,
-               "of", C->getFunc(), "must be", CStringFromBasicTypeKind(FormalTy));
+      EM.Error(C->getArgs()[I]->getLoc(), "argument", I + 1, "of", C->getFunc(),
+               "must be", CStringFromBasicTypeKind(FormalTy));
     }
   }
   return Ty.getReturnType();

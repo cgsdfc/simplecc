@@ -1,8 +1,8 @@
 #ifndef BYTE_CODE_BUILDER_H
 #define BYTE_CODE_BUILDER_H
-#include "simplecc/Parse/AST.h"
-#include "simplecc/Codegen/ByteCode.h"
 #include "simplecc/Analysis/Types.h"
+#include "simplecc/Codegen/ByteCode.h"
+#include "simplecc/Parse/AST.h"
 
 #include <cassert>
 

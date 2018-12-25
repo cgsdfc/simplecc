@@ -1,29 +1,41 @@
 #include "simplecc/Driver/CommandLine.h"
-#include "simplecc/Support/Print.h"
 #include "simplecc/Driver/Driver.h"
+#include "simplecc/Support/Print.h"
 
 using namespace simplecc;
 
-static tclap::SwitchArg TokenizeSwitch("", "tokenize", "tokenize the input", false);
-static tclap::SwitchArg PrintCSTSwitch("", "print-cst", "print the concrete syntax tree", false);
-static tclap::SwitchArg PrintASTSwitch("", "print-ast", "print the abstract syntax tree", false);
-static tclap::SwitchArg PrintBytecodeSwitch("", "print-school-ir", "print IR in the format required by school", false);
-static tclap::SwitchArg PrintByteCodeModuleSwitch("", "print-bc-ir", "print IR in the byte code form", false);
+static tclap::SwitchArg TokenizeSwitch("", "tokenize", "tokenize the input",
+                                       false);
+static tclap::SwitchArg PrintCSTSwitch("", "print-cst",
+                                       "print the concrete syntax tree", false);
+static tclap::SwitchArg PrintASTSwitch("", "print-ast",
+                                       "print the abstract syntax tree", false);
+static tclap::SwitchArg
+    PrintBytecodeSwitch("", "print-school-ir",
+                        "print IR in the format required by school", false);
+static tclap::SwitchArg
+    PrintByteCodeModuleSwitch("", "print-bc-ir",
+                              "print IR in the byte code form", false);
 static tclap::SwitchArg AssemblySwitch("", "asm", "emit MIPS assembly", false);
-static tclap::SwitchArg CheckOnlySwitch("", "check-only", "merely perform checks on the input", false);
+static tclap::SwitchArg CheckOnlySwitch("", "check-only",
+                                        "merely perform checks on the input",
+                                        false);
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
-static tclap::SwitchArg AstGraphSwitch("", "ast-graph", "print the dot file for the AST", false);
-static tclap::SwitchArg CstGraphSwitch("", "cst-graph", "print the dot file for the CST", false);
-static tclap::SwitchArg EmitLLVMIRSwitch("", "emit-llvm", "emit LLVM IR", false);
+static tclap::SwitchArg AstGraphSwitch("", "ast-graph",
+                                       "print the dot file for the AST", false);
+static tclap::SwitchArg CstGraphSwitch("", "cst-graph",
+                                       "print the dot file for the CST", false);
+static tclap::SwitchArg EmitLLVMIRSwitch("", "emit-llvm", "emit LLVM IR",
+                                         false);
 #endif
 
-CommandLine::CommandLine() :
-    Parser("Simple Compiler", ' ', "2.0"),
-    InputArg("input", "input file (default to stdin)", false, "",
-             "input-file"),
-    OutputArg("o", "output", "output file (default to stdout)", false, "",
-              "output-file") {
+CommandLine::CommandLine()
+    : Parser("Simple Compiler", ' ', "2.0"),
+      InputArg("input", "input file (default to stdin)", false, "",
+               "input-file"),
+      OutputArg("o", "output", "output file (default to stdout)", false, "",
+                "output-file") {
   Parser.add(InputArg);
   Parser.add(OutputArg);
   Switches.push_back(&TokenizeSwitch);

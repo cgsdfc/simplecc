@@ -1,7 +1,7 @@
 #include "simplecc/Codegen/ByteCodeBuilder.h"
-#include "simplecc/Parse/AST.h"
 #include "simplecc/Codegen/ByteCode.h"
 #include "simplecc/Codegen/ByteCodeFunction.h"
+#include "simplecc/Parse/AST.h"
 
 using namespace simplecc;
 

@@ -5,7 +5,6 @@ using namespace simplecc;
 void AstVerifier::visitWrite(simplecc::Write *WR) {
   AssertThat(WR->getStr() || WR->getValue(),
              "Both Str and Value of Write are empty");
-
 }
 
 void AstVerifier::visitWhile(While *W) {
@@ -43,7 +42,6 @@ void AstVerifier::visitAssign(simplecc::Assign *A) {
   AssertThat(IsInstance<Name>(A->getTarget()) ||
                  IsInstance<Subscript>(A->getTarget()),
              "Target of Assign must be Name or Subscript");
-
 }
 
 void AstVerifier::visitFor(For *F) {
@@ -53,8 +51,7 @@ void AstVerifier::visitFor(For *F) {
   AssertThat(IsInstance<BoolOp>(F->getCondition()),
              "Condition of For must be a BoolOp");
 
-  AssertThat(IsInstance<Assign>(F->getStep()),
-             "Step of For must be an Assign");
+  AssertThat(IsInstance<Assign>(F->getStep()), "Step of For must be an Assign");
 }
 
 void AstVerifier::visitFuncDef(FuncDef *FD) {

@@ -1,8 +1,8 @@
 #ifndef TYPE_CHECKER
 #define TYPE_CHECKER
+#include "simplecc/Analysis/SymbolTable.h"
+#include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
-#include "SymbolTable.h"
-#include "Visitor.h"
 
 namespace simplecc {
 class TypeChecker : ChildrenVisitor<TypeChecker> {

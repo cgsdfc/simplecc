@@ -6,13 +6,13 @@ void SymbolTableBuilder::DefineLocalDecl(Decl *D) {
   assert(TheLocal && "TheLocal must be set!");
   if (TheLocal->count(D->getName())) {
     EM.Error(D->getLoc(), "redefinition of identifier", D->getName(),
-                 "in function", TheFuncDef->getName());
+             "in function", TheFuncDef->getName());
     return;
   }
   if (TheGlobal->count(D->getName()) &&
       (*TheGlobal)[D->getName()].IsFunction()) {
     EM.Error(D->getLoc(), "local identifier", D->getName(), "in function",
-                 TheFuncDef->getName(), "shallows a global function");
+             TheFuncDef->getName(), "shallows a global function");
     return;
   }
   /// Now we successfully define the name
@@ -23,7 +23,7 @@ void SymbolTableBuilder::DefineGlobalDecl(Decl *D) {
   assert(TheGlobal && "TheGlobal must be set!");
   if (TheGlobal->count(D->getName())) {
     EM.Error(D->getLoc(), "redefinition of identifier", D->getName(),
-                 "in <module>");
+             "in <module>");
     return;
   }
   TheGlobal->emplace(D->getName(), SymbolEntry(Scope::Global, D));
@@ -40,7 +40,7 @@ void SymbolTableBuilder::ResolveName(const String &Name, const Location &L) {
   }
   /// Undefined
   EM.Error(L, "undefined identifier", Name, "in function",
-               TheFuncDef->getName());
+           TheFuncDef->getName());
 }
 
 void SymbolTableBuilder::visitCall(Call *C) {
@@ -57,7 +57,8 @@ void SymbolTableBuilder::visitSubscript(Subscript *SB) {
 
 void SymbolTableBuilder::visitDecl(Decl *D) {
   switch (D->GetKind()) {
-  case Decl::FuncDef:setFuncDef(static_cast<FuncDef *>(D));
+  case Decl::FuncDef:
+    setFuncDef(static_cast<FuncDef *>(D));
     setLocal(&TheTable->getLocal(TheFuncDef));
     /// Define this function globally.
     DefineGlobalDecl(D);

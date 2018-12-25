@@ -1,8 +1,8 @@
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Support/ErrorManager.h"
 
-#include <cctype>
 #include <algorithm>
+#include <cctype>
 #include <iomanip>
 #include <string> // getline()
 
@@ -12,9 +12,13 @@ static inline bool IsValidStrChar(char Chr) {
   return Chr == 32 || Chr == 33 || (35 <= Chr && Chr <= 126);
 }
 
-static inline bool IsNameBegin(char Chr) { return Chr == '_' || std::isalpha(Chr); }
+static inline bool IsNameBegin(char Chr) {
+  return Chr == '_' || std::isalpha(Chr);
+}
 
-static inline bool IsNameMiddle(char Chr) { return Chr == '_' || std::isalnum(Chr); }
+static inline bool IsNameMiddle(char Chr) {
+  return Chr == '_' || std::isalnum(Chr);
+}
 
 static bool IsBlank(const String &Line) {
   for (auto Chr : Line)
@@ -41,7 +45,6 @@ static inline bool IsOperator(char Chr) {
 static inline void ToLowerInplace(String &Str) {
   std::transform(Str.begin(), Str.end(), Str.begin(), ::tolower);
 }
-
 
 namespace simplecc {
 void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
@@ -137,9 +140,8 @@ static void DumpTokenInfo(std::ostream &O, const TokenInfo &T) {
 }
 
 void PrintTokens(const std::vector<TokenInfo> &Tokens, std::ostream &O) {
-  std::for_each(Tokens.begin(), Tokens.end(), [&O](const TokenInfo &T) {
-    DumpTokenInfo(O, T);
-  });
+  std::for_each(Tokens.begin(), Tokens.end(),
+                [&O](const TokenInfo &T) { DumpTokenInfo(O, T); });
 }
 
 const char *getSymbolName(Symbol S) {
@@ -147,18 +149,15 @@ const char *getSymbolName(Symbol S) {
   return IsTerminal(S) ? TokenNames[Val] : SymbolNames[Val - NT_OFFSET];
 }
 
-bool IsTerminal(Symbol S) {
-  return static_cast<int>(S) < NT_OFFSET;
-}
+bool IsTerminal(Symbol S) { return static_cast<int>(S) < NT_OFFSET; }
 
 } // namespace simplecc
 
 void TokenInfo::Format(std::ostream &O) const {
   O << "TokenInfo("
-     << "type=" << getTypeName() << ", "
-     << "string=" << Quote(getString()) << ", "
-     << getLocation() << ", "
-     << "line=" << Quote(getLine()) << ")";
+    << "type=" << getTypeName() << ", "
+    << "string=" << Quote(getString()) << ", " << getLocation() << ", "
+    << "line=" << Quote(getLine()) << ")";
 }
 
 void Location::Format(std::ostream &O) const {

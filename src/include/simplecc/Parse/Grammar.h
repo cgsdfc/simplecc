@@ -1,7 +1,6 @@
-
 #ifndef GRAMMAR_H
 #define GRAMMAR_H
-#include "gramdef.h"
+#include "simplecc/Parse/gramdef.h"
 
 enum class Symbol {
   program = 256,
