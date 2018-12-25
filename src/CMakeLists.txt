@@ -1,4 +1,4 @@
-project(simplecompiler)
+project(simplecc)
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 set(CMAKE_BUILD_TYPE Debug)
@@ -37,20 +37,5 @@ if (NOT MSVC)
     set(USE_LLVM ON)
   endif ()
 endif ()
-
-# if (NOT MSVC)
-#   # We currently don't know if python3 if available.
-# add_custom_command(
-#   OUTPUT Grammar.h Grammar.cpp
-#   COMMAND python3 ../simplecompiler.py generate -a grammar -l cpp -o ${CMAKE_CURRENT_BINARY_DIR} ../Grammar
-#   DEPENDS ../Grammar
-# )
-
-# add_custom_command(
-#   OUTPUT AST.h AST.cpp
-#   COMMAND python3 ../simplecompiler.py generate -a ast -l cpp -o ${CMAKE_CURRENT_BINARY_DIR} ../asdl
-#   DEPENDS ../asdl
-# )
-# endif()
 
 add_subdirectory(lib)
