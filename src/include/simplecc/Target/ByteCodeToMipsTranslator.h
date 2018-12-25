@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_TARGET_BYTECODETOMIPSTRANSLATOR_H
 #define SIMPLECC_TARGET_BYTECODETOMIPSTRANSLATOR_H
-#include "simplecc/Codegen/OpcodeDispatcher.h"
+#include "simplecc/CodeGen/OpcodeDispatcher.h"
 #include "simplecc/Support/Print.h"
 #include "simplecc/Target/MipsSupport.h"
 

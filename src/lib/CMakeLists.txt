@@ -25,14 +25,14 @@ set(SOURCE_FILES
         Analysis/ArrayBoundChecker.cpp
 
         # Generate ByteCode from the AST.
-        Codegen/ByteCodePrinter.cpp
-        Codegen/ByteCode.cpp
-        Codegen/ByteCodeModule.cpp
-        Codegen/ByteCodeBuilder.cpp
-        Codegen/ByteCodeFunction.cpp
-        Codegen/Opcode.cpp
-        Codegen/ByteCodeCompiler.cpp
-        Codegen/Compile.cpp
+        CodeGen/ByteCodePrinter.cpp
+        CodeGen/ByteCode.cpp
+        CodeGen/ByteCodeModule.cpp
+        CodeGen/ByteCodeBuilder.cpp
+        CodeGen/ByteCodeFunction.cpp
+        CodeGen/Opcode.cpp
+        CodeGen/ByteCodeCompiler.cpp
+        CodeGen/Compile.cpp
 
         # Turn the ByteCode into MIPS assembly.
         Target/Assemble.cpp

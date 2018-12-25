@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_CODEGEN_BYTECODE_H
 #define SIMPLECC_CODEGEN_BYTECODE_H
 
-#include "simplecc/Codegen/Opcode.h"
+#include "simplecc/CodeGen/Opcode.h"
 
 #include <cassert>
 #include <iostream>

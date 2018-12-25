@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_CODEGEN_OPCODEDISPATCHER_H
 #define SIMPLECC_CODEGEN_OPCODEDISPATCHER_H
-#include "simplecc/Codegen/ByteCode.h"
+#include "simplecc/CodeGen/ByteCode.h"
 
 namespace simplecc {
 template <class Derived> class OpcodeDispatcher {

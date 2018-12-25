@@ -1,5 +1,5 @@
-#include "simplecc/Codegen/ByteCodeFunction.h"
-#include "simplecc/Codegen/ByteCodeModule.h"
+#include "simplecc/CodeGen/ByteCodeFunction.h"
+#include "simplecc/CodeGen/ByteCodeModule.h"
 
 #include <iomanip>
 

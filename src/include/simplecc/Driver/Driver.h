@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_DRIVER_DRIVER_H
 #define SIMPLECC_DRIVER_DRIVER_H
 #include "simplecc/Analysis/AnalysisManager.h"
-#include "simplecc/Codegen/ByteCodeModule.h"
+#include "simplecc/CodeGen/ByteCodeModule.h"
 #include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Support/ErrorManager.h"
 

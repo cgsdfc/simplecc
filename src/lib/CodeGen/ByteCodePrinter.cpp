@@ -1,4 +1,4 @@
-#include "simplecc/Codegen/ByteCodePrinter.h"
+#include "simplecc/CodeGen/ByteCodePrinter.h"
 
 using namespace simplecc;
 

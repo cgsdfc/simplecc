@@ -1,4 +1,4 @@
-#include "simplecc/Codegen/ByteCode.h"
+#include "simplecc/CodeGen/ByteCode.h"
 #include "simplecc/Support/ErrorManager.h"
 
 #include <cassert>

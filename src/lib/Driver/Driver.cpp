@@ -1,5 +1,5 @@
 #include "simplecc/Driver/Driver.h"
-#include "simplecc/Codegen/Compile.h"
+#include "simplecc/CodeGen/Compile.h"
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Parse/Parse.h"
 #include "simplecc/Target/Assemble.h"
@@ -81,7 +81,7 @@ bool Driver::doAnalyses() {
 bool Driver::doCodeGen() {
   if (doAnalyses())
     return true;
-  // Codegen never fails.
+  // CodeGen never fails.
   CompileToByteCode(TheProgram.get(), AM.getSymbolTable(), TheModule);
   return false;
 }

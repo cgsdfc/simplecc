@@ -1,7 +1,7 @@
 #include "simplecc/Target/MipsAssemblyWriter.h"
 #include "simplecc/Analysis/Types.h" // SymbolEntry
-#include "simplecc/Codegen/ByteCodeFunction.h"
-#include "simplecc/Codegen/ByteCodeModule.h"
+#include "simplecc/CodeGen/ByteCodeFunction.h"
+#include "simplecc/CodeGen/ByteCodeModule.h"
 #include "simplecc/Target/ByteCodeToMipsTranslator.h"
 #include "simplecc/Target/MipsSupport.h"
 

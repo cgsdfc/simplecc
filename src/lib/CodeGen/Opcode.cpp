@@ -1,4 +1,4 @@
-#include "simplecc/Codegen/Opcode.h"
+#include "simplecc/CodeGen/Opcode.h"
 
 namespace simplecc {
 const char *CStringFromOpcode(Opcode val) {

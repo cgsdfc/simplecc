@@ -1,6 +1,6 @@
-#include "simplecc/Codegen/Compile.h"
-#include "simplecc/Codegen/ByteCodeCompiler.h"
-#include "simplecc/Codegen/ByteCodePrinter.h"
+#include "simplecc/CodeGen/Compile.h"
+#include "simplecc/CodeGen/ByteCodeCompiler.h"
+#include "simplecc/CodeGen/ByteCodePrinter.h"
 
 namespace simplecc {
 void PrintByteCode(Program *P, std::ostream &O) {

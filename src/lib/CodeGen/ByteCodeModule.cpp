@@ -1,6 +1,6 @@
-#include "simplecc/Codegen/ByteCodeModule.h"
-#include "simplecc/Codegen/ByteCodeCompiler.h"
-#include "simplecc/Codegen/ByteCodeFunction.h"
+#include "simplecc/CodeGen/ByteCodeModule.h"
+#include "simplecc/CodeGen/ByteCodeCompiler.h"
+#include "simplecc/CodeGen/ByteCodeFunction.h"
 
 #include <algorithm>
 #include <iomanip>
