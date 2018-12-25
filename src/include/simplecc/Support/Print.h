@@ -1,5 +1,5 @@
-#ifndef PRINT_H
-#define PRINT_H
+#ifndef SIMPLECC_SUPPORT_PRINT_H
+#define SIMPLECC_SUPPORT_PRINT_H
 
 #include <iostream>
 #include <utility>

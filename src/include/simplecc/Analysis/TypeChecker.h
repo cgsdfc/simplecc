@@ -1,5 +1,5 @@
-#ifndef TYPE_CHECKER
-#define TYPE_CHECKER
+#ifndef SIMPLECC_ANALYSIS_TYPECHECKER_H
+#define SIMPLECC_ANALYSIS_TYPECHECKER_H
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"

@@ -1,5 +1,5 @@
-#ifndef ERROR_MANAGER_H
-#define ERROR_MANAGER_H
+#ifndef SIMPLECC_SUPPORT_ERRORMANAGER_H
+#define SIMPLECC_SUPPORT_ERRORMANAGER_H
 
 #include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Support/Print.h"

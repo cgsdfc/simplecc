@@ -1,5 +1,5 @@
-#ifndef BYTE_CODE_H
-#define BYTE_CODE_H
+#ifndef SIMPLECC_CODEGEN_BYTECODE_H
+#define SIMPLECC_CODEGEN_BYTECODE_H
 
 #include "simplecc/Codegen/Opcode.h"
 

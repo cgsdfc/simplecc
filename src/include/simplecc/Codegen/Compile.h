@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_COMPILE_H
-#define SIMPLECOMPILER_COMPILE_H
+#ifndef SIMPLECC_CODEGEN_COMPILE_H
+#define SIMPLECC_CODEGEN_COMPILE_H
 #include <iostream>
 
 namespace simplecc {
@@ -11,4 +11,4 @@ void PrintByteCode(Program *P, std::ostream &O);
 void CompileToByteCode(Program *P, const SymbolTable &S, ByteCodeModule &M);
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_COMPILE_H
+#endif // SIMPLECC_CODEGEN_COMPILE_H

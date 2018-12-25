@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_ASTREF_H
-#define SIMPLECOMPILER_ASTREF_H
+#ifndef SIMPLECC_VISUALIZE_ASTREF_H
+#define SIMPLECC_VISUALIZE_ASTREF_H
 
 namespace simplecc {
 class AST;
@@ -76,4 +76,4 @@ public:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_ASTREF_H
+#endif // SIMPLECC_VISUALIZE_ASTREF_H

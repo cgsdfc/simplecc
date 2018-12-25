@@ -1,5 +1,5 @@
-#ifndef OPCODE_DISPATCHER
-#define OPCODE_DISPATCHER
+#ifndef SIMPLECC_CODEGEN_OPCODEDISPATCHER_H
+#define SIMPLECC_CODEGEN_OPCODEDISPATCHER_H
 #include "simplecc/Codegen/ByteCode.h"
 
 namespace simplecc {
@@ -7,7 +7,6 @@ template <class Derived> class OpcodeDispatcher {
 public:
   void dispatch(const ByteCode &byteCode) {
     switch (byteCode.getOpcode()) {
-
     case Opcode::LOAD_LOCAL:
       return static_cast<Derived *>(this)->HandleLoadLocal(byteCode);
 

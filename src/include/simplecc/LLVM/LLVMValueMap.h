@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_LLVMVALUEMAP_H
-#define SIMPLECOMPILER_LLVMVALUEMAP_H
+#ifndef SIMPLECC_LLVM_LLVMVALUEMAP_H
+#define SIMPLECC_LLVM_LLVMVALUEMAP_H
 #include "simplecc/LLVM/LLVMTypeMap.h"
 #include <llvm/IR/Constants.h>
 
@@ -30,4 +30,4 @@ public:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_LLVMVALUEMAP_H
+#endif // SIMPLECC_LLVM_LLVMVALUEMAP_H

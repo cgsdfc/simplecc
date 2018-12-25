@@ -1,5 +1,5 @@
-#ifndef GRAMMAR_H
-#define GRAMMAR_H
+#ifndef SIMPLECC_PARSE_GRAMMAR_H
+#define SIMPLECC_PARSE_GRAMMAR_H
 #include "simplecc/Parse/gramdef.h"
 
 enum class Symbol {

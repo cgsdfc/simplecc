@@ -1,5 +1,5 @@
-#ifndef TOKENIZE_H
-#define TOKENIZE_H
+#ifndef SIMPLECC_LEX_TOKENIZE_H
+#define SIMPLECC_LEX_TOKENIZE_H
 #include "TokenInfo.h"
 
 #include <iostream>

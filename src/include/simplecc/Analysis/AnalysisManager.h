@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_ANALYSISMANAGER_H
-#define SIMPLECOMPILER_ANALYSISMANAGER_H
+#ifndef SIMPLECC_ANALYSIS_ANALYSISMANAGER_H
+#define SIMPLECC_ANALYSIS_ANALYSISMANAGER_H
 // External Interface to the Analysis Module.
 #include "SymbolTable.h"
 #include "Types.h"
@@ -26,4 +26,4 @@ public:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_ANALYSISMANAGER_H
+#endif // SIMPLECC_ANALYSIS_ANALYSISMANAGER_H

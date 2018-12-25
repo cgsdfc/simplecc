@@ -1,5 +1,5 @@
-#ifndef SYMBOL_TABLE_H
-#define SYMBOL_TABLE_H
+#ifndef SIMPLECC_ANALYSIS_SYMBOLTABLE_H
+#define SIMPLECC_ANALYSIS_SYMBOLTABLE_H
 
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/Parse/AST.h"

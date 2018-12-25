@@ -1,5 +1,5 @@
-#ifndef BYTE_CODE_PRINTER_H
-#define BYTE_CODE_PRINTER_H
+#ifndef SIMPLECC_CODEGEN_BYTECODEPRINTER_H
+#define SIMPLECC_CODEGEN_BYTECODEPRINTER_H
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/Print.h"
 

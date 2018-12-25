@@ -1,5 +1,5 @@
-#ifndef AST_VERIFIER_H
-#define AST_VERIFIER_H
+#ifndef SIMPLCC_ANALYSIS_ASTVERIFIER_H
+#define SIMPLCC_ANALYSIS_ASTVERIFIER_H
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 

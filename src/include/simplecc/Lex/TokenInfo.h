@@ -1,5 +1,5 @@
-#ifndef TOKENINFO_H
-#define TOKENINFO_H
+#ifndef SIMPLECC_LEX_TOKENINFO_H
+#define SIMPLECC_LEX_TOKENINFO_H
 #include "simplecc/Parse/Grammar.h"
 
 #include <iostream>

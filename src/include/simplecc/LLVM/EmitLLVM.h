@@ -1,5 +1,5 @@
-#ifndef EMIT_LLVM_H
-#define EMIT_LLVM_H
+#ifndef SIMPLECC_LLVM_EMITLLVM_H
+#define SIMPLECC_LLVM_EMITLLVM_H
 #include <llvm/Support/raw_ostream.h>
 #include <string>
 

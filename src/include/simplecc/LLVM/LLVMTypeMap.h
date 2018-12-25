@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_LLVMTYPEMAP_H
-#define SIMPLECOMPILER_LLVMTYPEMAP_H
+#ifndef SIMPLECC_LLVM_LLVMTYPEMAP_H
+#define SIMPLECC_LLVM_LLVMTYPEMAP_H
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/Parse/AST.h"
 
@@ -57,4 +57,4 @@ public:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_LLVMTYPEMAP_H
+#endif // SIMPLECC_LLVM_LLVMTYPEMAP_H

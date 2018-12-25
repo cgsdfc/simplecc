@@ -1,5 +1,5 @@
-#ifndef MIPS_ASSEMBLY_WRITER_H
-#define MIPS_ASSEMBLY_WRITER_H
+#ifndef SIMPLECC_TARGET_MIPSASSEMBLYWRITER_H
+#define SIMPLECC_TARGET_MIPSASSEMBLYWRITER_H
 #include "simplecc/Support/Print.h"
 #include "simplecc/Target/LocalContext.h"
 

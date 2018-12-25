@@ -1,5 +1,5 @@
-#ifndef ASSEMBLE_H
-#define ASSEMBLE_H
+#ifndef SIMPLECC_TARGET_ASSEMBLE_H
+#define SIMPLECC_TARGET_ASSEMBLE_H
 #include <iostream>
 
 namespace simplecc {

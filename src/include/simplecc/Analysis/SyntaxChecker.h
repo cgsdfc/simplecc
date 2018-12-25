@@ -1,5 +1,5 @@
-#ifndef SYNTAX_CHECKER_H
-#define SYNTAX_CHECKER_H
+#ifndef SIMPLECC_ANALYSIS_SYNTAXCHECKER_H
+#define SIMPLECC_ANALYSIS_SYNTAXCHECKER_H
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 

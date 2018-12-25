@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_SYMBOLTABLEBUILDER_H
-#define SIMPLECOMPILER_SYMBOLTABLEBUILDER_H
+#ifndef SIMPLECC_ANALYSIS_SYMBOLTABLEBUILDER_H
+#define SIMPLECC_ANALYSIS_SYMBOLTABLEBUILDER_H
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
@@ -63,4 +63,4 @@ public:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_SYMBOLTABLEBUILDER_H
+#endif // SIMPLECC_ANALYSIS_SYMBOLTABLEBUILDER_H

@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_BYTECODECOMPILER_H
-#define SIMPLECOMPILER_BYTECODECOMPILER_H
+#ifndef SIMPLECC_CODEGEN_BYTECODECOMPILER_H
+#define SIMPLECC_CODEGEN_BYTECODECOMPILER_H
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Codegen/ByteCodeBuilder.h"
@@ -99,4 +99,4 @@ private:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_BYTECODECOMPILER_H
+#endif // SIMPLECC_CODEGEN_BYTECODECOMPILER_H

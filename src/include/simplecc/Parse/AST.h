@@ -1,5 +1,5 @@
-#ifndef AST_H
-#define AST_H
+#ifndef SIMPLECC_PARSE_AST_H
+#define SIMPLECC_PARSE_AST_H
 
 #include "simplecc/Lex/TokenInfo.h"
 

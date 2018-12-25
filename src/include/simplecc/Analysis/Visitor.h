@@ -1,5 +1,5 @@
-#ifndef VISITOR_H
-#define VISITOR_H
+#ifndef SIMPLECC_ANALYSIS_VISITOR_H
+#define SIMPLECC_ANALYSIS_VISITOR_H
 #include "simplecc/Parse/AST.h"
 #include <cassert>
 

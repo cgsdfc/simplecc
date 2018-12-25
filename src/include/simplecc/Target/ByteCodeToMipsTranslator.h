@@ -1,5 +1,5 @@
-#ifndef BYTE_CODE_TO_MIPS_TRANSLATOR_H
-#define BYTE_CODE_TO_MIPS_TRANSLATOR_H
+#ifndef SIMPLECC_TARGET_BYTECODETOMIPSTRANSLATOR_H
+#define SIMPLECC_TARGET_BYTECODETOMIPSTRANSLATOR_H
 #include "simplecc/Codegen/OpcodeDispatcher.h"
 #include "simplecc/Support/Print.h"
 #include "simplecc/Target/MipsSupport.h"

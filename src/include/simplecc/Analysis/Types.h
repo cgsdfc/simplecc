@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef SIMPLECC_ANALYSIS_TYPES_H
+#define SIMPLECC_ANALYSIS_TYPES_H
 #include "simplecc/Parse/AST.h"
 #include <cassert>
 

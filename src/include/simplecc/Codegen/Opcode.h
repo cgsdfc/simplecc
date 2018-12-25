@@ -1,5 +1,5 @@
-#ifndef OPCODE_H
-#define OPCODE_H
+#ifndef SIMPLECC_CODEGEN_OPCODE_H
+#define SIMPLECC_CODEGEN_OPCODE_H
 #include <iostream>
 
 namespace simplecc {

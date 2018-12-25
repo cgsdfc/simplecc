@@ -1,5 +1,5 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef SIMPLECC_PARSE_PARSER_H
+#define SIMPLECC_PARSE_PARSER_H
 #include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Support/ErrorManager.h"
 

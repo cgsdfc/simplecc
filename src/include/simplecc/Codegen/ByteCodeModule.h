@@ -1,5 +1,5 @@
-#ifndef BYTE_CODE_MODULE_H
-#define BYTE_CODE_MODULE_H
+#ifndef SIMPLECC_CODEGEN_BYTECODEMODULE_H
+#define SIMPLECC_CODEGEN_BYTECODEMODULE_H
 #include "simplecc/Analysis/Types.h"
 
 #include <iostream>

@@ -1,5 +1,5 @@
-#ifndef LOCAL_CONTEXT_H
-#define LOCAL_CONTEXT_H
+#ifndef SIMPLECC_TARGET_LOCALCONTEXT_H
+#define SIMPLECC_TARGET_LOCALCONTEXT_H
 #include <string>
 #include <unordered_map>
 #include <unordered_set>

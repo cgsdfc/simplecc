@@ -1,5 +1,5 @@
-#ifndef NODE_H
-#define NODE_H
+#ifndef SIMPLECC_PARSE_NODE_H
+#define SIMPLECC_PARSE_NODE_H
 
 #include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Parse/Grammar.h"

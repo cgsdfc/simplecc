@@ -1,5 +1,5 @@
-#ifndef BYTE_CODE_BUILDER_H
-#define BYTE_CODE_BUILDER_H
+#ifndef SIMPLECC_CODEGEN_BYTECODEBUILDER_H
+#define SIMPLECC_CODEGEN_BYTECODEBUILDER_H
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/Codegen/ByteCode.h"
 #include "simplecc/Parse/AST.h"

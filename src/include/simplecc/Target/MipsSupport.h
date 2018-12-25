@@ -1,5 +1,5 @@
-#ifndef MIPS_SUPPORT_H
-#define MIPS_SUPPORT_H
+#ifndef SIMPLECC_TARGET_MIPSSUPPORT_H
+#define SIMPLECC_TARGET_MIPSSUPPORT_H
 #include <iostream>
 #include <string>
 

@@ -1,5 +1,5 @@
-#ifndef AST_BUILDER_H
-#define AST_BUILDER_H
+#ifndef SIMPLECC_PARSE_ASTBUILDER_H
+#define SIMPLECC_PARSE_ASTBUILDER_H
 
 #include "simplecc/Parse/AST.h"
 #include <vector>

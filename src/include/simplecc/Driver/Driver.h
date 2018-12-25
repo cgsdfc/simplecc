@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_DRIVER_H
-#define SIMPLECOMPILER_DRIVER_H
+#ifndef SIMPLECC_DRIVER_DRIVER_H
+#define SIMPLECC_DRIVER_DRIVER_H
 #include "simplecc/Analysis/AnalysisManager.h"
 #include "simplecc/Codegen/ByteCodeModule.h"
 #include "simplecc/Lex/TokenInfo.h"
@@ -82,4 +82,4 @@ private:
 };
 
 } // namespace simplecc
-#endif // SIMPLECOMPILER_DRIVER_H
+#endif // SIMPLECC_DRIVER_DRIVER_H

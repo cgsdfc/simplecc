@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_LLVMIRCOMPILER_H
-#define SIMPLECOMPILER_LLVMIRCOMPILER_H
+#ifndef SIMPLECC_LLVM_LLVMIRCOMPILER_H
+#define SIMPLECC_LLVM_LLVMIRCOMPILER_H
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/LLVM/LLVMValueMap.h"
 #include "simplecc/Support/ErrorManager.h"
@@ -170,4 +170,4 @@ public:
 
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_LLVMIRCOMPILER_H
+#endif // SIMPLECC_LLVM_LLVMIRCOMPILER_H

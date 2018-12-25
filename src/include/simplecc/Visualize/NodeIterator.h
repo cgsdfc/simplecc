@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_NODEITERATOR_H
-#define SIMPLECOMPILER_NODEITERATOR_H
+#ifndef SIMPLECC_VISUALIZE_NODEITERATOR_H
+#define SIMPLECC_VISUALIZE_NODEITERATOR_H
 #include <llvm/ADT/iterator.h>
 
 #include <cassert>
@@ -74,4 +74,4 @@ private:
 
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_NODEITERATOR_H
+#endif // SIMPLECC_VISUALIZE_NODEITERATOR_H

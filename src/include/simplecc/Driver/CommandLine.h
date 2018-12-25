@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_COMMANDLINE_H
-#define SIMPLECOMPILER_COMMANDLINE_H
+#ifndef SIMPLECC_DRIVER_COMMANDLINE_H
+#define SIMPLECC_DRIVER_COMMANDLINE_H
 #include <memory>
 #include <string>
 #include <tclap/CmdLine.h>
@@ -20,4 +20,4 @@ public:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_COMMANDLINE_H
+#endif // SIMPLECC_DRIVER_COMMANDLINE_H

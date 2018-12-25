@@ -1,5 +1,5 @@
-#ifndef IMPLICIT_CALL_TRANSFORMER_H
-#define IMPLICIT_CALL_TRANSFORMER_H
+#ifndef SIMPLECC_ANALYSIS_IMPLICITCALLTRANSFORMER_H
+#define SIMPLECC_ANALYSIS_IMPLICITCALLTRANSFORMER_H
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/Analysis/Visitor.h"
 

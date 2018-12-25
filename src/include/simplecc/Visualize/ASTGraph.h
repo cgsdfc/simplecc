@@ -1,5 +1,5 @@
-#ifndef ASTGRAPH_H
-#define ASTGRAPH_H
+#ifndef SIMPLECC_VISUALIZE_ASTGRAPH_H
+#define SIMPLECC_VISUALIZE_ASTGRAPH_H
 #include "simplecc/Parse/AST.h"
 #include "simplecc/Visualize/AstIterator.h"
 #include "simplecc/Visualize/AstRef.h"

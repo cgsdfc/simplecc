@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_ARRAYBOUNDCHECKER_H
-#define SIMPLECOMPILER_ARRAYBOUNDCHECKER_H
+#ifndef SIMPLECC_ANALYSIS_ARRAYBOUNDCHECKER_H
+#define SIMPLECC_ANALYSIS_ARRAYBOUNDCHECKER_H
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
@@ -25,4 +25,4 @@ private:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_ARRAYBOUNDCHECKER_H
+#endif // SIMPLECC_ANALYSIS_ARRAYBOUNDCHECKER_H

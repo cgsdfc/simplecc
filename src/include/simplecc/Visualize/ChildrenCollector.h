@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_CHILDRENCOLLECTOR_H
-#define SIMPLECOMPILER_CHILDRENCOLLECTOR_H
+#ifndef SIMPLECC_VISUALIZE_CHILDRENCOLLECTOR_H
+#define SIMPLECC_VISUALIZE_CHILDRENCOLLECTOR_H
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Visualize/ASTGraph.h"
 
@@ -40,4 +40,4 @@ template <typename AstT> void ChildrenCollector::AddChild(AstT *Ptr) {
 }
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_CHILDRENCOLLECTOR_H
+#endif // SIMPLECC_VISUALIZE_CHILDRENCOLLECTOR_H

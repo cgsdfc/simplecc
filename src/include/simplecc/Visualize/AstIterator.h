@@ -1,5 +1,5 @@
-#ifndef SIMPLECOMPILER_ASTITERATOR_H
-#define SIMPLECOMPILER_ASTITERATOR_H
+#ifndef SIMPLECC_VISUALIZE_ASTITERATOR_H
+#define SIMPLECC_VISUALIZE_ASTITERATOR_H
 #include <llvm/ADT/iterator.h>
 #include <vector>
 
@@ -47,4 +47,4 @@ private:
 };
 } // namespace simplecc
 
-#endif // SIMPLECOMPILER_ASTITERATOR_H
+#endif // SIMPLECC_VISUALIZE_ASTITERATOR_H
