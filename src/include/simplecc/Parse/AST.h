@@ -1,6 +1,5 @@
 #ifndef SIMPLECC_PARSE_AST_H
 #define SIMPLECC_PARSE_AST_H
-
 #include "simplecc/Lex/TokenInfo.h"
 
 #include <iostream>
@@ -22,7 +21,6 @@ public:
   };
   static const char *getClassName(unsigned Kind);
   const char *getClassName() const { return getClassName(getKind()); }
-
   unsigned getKind() const { return SubclassID; }
   Location getLocation() const { return Loc; }
   void deleteAST();
@@ -664,9 +662,12 @@ const char *CStringFromBasicTypeKind(BasicTypeKind val);
 
 /// To be used with std::unique_ptr.
 struct DeleteAST {
-  void operator()(AST *A) const {
+  static void apply(AST *A) {
     if (A)
       A->deleteAST();
+  }
+  void operator()(AST *A) const {
+    apply(A);
   }
 };
 

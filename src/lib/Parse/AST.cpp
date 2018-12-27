@@ -3,28 +3,29 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <simplecc/Parse/AST.h>
 
 namespace simplecc {
 
 template<typename AstT>
 static inline void setterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
-  assert(Optional || RHS && "Only optional field can be null");
+  assert((Optional || RHS) && "Only optional field can be null");
   if (LHS == RHS)
     return;
-  delete LHS;
+  assert(LHS && "LHS cannot be null");
+  LHS->deleteAST();
   LHS = RHS;
 }
 
 template<typename AstT>
 static inline void deleteList(const std::vector<AstT *> &List) {
-  std::for_each(List.begin(), List.end(), [](AstT *A) { A->deleteAST(); });
+  std::for_each(List.begin(), List.end(), [](AstT *A) {
+    assert(A && "AST in a List can't be null");
+    A->deleteAST();
+  });
 }
 
-template<typename AstT>
-static inline void deleteOptional(AstT *A) {
-  if (A)
-    A->deleteAST();
+static inline void deleteOptional(AST *A) {
+  DeleteAST::apply(A);
 }
 
 std::ostream &operator<<(std::ostream &os, OperatorKind val) {
@@ -110,7 +111,7 @@ WhileStmt::~WhileStmt() {
 
 void WhileStmt::setCondition(Expr *E) { setterImpl(condition, E); }
 
-ReturnStmt::~ReturnStmt() { delete value; }
+ReturnStmt::~ReturnStmt() { deleteOptional(value); }
 
 void ReturnStmt::setValue(Expr *E) {
   setterImpl(value, E, /* Optional */ true);
