@@ -71,11 +71,11 @@ bool Driver::doAnalyses() {
   if (doParse())
     return true;
   assert(TheProgram && "Null Program!");
-  bool Result = AM.runAllAnalyses(TheProgram.get());
-  if (Result)
-    return false;
-  EM.increaseErrorCount();
-  return true;
+  if (AM.runAllAnalyses(TheProgram.get())) {
+    EM.increaseErrorCount();
+    return true;
+  }
+  return false;
 }
 
 bool Driver::doCodeGen() {
