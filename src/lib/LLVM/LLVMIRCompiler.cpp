@@ -387,8 +387,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   /// We choose to alter the AST since otherwise the AST will
   /// disagree with IR.
   if (FD->getName() == "main") {
-    // XXX: Use setter: FD->setReturnType();
-    FD->return_type = BasicTypeKind::Int;
+    FD->setReturnType(BasicTypeKind::Int);
   }
   /// A note about linkage:
   /// Like C, we use ExternalLinkage by default and since our

@@ -45,7 +45,8 @@ void SyntaxChecker::visitProgram(Program *P) {
 }
 
 void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
-  if (CD->getType() == BasicTypeKind::Int && !IsInstance<NumExpr>(CD->getValue())) {
+  if (CD->getType() == BasicTypeKind::Int &&
+      !IsInstance<NumExpr>(CD->getValue())) {
     EM.Error(CD->getLocation(), "expected int initializer");
   }
 

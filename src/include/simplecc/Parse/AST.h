@@ -28,18 +28,13 @@ public:
 
   Location getLocation() const { return Loc; }
   virtual ~AST() = default;
-
   virtual void Format(std::ostream &os) const = 0;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
-  ast.Format(os);
-  return os;
+inline std::ostream &operator<<(std::ostream &O, const AST &A) {
+  A.Format(O);
+  return O;
 }
-
-// Forward declare all AST classes now...
-#define HANDLE_AST(CLASS) class CLASS;
-#include "simplecc/Parse/AST.def"
 
 // EnumClass
 enum class OperatorKind { Add, Sub, Mult, Div, Eq, NotEq, Lt, LtE, Gt, GtE };
@@ -60,33 +55,42 @@ std::ostream &operator<<(std::ostream &os, BasicTypeKind val);
 
 // AbstractNode
 class Decl : public AST {
+protected:
+  Decl(unsigned int Kind, std::string name, Location loc)
+      : AST(Kind, loc), name(std::move(name)) {}
+
 public:
   std::string name;
-
-  Decl(int Kind, std::string name, const Location &loc)
-      : AST(Kind, loc), name(std::move(name)) {}
   const std::string &getName() const { return name; }
+  static bool InstanceCheck(AST *A) { return A->getKind() == AST::DeclKind; }
 };
 
 class Stmt : public AST {
+protected:
+  Stmt(unsigned int Kind, Location loc) : AST(Kind, loc) {}
+
 public:
-  Stmt(int Kind, const Location &loc) : AST(Kind, loc) {}
+  static bool InstanceCheck(AST *A) { return A->getKind() == AST::StmtKind; }
 };
 
 class Expr : public AST {
+protected:
+  Expr(int Kind, Location loc) : AST(Kind, loc) {}
+
 public:
-  Expr(int Kind, const Location &loc) : AST(Kind, loc) {}
+  static bool InstanceCheck(AST *A) { return A->getKind() == AST::ExprKind; }
 };
 
 // ConcreteNode
 class ConstDecl : public Decl {
-public:
   BasicTypeKind type;
   Expr *value;
 
+public:
   ConstDecl(BasicTypeKind type, Expr *value, std::string name,
             const Location &loc)
-      : Decl(Decl::ConstDeclKind, std::move(name), loc), type(type), value(value) {}
+      : Decl(Decl::ConstDeclKind, std::move(name), loc), type(type),
+        value(value) {}
 
   // Disable copy and move.
   ConstDecl(const ConstDecl &) = delete;
@@ -98,18 +102,20 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) { return x->getKind() == Decl::ConstDeclKind; }
+  static bool InstanceCheck(Decl *x) {
+    return x->getKind() == Decl::ConstDeclKind;
+  }
 
   BasicTypeKind getType() const { return type; }
   Expr *getValue() const { return value; }
 };
 
 class VarDecl : public Decl {
-public:
   BasicTypeKind type;
   int is_array;
   int size;
 
+public:
   VarDecl(BasicTypeKind type, int is_array, int size, std::string name,
           const Location &loc)
       : Decl(Decl::VarDeclKind, std::move(name), loc), type(type),
@@ -125,7 +131,9 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) { return x->getKind() == Decl::VarDeclKind; }
+  static bool InstanceCheck(Decl *x) {
+    return x->getKind() == Decl::VarDeclKind;
+  }
 
   BasicTypeKind getType() const { return type; }
 
@@ -135,12 +143,12 @@ public:
 };
 
 class FuncDef : public Decl {
-public:
   BasicTypeKind return_type;
   std::vector<Decl *> args;
   std::vector<Decl *> decls;
   std::vector<Stmt *> stmts;
 
+public:
   FuncDef(BasicTypeKind return_type, std::vector<Decl *> args,
           std::vector<Decl *> decls, std::vector<Stmt *> stmts,
           std::string name, const Location &loc)
@@ -158,9 +166,12 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) { return x->getKind() == Decl::FuncDefKind; }
+  static bool InstanceCheck(Decl *x) {
+    return x->getKind() == Decl::FuncDefKind;
+  }
 
   BasicTypeKind getReturnType() const { return return_type; }
+  void setReturnType(BasicTypeKind RetTy) { return_type = RetTy; }
 
   const std::vector<Decl *> &getArgs() const { return args; }
 
@@ -170,9 +181,9 @@ public:
 };
 
 class ArgDecl : public Decl {
-public:
   BasicTypeKind type;
 
+public:
   ArgDecl(BasicTypeKind type, std::string name, const Location &loc)
       : Decl(Decl::ArgDeclKind, std::move(name), loc), type(type) {}
 
@@ -186,15 +197,17 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) { return x->getKind() == Decl::ArgDeclKind; }
+  static bool InstanceCheck(Decl *x) {
+    return x->getKind() == Decl::ArgDeclKind;
+  }
 
   BasicTypeKind getType() const { return type; }
 };
 
 class ReadStmt : public Stmt {
-public:
   std::vector<Expr *> names;
 
+public:
   ReadStmt(std::vector<Expr *> names, const Location &loc)
       : Stmt(Stmt::ReadStmtKind, loc), names(std::move(names)) {}
 
@@ -208,16 +221,18 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::ReadStmtKind; }
+  static bool InstanceCheck(Stmt *x) {
+    return x->getKind() == Stmt::ReadStmtKind;
+  }
 
   const std::vector<Expr *> &getNames() const { return names; }
 };
 
 class WriteStmt : public Stmt {
-public:
   Expr *str;
   Expr *value;
 
+public:
   WriteStmt(Expr *str, Expr *value, const Location &loc)
       : Stmt(Stmt::WriteStmtKind, loc), str(str), value(value) {}
 
@@ -235,13 +250,15 @@ public:
 
   Expr *getStr() const { return str; }
   Expr *getValue() const { return value; }
+  Expr *&getValue() { return value; }
+  void setValue(Expr *Val);
 };
 
 class AssignStmt : public Stmt {
-public:
   Expr *target;
   Expr *value;
 
+public:
   AssignStmt(Expr *target, Expr *value, const Location &loc)
       : Stmt(Stmt::AssignStmtKind, loc), target(target), value(value) {}
 
@@ -259,15 +276,16 @@ public:
 
   Expr *getTarget() const { return target; }
   Expr *getValue() const { return value; }
+  void setValue(Expr *E);
 };
 
 class ForStmt : public Stmt {
-public:
   Stmt *initial;
   Expr *condition;
   Stmt *step;
   std::vector<Stmt *> body;
 
+public:
   ForStmt(Stmt *initial, Expr *condition, Stmt *step, std::vector<Stmt *> body,
           const Location &loc)
       : Stmt(Stmt::ForStmtKind, loc), initial(initial), condition(condition),
@@ -283,20 +301,25 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::ForStmtKind; }
+  static bool InstanceCheck(Stmt *x) {
+    return x->getKind() == Stmt::ForStmtKind;
+  }
 
   Stmt *getInitial() const { return initial; }
+
   Expr *getCondition() const { return condition; }
+  void setCondition(Expr *E);
+
   Stmt *getStep() const { return step; }
 
   const std::vector<Stmt *> &getBody() const { return body; }
 };
 
 class WhileStmt : public Stmt {
-public:
   Expr *condition;
   std::vector<Stmt *> body;
 
+public:
   WhileStmt(Expr *condition, std::vector<Stmt *> body, const Location &loc)
       : Stmt(WhileStmtKind, loc), condition(condition), body(std::move(body)) {}
 
@@ -313,14 +336,15 @@ public:
   static bool InstanceCheck(Stmt *x) { return x->getKind() == WhileStmtKind; }
 
   Expr *getCondition() const { return condition; }
+  void setCondition(Expr *E);
 
   const std::vector<Stmt *> &getBody() const { return body; }
 };
 
 class ReturnStmt : public Stmt {
-public:
   Expr *value;
 
+public:
   ReturnStmt(Expr *value, const Location &loc)
       : Stmt(Stmt::ReturnStmtKind, loc), value(value) {}
 
@@ -334,17 +358,20 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::ReturnStmtKind; }
+  static bool InstanceCheck(Stmt *x) {
+    return x->getKind() == Stmt::ReturnStmtKind;
+  }
 
   Expr *getValue() const { return value; }
+  void setValue(Expr *E);
 };
 
 class IfStmt : public Stmt {
-public:
   Expr *test;
   std::vector<Stmt *> body;
   std::vector<Stmt *> orelse;
 
+public:
   IfStmt(Expr *test, std::vector<Stmt *> body, std::vector<Stmt *> orelse,
          const Location &loc)
       : Stmt(Stmt::IfStmtKind, loc), test(test), body(std::move(body)),
@@ -360,19 +387,21 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::IfStmtKind; }
+  static bool InstanceCheck(Stmt *x) {
+    return x->getKind() == Stmt::IfStmtKind;
+  }
 
   Expr *getTest() const { return test; }
+  void setTest(Expr *E);
 
   const std::vector<Stmt *> &getBody() const { return body; }
-
   const std::vector<Stmt *> &getOrelse() const { return orelse; }
 };
 
 class ExprStmt : public Stmt {
-public:
   Expr *value;
 
+public:
   ExprStmt(Expr *value, const Location &loc)
       : Stmt(Stmt::ExprStmtKind, loc), value(value) {}
 
@@ -386,17 +415,20 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::ExprStmtKind; }
+  static bool InstanceCheck(Stmt *x) {
+    return x->getKind() == Stmt::ExprStmtKind;
+  }
 
   Expr *getValue() const { return value; }
+  void setValue(Expr *E);
 };
 
 class BinOpExpr : public Expr {
-public:
   Expr *left;
   OperatorKind op;
   Expr *right;
 
+public:
   BinOpExpr(Expr *left, OperatorKind op, Expr *right, const Location &loc)
       : Expr(Expr::BinOpExprKind, loc), left(left), op(op), right(right) {}
 
@@ -410,17 +442,23 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::BinOpExprKind; }
+  static bool InstanceCheck(Expr *x) {
+    return x->getKind() == Expr::BinOpExprKind;
+  }
+
+  OperatorKind getOp() const { return op; }
 
   Expr *getLeft() const { return left; }
-  OperatorKind getOp() const { return op; }
+  void setLeft(Expr *E);
+
   Expr *getRight() const { return right; }
+  void setRight(Expr *E);
 };
 
 class ParenExpr : public Expr {
-public:
   Expr *value;
 
+public:
   ParenExpr(Expr *value, const Location &loc)
       : Expr(Expr::ParenExprKind, loc), value(value) {}
 
@@ -434,16 +472,19 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::ParenExprKind; }
+  static bool InstanceCheck(Expr *x) {
+    return x->getKind() == Expr::ParenExprKind;
+  }
 
   Expr *getValue() const { return value; }
+  void setValue(Expr *E);
 };
 
 class BoolOpExpr : public Expr {
-public:
   Expr *value;
   int has_cmpop;
 
+public:
   BoolOpExpr(Expr *value, int has_cmpop, const Location &loc)
       : Expr(BoolOpExprKind, loc), value(value), has_cmpop(has_cmpop) {}
 
@@ -460,15 +501,16 @@ public:
   static bool InstanceCheck(Expr *x) { return x->getKind() == BoolOpExprKind; }
 
   Expr *getValue() const { return value; }
+  void setValue(Expr *E);
 
   int getHasCmpop() const { return has_cmpop; }
 };
 
 class UnaryOpExpr : public Expr {
-public:
   UnaryopKind op;
   Expr *operand;
 
+public:
   UnaryOpExpr(UnaryopKind op, Expr *operand, const Location &loc)
       : Expr(UnaryOpExprKind, loc), op(op), operand(operand) {}
 
@@ -482,19 +524,23 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::UnaryOpExprKind; }
+  static bool InstanceCheck(Expr *x) {
+    return x->getKind() == Expr::UnaryOpExprKind;
+  }
 
   UnaryopKind getOp() const { return op; }
   Expr *getOperand() const { return operand; }
+  void setOperand(Expr *E);
 };
 
 class CallExpr : public Expr {
-public:
   std::string func;
   std::vector<Expr *> args;
 
+public:
   CallExpr(std::string func, std::vector<Expr *> args, const Location &loc)
-      : Expr(Expr::CallExprKind, loc), func(std::move(func)), args(std::move(args)) {}
+      : Expr(Expr::CallExprKind, loc), func(std::move(func)),
+        args(std::move(args)) {}
 
   // Disable copy and move.
   CallExpr(const CallExpr &) = delete;
@@ -506,17 +552,22 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::CallExprKind; }
+  static bool InstanceCheck(Expr *x) {
+    return x->getKind() == Expr::CallExprKind;
+  }
 
   const std::string &getFunc() const { return func; }
 
   const std::vector<Expr *> &getArgs() const { return args; }
+  Expr *getArgAt(unsigned I) const { return args[I]; }
+  void setArgAt(unsigned I, Expr *Val);
+  unsigned getNumArgs() const { return args.size(); }
 };
 
 class NumExpr : public Expr {
-public:
   int n;
 
+public:
   NumExpr(int n, const Location &loc) : Expr(Expr::NumExprKind, loc), n(n) {}
 
   // Disable copy and move.
@@ -529,15 +580,17 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::NumExprKind; }
+  static bool InstanceCheck(Expr *x) {
+    return x->getKind() == Expr::NumExprKind;
+  }
 
   int getN() const { return n; }
 };
 
 class StrExpr : public Expr {
-public:
   std::string s;
 
+public:
   StrExpr(std::string s, const Location &loc)
       : Expr(Expr::StrExprKind, loc), s(std::move(s)) {}
 
@@ -551,15 +604,17 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::StrExprKind; }
+  static bool InstanceCheck(Expr *x) {
+    return x->getKind() == Expr::StrExprKind;
+  }
 
   const std::string &getS() const { return s; }
 };
 
 class CharExpr : public Expr {
-public:
   int c;
 
+public:
   CharExpr(int c, const Location &loc) : Expr(Expr::CharExprKind, loc), c(c) {}
 
   // Disable copy and move.
@@ -572,17 +627,19 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::CharExprKind; }
+  static bool InstanceCheck(Expr *x) {
+    return x->getKind() == Expr::CharExprKind;
+  }
 
   int getC() const { return c; }
 };
 
 class SubscriptExpr : public Expr {
-public:
   std::string name;
   Expr *index;
   ExprContextKind ctx;
 
+public:
   SubscriptExpr(std::string name, Expr *index, ExprContextKind ctx,
                 const Location &loc)
       : Expr(SubscriptExprKind, loc), name(std::move(name)), index(index),
@@ -598,18 +655,22 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == SubscriptExprKind; }
+  static bool InstanceCheck(Expr *x) {
+    return x->getKind() == SubscriptExprKind;
+  }
 
   const std::string &getName() const { return name; }
-  Expr *getIndex() const { return index; }
   ExprContextKind getCtx() const { return ctx; }
+
+  Expr *getIndex() const { return index; }
+  void setIndex(Expr *E);
 };
 
 class NameExpr : public Expr {
-public:
   std::string id;
   ExprContextKind ctx;
 
+public:
   NameExpr(std::string id, ExprContextKind ctx, const Location &loc)
       : Expr(NameExprKind, loc), id(std::move(id)), ctx(ctx) {}
 
@@ -632,9 +693,9 @@ public:
 // LeafNode
 
 class Program : public AST {
-public:
   std::vector<Decl *> decls;
 
+public:
   explicit Program(std::vector<Decl *> decls)
       : AST(ProgramKind, Location(0, 0)), decls(std::move(decls)) {}
 
@@ -649,9 +710,7 @@ public:
   void Format(std::ostream &os) const override;
   const std::vector<Decl *> &getDecls() const { return decls; }
 
-  static bool InstanceCheck(AST *A) {
-    return A->getKind() == ProgramKind;
-  }
+  static bool InstanceCheck(AST *A) { return A->getKind() == ProgramKind; }
 };
 
 // EnumFromString

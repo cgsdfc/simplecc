@@ -22,7 +22,8 @@ Constant *LLVMValueMap::getConstantFromExpr(Expr *E) const {
     return getInt(static_cast<NumExpr *>(E)->getN());
   case Expr::CharExprKind:
     return getChar(static_cast<CharExpr *>(E)->getC());
-  default:llvm_unreachable("Expr must be NumExpr or CharExpr");
+  default:
+    llvm_unreachable("Expr must be NumExpr or CharExpr");
   }
 }
 

@@ -19,16 +19,19 @@ void AstVerifier::visitConstDecl(ConstDecl *CD) {
 }
 
 void AstVerifier::visitExprStmt(ExprStmt *ES) {
-  AssertThat(IsInstance<CallExpr>(ES->getValue()), "ExprStmt must have a CallExpr");
+  AssertThat(IsInstance<CallExpr>(ES->getValue()),
+             "ExprStmt must have a CallExpr");
 }
 
 void AstVerifier::visitIf(IfStmt *I) {
-  AssertThat(IsInstance<BoolOpExpr>(I->getTest()), "Test of IfStmt must be a BoolOpExpr");
+  AssertThat(IsInstance<BoolOpExpr>(I->getTest()),
+             "Test of IfStmt must be a BoolOpExpr");
 }
 
 void AstVerifier::visitBoolOp(simplecc::BoolOpExpr *B) {
   if (B->getHasCmpop()) {
-    AssertThat(IsInstance<BinOpExpr>(B->getValue()), "HasCmpOp implies BinOpExpr");
+    AssertThat(IsInstance<BinOpExpr>(B->getValue()),
+               "HasCmpOp implies BinOpExpr");
   }
 }
 
@@ -51,7 +54,8 @@ void AstVerifier::visitFor(ForStmt *F) {
   AssertThat(IsInstance<BoolOpExpr>(F->getCondition()),
              "Condition of ForStmt must be a BoolOpExpr");
 
-  AssertThat(IsInstance<AssignStmt>(F->getStep()), "Step of ForStmt must be an AssignStmt");
+  AssertThat(IsInstance<AssignStmt>(F->getStep()),
+             "Step of ForStmt must be an AssignStmt");
 }
 
 void AstVerifier::visitFuncDef(FuncDef *FD) {

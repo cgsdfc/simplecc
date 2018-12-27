@@ -1,10 +1,19 @@
 #include "simplecc/Parse/AST.h"
 #include <cassert>
 #include <iostream>
-#include <vector>
 #include <simplecc/Parse/AST.h>
+#include <vector>
 
 namespace simplecc {
+
+template<typename AstT>
+static inline void setterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
+  assert(Optional || RHS);
+  if (LHS == RHS)
+    return;
+  delete LHS;
+  LHS = RHS;
+}
 
 // Format Optional Ast
 std::ostream &operator<<(std::ostream &os, const AST *ast) {
@@ -257,10 +266,16 @@ WriteStmt::~WriteStmt() {
   delete value;
 }
 
+void WriteStmt::setValue(Expr *Val) {
+  setterImpl(value, Val, /* Optional */ true);
+}
+
 AssignStmt::~AssignStmt() {
   delete target;
   delete value;
 }
+
+void AssignStmt::setValue(Expr *E) { setterImpl(value, E); }
 
 ForStmt::~ForStmt() {
   delete initial;
@@ -270,13 +285,20 @@ ForStmt::~ForStmt() {
     delete v;
 }
 
+void ForStmt::setCondition(Expr *E) { setterImpl(condition, E); }
+
 WhileStmt::~WhileStmt() {
   delete condition;
   for (auto v : body)
     delete v;
 }
 
+void WhileStmt::setCondition(Expr *E) { setterImpl(condition, E); }
+
 ReturnStmt::~ReturnStmt() { delete value; }
+void ReturnStmt::setValue(Expr *E) {
+  setterImpl(value, E, /* Optional */ true);
+}
 
 IfStmt::~IfStmt() {
   delete test;
@@ -286,6 +308,14 @@ IfStmt::~IfStmt() {
     delete v;
 }
 
+void IfStmt::setTest(Expr *E) {
+  assert(E);
+  if (E == test)
+    return;
+  delete test;
+  test = E;
+}
+
 ExprStmt::~ExprStmt() { delete value; }
 
 BinOpExpr::~BinOpExpr() {
@@ -293,22 +323,33 @@ BinOpExpr::~BinOpExpr() {
   delete right;
 }
 
+void BinOpExpr::setLeft(Expr *E) { setterImpl(left, E); }
+
+void BinOpExpr::setRight(Expr *E) { setterImpl(right, E); }
+
 ParenExpr::~ParenExpr() { delete value; }
+void ParenExpr::setValue(Expr *E) { setterImpl(value, E); }
 
 BoolOpExpr::~BoolOpExpr() { delete value; }
 
+void BoolOpExpr::setValue(Expr *E) { setterImpl(value, E); }
+
 UnaryOpExpr::~UnaryOpExpr() { delete operand; }
+void UnaryOpExpr::setOperand(Expr *E) { setterImpl(operand, E); }
 
 CallExpr::~CallExpr() {
   for (auto v : args)
     delete v;
 }
 
+void CallExpr::setArgAt(unsigned I, Expr *Val) { setterImpl(args[I], Val); }
+
 NumExpr::~NumExpr() = default;
 StrExpr::~StrExpr() = default;
 CharExpr::~CharExpr() = default;
 
 SubscriptExpr::~SubscriptExpr() { delete index; }
+void SubscriptExpr::setIndex(Expr *E) { setterImpl(index, E); }
 
 NameExpr::~NameExpr() = default;
 
@@ -386,8 +427,10 @@ const char *CStringFromBasicTypeKind(BasicTypeKind val) {
 
 const char *AST::getClassName(unsigned Kind) {
   switch (Kind) {
-  default: assert(false && "Unhandled AST Kind");
-#define HANDLE_AST(CLASS) case CLASS##Kind: return #CLASS;
+  default:assert(false && "Unhandled AST Kind");
+#define HANDLE_AST(CLASS)                                                      \
+  case CLASS##Kind:                                                            \
+    return #CLASS;
 #include "simplecc/Parse/AST.def"
   }
 }

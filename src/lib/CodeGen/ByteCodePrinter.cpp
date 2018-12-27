@@ -177,7 +177,7 @@ bool ExprValue::Check() const {
     return Temporary >= 0;
   } else {
     return (IsInstance<CharExpr>(Factor) || IsInstance<NumExpr>(Factor) ||
-        IsInstance<NameExpr>(Factor) || IsInstance<StrExpr>(Factor));
+            IsInstance<NameExpr>(Factor) || IsInstance<StrExpr>(Factor));
   }
 }
 

@@ -63,7 +63,8 @@ void ByteCodeCompiler::visitFor(ForStmt *node) {
 
 void ByteCodeCompiler::visitWhile(WhileStmt *W) {
   unsigned Loop = Builder.getSize();
-  unsigned JumpToEnd = CompileBoolOp(static_cast<BoolOpExpr *>(W->getCondition()));
+  unsigned JumpToEnd =
+      CompileBoolOp(static_cast<BoolOpExpr *>(W->getCondition()));
 
   for (auto s : W->getBody()) {
     visitStmt(s);

@@ -7,29 +7,37 @@ using namespace simplecc;
 
 unsigned ByteCodeBuilder::MakeSubScr(ExprContextKind ctx) {
   switch (ctx) {
-  case ExprContextKind::Load:return ByteCode::BINARY_SUBSCR;
-  case ExprContextKind::Store:return ByteCode::STORE_SUBSCR;
+  case ExprContextKind::Load:
+    return ByteCode::BINARY_SUBSCR;
+  case ExprContextKind::Store:
+    return ByteCode::STORE_SUBSCR;
   }
 }
 
 unsigned ByteCodeBuilder::MakeLoad(Scope scope) {
   switch (scope) {
-  case Scope::Global:return ByteCode::LOAD_GLOBAL;
-  case Scope::Local:return ByteCode::LOAD_LOCAL;
+  case Scope::Global:
+    return ByteCode::LOAD_GLOBAL;
+  case Scope::Local:
+    return ByteCode::LOAD_LOCAL;
   }
 }
 
 unsigned ByteCodeBuilder::MakeStore(Scope scope) {
   switch (scope) {
-  case Scope::Global:return ByteCode::STORE_GLOBAL;
-  case Scope::Local:return ByteCode::STORE_LOCAL;
+  case Scope::Global:
+    return ByteCode::STORE_GLOBAL;
+  case Scope::Local:
+    return ByteCode::STORE_LOCAL;
   }
 }
 
 unsigned ByteCodeBuilder::MakeRead(BasicTypeKind type) {
   switch (type) {
-  case BasicTypeKind::Character:return ByteCode::READ_CHARACTER;
-  case BasicTypeKind::Int:return ByteCode::READ_INTEGER;
+  case BasicTypeKind::Character:
+    return ByteCode::READ_CHARACTER;
+  case BasicTypeKind::Int:
+    return ByteCode::READ_INTEGER;
   default:
     assert(false);
   }
@@ -37,8 +45,10 @@ unsigned ByteCodeBuilder::MakeRead(BasicTypeKind type) {
 
 unsigned ByteCodeBuilder::MakePrint(BasicTypeKind type) {
   switch (type) {
-  case BasicTypeKind::Character:return ByteCode::PRINT_CHARACTER;
-  case BasicTypeKind::Int:return ByteCode::PRINT_INTEGER;
+  case BasicTypeKind::Character:
+    return ByteCode::PRINT_CHARACTER;
+  case BasicTypeKind::Int:
+    return ByteCode::PRINT_INTEGER;
   default:
     assert(false);
   }
@@ -46,10 +56,14 @@ unsigned ByteCodeBuilder::MakePrint(BasicTypeKind type) {
 
 unsigned ByteCodeBuilder::MakeBinary(OperatorKind Op) {
   switch (Op) {
-  case OperatorKind::Add:return ByteCode::BINARY_ADD;
-  case OperatorKind::Sub:return ByteCode::BINARY_SUB;
-  case OperatorKind::Mult:return ByteCode::BINARY_MULTIPLY;
-  case OperatorKind::Div:return ByteCode::BINARY_DIVIDE;
+  case OperatorKind::Add:
+    return ByteCode::BINARY_ADD;
+  case OperatorKind::Sub:
+    return ByteCode::BINARY_SUB;
+  case OperatorKind::Mult:
+    return ByteCode::BINARY_MULTIPLY;
+  case OperatorKind::Div:
+    return ByteCode::BINARY_DIVIDE;
   default:
     assert(false);
   }
@@ -57,19 +71,27 @@ unsigned ByteCodeBuilder::MakeBinary(OperatorKind Op) {
 
 unsigned ByteCodeBuilder::MakeUnary(UnaryopKind Op) {
   switch (Op) {
-  case UnaryopKind::UAdd:return ByteCode::UNARY_POSITIVE;
-  case UnaryopKind::USub:return ByteCode::UNARY_NEGATIVE;
+  case UnaryopKind::UAdd:
+    return ByteCode::UNARY_POSITIVE;
+  case UnaryopKind::USub:
+    return ByteCode::UNARY_NEGATIVE;
   }
 }
 
 unsigned ByteCodeBuilder::MakeJumpNegative(OperatorKind Op) {
   switch (Op) {
-  case OperatorKind::NotEq:return ByteCode::JUMP_IF_EQUAL;
-  case OperatorKind::Eq:return ByteCode::JUMP_IF_NOT_EQUAL;
-  case OperatorKind::GtE:return ByteCode::JUMP_IF_LESS;
-  case OperatorKind::Gt:return ByteCode::JUMP_IF_LESS_EQUAL;
-  case OperatorKind::LtE:return ByteCode::JUMP_IF_GREATER;
-  case OperatorKind::Lt:return ByteCode::JUMP_IF_GREATER_EQUAL;
+  case OperatorKind::NotEq:
+    return ByteCode::JUMP_IF_EQUAL;
+  case OperatorKind::Eq:
+    return ByteCode::JUMP_IF_NOT_EQUAL;
+  case OperatorKind::GtE:
+    return ByteCode::JUMP_IF_LESS;
+  case OperatorKind::Gt:
+    return ByteCode::JUMP_IF_LESS_EQUAL;
+  case OperatorKind::LtE:
+    return ByteCode::JUMP_IF_GREATER;
+  case OperatorKind::Lt:
+    return ByteCode::JUMP_IF_GREATER_EQUAL;
   default:
     assert(false);
   }
@@ -77,12 +99,18 @@ unsigned ByteCodeBuilder::MakeJumpNegative(OperatorKind Op) {
 
 unsigned ByteCodeBuilder::MakeJump(OperatorKind Op) {
   switch (Op) {
-  case OperatorKind::Eq:return ByteCode::JUMP_IF_EQUAL;
-  case OperatorKind::NotEq:return ByteCode::JUMP_IF_NOT_EQUAL;
-  case OperatorKind::Lt:return ByteCode::JUMP_IF_LESS;
-  case OperatorKind::LtE:return ByteCode::JUMP_IF_LESS_EQUAL;
-  case OperatorKind::Gt:return ByteCode::JUMP_IF_GREATER;
-  case OperatorKind::GtE:return ByteCode::JUMP_IF_GREATER_EQUAL;
+  case OperatorKind::Eq:
+    return ByteCode::JUMP_IF_EQUAL;
+  case OperatorKind::NotEq:
+    return ByteCode::JUMP_IF_NOT_EQUAL;
+  case OperatorKind::Lt:
+    return ByteCode::JUMP_IF_LESS;
+  case OperatorKind::LtE:
+    return ByteCode::JUMP_IF_LESS_EQUAL;
+  case OperatorKind::Gt:
+    return ByteCode::JUMP_IF_GREATER;
+  case OperatorKind::GtE:
+    return ByteCode::JUMP_IF_GREATER_EQUAL;
   default:
     assert(false);
   }

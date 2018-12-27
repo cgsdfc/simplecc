@@ -32,12 +32,12 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   void visitBinOp(BinOpExpr *B);
   void visitFuncDef(FuncDef *FD);
 
-  void visitBoolOp(BoolOpExpr *B) { TransformExpr(B->value); }
-  void visitParenExpr(ParenExpr *PE) { TransformExpr(PE->value); }
-  void visitUnaryOp(UnaryOpExpr *U) { TransformExpr(U->operand); }
-  void visitSubscript(SubscriptExpr *SB) { TransformExpr(SB->index); }
+  void visitBoolOp(BoolOpExpr *B);
+  void visitParenExpr(ParenExpr *PE);
+  void visitUnaryOp(UnaryOpExpr *U);
+  void visitSubscript(SubscriptExpr *SB);
 
-  void TransformExpr(Expr *&E);
+  Expr *TransformExpr(Expr *E);
 
   /// Setters.
   void setLocalTable(SymbolTableView L) { TheLocalTable = L; }

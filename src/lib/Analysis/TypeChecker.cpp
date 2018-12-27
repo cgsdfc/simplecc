@@ -48,8 +48,8 @@ void TypeChecker::visitAssign(AssignStmt *A) {
   auto LHS = visitExpr(A->getTarget());
 
   if (EM.IsOk(Errs) && LHS != RHS) {
-    EM.Error(A->getLocation(), "cannot assign", CStringFromBasicTypeKind(RHS), "to",
-             CStringFromBasicTypeKind(LHS));
+    EM.Error(A->getLocation(), "cannot assign", CStringFromBasicTypeKind(RHS),
+             "to", CStringFromBasicTypeKind(LHS));
   }
 }
 
@@ -112,8 +112,8 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
   auto NumFormal = Ty.getArgCount();
   auto NumActual = C->getArgs().size();
   if (NumFormal != NumActual) {
-    EM.Error(C->getLocation(), C->getFunc(), "expects", NumFormal, "arguments, got",
-             NumActual);
+    EM.Error(C->getLocation(), C->getFunc(), "expects", NumFormal,
+             "arguments, got", NumActual);
   }
 
   // check args
@@ -122,8 +122,8 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
     auto ActualTy = visitExpr(C->getArgs()[I]);
     auto FormalTy = Ty.getArgTypeAt(I);
     if (ActualTy != FormalTy) {
-      EM.Error(C->getArgs()[I]->getLocation(), "argument", I + 1, "of", C->getFunc(),
-               "must be", CStringFromBasicTypeKind(FormalTy));
+      EM.Error(C->getArgs()[I]->getLocation(), "argument", I + 1, "of",
+               C->getFunc(), "must be", CStringFromBasicTypeKind(FormalTy));
     }
   }
   return Ty.getReturnType();
@@ -147,6 +147,9 @@ BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
 
 BasicTypeKind TypeChecker::visitName(NameExpr *N) {
   const auto &Entry = TheLocalTable[N->getId()];
+  // Catch this frequent error first.
+  assert(!Entry.IsFunction() && "There should be no NameExpr being a Function!");
+
   if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
     EM.Error(N->getLocation(), "using an array in an expression");
     return BasicTypeKind::Void;
