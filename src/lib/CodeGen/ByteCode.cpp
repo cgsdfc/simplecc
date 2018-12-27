@@ -27,66 +27,45 @@ ByteCode ByteCode::Create(Opcode Op, const char *Str, int Int) {
   return B;
 }
 
-bool ByteCode::IsJumpXXX(Opcode Op) {
+bool ByteCode::IsJump(Opcode Op) {
   switch (Op) {
-  case Opcode::JUMP_IF_TRUE:
-  case Opcode::JUMP_IF_FALSE:
-  case Opcode::JUMP_IF_NOT_EQUAL:
-  case Opcode::JUMP_IF_EQUAL:
-  case Opcode::JUMP_IF_GREATER:
-  case Opcode::JUMP_IF_GREATER_EQUAL:
-  case Opcode::JUMP_IF_LESS:
-  case Opcode::JUMP_IF_LESS_EQUAL:
-  case Opcode::JUMP_FORWARD:return true;
   default:return false;
+#define HANDLE_JUMP(opcode, camelName) case Opcode::opcode:
+#include "simplecc/CodeGen/Opcode.def"
+    return true;
   }
 }
 
 bool ByteCode::HasIntOperand(Opcode Op) {
   switch (Op) {
-  case Opcode::JUMP_IF_TRUE:
-  case Opcode::JUMP_IF_FALSE:
-  case Opcode::JUMP_FORWARD:
-  case Opcode::JUMP_IF_NOT_EQUAL:
-  case Opcode::JUMP_IF_EQUAL:
-  case Opcode::JUMP_IF_GREATER:
-  case Opcode::JUMP_IF_GREATER_EQUAL:
-  case Opcode::JUMP_IF_LESS:
-  case Opcode::JUMP_IF_LESS_EQUAL:
-  case Opcode::CALL_FUNCTION:
-  case Opcode::LOAD_STRING:
-  case Opcode::LOAD_CONST:return true;
   default:return false;
+#define HAS_INT_OPERAND_ONLY(OP, NAME) case OP:
+#define HAS_INT_AND_STR_OPERAND(OP, NAME) case OP:
+#include "simplecc/CodeGen/Opcode.def"
+    return true;
   }
 }
 
 bool ByteCode::HasStrOperand(Opcode Op) {
   switch (Op) {
-  case Opcode::LOAD_LOCAL:
-  case Opcode::LOAD_GLOBAL:
-  case Opcode::STORE_LOCAL:
-  case Opcode::STORE_GLOBAL:
-  case Opcode::CALL_FUNCTION:return true;
   default:return false;
+#define HAS_STR_OPERAND_ONLY(OP, NAME) case OP:
+#define HAS_INT_AND_STR_OPERAND(OP, NAME) case OP:
+#include "simplecc/CodeGen/Opcode.def"
+    return true;
   }
 }
 
 bool ByteCode::HasNoOperand(Opcode Op) {
   switch (Op) {
-  case Opcode::BINARY_ADD:
-  case Opcode::BINARY_SUB:
-  case Opcode::BINARY_MULTIPLY:
-  case Opcode::BINARY_DIVIDE:
-  case Opcode::UNARY_POSITIVE:
-  case Opcode::UNARY_NEGATIVE:
-  case Opcode::POP_TOP:
-  case Opcode::PRINT_NEWLINE:return true;
   default:return false;
+#define HAS_NO_OPERAND(OP, NAME) case OP:
+#include "simplecc/CodeGen/Opcode.def"
+    return true;
   }
 }
 
 void ByteCode::Format(std::ostream &O) const {
-  /* O << std::setw(4) << GetSourceLineno(); */
   O << std::left << std::setw(4) << getByteCodeOffset();
   O << std::left << std::setw(25) << getOpcode();
 

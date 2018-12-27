@@ -61,20 +61,20 @@ public:
   static bool HasNoOperand(Opcode op);
   bool HasNoOperand() const { return HasNoOperand(getOpcode()); }
 
-  static bool IsJumpXXX(Opcode op);
-  bool IsJumpXXX() const { return IsJumpXXX(getOpcode()); }
+  static bool IsJump(Opcode Op);
+  bool IsJump() const { return IsJump(getOpcode()); }
 
   void setSourceLineno(unsigned Line) { SourceLineno = Line; }
   unsigned getSourceLineno() const { return SourceLineno; }
 
   /// set the jump target for this ByteCode if this is a jump.
   void setJumpTarget(unsigned Target) {
-    assert(IsJumpXXX() && "SetJumpTarget() on non-jump ByteCode");
+    assert(IsJump() && "SetJumpTarget() on non-jump ByteCode");
     IntOperand = Target;
   }
 
   unsigned getJumpTarget() const {
-    assert(IsJumpXXX() && "GetJumpTarget() on non-jump ByteCode");
+    assert(IsJump() && "GetJumpTarget() on non-jump ByteCode");
     assert(IntOperand >= 0 && "Negative JumpTarget!");
     return static_cast<unsigned>(IntOperand);
   }

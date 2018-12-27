@@ -38,7 +38,7 @@ void LocalContext::InitializeLocalOffsets() {
 void LocalContext::InitializeJumpTargets() {
   JumpTargets.clear();
   for (const ByteCode &C : *TheFunction) {
-    if (C.IsJumpXXX()) {
+    if (C.IsJump()) {
       JumpTargets.insert(C.getJumpTarget());
     }
   }
