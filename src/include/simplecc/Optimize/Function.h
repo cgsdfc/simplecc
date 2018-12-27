@@ -2,7 +2,9 @@
 #define FUNCTION_H
 
 namespace simplecc {
-class Function {};
+class Function {
+
+};
 } // namespace simplecc
 
 #endif

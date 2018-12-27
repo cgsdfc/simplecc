@@ -62,7 +62,7 @@ public:
   AST *get() const { return Ref; }
 
   /// get<Type>() is like dynamic_cast<Type>() that tries to cast
-  /// the raw AST* to Type* using the Kind indicator and fails back to nullptr.
+  /// the raw AST* to Type* using the Kind indicator and falls back to nullptr.
   template <typename AstT> AstT *get() const {
     // non-empty most of the time.
     if (AstTraits<AstT>::Kind != getKind())
