@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_TARGET_BYTECODETOMIPSTRANSLATOR_H
 #define SIMPLECC_TARGET_BYTECODETOMIPSTRANSLATOR_H
-#include "simplecc/CodeGen/OpcodeDispatcher.h"
+#include "simplecc/CodeGen/ByteCodeVisitor.h"
 #include "simplecc/Support/Print.h"
 #include "simplecc/Target/MipsSupport.h"
 
@@ -11,7 +11,7 @@ namespace simplecc {
 class LocalContext;
 
 // Serve as a template translating one ByteCode to MIPS instructions
-class ByteCodeToMipsTranslator : OpcodeDispatcher<ByteCodeToMipsTranslator> {
+class ByteCodeToMipsTranslator : ByteCodeVisitor<ByteCodeToMipsTranslator> {
 
   // Push a register onto the stack
   void PUSH(const char *R);
@@ -20,62 +20,62 @@ class ByteCodeToMipsTranslator : OpcodeDispatcher<ByteCodeToMipsTranslator> {
   void POP(const char *R = nullptr);
 
   /// Load Operator
-  void HandleLoadLocal(const ByteCode &C);
-  void HandleLoadGlobal(const ByteCode &C);
-  void HandleLoadConst(const ByteCode &C);
-  void HandleLoadString(const ByteCode &C);
+  void visitLoadLocal(const ByteCode &C);
+  void visitLoadGlobal(const ByteCode &C);
+  void visitLoadConst(const ByteCode &C);
+  void visitLoadString(const ByteCode &C);
 
   /// Store Operator
-  void HandleStoreLocal(const ByteCode &C);
-  void HandleStoreGlobal(const ByteCode &C);
+  void visitStoreLocal(const ByteCode &C);
+  void visitStoreGlobal(const ByteCode &C);
 
   /// Binary Operator
-  void HandleBinary(const char *Op);
-  void HandleBinaryAdd(const ByteCode &C);
-  void HandleBinarySub(const ByteCode &C);
-  void HandleBinaryMultiply(const ByteCode &C);
-  void HandleBinaryDivide(const ByteCode &C);
+  void visitBinary(const char *Op);
+  void visitBinaryAdd(const ByteCode &C);
+  void visitBinarySub(const ByteCode &C);
+  void visitBinaryMultiply(const ByteCode &C);
+  void visitBinaryDivide(const ByteCode &C);
 
   /// Unary Operator.
-  void HandleUnaryPositive(const ByteCode &C) {}
-  void HandleUnaryNegative(const ByteCode &C);
+  void visitUnaryPositive(const ByteCode &C) {}
+  void visitUnaryNegative(const ByteCode &C);
 
   /// Call and Return.
-  void HandleCallFunction(const ByteCode &C);
-  void HandleReturn();
-  void HandleReturnValue(const ByteCode &C);
-  void HandleReturnNone(const ByteCode &C) { HandleReturn(); }
+  void visitCallFunction(const ByteCode &C);
+  void visitReturn();
+  void visitReturnValue(const ByteCode &C);
+  void visitReturnNone(const ByteCode &C) { visitReturn(); }
 
   /// Print Operators
-  void HandlePrint(MipsSyscallCode Syscall);
-  void HandlePrintString(const ByteCode &C);
-  void HandlePrintCharacter(const ByteCode &C);
-  void HandlePrintInteger(const ByteCode &C);
-  void HandlePrintNewline(const ByteCode &C);
+  void visitPrint(MipsSyscallCode Syscall);
+  void visitPrintString(const ByteCode &C);
+  void visitPrintCharacter(const ByteCode &C);
+  void visitPrintInteger(const ByteCode &C);
+  void visitPrintNewline(const ByteCode &C);
 
   /// Read Operators
-  void HandleRead(MipsSyscallCode Syscall);
-  void HandleReadInteger(const ByteCode &C);
-  void HandleReadCharacter(const ByteCode &C);
+  void visitRead(MipsSyscallCode Syscall);
+  void visitReadInteger(const ByteCode &C);
+  void visitReadCharacter(const ByteCode &C);
 
   /// Subscript Operators
-  void HandleBinarySubscr(const ByteCode &C);
-  void HandleStoreSubscr(const ByteCode &C);
+  void visitBinarySubscr(const ByteCode &C);
+  void visitStoreSubscr(const ByteCode &C);
 
   /// Jump Operators.
-  void HandleUnaryJumpIf(const char *op, const ByteCode &C);
-  void HandleJumpIfTrue(const ByteCode &C);
-  void HandleJumpIfFalse(const ByteCode &C);
-  void HandleJumpForward(const ByteCode &C);
-  void HandleBinaryJumpIf(const char *Op, const ByteCode &C);
-  void HandleJumpIfNotEqual(const ByteCode &C);
-  void HandleJumpIfEqual(const ByteCode &C);
-  void HandleJumpIfGreater(const ByteCode &C);
-  void HandleJumpIfGreaterEqual(const ByteCode &C);
-  void HandleJumpIfLess(const ByteCode &C);
-  void HandleJumpIfLessEqual(const ByteCode &C);
+  void visitUnaryJumpIf(const char *op, const ByteCode &C);
+  void visitJumpIfTrue(const ByteCode &C);
+  void visitJumpIfFalse(const ByteCode &C);
+  void visitJumpForward(const ByteCode &C);
+  void visitBinaryJumpIf(const char *Op, const ByteCode &C);
+  void visitJumpIfNotEqual(const ByteCode &C);
+  void visitJumpIfEqual(const ByteCode &C);
+  void visitJumpIfGreater(const ByteCode &C);
+  void visitJumpIfGreaterEqual(const ByteCode &C);
+  void visitJumpIfLess(const ByteCode &C);
+  void visitJumpIfLessEqual(const ByteCode &C);
 
-  void HandlePopTop(const ByteCode &C) { POP(); }
+  void visitPopTop(const ByteCode &C) { POP(); }
 
   /// Forward WriteLine() to ThePrinter.
   template <typename... Args> void WriteLine(Args &&... Arguments) {
@@ -84,14 +84,14 @@ class ByteCodeToMipsTranslator : OpcodeDispatcher<ByteCodeToMipsTranslator> {
 
 public:
   ByteCodeToMipsTranslator(std::ostream &O, const LocalContext &C)
-      : ThePrinter(O), OpcodeDispatcher(), TheContext(C) {}
+      : ThePrinter(O), ByteCodeVisitor(), TheContext(C) {}
 
   /// Wrap OpcodeDispatcher::dispatch() to provide label
   /// generation.
   void Write(const ByteCode &C);
 
 private:
-  friend class OpcodeDispatcher<ByteCodeToMipsTranslator>;
+  friend class ByteCodeVisitor<ByteCodeToMipsTranslator>;
   Printer ThePrinter;
   const LocalContext &TheContext;
   /// Keep track of the depth of stack.

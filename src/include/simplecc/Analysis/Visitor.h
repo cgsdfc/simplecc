@@ -6,7 +6,7 @@
 
 namespace simplecc {
 
-// Visitor Mixin that provides runtime dispatch of abstract nodes
+// Visitor Mixin that provides runtime visit of abstract nodes
 template <typename Derived> class VisitorBase {
 public:
   template <typename RetTy = void> RetTy visitDecl(Decl *D);

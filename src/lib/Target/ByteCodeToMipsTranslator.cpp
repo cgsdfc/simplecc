@@ -25,7 +25,7 @@ void ByteCodeToMipsTranslator::POP(const char *R) {
   --StackDepth;
 }
 
-void ByteCodeToMipsTranslator::HandleBinarySubscr(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitBinarySubscr(const ByteCode &C) {
   // elements of smaller index are stored at higher address
   // as opposed to C convention.
   POP("$t0");                     // index
@@ -36,7 +36,7 @@ void ByteCodeToMipsTranslator::HandleBinarySubscr(const ByteCode &C) {
   PUSH("$t3");
 }
 
-void ByteCodeToMipsTranslator::HandleLoadLocal(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitLoadLocal(const ByteCode &C) {
   auto offset = TheContext.getLocalOffset(C.getStrOperand());
   if (TheContext.IsVariable(C.getStrOperand())) {
     WriteLine("lw $t0,", offset, "($fp)");
@@ -46,7 +46,7 @@ void ByteCodeToMipsTranslator::HandleLoadLocal(const ByteCode &C) {
   PUSH("$t0");
 }
 
-void ByteCodeToMipsTranslator::HandleLoadGlobal(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitLoadGlobal(const ByteCode &C) {
   GlobalLabel GL(C.getStrOperand(), /* NeedColon */ false);
   WriteLine("la $t0,", GL);
   if (TheContext.IsVariable(C.getStrOperand())) {
@@ -55,50 +55,50 @@ void ByteCodeToMipsTranslator::HandleLoadGlobal(const ByteCode &C) {
   PUSH("$t0");
 }
 
-void ByteCodeToMipsTranslator::HandleLoadConst(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitLoadConst(const ByteCode &C) {
   WriteLine("li $t0,", C.getIntOperand());
   PUSH("$t0");
 }
 
-void ByteCodeToMipsTranslator::HandleLoadString(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitLoadString(const ByteCode &C) {
   AsciizLabel AL(C.getIntOperand(), /* NeedColon */ false);
   WriteLine("la $t0,", AL);
   PUSH("$t0");
 }
 
-void ByteCodeToMipsTranslator::HandleStoreGlobal(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitStoreGlobal(const ByteCode &C) {
   POP("$t0");
   GlobalLabel GL(C.getStrOperand(), /* NeedColon */ false);
   WriteLine("sw $t0,", GL);
 }
 
-void ByteCodeToMipsTranslator::HandleStoreLocal(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitStoreLocal(const ByteCode &C) {
   POP("$t0");
   auto offset = TheContext.getLocalOffset(C.getStrOperand());
   WriteLine("sw $t0,", offset, "($fp)");
 }
 
-void ByteCodeToMipsTranslator::HandleBinary(const char *op) {
+void ByteCodeToMipsTranslator::visitBinary(const char *op) {
   POP("$t0"); // TOS
   POP("$t1"); // TOS1
   WriteLine(op, "$t2, $t1, $t0");
   PUSH("$t2");
 }
 
-void ByteCodeToMipsTranslator::HandleBinaryAdd(const ByteCode &C) {
-  HandleBinary("add");
+void ByteCodeToMipsTranslator::visitBinaryAdd(const ByteCode &C) {
+  visitBinary("add");
 }
-void ByteCodeToMipsTranslator::HandleBinarySub(const ByteCode &C) {
-  HandleBinary("sub");
+void ByteCodeToMipsTranslator::visitBinarySub(const ByteCode &C) {
+  visitBinary("sub");
 }
-void ByteCodeToMipsTranslator::HandleBinaryMultiply(const ByteCode &C) {
-  HandleBinary("mul");
+void ByteCodeToMipsTranslator::visitBinaryMultiply(const ByteCode &C) {
+  visitBinary("mul");
 }
-void ByteCodeToMipsTranslator::HandleBinaryDivide(const ByteCode &C) {
-  HandleBinary("div");
+void ByteCodeToMipsTranslator::visitBinaryDivide(const ByteCode &C) {
+  visitBinary("div");
 }
 
-void ByteCodeToMipsTranslator::HandleUnaryNegative(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitUnaryNegative(const ByteCode &C) {
   // $sp points to **the next vacant byte** of the stack, so
   // TOS is 4 + $sp
   WriteLine("lw $t0, 4($sp)");
@@ -106,7 +106,7 @@ void ByteCodeToMipsTranslator::HandleUnaryNegative(const ByteCode &C) {
   WriteLine("sw, $t0, 4($sp)");
 }
 
-void ByteCodeToMipsTranslator::HandleCallFunction(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitCallFunction(const ByteCode &C) {
   GlobalLabel Fn(C.getStrOperand(), /* NeedColon */ false);
   WriteLine("jal", Fn);
   auto bytes = BytesFromEntries(C.getIntOperand());
@@ -116,69 +116,69 @@ void ByteCodeToMipsTranslator::HandleCallFunction(const ByteCode &C) {
   PUSH("$v0");
 }
 
-void ByteCodeToMipsTranslator::HandleReturn() {
+void ByteCodeToMipsTranslator::visitReturn() {
   WriteLine("j", ReturnLabel(TheContext.getName(), /* NeedColon */ false));
 }
 
-void ByteCodeToMipsTranslator::HandleReturnValue(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitReturnValue(const ByteCode &C) {
   POP("$v0");
-  HandleReturn();
+  visitReturn();
 }
 
-void ByteCodeToMipsTranslator::HandlePrint(MipsSyscallCode Syscall) {
+void ByteCodeToMipsTranslator::visitPrint(MipsSyscallCode Syscall) {
   WriteLine("li $v0,", Syscall);
   POP("$a0");
   WriteLine("syscall");
 }
 
-void ByteCodeToMipsTranslator::HandlePrintString(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitPrintString(const ByteCode &C) {
   /* print string */
   /* v0 = 4 */
   /* $a0 = address of null-terminated string to print */
-  HandlePrint(MipsSyscallCode::PRINT_STRING);
+  visitPrint(MipsSyscallCode::PRINT_STRING);
 }
 
-void ByteCodeToMipsTranslator::HandlePrintCharacter(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitPrintCharacter(const ByteCode &C) {
   /* print character */
   /* 11 */
   /* $a0 = character to print */
-  HandlePrint(MipsSyscallCode::PRINT_CHARACTER);
+  visitPrint(MipsSyscallCode::PRINT_CHARACTER);
 }
 
-void ByteCodeToMipsTranslator::HandlePrintInteger(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitPrintInteger(const ByteCode &C) {
   /* print integer */
   /* 1 */
   /* $a0 = integer to print */
-  HandlePrint(MipsSyscallCode::PRINT_INTEGER);
+  visitPrint(MipsSyscallCode::PRINT_INTEGER);
 }
 
-void ByteCodeToMipsTranslator::HandlePrintNewline(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitPrintNewline(const ByteCode &C) {
   WriteLine("li $a0,", static_cast<int>('\n'));
   WriteLine("li $v0,", MipsSyscallCode::PRINT_CHARACTER);
   WriteLine("syscall");
 }
 
-void ByteCodeToMipsTranslator::HandleRead(MipsSyscallCode Syscall) {
+void ByteCodeToMipsTranslator::visitRead(MipsSyscallCode Syscall) {
   WriteLine("li $v0,", Syscall);
   WriteLine("syscall");
   PUSH("$v0");
 }
 
-void ByteCodeToMipsTranslator::HandleReadInteger(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitReadInteger(const ByteCode &C) {
   /* read integer */
   /* 5 */
   /* $v0 contains integer read */
-  HandleRead(MipsSyscallCode::READ_INTEGER);
+  visitRead(MipsSyscallCode::READ_INTEGER);
 }
 
-void ByteCodeToMipsTranslator::HandleReadCharacter(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitReadCharacter(const ByteCode &C) {
   /* read character */
   /* 12 */
   /* $v0 contains character read */
-  HandleRead(MipsSyscallCode::READ_CHARACTER);
+  visitRead(MipsSyscallCode::READ_CHARACTER);
 }
 
-void ByteCodeToMipsTranslator::HandleStoreSubscr(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitStoreSubscr(const ByteCode &C) {
   POP("$t0");
   POP("$t1");
   POP("$t3");
@@ -187,21 +187,21 @@ void ByteCodeToMipsTranslator::HandleStoreSubscr(const ByteCode &C) {
   WriteLine("sw $t3, 0($t2)");
 }
 
-void ByteCodeToMipsTranslator::HandleUnaryJumpIf(const char *op,
-                                                 const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitUnaryJumpIf(const char *op,
+                                                const ByteCode &C) {
   POP("$t0");
   WriteLine(op, "$t0",
             JumpTargetLabel(TheContext.getName(), C.getIntOperand(),
                             /* NeedColon */ false));
 }
 
-void ByteCodeToMipsTranslator::HandleJumpForward(const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitJumpForward(const ByteCode &C) {
   WriteLine("j", JumpTargetLabel(TheContext.getName(), C.getIntOperand(),
                                  /* NeedColon */ false));
 }
 
-void ByteCodeToMipsTranslator::HandleBinaryJumpIf(const char *Op,
-                                                  const ByteCode &C) {
+void ByteCodeToMipsTranslator::visitBinaryJumpIf(const char *Op,
+                                                 const ByteCode &C) {
   POP("$t0"); // TOS
   POP("$t1"); // TOS1
   JumpTargetLabel Label(TheContext.getName(), C.getIntOperand(),
@@ -218,31 +218,31 @@ void ByteCodeToMipsTranslator::Write(const ByteCode &C) {
     WriteLine(JumpTargetLabel(TheContext.getName(), Off, /* NeedColon */ true));
   }
   WriteLine("#", C.getOpcodeName());
-  OpcodeDispatcher::dispatch(C);
+  ByteCodeVisitor::visit(C);
   WriteLine();
 }
 
-void ByteCodeToMipsTranslator::HandleJumpIfTrue(const ByteCode &C) {
-  HandleUnaryJumpIf("bnez", C);
+void ByteCodeToMipsTranslator::visitJumpIfTrue(const ByteCode &C) {
+  visitUnaryJumpIf("bnez", C);
 }
-void ByteCodeToMipsTranslator::HandleJumpIfFalse(const ByteCode &C) {
-  HandleUnaryJumpIf("beqz", C);
+void ByteCodeToMipsTranslator::visitJumpIfFalse(const ByteCode &C) {
+  visitUnaryJumpIf("beqz", C);
 }
-void ByteCodeToMipsTranslator::HandleJumpIfNotEqual(const ByteCode &C) {
-  HandleBinaryJumpIf("bne", C);
+void ByteCodeToMipsTranslator::visitJumpIfNotEqual(const ByteCode &C) {
+  visitBinaryJumpIf("bne", C);
 }
-void ByteCodeToMipsTranslator::HandleJumpIfEqual(const ByteCode &C) {
-  HandleBinaryJumpIf("beq", C);
+void ByteCodeToMipsTranslator::visitJumpIfEqual(const ByteCode &C) {
+  visitBinaryJumpIf("beq", C);
 }
-void ByteCodeToMipsTranslator::HandleJumpIfGreater(const ByteCode &C) {
-  HandleBinaryJumpIf("bgt", C);
+void ByteCodeToMipsTranslator::visitJumpIfGreater(const ByteCode &C) {
+  visitBinaryJumpIf("bgt", C);
 }
-void ByteCodeToMipsTranslator::HandleJumpIfGreaterEqual(const ByteCode &C) {
-  HandleBinaryJumpIf("bge", C);
+void ByteCodeToMipsTranslator::visitJumpIfGreaterEqual(const ByteCode &C) {
+  visitBinaryJumpIf("bge", C);
 }
-void ByteCodeToMipsTranslator::HandleJumpIfLess(const ByteCode &C) {
-  HandleBinaryJumpIf("blt", C);
+void ByteCodeToMipsTranslator::visitJumpIfLess(const ByteCode &C) {
+  visitBinaryJumpIf("blt", C);
 }
-void ByteCodeToMipsTranslator::HandleJumpIfLessEqual(const ByteCode &C) {
-  HandleBinaryJumpIf("ble", C);
+void ByteCodeToMipsTranslator::visitJumpIfLessEqual(const ByteCode &C) {
+  visitBinaryJumpIf("ble", C);
 }
