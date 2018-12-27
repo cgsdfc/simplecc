@@ -10,9 +10,12 @@
 
 namespace simplecc {
 class AST {
+  Location Loc;
   unsigned SubclassID;
+
 protected:
-  AST(unsigned Kind) : SubclassID(Kind) {}
+  AST(unsigned Kind, Location L) : SubclassID(Kind), Loc(L) {}
+
 public:
   enum ASTKind : unsigned {
 #define HANDLE_AST(CLASS) CLASS##Kind,
@@ -23,6 +26,7 @@ public:
   const char *getClassName() const { return getClassName(getKind()); }
   unsigned getKind() const { return SubclassID; }
 
+  Location getLocation() const { return Loc; }
   virtual ~AST() = default;
 
   virtual void Format(std::ostream &os) const = 0;
@@ -55,32 +59,23 @@ enum class BasicTypeKind { Int, Character, Void };
 std::ostream &operator<<(std::ostream &os, BasicTypeKind val);
 
 // AbstractNode
-
 class Decl : public AST {
 public:
   std::string name;
-  Location loc;
 
   Decl(int Kind, std::string name, const Location &loc)
-      : AST(Kind), name(std::move(name)), loc(loc) {}
+      : AST(Kind, loc), name(std::move(name)) {}
   const std::string &getName() const { return name; }
-
-  const Location &getLoc() const { return loc; }
 };
 
 class Stmt : public AST {
 public:
-  Location loc;
-
-  Stmt(int Kind, const Location &loc) : AST(Kind), loc(loc) {}
-  const Location &getLoc() const { return loc; }
+  Stmt(int Kind, const Location &loc) : AST(Kind, loc) {}
 };
 
 class Expr : public AST {
 public:
-  Location loc;
-  Expr(int Kind, const Location &loc) : AST(Kind), loc(loc) {}
-  const Location &getLoc() const { return loc; }
+  Expr(int Kind, const Location &loc) : AST(Kind, loc) {}
 };
 
 // ConcreteNode
@@ -641,7 +636,7 @@ public:
   std::vector<Decl *> decls;
 
   explicit Program(std::vector<Decl *> decls)
-      : AST(ProgramKind), decls(std::move(decls)) {}
+      : AST(ProgramKind, Location(0, 0)), decls(std::move(decls)) {}
 
   // Disable copy and move.
   Program(const Program &) = delete;

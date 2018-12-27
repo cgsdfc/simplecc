@@ -74,7 +74,7 @@ public:
 
   const char *getTypeName() const;
 
-  const Location &getLocation() const;
+  Location getLocation() const;
 
   const String &getName() const;
 

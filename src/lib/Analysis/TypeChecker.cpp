@@ -16,7 +16,7 @@ void TypeChecker::visitRead(ReadStmt *RD) {
     assert(N);
     const auto &Entry = TheLocalTable[N->getId()];
     if (!Entry.IsVariable()) {
-      EM.Error(N->getLoc(), "scanf() only applies to variables.");
+      EM.Error(N->getLocation(), "scanf() only applies to variables.");
       continue;
     }
     /// set the Expr type for this.
@@ -37,7 +37,7 @@ void TypeChecker::visitReturn(ReturnStmt *R) {
 
   // order a strict match
   if (ShouldReturn != ActuallyReturn) {
-    EM.Error(R->getLoc(), TheFuncDef->getName(), "must return",
+    EM.Error(R->getLocation(), TheFuncDef->getName(), "must return",
              CStringFromBasicTypeKind(ShouldReturn));
   }
 }
@@ -48,7 +48,7 @@ void TypeChecker::visitAssign(AssignStmt *A) {
   auto LHS = visitExpr(A->getTarget());
 
   if (EM.IsOk(Errs) && LHS != RHS) {
-    EM.Error(A->getLoc(), "cannot assign", CStringFromBasicTypeKind(RHS), "to",
+    EM.Error(A->getLocation(), "cannot assign", CStringFromBasicTypeKind(RHS), "to",
              CStringFromBasicTypeKind(LHS));
   }
 }
@@ -59,7 +59,7 @@ void TypeChecker::CheckBoolOpOperand(Expr *E) {
   auto Errs = EM.getErrorCount();
   auto T = visitExpr(E);
   if (EM.IsOk(Errs) && T != BasicTypeKind::Int) {
-    EM.Error(E->getLoc(), Msg);
+    EM.Error(E->getLocation(), Msg);
   }
 }
 
@@ -80,7 +80,7 @@ BasicTypeKind TypeChecker::CheckExprOperand(Expr *E) {
   auto Errs = EM.getErrorCount();
   auto T = visitExpr(E);
   if (EM.IsOk(Errs) && T == BasicTypeKind::Void) {
-    EM.Error(E->getLoc(), Msg);
+    EM.Error(E->getLocation(), Msg);
   }
   return T;
 }
@@ -104,7 +104,7 @@ BasicTypeKind TypeChecker::visitParenExpr(ParenExpr *PE) {
 BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
   const auto &Entry = TheLocalTable[C->getFunc()];
   if (!Entry.IsFunction()) {
-    EM.Error(C->getLoc(), Entry.getName(), "is not a function");
+    EM.Error(C->getLocation(), Entry.getName(), "is not a function");
     return BasicTypeKind::Void;
   }
 
@@ -112,7 +112,7 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
   auto NumFormal = Ty.getArgCount();
   auto NumActual = C->getArgs().size();
   if (NumFormal != NumActual) {
-    EM.Error(C->getLoc(), C->getFunc(), "expects", NumFormal, "arguments, got",
+    EM.Error(C->getLocation(), C->getFunc(), "expects", NumFormal, "arguments, got",
              NumActual);
   }
 
@@ -122,7 +122,7 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
     auto ActualTy = visitExpr(C->getArgs()[I]);
     auto FormalTy = Ty.getArgTypeAt(I);
     if (ActualTy != FormalTy) {
-      EM.Error(C->getArgs()[I]->getLoc(), "argument", I + 1, "of", C->getFunc(),
+      EM.Error(C->getArgs()[I]->getLocation(), "argument", I + 1, "of", C->getFunc(),
                "must be", CStringFromBasicTypeKind(FormalTy));
     }
   }
@@ -132,14 +132,14 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
 BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
   const auto &Entry = TheLocalTable[SB->getName()];
   if (!Entry.IsArray()) {
-    EM.Error(SB->getLoc(), Entry.getName(), "is not an array");
+    EM.Error(SB->getLocation(), Entry.getName(), "is not an array");
     return BasicTypeKind::Void;
   }
 
   int Errs = EM.getErrorCount();
   auto Idx = visitExpr(SB->getIndex());
   if (EM.IsOk(Errs) && Idx != BasicTypeKind::Int) {
-    EM.Error(SB->getLoc(), "array index must be int");
+    EM.Error(SB->getLocation(), "array index must be int");
   }
 
   return Entry.AsArray().getElementType();
@@ -148,11 +148,11 @@ BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
 BasicTypeKind TypeChecker::visitName(NameExpr *N) {
   const auto &Entry = TheLocalTable[N->getId()];
   if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
-    EM.Error(N->getLoc(), "using an array in an expression");
+    EM.Error(N->getLocation(), "using an array in an expression");
     return BasicTypeKind::Void;
   }
   if (N->getCtx() == ExprContextKind::Store && !Entry.IsVariable()) {
-    EM.Error(N->getLoc(), "only variables can be assigned to");
+    EM.Error(N->getLocation(), "only variables can be assigned to");
     return BasicTypeKind::Void;
   }
   if (Entry.IsConstant())

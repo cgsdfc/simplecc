@@ -5,7 +5,7 @@
 using namespace simplecc;
 
 void ByteCodeCompiler::visitStmt(Stmt *S) {
-  Builder.setLocation(S->getLoc());
+  Builder.setLocation(S->getLocation());
   ChildrenVisitor::visitStmt(S);
 }
 

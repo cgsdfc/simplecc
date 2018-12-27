@@ -13,7 +13,7 @@ void ArrayBoundChecker::visitSubscript(SubscriptExpr *SB) {
     return;
   int Val = Idx.second;
   if (Val < 0 || Val >= AT.getSize()) {
-    EM.Error(SB->getLoc(), "array index out of bound:", Val);
+    EM.Error(SB->getLocation(), "array index out of bound:", Val);
   }
 }
 

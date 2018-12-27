@@ -78,7 +78,7 @@ void ImplicitCallTransformer::TransformExpr(Expr *&E) {
   NameExpr *N = static_cast<NameExpr *>(E);
   if (!TheLocalTable[N->getId()].IsFunction())
     return visitExpr(E);
-  CallExpr *C = new CallExpr(N->getId(), {}, E->getLoc());
+  CallExpr *C = new CallExpr(N->getId(), {}, E->getLocation());
   delete E;
   E = C;
 }

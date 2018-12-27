@@ -71,7 +71,7 @@ public:
   }
 
   const char *getClassName() const;
-  const Location &getLocation() const;
+  Location getLocation() const;
   AstGraph *getParent() const { return Parent; }
 };
 } // namespace simplecc

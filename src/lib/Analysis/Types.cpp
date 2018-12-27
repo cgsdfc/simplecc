@@ -95,9 +95,9 @@ bool SymbolEntry::IsFormalArgument() const {
   return TheDecl && IsInstance<ArgDecl>(TheDecl);
 }
 
-const Location &SymbolEntry::getLocation() const {
+Location SymbolEntry::getLocation() const {
   assert(TheDecl);
-  return TheDecl->getLoc();
+  return TheDecl->getLocation();
 }
 
 const String &SymbolEntry::getName() const {

@@ -37,7 +37,7 @@ void ConstDecl::Format(std::ostream &os) const {
      << "type=" << type << ", "
      << "value=" << value << ", "
      << "name=" << name << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void VarDecl::Format(std::ostream &os) const {
@@ -46,7 +46,7 @@ void VarDecl::Format(std::ostream &os) const {
      << "is_array=" << is_array << ", "
      << "size=" << size << ", "
      << "name=" << name << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void FuncDef::Format(std::ostream &os) const {
@@ -56,34 +56,34 @@ void FuncDef::Format(std::ostream &os) const {
      << "decls=" << decls << ", "
      << "stmts=" << stmts << ", "
      << "name=" << name << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void ArgDecl::Format(std::ostream &os) const {
   os << "ArgDecl("
      << "type=" << type << ", "
      << "name=" << name << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void ReadStmt::Format(std::ostream &os) const {
   os << "ReadStmt("
      << "names=" << names << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void WriteStmt::Format(std::ostream &os) const {
   os << "WriteStmt("
      << "str=" << str << ", "
      << "value=" << value << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void AssignStmt::Format(std::ostream &os) const {
   os << "AssignStmt("
      << "target=" << target << ", "
      << "value=" << value << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void ForStmt::Format(std::ostream &os) const {
@@ -92,20 +92,20 @@ void ForStmt::Format(std::ostream &os) const {
      << "condition=" << condition << ", "
      << "step=" << step << ", "
      << "body=" << body << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void WhileStmt::Format(std::ostream &os) const {
   os << "WhileStmt("
      << "condition=" << condition << ", "
      << "body=" << body << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void ReturnStmt::Format(std::ostream &os) const {
   os << "ReturnStmt("
      << "value=" << value << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void IfStmt::Format(std::ostream &os) const {
@@ -113,13 +113,13 @@ void IfStmt::Format(std::ostream &os) const {
      << "test=" << test << ", "
      << "body=" << body << ", "
      << "orelse=" << orelse << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void ExprStmt::Format(std::ostream &os) const {
   os << "ExprStmt("
      << "value=" << value << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void BinOpExpr::Format(std::ostream &os) const {
@@ -127,52 +127,52 @@ void BinOpExpr::Format(std::ostream &os) const {
      << "left=" << left << ", "
      << "op=" << op << ", "
      << "right=" << right << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void ParenExpr::Format(std::ostream &os) const {
   os << "ParenExpr("
      << "value=" << value << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void BoolOpExpr::Format(std::ostream &os) const {
   os << "BoolOpExpr("
      << "value=" << value << ", "
      << "has_cmpop=" << has_cmpop << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void UnaryOpExpr::Format(std::ostream &os) const {
   os << "UnaryOpExpr("
      << "op=" << op << ", "
      << "operand=" << operand << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void CallExpr::Format(std::ostream &os) const {
   os << "CallExpr("
      << "func=" << func << ", "
      << "args=" << args << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void NumExpr::Format(std::ostream &os) const {
   os << "NumExpr("
      << "n=" << n << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void StrExpr::Format(std::ostream &os) const {
   os << "StrExpr("
      << "s=" << s << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void CharExpr::Format(std::ostream &os) const {
   os << "CharExpr("
      << "c=" << c << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void SubscriptExpr::Format(std::ostream &os) const {
@@ -180,14 +180,14 @@ void SubscriptExpr::Format(std::ostream &os) const {
      << "name=" << name << ", "
      << "index=" << index << ", "
      << "ctx=" << ctx << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 void NameExpr::Format(std::ostream &os) const {
   os << "NameExpr("
      << "id=" << id << ", "
      << "ctx=" << ctx << ", "
-     << "loc=" << loc << ")";
+     << "loc=" << getLocation() << ")";
 }
 
 std::ostream &operator<<(std::ostream &os, OperatorKind val) {

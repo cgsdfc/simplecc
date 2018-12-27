@@ -16,13 +16,13 @@ void SyntaxChecker::visitProgram(Program *P) {
     case Decl::ConstDeclKind:
       if (PrevDecl != Decl::ConstDeclKind) {
         // ConstDecl can only be preceded by ConstDecl.
-        EM.Error(D->getLoc(), "unexpected const declaration");
+        EM.Error(D->getLocation(), "unexpected const declaration");
       }
       break;
     case Decl::VarDeclKind:
       if (PrevDecl == Decl::FuncDefKind) {
         // VarDecl cannot be preceded by FuncDef.
-        EM.Error(D->getLoc(), "unexpected variable declaration");
+        EM.Error(D->getLocation(), "unexpected variable declaration");
       }
       break;
     case Decl::FuncDefKind:
@@ -41,26 +41,26 @@ void SyntaxChecker::visitProgram(Program *P) {
       static_cast<FuncDef *>(LastDecl)->getReturnType() == BasicTypeKind::Void)
     return;
 
-  EM.Error(LastDecl->getLoc(), "the last declaration must be void main()");
+  EM.Error(LastDecl->getLocation(), "the last declaration must be void main()");
 }
 
 void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
   if (CD->getType() == BasicTypeKind::Int && !IsInstance<NumExpr>(CD->getValue())) {
-    EM.Error(CD->getLoc(), "expected int initializer");
+    EM.Error(CD->getLocation(), "expected int initializer");
   }
 
   if (CD->getType() == BasicTypeKind::Character &&
       !IsInstance<CharExpr>(CD->getValue())) {
-    EM.Error(CD->getLoc(), "expected char initializer");
+    EM.Error(CD->getLocation(), "expected char initializer");
   }
 }
 
 void SyntaxChecker::visitVarDecl(VarDecl *VD) {
   if (VD->getType() == BasicTypeKind::Void) {
-    EM.Error(VD->getLoc(), "cannot declare void variable");
+    EM.Error(VD->getLocation(), "cannot declare void variable");
   }
   if (VD->getIsArray() && VD->getSize() == 0) {
-    EM.Error(VD->getLoc(), "array size cannot be 0");
+    EM.Error(VD->getLocation(), "array size cannot be 0");
   }
 }
 
@@ -75,7 +75,7 @@ void SyntaxChecker::visitFuncDef(FuncDef *FD) {
 
 void SyntaxChecker::visitArgDecl(ArgDecl *AD) {
   if (AD->getType() == BasicTypeKind::Void) {
-    EM.Error(AD->getLoc(), "cannot declare void argument");
+    EM.Error(AD->getLocation(), "cannot declare void argument");
   }
 }
 
