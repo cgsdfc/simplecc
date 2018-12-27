@@ -5,7 +5,7 @@ namespace simplecc {
 const char *CStringFromOpcode(Opcode val) {
   switch (val) {
   default: assert(false && "Invalid Opcode");
-#define HANDLE_OPCODE(opcode) case Opcode::opcode: return #opcode;
+#define HANDLE_OPCODE(opcode, camelName) case Opcode::opcode: return #opcode;
 #include "simplecc/CodeGen/Opcode.def"
   }
 }

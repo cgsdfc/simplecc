@@ -47,7 +47,7 @@ public:
 
   static ByteCode Create(Opcode Op, const char *Str, int Int);
 
-  /// ByteCode operand inspectation.
+  /// ByteCode operand inspection.
   static bool HasIntOperand(Opcode op);
   bool HasIntOperand() const { return HasIntOperand(getOpcode()); }
 

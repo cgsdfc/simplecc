@@ -4,7 +4,7 @@
 
 namespace simplecc {
 enum class Opcode {
-#define HANDLE_OPCODE(opcode) opcode,
+#define HANDLE_OPCODE(opcode, camelName) opcode,
 #include "simplecc/CodeGen/Opcode.def"
 };
 
