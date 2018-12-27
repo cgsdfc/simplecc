@@ -1,4 +1,3 @@
-
 #include "simplecc/Parse/AST.h"
 #include <cassert>
 #include <iostream>
@@ -192,34 +191,24 @@ void Name::Format(std::ostream &os) const {
 
 std::ostream &operator<<(std::ostream &os, OperatorKind val) {
   switch (val) {
-
   case OperatorKind::Add:
     return os << "OperatorKind::Add";
-
   case OperatorKind::Sub:
     return os << "OperatorKind::Sub";
-
   case OperatorKind::Mult:
     return os << "OperatorKind::Mult";
-
   case OperatorKind::Div:
     return os << "OperatorKind::Div";
-
   case OperatorKind::Eq:
     return os << "OperatorKind::Eq";
-
   case OperatorKind::NotEq:
     return os << "OperatorKind::NotEq";
-
   case OperatorKind::Lt:
     return os << "OperatorKind::Lt";
-
   case OperatorKind::LtE:
     return os << "OperatorKind::LtE";
-
   case OperatorKind::Gt:
     return os << "OperatorKind::Gt";
-
   case OperatorKind::GtE:
     return os << "OperatorKind::GtE";
   }
@@ -227,10 +216,8 @@ std::ostream &operator<<(std::ostream &os, OperatorKind val) {
 
 std::ostream &operator<<(std::ostream &os, UnaryopKind val) {
   switch (val) {
-
   case UnaryopKind::UAdd:
     return os << "UnaryopKind::UAdd";
-
   case UnaryopKind::USub:
     return os << "UnaryopKind::USub";
   }
@@ -238,10 +225,8 @@ std::ostream &operator<<(std::ostream &os, UnaryopKind val) {
 
 std::ostream &operator<<(std::ostream &os, ExprContextKind val) {
   switch (val) {
-
   case ExprContextKind::Load:
     return os << "ExprContextKind::Load";
-
   case ExprContextKind::Store:
     return os << "ExprContextKind::Store";
   }
@@ -249,13 +234,10 @@ std::ostream &operator<<(std::ostream &os, ExprContextKind val) {
 
 std::ostream &operator<<(std::ostream &os, BasicTypeKind val) {
   switch (val) {
-
   case BasicTypeKind::Int:
     return os << "BasicTypeKind::Int";
-
   case BasicTypeKind::Character:
     return os << "BasicTypeKind::Character";
-
   case BasicTypeKind::Void:
     return os << "BasicTypeKind::Void";
   }
@@ -347,120 +329,87 @@ Subscript::~Subscript() { delete index; }
 Name::~Name() = default;
 
 OperatorKind OperatorKindFromString(const String &s) {
-
   if (s == "+")
     return OperatorKind::Add;
-
   if (s == "-")
     return OperatorKind::Sub;
-
   if (s == "*")
     return OperatorKind::Mult;
-
   if (s == "/")
     return OperatorKind::Div;
-
   if (s == "==")
     return OperatorKind::Eq;
-
   if (s == "!=")
     return OperatorKind::NotEq;
-
   if (s == "<")
     return OperatorKind::Lt;
-
   if (s == "<=")
     return OperatorKind::LtE;
-
   if (s == ">")
     return OperatorKind::Gt;
-
   if (s == ">=")
     return OperatorKind::GtE;
-
   assert(false && "not a member of OperatorKind");
 }
 
 const char *CStringFromOperatorKind(OperatorKind val) {
   switch (val) {
-
   case OperatorKind::Add:
     return "+";
-
   case OperatorKind::Sub:
     return "-";
-
   case OperatorKind::Mult:
     return "*";
-
   case OperatorKind::Div:
     return "/";
-
   case OperatorKind::Eq:
     return "==";
-
   case OperatorKind::NotEq:
     return "!=";
-
   case OperatorKind::Lt:
     return "<";
-
   case OperatorKind::LtE:
     return "<=";
-
   case OperatorKind::Gt:
     return ">";
-
   case OperatorKind::GtE:
     return ">=";
   }
 }
 
 UnaryopKind UnaryopKindFromString(const String &s) {
-
   if (s == "+")
     return UnaryopKind::UAdd;
-
   if (s == "-")
     return UnaryopKind::USub;
-
   assert(false && "not a member of UnaryopKind");
 }
 
 const char *CStringFromUnaryopKind(UnaryopKind val) {
   switch (val) {
-
   case UnaryopKind::UAdd:
     return "+";
-
   case UnaryopKind::USub:
     return "-";
   }
 }
 
 BasicTypeKind BasicTypeKindFromString(const String &s) {
-
   if (s == "int")
     return BasicTypeKind::Int;
-
   if (s == "char")
     return BasicTypeKind::Character;
-
   if (s == "void")
     return BasicTypeKind::Void;
-
   assert(false && "not a member of BasicTypeKind");
 }
 
 const char *CStringFromBasicTypeKind(BasicTypeKind val) {
   switch (val) {
-
   case BasicTypeKind::Int:
     return "int";
-
   case BasicTypeKind::Character:
     return "char";
-
   case BasicTypeKind::Void:
     return "void";
   }
