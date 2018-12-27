@@ -1,202 +1,30 @@
 #include "simplecc/Parse/AST.h"
 #include <cassert>
 #include <iostream>
-#include <simplecc/Parse/AST.h>
 #include <vector>
+#include <algorithm>
+#include <simplecc/Parse/AST.h>
 
 namespace simplecc {
 
 template<typename AstT>
 static inline void setterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
-  assert(Optional || RHS);
+  assert(Optional || RHS && "Only optional field can be null");
   if (LHS == RHS)
     return;
   delete LHS;
   LHS = RHS;
 }
 
-// Format Optional Ast
-std::ostream &operator<<(std::ostream &os, const AST *ast) {
-  if (ast == nullptr)
-    return os << "None";
-  return os << *ast;
+template<typename AstT>
+static inline void deleteList(const std::vector<AstT *> &List) {
+  std::for_each(List.begin(), List.end(), [](AstT *A) { A->deleteAST(); });
 }
 
-// Format Sequential Ast
-template<typename T>
-std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
-  os << "[";
-  for (auto b = v.begin(), e = v.end(); b != e; ++b) {
-    os << *b;
-    if (b != e - 1) {
-      os << ", ";
-    }
-  }
-  os << "]";
-  return os;
-}
-
-void Program::Format(std::ostream &os) const {
-  os << "Program("
-     << "decls=" << decls << ")";
-}
-
-void ConstDecl::Format(std::ostream &os) const {
-  os << "ConstDecl("
-     << "type=" << type << ", "
-     << "value=" << value << ", "
-     << "name=" << name << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void VarDecl::Format(std::ostream &os) const {
-  os << "VarDecl("
-     << "type=" << type << ", "
-     << "is_array=" << is_array << ", "
-     << "size=" << size << ", "
-     << "name=" << name << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void FuncDef::Format(std::ostream &os) const {
-  os << "FuncDef("
-     << "return_type=" << return_type << ", "
-     << "args=" << args << ", "
-     << "decls=" << decls << ", "
-     << "stmts=" << stmts << ", "
-     << "name=" << name << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void ArgDecl::Format(std::ostream &os) const {
-  os << "ArgDecl("
-     << "type=" << type << ", "
-     << "name=" << name << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void ReadStmt::Format(std::ostream &os) const {
-  os << "ReadStmt("
-     << "names=" << names << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void WriteStmt::Format(std::ostream &os) const {
-  os << "WriteStmt("
-     << "str=" << str << ", "
-     << "value=" << value << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void AssignStmt::Format(std::ostream &os) const {
-  os << "AssignStmt("
-     << "target=" << target << ", "
-     << "value=" << value << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void ForStmt::Format(std::ostream &os) const {
-  os << "ForStmt("
-     << "initial=" << initial << ", "
-     << "condition=" << condition << ", "
-     << "step=" << step << ", "
-     << "body=" << body << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void WhileStmt::Format(std::ostream &os) const {
-  os << "WhileStmt("
-     << "condition=" << condition << ", "
-     << "body=" << body << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void ReturnStmt::Format(std::ostream &os) const {
-  os << "ReturnStmt("
-     << "value=" << value << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void IfStmt::Format(std::ostream &os) const {
-  os << "IfStmt("
-     << "test=" << test << ", "
-     << "body=" << body << ", "
-     << "orelse=" << orelse << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void ExprStmt::Format(std::ostream &os) const {
-  os << "ExprStmt("
-     << "value=" << value << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void BinOpExpr::Format(std::ostream &os) const {
-  os << "BinOpExpr("
-     << "left=" << left << ", "
-     << "op=" << op << ", "
-     << "right=" << right << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void ParenExpr::Format(std::ostream &os) const {
-  os << "ParenExpr("
-     << "value=" << value << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void BoolOpExpr::Format(std::ostream &os) const {
-  os << "BoolOpExpr("
-     << "value=" << value << ", "
-     << "has_cmpop=" << has_cmpop << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void UnaryOpExpr::Format(std::ostream &os) const {
-  os << "UnaryOpExpr("
-     << "op=" << op << ", "
-     << "operand=" << operand << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void CallExpr::Format(std::ostream &os) const {
-  os << "CallExpr("
-     << "func=" << func << ", "
-     << "args=" << args << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void NumExpr::Format(std::ostream &os) const {
-  os << "NumExpr("
-     << "n=" << n << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void StrExpr::Format(std::ostream &os) const {
-  os << "StrExpr("
-     << "s=" << s << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void CharExpr::Format(std::ostream &os) const {
-  os << "CharExpr("
-     << "c=" << c << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void SubscriptExpr::Format(std::ostream &os) const {
-  os << "SubscriptExpr("
-     << "name=" << name << ", "
-     << "index=" << index << ", "
-     << "ctx=" << ctx << ", "
-     << "loc=" << getLocation() << ")";
-}
-
-void NameExpr::Format(std::ostream &os) const {
-  os << "NameExpr("
-     << "id=" << id << ", "
-     << "ctx=" << ctx << ", "
-     << "loc=" << getLocation() << ")";
+template<typename AstT>
+static inline void deleteOptional(AstT *A) {
+  if (A)
+    A->deleteAST();
 }
 
 std::ostream &operator<<(std::ostream &os, OperatorKind val) {
@@ -237,33 +65,22 @@ std::ostream &operator<<(std::ostream &os, BasicTypeKind val) {
 }
 
 Program::~Program() {
-  for (auto v : decls)
-    delete v;
+  deleteList(decls);
 }
-
-ConstDecl::~ConstDecl() { delete value; }
-
-VarDecl::~VarDecl() = default;
 
 FuncDef::~FuncDef() {
-  for (auto v : args)
-    delete v;
-  for (auto v : decls)
-    delete v;
-  for (auto v : stmts)
-    delete v;
+  deleteList(args);
+  deleteList(decls);
+  deleteList(stmts);
 }
 
-ArgDecl::~ArgDecl() = default;
-
 ReadStmt::~ReadStmt() {
-  for (auto v : names)
-    delete v;
+  deleteList(names);
 }
 
 WriteStmt::~WriteStmt() {
-  delete str;
-  delete value;
+  deleteOptional(str);
+  deleteOptional(value);
 }
 
 void WriteStmt::setValue(Expr *Val) {
@@ -271,87 +88,78 @@ void WriteStmt::setValue(Expr *Val) {
 }
 
 AssignStmt::~AssignStmt() {
-  delete target;
-  delete value;
+  target->deleteAST();
+  value->deleteAST();
 }
 
 void AssignStmt::setValue(Expr *E) { setterImpl(value, E); }
 
 ForStmt::~ForStmt() {
-  delete initial;
-  delete condition;
-  delete step;
-  for (auto v : body)
-    delete v;
+  initial->deleteAST();
+  condition->deleteAST();
+  step->deleteAST();
+  deleteList(body);
 }
 
 void ForStmt::setCondition(Expr *E) { setterImpl(condition, E); }
 
 WhileStmt::~WhileStmt() {
-  delete condition;
-  for (auto v : body)
-    delete v;
+  condition->deleteAST();
+  deleteList(body);
 }
 
 void WhileStmt::setCondition(Expr *E) { setterImpl(condition, E); }
 
 ReturnStmt::~ReturnStmt() { delete value; }
+
 void ReturnStmt::setValue(Expr *E) {
   setterImpl(value, E, /* Optional */ true);
 }
 
 IfStmt::~IfStmt() {
-  delete test;
-  for (auto v : body)
-    delete v;
-  for (auto v : orelse)
-    delete v;
+  test->deleteAST();
+  deleteList(body);
+  deleteList(orelse);
 }
 
 void IfStmt::setTest(Expr *E) {
-  assert(E);
-  if (E == test)
-    return;
-  delete test;
-  test = E;
+  setterImpl(test, E);
 }
 
-ExprStmt::~ExprStmt() { delete value; }
+ExprStmt::~ExprStmt() {
+  value->deleteAST();
+}
 
 BinOpExpr::~BinOpExpr() {
-  delete left;
-  delete right;
+  left->deleteAST();
+  right->deleteAST();
 }
 
 void BinOpExpr::setLeft(Expr *E) { setterImpl(left, E); }
 
 void BinOpExpr::setRight(Expr *E) { setterImpl(right, E); }
 
-ParenExpr::~ParenExpr() { delete value; }
+ParenExpr::~ParenExpr() { value->deleteAST(); }
+
 void ParenExpr::setValue(Expr *E) { setterImpl(value, E); }
 
-BoolOpExpr::~BoolOpExpr() { delete value; }
+BoolOpExpr::~BoolOpExpr() { value->deleteAST(); }
 
 void BoolOpExpr::setValue(Expr *E) { setterImpl(value, E); }
 
-UnaryOpExpr::~UnaryOpExpr() { delete operand; }
+UnaryOpExpr::~UnaryOpExpr() { operand->deleteAST(); }
+
 void UnaryOpExpr::setOperand(Expr *E) { setterImpl(operand, E); }
 
 CallExpr::~CallExpr() {
-  for (auto v : args)
-    delete v;
+  deleteList(args);
 }
 
 void CallExpr::setArgAt(unsigned I, Expr *Val) { setterImpl(args[I], Val); }
 
-NumExpr::~NumExpr() = default;
-StrExpr::~StrExpr() = default;
-CharExpr::~CharExpr() = default;
+SubscriptExpr::~SubscriptExpr() { index->deleteAST(); }
 
-SubscriptExpr::~SubscriptExpr() { delete index; }
 void SubscriptExpr::setIndex(Expr *E) { setterImpl(index, E); }
-
-NameExpr::~NameExpr() = default;
 
 OperatorKind OperatorKindFromString(const String &s) {
   if (s == "+")
@@ -433,6 +241,22 @@ const char *AST::getClassName(unsigned Kind) {
     return #CLASS;
 #include "simplecc/Parse/AST.def"
   }
+}
+
+void AST::deleteAST() {
+  switch (getKind()) {
+  default:assert(false && "Unhandled AST Kind");
+#define HANDLE_AST(CLASS) \
+  case CLASS##Kind: \
+    delete static_cast<CLASS *>(this); \
+    break;
+#include "simplecc/Parse/AST.def"
+  }
+}
+
+void AST::Format(std::ostream &os) const {
+  os << "<" << getClassName() << " object at " << static_cast<const void *>(this)
+     << ">";
 }
 
 } // namespace simplecc

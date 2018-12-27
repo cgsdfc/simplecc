@@ -12,23 +12,21 @@ namespace simplecc {
 class AST {
   Location Loc;
   unsigned SubclassID;
-
 protected:
   AST(unsigned Kind, Location L) : SubclassID(Kind), Loc(L) {}
-
 public:
+  ~AST() = default;
   enum ASTKind : unsigned {
 #define HANDLE_AST(CLASS) CLASS##Kind,
 #include "simplecc/Parse/AST.def"
   };
-
   static const char *getClassName(unsigned Kind);
   const char *getClassName() const { return getClassName(getKind()); }
-  unsigned getKind() const { return SubclassID; }
 
+  unsigned getKind() const { return SubclassID; }
   Location getLocation() const { return Loc; }
-  virtual ~AST() = default;
-  virtual void Format(std::ostream &os) const = 0;
+  void deleteAST();
+  void Format(std::ostream &os) const;
 };
 
 inline std::ostream &operator<<(std::ostream &O, const AST &A) {
@@ -58,7 +56,6 @@ class Decl : public AST {
 protected:
   Decl(unsigned int Kind, std::string name, Location loc)
       : AST(Kind, loc), name(std::move(name)) {}
-
 public:
   std::string name;
   const std::string &getName() const { return name; }
@@ -68,7 +65,6 @@ public:
 class Stmt : public AST {
 protected:
   Stmt(unsigned int Kind, Location loc) : AST(Kind, loc) {}
-
 public:
   static bool InstanceCheck(AST *A) { return A->getKind() == AST::StmtKind; }
 };
@@ -76,7 +72,6 @@ public:
 class Expr : public AST {
 protected:
   Expr(int Kind, Location loc) : AST(Kind, loc) {}
-
 public:
   static bool InstanceCheck(AST *A) { return A->getKind() == AST::ExprKind; }
 };
@@ -85,22 +80,19 @@ public:
 class ConstDecl : public Decl {
   BasicTypeKind type;
   Expr *value;
-
 public:
   ConstDecl(BasicTypeKind type, Expr *value, std::string name,
             const Location &loc)
       : Decl(Decl::ConstDeclKind, std::move(name), loc), type(type),
         value(value) {}
+  ~ConstDecl() { value->deleteAST(); }
 
   // Disable copy and move.
   ConstDecl(const ConstDecl &) = delete;
   ConstDecl(ConstDecl &&) = delete;
   ConstDecl &operator=(const ConstDecl &) = delete;
+
   ConstDecl &operator=(ConstDecl &&) = delete;
-
-  ~ConstDecl() override;
-
-  void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(Decl *x) {
     return x->getKind() == Decl::ConstDeclKind;
@@ -127,9 +119,7 @@ public:
   VarDecl &operator=(const VarDecl &) = delete;
   VarDecl &operator=(VarDecl &&) = delete;
 
-  ~VarDecl() override;
-
-  void Format(std::ostream &os) const override;
+  ~VarDecl() = default;
 
   static bool InstanceCheck(Decl *x) {
     return x->getKind() == Decl::VarDeclKind;
@@ -162,9 +152,7 @@ public:
   FuncDef &operator=(const FuncDef &) = delete;
   FuncDef &operator=(FuncDef &&) = delete;
 
-  ~FuncDef() override;
-
-  void Format(std::ostream &os) const override;
+  ~FuncDef();
 
   static bool InstanceCheck(Decl *x) {
     return x->getKind() == Decl::FuncDefKind;
@@ -193,9 +181,7 @@ public:
   ArgDecl &operator=(const ArgDecl &) = delete;
   ArgDecl &operator=(ArgDecl &&) = delete;
 
-  ~ArgDecl() override;
-
-  void Format(std::ostream &os) const override;
+  ~ArgDecl() = default;
 
   static bool InstanceCheck(Decl *x) {
     return x->getKind() == Decl::ArgDeclKind;
@@ -217,9 +203,7 @@ public:
   ReadStmt &operator=(const ReadStmt &) = delete;
   ReadStmt &operator=(ReadStmt &&) = delete;
 
-  ~ReadStmt() override;
-
-  void Format(std::ostream &os) const override;
+  ~ReadStmt();
 
   static bool InstanceCheck(Stmt *x) {
     return x->getKind() == Stmt::ReadStmtKind;
@@ -242,9 +226,7 @@ public:
   WriteStmt &operator=(const WriteStmt &) = delete;
   WriteStmt &operator=(WriteStmt &&) = delete;
 
-  ~WriteStmt() override;
-
-  void Format(std::ostream &os) const override;
+  ~WriteStmt();
 
   static bool InstanceCheck(Stmt *x) { return x->getKind() == WriteStmtKind; }
 
@@ -268,9 +250,7 @@ public:
   AssignStmt &operator=(const AssignStmt &) = delete;
   AssignStmt &operator=(AssignStmt &&) = delete;
 
-  ~AssignStmt() override;
-
-  void Format(std::ostream &os) const override;
+  ~AssignStmt();
 
   static bool InstanceCheck(Stmt *x) { return x->getKind() == AssignStmtKind; }
 
@@ -297,9 +277,7 @@ public:
   ForStmt &operator=(const ForStmt &) = delete;
   ForStmt &operator=(ForStmt &&) = delete;
 
-  ~ForStmt() override;
-
-  void Format(std::ostream &os) const override;
+  ~ForStmt();
 
   static bool InstanceCheck(Stmt *x) {
     return x->getKind() == Stmt::ForStmtKind;
@@ -329,9 +307,7 @@ public:
   WhileStmt &operator=(const WhileStmt &) = delete;
   WhileStmt &operator=(WhileStmt &&) = delete;
 
-  ~WhileStmt() override;
-
-  void Format(std::ostream &os) const override;
+  ~WhileStmt();
 
   static bool InstanceCheck(Stmt *x) { return x->getKind() == WhileStmtKind; }
 
@@ -354,9 +330,7 @@ public:
   ReturnStmt &operator=(const ReturnStmt &) = delete;
   ReturnStmt &operator=(ReturnStmt &&) = delete;
 
-  ~ReturnStmt() override;
-
-  void Format(std::ostream &os) const override;
+  ~ReturnStmt();
 
   static bool InstanceCheck(Stmt *x) {
     return x->getKind() == Stmt::ReturnStmtKind;
@@ -383,9 +357,7 @@ public:
   IfStmt &operator=(const IfStmt &) = delete;
   IfStmt &operator=(IfStmt &&) = delete;
 
-  ~IfStmt() override;
-
-  void Format(std::ostream &os) const override;
+  ~IfStmt();
 
   static bool InstanceCheck(Stmt *x) {
     return x->getKind() == Stmt::IfStmtKind;
@@ -411,9 +383,7 @@ public:
   ExprStmt &operator=(const ExprStmt &) = delete;
   ExprStmt &operator=(ExprStmt &&) = delete;
 
-  ~ExprStmt() override;
-
-  void Format(std::ostream &os) const override;
+  ~ExprStmt();
 
   static bool InstanceCheck(Stmt *x) {
     return x->getKind() == Stmt::ExprStmtKind;
@@ -438,9 +408,7 @@ public:
   BinOpExpr &operator=(const BinOpExpr &) = delete;
   BinOpExpr &operator=(BinOpExpr &&) = delete;
 
-  ~BinOpExpr() override;
-
-  void Format(std::ostream &os) const override;
+  ~BinOpExpr();
 
   static bool InstanceCheck(Expr *x) {
     return x->getKind() == Expr::BinOpExprKind;
@@ -468,9 +436,7 @@ public:
   ParenExpr &operator=(const ParenExpr &) = delete;
   ParenExpr &operator=(ParenExpr &&) = delete;
 
-  ~ParenExpr() override;
-
-  void Format(std::ostream &os) const override;
+  ~ParenExpr();
 
   static bool InstanceCheck(Expr *x) {
     return x->getKind() == Expr::ParenExprKind;
@@ -494,9 +460,7 @@ public:
   BoolOpExpr &operator=(const BoolOpExpr &) = delete;
   BoolOpExpr &operator=(BoolOpExpr &&) = delete;
 
-  ~BoolOpExpr() override;
-
-  void Format(std::ostream &os) const override;
+  ~BoolOpExpr();
 
   static bool InstanceCheck(const Expr *x) { return x->getKind() == BoolOpExprKind; }
 
@@ -520,9 +484,7 @@ public:
   UnaryOpExpr &operator=(const UnaryOpExpr &) = delete;
   UnaryOpExpr &operator=(UnaryOpExpr &&) = delete;
 
-  ~UnaryOpExpr() override;
-
-  void Format(std::ostream &os) const override;
+  ~UnaryOpExpr();
 
   static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::UnaryOpExprKind;
@@ -548,9 +510,7 @@ public:
   CallExpr &operator=(const CallExpr &) = delete;
   CallExpr &operator=(CallExpr &&) = delete;
 
-  ~CallExpr() override;
-
-  void Format(std::ostream &os) const override;
+  ~CallExpr();
 
   static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::CallExprKind;
@@ -576,10 +536,6 @@ public:
   NumExpr &operator=(const NumExpr &) = delete;
   NumExpr &operator=(NumExpr &&) = delete;
 
-  ~NumExpr() override;
-
-  void Format(std::ostream &os) const override;
-
   static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::NumExprKind;
   }
@@ -600,10 +556,6 @@ public:
   StrExpr &operator=(const StrExpr &) = delete;
   StrExpr &operator=(StrExpr &&) = delete;
 
-  ~StrExpr() override;
-
-  void Format(std::ostream &os) const override;
-
   static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::StrExprKind;
   }
@@ -622,10 +574,6 @@ public:
   CharExpr(CharExpr &&) = delete;
   CharExpr &operator=(const CharExpr &) = delete;
   CharExpr &operator=(CharExpr &&) = delete;
-
-  ~CharExpr() override;
-
-  void Format(std::ostream &os) const override;
 
   static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::CharExprKind;
@@ -651,9 +599,7 @@ public:
   SubscriptExpr &operator=(const SubscriptExpr &) = delete;
   SubscriptExpr &operator=(SubscriptExpr &&) = delete;
 
-  ~SubscriptExpr() override;
-
-  void Format(std::ostream &os) const override;
+  ~SubscriptExpr();
 
   static bool InstanceCheck(const Expr *x) {
     return x->getKind() == SubscriptExprKind;
@@ -680,10 +626,6 @@ public:
   NameExpr &operator=(const NameExpr &) = delete;
   NameExpr &operator=(NameExpr &&) = delete;
 
-  ~NameExpr() override;
-
-  void Format(std::ostream &os) const override;
-
   static bool InstanceCheck(const Expr *x) { return x->getKind() == NameExprKind; }
 
   const std::string &getId() const { return id; }
@@ -694,8 +636,8 @@ public:
 
 class Program : public AST {
   std::vector<Decl *> decls;
-
 public:
+  ~Program();
   explicit Program(std::vector<Decl *> decls)
       : AST(ProgramKind, Location(0, 0)), decls(std::move(decls)) {}
 
@@ -705,9 +647,6 @@ public:
   Program &operator=(const Program &) = delete;
   Program &operator=(Program &&) = delete;
 
-  ~Program() override;
-
-  void Format(std::ostream &os) const override;
   const std::vector<Decl *> &getDecls() const { return decls; }
 
   static bool InstanceCheck(const AST *A) { return A->getKind() == ProgramKind; }
@@ -722,6 +661,14 @@ const char *CStringFromUnaryopKind(UnaryopKind val);
 
 BasicTypeKind BasicTypeKindFromString(const String &s);
 const char *CStringFromBasicTypeKind(BasicTypeKind val);
+
+/// To be used with std::unique_ptr.
+struct DeleteAST {
+  void operator()(AST *A) const {
+    if (A)
+      A->deleteAST();
+  }
+};
 
 } // namespace simplecc
 #endif

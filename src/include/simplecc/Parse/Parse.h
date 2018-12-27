@@ -5,7 +5,9 @@
 #include <memory> // for unique_ptr
 
 namespace simplecc {
+using ProgramRef = std::unique_ptr<Program, DeleteAST>;
+
 std::unique_ptr<Node> BuildCST(const std::vector<TokenInfo> &TheTokens);
-std::unique_ptr<Program> BuildAST(const std::vector<TokenInfo> &TheTokens);
+ProgramRef BuildAST(const std::vector<TokenInfo> &TheTokens);
 } // namespace simplecc
 #endif // SIMPLECC_PARSE_PARSE_H

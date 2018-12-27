@@ -4,6 +4,7 @@
 #include "simplecc/CodeGen/ByteCodeModule.h"
 #include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Support/ErrorManager.h"
+#include <simplecc/Parse/Parse.h>
 
 #include <fstream>
 #include <iostream>
@@ -40,7 +41,6 @@ class Driver {
 
 public:
   Driver() = default;
-
   void setInputFile(std::string Filename) { InputFile = std::move(Filename); }
   void setOutputFile(std::string Filename) { OutputFile = std::move(Filename); }
 
@@ -76,7 +76,7 @@ private:
 
   std::vector<TokenInfo> TheTokens;
   AnalysisManager AM;
-  std::unique_ptr<Program> TheProgram;
+  ProgramRef TheProgram;
   ByteCodeModule TheModule;
   ErrorManager EM;
 };
