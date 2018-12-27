@@ -1,6 +1,7 @@
 #ifndef SIMPLECC_ANALYSIS_VISITOR_H
 #define SIMPLECC_ANALYSIS_VISITOR_H
 #include "simplecc/Parse/AST.h"
+#include "simplecc/Support/Casting.h"
 #include <cassert>
 
 namespace simplecc {

@@ -1,4 +1,5 @@
 #include "simplecc/Analysis/Types.h"
+#include "simplecc/Support/Casting.h"
 
 using namespace simplecc;
 

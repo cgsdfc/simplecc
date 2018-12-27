@@ -747,7 +747,6 @@ public:
 };
 
 // EnumFromString
-
 OperatorKind OperatorKindFromString(const String &s);
 const char *CStringFromOperatorKind(OperatorKind val);
 
@@ -757,14 +756,5 @@ const char *CStringFromUnaryopKind(UnaryopKind val);
 BasicTypeKind BasicTypeKindFromString(const String &s);
 const char *CStringFromBasicTypeKind(BasicTypeKind val);
 
-template<typename T, typename U> bool IsInstance(U *x) {
-  return T::InstanceCheck(x);
-}
-
-template<typename T, typename U> T *subclass_cast(U *x) {
-  if (IsInstance<T>(x))
-    return static_cast<T *>(x);
-  return nullptr;
-}
 } // namespace simplecc
 #endif
