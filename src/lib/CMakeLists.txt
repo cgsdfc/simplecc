@@ -61,7 +61,6 @@ if (USE_LLVM)
 
             # Visualize the AST.
             Visualize/ASTGraph.cpp
-            Visualize/AstRef.cpp
             Visualize/AstIterator.cpp
             Visualize/DescriptionVisitor.cpp
             Visualize/ChildrenCollector.cpp

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <simplecc/Parse/AST.h>
 
 namespace simplecc {
 
@@ -149,6 +150,33 @@ void AST::deleteAST() {
 void AST::Format(std::ostream &os) const {
   os << "<" << getClassName() << " object at " << static_cast<const void *>(this)
      << ">";
+}
+
+bool Decl::InstanceCheck(AST *A) {
+  switch (A->getKind()) {
+  default:return false;
+#define HANDLE_DECL(CLASS) case AST::CLASS##Kind:
+#include "simplecc/Parse/AST.def"
+    return true;
+  }
+}
+
+bool Stmt::InstanceCheck(AST *A) {
+  switch (A->getKind()) {
+  default:return false;
+#define HANDLE_STMT(CLASS) case AST::CLASS##Kind:
+#include "simplecc/Parse/AST.def"
+    return true;
+  }
+}
+
+bool Expr::InstanceCheck(AST *A) {
+  switch (A->getKind()) {
+  default:return false;
+#define HANDLE_EXPR(CLASS) case AST::CLASS##Kind:
+#include "simplecc/Parse/AST.def"
+    return true;
+  }
 }
 
 } // namespace simplecc

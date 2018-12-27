@@ -38,5 +38,5 @@ const char *CStringFromUnaryopKind(UnaryopKind val);
 
 BasicTypeKind BasicTypeKindFromString(const std::string &s);
 const char *CStringFromBasicTypeKind(BasicTypeKind val);
-}
+} // namespace simplecc
 #endif //SIMPLECC_PARSE_ENUMS_H

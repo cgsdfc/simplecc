@@ -7,15 +7,16 @@
 namespace simplecc {
 
 // Visitor Mixin that provides runtime visit of abstract nodes
-template <typename Derived> class VisitorBase {
+template<typename Derived> class VisitorBase {
 public:
-  template <typename RetTy = void> RetTy visitDecl(Decl *D);
-  template <typename RetTy = void> RetTy visitStmt(Stmt *S);
-  template <typename RetTy = void> RetTy visitExpr(Expr *E);
+  template<typename RetTy = void> RetTy visitDecl(Decl *D);
+  template<typename RetTy = void> RetTy visitStmt(Stmt *S);
+  template<typename RetTy = void> RetTy visitExpr(Expr *E);
+  template<typename RetTy = void> RetTy visitAST(AST *A);
 };
 
 /// Visitor that simply visits children recursively and return no value.
-template <class Derived> class ChildrenVisitor : public VisitorBase<Derived> {
+template<class Derived> class ChildrenVisitor : public VisitorBase<Derived> {
 public:
   /// Decl subclasses.
   void visitProgram(Program *P);
@@ -50,11 +51,12 @@ public:
   using VisitorBase<Derived>::visitDecl;
   using VisitorBase<Derived>::visitStmt;
   using VisitorBase<Derived>::visitExpr;
+  using VisitorBase<Derived>::visitAST;
 };
 
 // Methods of VisitorBase.
-template <typename Derived>
-template <typename RetTy>
+template<typename Derived>
+template<typename RetTy>
 RetTy VisitorBase<Derived>::visitDecl(Decl *D) {
   if (auto x = subclass_cast<ConstDecl>(D)) {
     return static_cast<Derived *>(this)->visitConstDecl(x);
@@ -71,8 +73,8 @@ RetTy VisitorBase<Derived>::visitDecl(Decl *D) {
   assert(false && "Unhandled Decl subclasses");
 }
 
-template <typename Derived>
-template <typename RetTy>
+template<typename Derived>
+template<typename RetTy>
 RetTy VisitorBase<Derived>::visitStmt(Stmt *S) {
   if (auto x = subclass_cast<ReadStmt>(S)) {
     return static_cast<Derived *>(this)->visitRead(x);
@@ -101,8 +103,8 @@ RetTy VisitorBase<Derived>::visitStmt(Stmt *S) {
   assert(false && "Unhandled Stmt subclasses");
 }
 
-template <typename Derived>
-template <typename RetTy>
+template<typename Derived>
+template<typename RetTy>
 RetTy VisitorBase<Derived>::visitExpr(Expr *E) {
   if (auto x = subclass_cast<BinOpExpr>(E)) {
     return static_cast<Derived *>(this)->visitBinOp(x);
@@ -137,20 +139,34 @@ RetTy VisitorBase<Derived>::visitExpr(Expr *E) {
   assert(false && "Unhandled Expr subclasses");
 }
 
+template<typename Derived>
+template<typename RetTy>
+RetTy VisitorBase<Derived>::visitAST(AST *A) {
+  if (auto x = subclass_cast<Program>(A))
+    return static_cast<Derived *>(this)->visitProgram(x);
+  if (auto x = subclass_cast<Decl>(A))
+    return visitDecl<RetTy>(x);
+  if (auto x = subclass_cast<Stmt>(A))
+    return visitStmt<RetTy>(x);
+  if (auto x = subclass_cast<Expr>(A))
+    return visitExpr<RetTy>(x);
+  assert(false && "Unhandled AST subclasses");
+}
+
 // Methods of ChildrenVisitor
-template <class Derived>
+template<class Derived>
 void ChildrenVisitor<Derived>::visitProgram(Program *P) {
   for (auto s : P->getDecls()) {
     static_cast<Derived *>(this)->visitDecl(s);
   }
 }
 
-template <class Derived>
+template<class Derived>
 void ChildrenVisitor<Derived>::visitConstDecl(ConstDecl *CD) {
   static_cast<Derived *>(this)->visitExpr(CD->getValue());
 }
 
-template <class Derived>
+template<class Derived>
 void ChildrenVisitor<Derived>::visitFuncDef(FuncDef *FD) {
   for (auto s : FD->getArgs()) {
     static_cast<Derived *>(this)->visitDecl(s);
@@ -215,7 +231,7 @@ template<class Derived> void ChildrenVisitor<Derived>::visitIf(IfStmt *I) {
   }
 }
 
-template <class Derived>
+template<class Derived>
 void ChildrenVisitor<Derived>::visitExprStmt(ExprStmt *ES) {
   static_cast<Derived *>(this)->visitExpr(ES->getValue());
 }
@@ -225,7 +241,7 @@ template<class Derived> void ChildrenVisitor<Derived>::visitBinOp(BinOpExpr *B) 
   static_cast<Derived *>(this)->visitExpr(B->getRight());
 }
 
-template <class Derived>
+template<class Derived>
 void ChildrenVisitor<Derived>::visitParenExpr(ParenExpr *PE) {
   static_cast<Derived *>(this)->visitExpr(PE->getValue());
 }
@@ -234,7 +250,7 @@ template<class Derived> void ChildrenVisitor<Derived>::visitBoolOp(BoolOpExpr *B
   static_cast<Derived *>(this)->visitExpr(B->getValue());
 }
 
-template <class Derived>
+template<class Derived>
 void ChildrenVisitor<Derived>::visitUnaryOp(UnaryOpExpr *U) {
   static_cast<Derived *>(this)->visitExpr(U->getOperand());
 }
@@ -245,7 +261,7 @@ template<class Derived> void ChildrenVisitor<Derived>::visitCall(CallExpr *C) {
   }
 }
 
-template <class Derived>
+template<class Derived>
 void ChildrenVisitor<Derived>::visitSubscript(SubscriptExpr *SB) {
   static_cast<Derived *>(this)->visitExpr(SB->getIndex());
 }

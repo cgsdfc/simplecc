@@ -8,17 +8,7 @@ using namespace simplecc;
 
 /// Return a descriptive string for AR.
 String DescriptionVisitor::makeDescription(const AstRef &AR) {
-  switch (AR.getKind()) {
-#define HANDLE_AST_TYPE(NAME)                                                  \
-  case AstKind::NAME:                                                          \
-    return visit##NAME(static_cast<NAME *>(AR.get()));
-    HANDLE_AST_TYPE(Decl)
-    HANDLE_AST_TYPE(Expr)
-    HANDLE_AST_TYPE(Stmt)
-#undef HANDLE_AST_TYPE
-  default:
-    return "";
-  }
+  return VisitorBase::visitAST<std::string>(AR.get());
 }
 
 String DescriptionVisitor::visitConstDecl(ConstDecl *CD) {

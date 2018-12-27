@@ -186,6 +186,7 @@ void Driver::runWriteAstGraph() {
   auto OS = getLLVMRawOstream();
   if (!OS)
     return;
+ // PrintAllAstNodes(TheProgram.get(), std::cout);
   WriteASTGraph(TheProgram.get(), *OS);
 }
 

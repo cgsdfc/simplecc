@@ -9,6 +9,8 @@ class AstRef;
 class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   friend class VisitorBase<DescriptionVisitor>;
 
+  String visitProgram(Program *) { return ""; }
+
   /// VisitorBase boilerplate code.
   String visitDecl(Decl *D) { return VisitorBase::visitDecl<String>(D); }
   String visitExpr(Expr *E) { return VisitorBase::visitExpr<String>(E); }

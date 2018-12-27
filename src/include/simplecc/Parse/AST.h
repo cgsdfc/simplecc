@@ -41,21 +41,21 @@ protected:
 public:
   std::string name;
   const std::string &getName() const { return name; }
-  static bool InstanceCheck(AST *A) { return A->getKind() == AST::DeclKind; }
+  static bool InstanceCheck(AST *A);
 };
 
 class Stmt : public AST {
 protected:
   Stmt(unsigned int Kind, Location loc) : AST(Kind, loc) {}
 public:
-  static bool InstanceCheck(AST *A) { return A->getKind() == AST::StmtKind; }
+  static bool InstanceCheck(AST *A);
 };
 
 class Expr : public AST {
 protected:
   Expr(int Kind, Location loc) : AST(Kind, loc) {}
 public:
-  static bool InstanceCheck(AST *A) { return A->getKind() == AST::ExprKind; }
+  static bool InstanceCheck(AST *A);
 };
 
 // ConcreteNode
