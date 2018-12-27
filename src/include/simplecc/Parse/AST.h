@@ -1,6 +1,7 @@
 #ifndef SIMPLECC_PARSE_AST_H
 #define SIMPLECC_PARSE_AST_H
 #include "simplecc/Lex/TokenInfo.h"
+#include "simplecc/Parse/Enums.h"
 
 #include <iostream>
 #include <string>
@@ -31,23 +32,6 @@ inline std::ostream &operator<<(std::ostream &O, const AST &A) {
   A.Format(O);
   return O;
 }
-
-// EnumClass
-enum class OperatorKind { Add, Sub, Mult, Div, Eq, NotEq, Lt, LtE, Gt, GtE };
-
-std::ostream &operator<<(std::ostream &os, OperatorKind val);
-
-enum class UnaryopKind { UAdd, USub };
-
-std::ostream &operator<<(std::ostream &os, UnaryopKind val);
-
-enum class ExprContextKind { Load, Store };
-
-std::ostream &operator<<(std::ostream &os, ExprContextKind val);
-
-enum class BasicTypeKind { Int, Character, Void };
-
-std::ostream &operator<<(std::ostream &os, BasicTypeKind val);
 
 // AbstractNode
 class Decl : public AST {
@@ -117,8 +101,6 @@ public:
   VarDecl &operator=(const VarDecl &) = delete;
   VarDecl &operator=(VarDecl &&) = delete;
 
-  ~VarDecl() = default;
-
   static bool InstanceCheck(Decl *x) {
     return x->getKind() == Decl::VarDeclKind;
   }
@@ -168,7 +150,6 @@ public:
 
 class ArgDecl : public Decl {
   BasicTypeKind type;
-
 public:
   ArgDecl(BasicTypeKind type, std::string name, const Location &loc)
       : Decl(Decl::ArgDeclKind, std::move(name), loc), type(type) {}
@@ -178,8 +159,6 @@ public:
   ArgDecl(ArgDecl &&) = delete;
   ArgDecl &operator=(const ArgDecl &) = delete;
   ArgDecl &operator=(ArgDecl &&) = delete;
-
-  ~ArgDecl() = default;
 
   static bool InstanceCheck(Decl *x) {
     return x->getKind() == Decl::ArgDeclKind;
@@ -524,7 +503,6 @@ public:
 
 class NumExpr : public Expr {
   int n;
-
 public:
   NumExpr(int n, const Location &loc) : Expr(Expr::NumExprKind, loc), n(n) {}
 
@@ -543,7 +521,6 @@ public:
 
 class StrExpr : public Expr {
   std::string s;
-
 public:
   StrExpr(std::string s, const Location &loc)
       : Expr(Expr::StrExprKind, loc), s(std::move(s)) {}
@@ -563,7 +540,6 @@ public:
 
 class CharExpr : public Expr {
   int c;
-
 public:
   CharExpr(int c, const Location &loc) : Expr(Expr::CharExprKind, loc), c(c) {}
 
@@ -584,7 +560,6 @@ class SubscriptExpr : public Expr {
   std::string name;
   Expr *index;
   ExprContextKind ctx;
-
 public:
   SubscriptExpr(std::string name, Expr *index, ExprContextKind ctx,
                 const Location &loc)
@@ -613,7 +588,6 @@ public:
 class NameExpr : public Expr {
   std::string id;
   ExprContextKind ctx;
-
 public:
   NameExpr(std::string id, ExprContextKind ctx, const Location &loc)
       : Expr(NameExprKind, loc), id(std::move(id)), ctx(ctx) {}
@@ -629,8 +603,6 @@ public:
   const std::string &getId() const { return id; }
   ExprContextKind getCtx() const { return ctx; }
 };
-
-// LeafNode
 
 class Program : public AST {
   std::vector<Decl *> decls;
@@ -649,16 +621,6 @@ public:
 
   static bool InstanceCheck(const AST *A) { return A->getKind() == ProgramKind; }
 };
-
-// EnumFromString
-OperatorKind OperatorKindFromString(const String &s);
-const char *CStringFromOperatorKind(OperatorKind val);
-
-UnaryopKind UnaryopKindFromString(const String &s);
-const char *CStringFromUnaryopKind(UnaryopKind val);
-
-BasicTypeKind BasicTypeKindFromString(const String &s);
-const char *CStringFromBasicTypeKind(BasicTypeKind val);
 
 /// To be used with std::unique_ptr.
 struct DeleteAST {

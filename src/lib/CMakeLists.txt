@@ -12,6 +12,7 @@ set(SOURCE_FILES
         Parse/gramdef.cpp
         Parse/Node.cpp
         Parse/Parse.cpp
+        Parse/Enums.cpp
 
         # Perform various analyses (or checks) on the AST.
         Analysis/TypeChecker.cpp

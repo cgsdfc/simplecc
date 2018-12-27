@@ -1,0 +1,48 @@
+// Enumerations definition for AST
+#if !(defined HANDLE_OPERATOR || defined HANDLE_BASICTYPE || \
+    defined HANDLE_UNARYOP || defined HANDLE_EXPRCONTEXT ||  \
+    defined HANDLE_ENUM)
+#error "Missing macro definition of HANDLE_*"
+#endif
+
+#ifndef HANDLE_OPERATOR
+#define HANDLE_OPERATOR(VAL, STR)
+#endif
+
+#ifndef HANDLE_UNARYOP
+#define HANDLE_UNARYOP(VAL, STR)
+#endif
+
+#ifndef HANDLE_EXPRCONTEXT
+#define HANDLE_EXPRCONTEXT(VAL, STR)
+#endif
+
+#ifndef HANDLE_BASICTYPE
+#define HANDLE_BASICTYPE(VAL, STR)
+#endif
+
+HANDLE_OPERATOR(Add, "+")
+HANDLE_OPERATOR(Sub, "-")
+HANDLE_OPERATOR(Mult, "*")
+HANDLE_OPERATOR(Div, "/")
+HANDLE_OPERATOR(Eq, "==")
+HANDLE_OPERATOR(NotEq, "!=")
+HANDLE_OPERATOR(Lt, "<")
+HANDLE_OPERATOR(LtE, "<=")
+HANDLE_OPERATOR(Gt, ">")
+HANDLE_OPERATOR(GtE, ">=")
+
+HANDLE_UNARYOP(UAdd, "+")
+HANDLE_UNARYOP(USub, "-")
+
+HANDLE_EXPRCONTEXT(Load, "")
+HANDLE_EXPRCONTEXT(Store, "")
+
+HANDLE_BASICTYPE(Int, "int")
+HANDLE_BASICTYPE(Character, "char")
+HANDLE_BASICTYPE(Void, "void")
+
+#undef HANDLE_OPERATOR
+#undef HANDLE_UNARYOP
+#undef HANDLE_BASICTYPE
+#undef HANDLE_EXPRCONTEXT
