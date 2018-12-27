@@ -33,36 +33,11 @@ inline std::ostream &operator<<(std::ostream &os, const AST &ast) {
   return os;
 }
 
-// ForwardDecl
-class Program;
-class Decl;
-class ConstDecl;
-class VarDecl;
-class FuncDef;
-class ArgDecl;
-class Stmt;
-class ReadStmt;
-class WriteStmt;
-class AssignStmt;
-class ForStmt;
-class WhileStmt;
-class ReturnStmt;
-class IfStmt;
-class ExprStmt;
-class Expr;
-class BinOpExpr;
-class ParenExpr;
-class BoolOpExpr;
-class UnaryOpExpr;
-class CallExpr;
-class NumExpr;
-class StrExpr;
-class CharExpr;
-class SubscriptExpr;
-class NameExpr;
+// Forward declare all AST classes now...
+#define HANDLE_AST(CLASS) class CLASS;
+#include "simplecc/Parse/AST.def"
 
 // EnumClass
-
 enum class OperatorKind { Add, Sub, Mult, Div, Eq, NotEq, Lt, LtE, Gt, GtE };
 
 std::ostream &operator<<(std::ostream &os, OperatorKind val);
