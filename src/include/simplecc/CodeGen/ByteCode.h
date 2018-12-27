@@ -1,8 +1,5 @@
 #ifndef SIMPLECC_CODEGEN_BYTECODE_H
 #define SIMPLECC_CODEGEN_BYTECODE_H
-
-#include "simplecc/CodeGen/Opcode.h"
-
 #include <cassert>
 #include <iostream>
 
@@ -20,6 +17,13 @@ namespace simplecc {
 /// that makes it less than optimal.
 ///
 class ByteCode {
+public:
+  enum Opcode : unsigned {
+#define HANDLE_OPCODE(opcode, camelName) opcode,
+#include "simplecc/CodeGen/Opcode.def"
+  };
+
+private:
   /// Core IR information.
   Opcode Op;
   int IntOperand = 0;
@@ -79,7 +83,8 @@ public:
   unsigned getByteCodeOffset() const { return ByteCodeOffset; }
 
   Opcode getOpcode() const { return Op; }
-  const char *getOpcodeName() const { return CStringFromOpcode(getOpcode()); }
+  static const char *getOpcodeName(unsigned Op);
+  const char *getOpcodeName() const { return getOpcodeName(getOpcode()); }
 
   int getIntOperand() const {
     assert(HasIntOperand());

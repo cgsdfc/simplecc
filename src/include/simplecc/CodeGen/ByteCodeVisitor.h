@@ -13,7 +13,7 @@ public:
     switch (C.getOpcode()) {
     default: assert(false && "Invalid Opcode");
 #define HANDLE_OPCODE(opcode, camelName) \
-    case Opcode::opcode: return static_cast<Derived *>(this)->visit##camelName(C);
+    case ByteCode::opcode: return static_cast<Derived *>(this)->visit##camelName(C);
 #include "simplecc/CodeGen/Opcode.def"
     }
   }

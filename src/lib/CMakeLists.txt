@@ -30,7 +30,6 @@ set(SOURCE_FILES
         CodeGen/ByteCodeModule.cpp
         CodeGen/ByteCodeBuilder.cpp
         CodeGen/ByteCodeFunction.cpp
-        CodeGen/Opcode.cpp
         CodeGen/ByteCodeCompiler.cpp
         CodeGen/Compile.cpp
 

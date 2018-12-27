@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iomanip>
 #include <iostream>
+#include <simplecc/CodeGen/ByteCode.h>
 
 namespace simplecc {
 
@@ -36,10 +37,8 @@ bool ByteCode::IsJumpXXX(Opcode Op) {
   case Opcode::JUMP_IF_GREATER_EQUAL:
   case Opcode::JUMP_IF_LESS:
   case Opcode::JUMP_IF_LESS_EQUAL:
-  case Opcode::JUMP_FORWARD:
-    return true;
-  default:
-    return false;
+  case Opcode::JUMP_FORWARD:return true;
+  default:return false;
   }
 }
 
@@ -56,10 +55,8 @@ bool ByteCode::HasIntOperand(Opcode Op) {
   case Opcode::JUMP_IF_LESS_EQUAL:
   case Opcode::CALL_FUNCTION:
   case Opcode::LOAD_STRING:
-  case Opcode::LOAD_CONST:
-    return true;
-  default:
-    return false;
+  case Opcode::LOAD_CONST:return true;
+  default:return false;
   }
 }
 
@@ -69,10 +66,8 @@ bool ByteCode::HasStrOperand(Opcode Op) {
   case Opcode::LOAD_GLOBAL:
   case Opcode::STORE_LOCAL:
   case Opcode::STORE_GLOBAL:
-  case Opcode::CALL_FUNCTION:
-    return true;
-  default:
-    return false;
+  case Opcode::CALL_FUNCTION:return true;
+  default:return false;
   }
 }
 
@@ -85,10 +80,8 @@ bool ByteCode::HasNoOperand(Opcode Op) {
   case Opcode::UNARY_POSITIVE:
   case Opcode::UNARY_NEGATIVE:
   case Opcode::POP_TOP:
-  case Opcode::PRINT_NEWLINE:
-    return true;
-  default:
-    return false;
+  case Opcode::PRINT_NEWLINE:return true;
+  default:return false;
   }
 }
 
@@ -103,6 +96,14 @@ void ByteCode::Format(std::ostream &O) const {
 
   if (HasStrOperand()) {
     O << std::setw(20) << getStrOperand();
+  }
+}
+
+const char *ByteCode::getOpcodeName(unsigned Op) {
+  switch (Op) {
+  default: assert(false && "Invalid Opcode");
+#define HANDLE_OPCODE(opcode, camelName) case Opcode::opcode: return #opcode;
+#include "simplecc/CodeGen/Opcode.def"
   }
 }
 
