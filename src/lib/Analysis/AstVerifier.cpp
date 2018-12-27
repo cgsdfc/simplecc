@@ -2,56 +2,56 @@
 
 using namespace simplecc;
 
-void AstVerifier::visitWrite(simplecc::Write *WR) {
+void AstVerifier::visitWrite(simplecc::WriteStmt *WR) {
   AssertThat(WR->getStr() || WR->getValue(),
-             "Both Str and Value of Write are empty");
+             "Both StrExpr and Value of WriteStmt are empty");
 }
 
-void AstVerifier::visitWhile(While *W) {
-  AssertThat(IsInstance<BoolOp>(W->getCondition()),
-             "Condition of While must be a BoolOp");
+void AstVerifier::visitWhile(WhileStmt *W) {
+  AssertThat(IsInstance<BoolOpExpr>(W->getCondition()),
+             "Condition of WhileStmt must be a BoolOpExpr");
 }
 
 void AstVerifier::visitConstDecl(ConstDecl *CD) {
   auto Val = CD->getValue();
-  AssertThat(IsInstance<Char>(Val) || IsInstance<Num>(Val),
-             "Value of ConstDecl must be Num or Char");
+  AssertThat(IsInstance<CharExpr>(Val) || IsInstance<NumExpr>(Val),
+             "Value of ConstDecl must be NumExpr or CharExpr");
 }
 
 void AstVerifier::visitExprStmt(ExprStmt *ES) {
-  AssertThat(IsInstance<Call>(ES->getValue()), "ExprStmt must have a Call");
+  AssertThat(IsInstance<CallExpr>(ES->getValue()), "ExprStmt must have a CallExpr");
 }
 
-void AstVerifier::visitIf(If *I) {
-  AssertThat(IsInstance<BoolOp>(I->getTest()), "Test of If must be a BoolOp");
+void AstVerifier::visitIf(IfStmt *I) {
+  AssertThat(IsInstance<BoolOpExpr>(I->getTest()), "Test of IfStmt must be a BoolOpExpr");
 }
 
-void AstVerifier::visitBoolOp(simplecc::BoolOp *B) {
+void AstVerifier::visitBoolOp(simplecc::BoolOpExpr *B) {
   if (B->getHasCmpop()) {
-    AssertThat(IsInstance<BinOp>(B->getValue()), "HasCmpOp implies BinOp");
+    AssertThat(IsInstance<BinOpExpr>(B->getValue()), "HasCmpOp implies BinOpExpr");
   }
 }
 
-void AstVerifier::visitRead(Read *RD) {
+void AstVerifier::visitRead(ReadStmt *RD) {
   for (Expr *E : RD->getNames()) {
-    AssertThat(IsInstance<Name>(E), "Names in Read must be Name");
+    AssertThat(IsInstance<NameExpr>(E), "Names in ReadStmt must be NameExpr");
   }
 }
 
-void AstVerifier::visitAssign(simplecc::Assign *A) {
-  AssertThat(IsInstance<Name>(A->getTarget()) ||
-                 IsInstance<Subscript>(A->getTarget()),
-             "Target of Assign must be Name or Subscript");
+void AstVerifier::visitAssign(simplecc::AssignStmt *A) {
+  AssertThat(IsInstance<NameExpr>(A->getTarget()) ||
+                 IsInstance<SubscriptExpr>(A->getTarget()),
+             "Target of AssignStmt must be NameExpr or SubscriptExpr");
 }
 
-void AstVerifier::visitFor(For *F) {
-  AssertThat(IsInstance<Assign>(F->getInitial()),
-             "Initial of For must be an Assign");
+void AstVerifier::visitFor(ForStmt *F) {
+  AssertThat(IsInstance<AssignStmt>(F->getInitial()),
+             "Initial of ForStmt must be an AssignStmt");
 
-  AssertThat(IsInstance<BoolOp>(F->getCondition()),
-             "Condition of For must be a BoolOp");
+  AssertThat(IsInstance<BoolOpExpr>(F->getCondition()),
+             "Condition of ForStmt must be a BoolOpExpr");
 
-  AssertThat(IsInstance<Assign>(F->getStep()), "Step of For must be an Assign");
+  AssertThat(IsInstance<AssignStmt>(F->getStep()), "Step of ForStmt must be an AssignStmt");
 }
 
 void AstVerifier::visitFuncDef(FuncDef *FD) {

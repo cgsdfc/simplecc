@@ -18,12 +18,9 @@ Constant *LLVMValueMap::getGlobalInitializer(VarDecl *VD) {
 
 Constant *LLVMValueMap::getConstantFromExpr(Expr *E) const {
   switch (E->GetKind()) {
-  case Expr::Num:
-    return getInt(static_cast<Num *>(E)->getN());
-  case Expr::Char:
-    return getChar(static_cast<Char *>(E)->getC());
-  default:
-    llvm_unreachable("Expr must be Num or Char");
+  case Expr::Num:return getInt(static_cast<NumExpr *>(E)->getN());
+  case Expr::Char:return getChar(static_cast<CharExpr *>(E)->getC());
+  default:llvm_unreachable("Expr must be NumExpr or CharExpr");
   }
 }
 

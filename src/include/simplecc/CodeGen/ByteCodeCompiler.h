@@ -23,26 +23,26 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   /// Explicitly do nothing.
   void visitConstDecl(ConstDecl *) {}
 
-  void visitRead(Read *RD);
+  void visitRead(ReadStmt *RD);
 
-  void visitWrite(Write *WR);
+  void visitWrite(WriteStmt *WR);
 
   /// Visit value first and then target. The order of
   /// ChildrenVisitor::visitAssign is unfortunately wrong.
-  void visitAssign(Assign *A) {
+  void visitAssign(AssignStmt *A) {
     visitExpr(A->getValue());
     visitExpr(A->getTarget());
   }
 
-  unsigned CompileBoolOp(BoolOp *B);
+  unsigned CompileBoolOp(BoolOpExpr *B);
 
-  void visitFor(For *node);
+  void visitFor(ForStmt *node);
 
-  void visitWhile(While *W);
+  void visitWhile(WhileStmt *W);
 
-  void visitIf(If *I);
+  void visitIf(IfStmt *I);
 
-  void visitReturn(Return *R);
+  void visitReturn(ReturnStmt *R);
 
   void visitExprStmt(ExprStmt *ES) {
     ChildrenVisitor::visitExprStmt(ES);
@@ -50,28 +50,28 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
     Builder.CreatePopTop();
   }
 
-  void visitBoolOp(BoolOp *) {
-    assert(false && "BoolOp should be handled by CompileBoolOp()");
+  void visitBoolOp(BoolOpExpr *) {
+    assert(false && "BoolOpExpr should be handled by CompileBoolOp()");
   }
 
-  void visitUnaryOp(UnaryOp *U) {
+  void visitUnaryOp(UnaryOpExpr *U) {
     ChildrenVisitor::visitUnaryOp(U);
     Builder.CreateUnary(U->getOp());
   }
 
-  void visitBinOp(BinOp *B) {
+  void visitBinOp(BinOpExpr *B) {
     ChildrenVisitor::visitBinOp(B);
     Builder.CreateBinary(B->getOp());
   }
 
-  void visitCall(Call *C);
-  void visitNum(Num *N) { Builder.CreateLoadConst(N->getN()); }
-  void visitChar(Char *C) { Builder.CreateLoadConst(C->getC()); }
-  void visitStr(Str *S);
+  void visitCall(CallExpr *C);
+  void visitNum(NumExpr *N) { Builder.CreateLoadConst(N->getN()); }
+  void visitChar(CharExpr *C) { Builder.CreateLoadConst(C->getC()); }
+  void visitStr(StrExpr *S);
 
-  void visitSubscript(Subscript *SB);
+  void visitSubscript(SubscriptExpr *SB);
 
-  void visitName(Name *N);
+  void visitName(NameExpr *N);
 
   void visitFuncDef(FuncDef *FD);
 

@@ -33,7 +33,7 @@ bool LLVMIRCompiler::Compile() {
 bool LLVMIRCompiler::visitStmtList(const std::vector<Stmt *> &StatementList) {
   for (Stmt *S : StatementList) {
     visitStmt(S);
-    if (IsInstance<Return>(S)) {
+    if (IsInstance<ReturnStmt>(S)) {
       /// We see a Return.
       return false;
     }
@@ -42,7 +42,7 @@ bool LLVMIRCompiler::visitStmtList(const std::vector<Stmt *> &StatementList) {
   return true;
 }
 
-Value *LLVMIRCompiler::visitUnaryOp(UnaryOp *U) {
+Value *LLVMIRCompiler::visitUnaryOp(UnaryOpExpr *U) {
   Value *Operand = visitExprPromoteToInt(U->getOperand());
   switch (U->getOp()) {
   case UnaryopKind::USub:
@@ -71,7 +71,7 @@ Function *LLVMIRCompiler::DeclareIOBuiltins(const char *Name) {
       /* FunctionType */ FT,
       /* Linkage */ Function::ExternalLinkage,
       /* AddressSpace */ 0,
-      /* Name */ Name,
+      /* NameExpr */ Name,
       /* Module */ &TheModule);
   return Fn;
 }
@@ -81,15 +81,15 @@ Value *LLVMIRCompiler::getString(StringRef Str) {
   return Builder.CreateGlobalStringPtr(Str);
 }
 
-Value *LLVMIRCompiler::visitStr(Str *S) {
+Value *LLVMIRCompiler::visitStr(StrExpr *S) {
   /// Strip quotes first.
   auto &&Str = S->getS();
-  assert(Str.size() >= 2 && "Str must have quotes");
+  assert(Str.size() >= 2 && "StrExpr must have quotes");
   String Stripped(Str.begin() + 1, Str.end() - 1);
   return getString(Stripped);
 }
 
-Value *LLVMIRCompiler::visitName(Name *Nn) {
+Value *LLVMIRCompiler::visitName(NameExpr *Nn) {
   Value *Val = LocalValues[Nn->getId()];
   assert(Val);
 
@@ -113,7 +113,7 @@ Value *LLVMIRCompiler::visitName(Name *Nn) {
 /// is true. We have those in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
 /// => bool -- already a bool. Form-2: <Expr> => int -- not a bool yet,
 /// compare it to int(0).
-Value *LLVMIRCompiler::visitBoolOp(BoolOp *B) {
+Value *LLVMIRCompiler::visitBoolOp(BoolOpExpr *B) {
   Value *Val = visitExpr(B->getValue());
 
   if (Val->getType() == VM.getBoolType()) {
@@ -125,7 +125,7 @@ Value *LLVMIRCompiler::visitBoolOp(BoolOp *B) {
     return Builder.CreateICmpNE(Val, VM.getInt(0), "cmp");
   } else {
     /// This is impossible. Char must be promoted to int to reach BoolOp.
-    llvm_unreachable("Char cannot be!");
+    llvm_unreachable("CharExpr cannot be!");
   }
 }
 
@@ -140,7 +140,7 @@ Value *LLVMIRCompiler::PromoteToInt(Value *Val) {
 }
 
 /// BinOp requires both operands to be int's.
-Value *LLVMIRCompiler::visitBinOp(BinOp *B) {
+Value *LLVMIRCompiler::visitBinOp(BinOpExpr *B) {
   Value *L = visitExprPromoteToInt(B->getLeft());
   Value *R = visitExprPromoteToInt(B->getRight());
   switch (B->getOp()) {
@@ -167,7 +167,7 @@ Value *LLVMIRCompiler::visitBinOp(BinOp *B) {
   }
 }
 
-void LLVMIRCompiler::visitIf(If *I) {
+void LLVMIRCompiler::visitIf(IfStmt *I) {
   Function *TheFunction = Builder.GetInsertBlock()->getParent();
   /// Emit the condition evaluation, which continues in the current BasicBlock.
   Value *CondV = visitExpr(I->getTest());
@@ -198,7 +198,7 @@ void LLVMIRCompiler::visitIf(If *I) {
   Builder.SetInsertPoint(End);
 }
 
-void LLVMIRCompiler::visitWhile(While *W) {
+void LLVMIRCompiler::visitWhile(WhileStmt *W) {
   /// Get the Parent to put BasicBlock's in it.
   Function *TheFunction = Builder.GetInsertBlock()->getParent();
   /// Create the BB for `loop`, which contains evaluation the condition
@@ -231,7 +231,7 @@ void LLVMIRCompiler::visitWhile(While *W) {
 /// For is the most complicated beast, and with the requirement to
 /// execute the body **before** the evaluation of condition at first
 /// make it no like ordinary for.
-void LLVMIRCompiler::visitFor(For *F) {
+void LLVMIRCompiler::visitFor(ForStmt *F) {
   Function *TheFunction = Builder.GetInsertBlock()->getParent();
   /// Create all the BasicBlock's involved all at once.
   BasicBlock *Body = BasicBlock::Create(TheContext, "body", TheFunction);
@@ -261,7 +261,7 @@ void LLVMIRCompiler::visitFor(For *F) {
   Builder.SetInsertPoint(End);
 }
 
-Value *LLVMIRCompiler::visitCall(Call *C) {
+Value *LLVMIRCompiler::visitCall(CallExpr *C) {
   Value *Callee = LocalValues[C->getFunc()];
   assert(Callee && "Callee must be created");
   std::vector<Value *> ArgsV;
@@ -273,7 +273,7 @@ Value *LLVMIRCompiler::visitCall(Call *C) {
   return Builder.CreateCall(Callee, ArgsV);
 }
 
-void LLVMIRCompiler::visitReturn(Return *Ret) {
+void LLVMIRCompiler::visitReturn(ReturnStmt *Ret) {
   if (Ret->getValue()) {
     Value *Val = visitExpr(Ret->getValue());
     Builder.CreateRet(Val);
@@ -282,14 +282,14 @@ void LLVMIRCompiler::visitReturn(Return *Ret) {
   }
 }
 
-void LLVMIRCompiler::visitAssign(Assign *A) {
+void LLVMIRCompiler::visitAssign(AssignStmt *A) {
   Value *RHS = visitExpr(A->getValue());
   Value *LHS = visitExpr(A->getTarget());
   Builder.CreateStore(RHS, LHS);
 }
 
 /// The logic varies depending on whether it is a load/store
-Value *LLVMIRCompiler::visitSubscript(Subscript *SB) {
+Value *LLVMIRCompiler::visitSubscript(SubscriptExpr *SB) {
   Value *Array = LocalValues[SB->getName()];
 
   assert(Array && "Array Value must exist");
@@ -312,7 +312,7 @@ Value *LLVMIRCompiler::visitSubscript(Subscript *SB) {
   }
 }
 
-void LLVMIRCompiler::visitRead(Read *RD) {
+void LLVMIRCompiler::visitRead(ReadStmt *RD) {
   /// XXX: getFunction() may have different behavior than
   /// getGlobalVariable(). Unify with GlobalValues[<name>].
   Function *Scanf = TheModule.getFunction("scanf");
@@ -334,7 +334,7 @@ void LLVMIRCompiler::visitRead(Read *RD) {
   };
 
   for (Expr *E : RD->getNames()) {
-    auto Nn = static_cast<Name *>(E);
+    auto Nn = static_cast<NameExpr *>(E);
     Value *FmtV = getString(SelectFmtSpc(Nn));
     Value *Var = LocalValues[Nn->getId()];
     assert(Var && "Var must be created");
@@ -350,7 +350,7 @@ void LLVMIRCompiler::visitRead(Read *RD) {
 ///      a printf("%s\n", Str) for printf(<string>);
 ///      a printf("%s%d\n", Str, Var) for printf(<string>, <int-expr>);
 ///      a printf("%s%c\n", Str, Var) for printf(<string>, <char-expr>);
-void LLVMIRCompiler::visitWrite(Write *WR) {
+void LLVMIRCompiler::visitWrite(WriteStmt *WR) {
   /// A small lambda to select the appropriate format specifier.
   auto SelectFmtSpc = [WR, this]() {
     if (!WR->getValue()) {
@@ -397,7 +397,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   Function *TheFunction = Function::Create(
       /* FunctionType */ VM.getTypeFromFuncDef(FD),
       /* Linkage */ Function::ExternalLinkage,
-      /* Name */ FD->getName(),
+      /* NameExpr */ FD->getName(),
       /* Module */ &TheModule);
   GlobalValues.emplace(FD->getName(), TheFunction);
 
@@ -499,7 +499,7 @@ void LLVMIRCompiler::visitConstDecl(ConstDecl *CD) {
       /* IsConstant */ true,
       /* Linkage */ GlobalVariable::ExternalLinkage,
       /* Initializer */ VM.getConstantFromExpr(CD->getValue()),
-      /* Name */ CD->getName());
+      /* NameExpr */ CD->getName());
   GlobalValues.emplace(CD->getName(), GV);
 }
 
@@ -511,7 +511,7 @@ void LLVMIRCompiler::visitVarDecl(VarDecl *VD) {
       /* IsConstant */ false,
       /* Linkage */ GlobalVariable::ExternalLinkage,
       /* Initializer */ VM.getGlobalInitializer(VD),
-      /* Name */ VD->getName());
+      /* NameExpr */ VD->getName());
   GlobalValues.emplace(VD->getName(), GV);
 }
 

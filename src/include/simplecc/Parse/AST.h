@@ -29,25 +29,25 @@ class VarDecl;
 class FuncDef;
 class ArgDecl;
 class Stmt;
-class Read;
-class Write;
-class Assign;
-class For;
-class While;
-class Return;
-class If;
+class ReadStmt;
+class WriteStmt;
+class AssignStmt;
+class ForStmt;
+class WhileStmt;
+class ReturnStmt;
+class IfStmt;
 class ExprStmt;
 class Expr;
-class BinOp;
+class BinOpExpr;
 class ParenExpr;
-class BoolOp;
-class UnaryOp;
-class Call;
-class Num;
-class Str;
-class Char;
-class Subscript;
-class Name;
+class BoolOpExpr;
+class UnaryOpExpr;
+class CallExpr;
+class NumExpr;
+class StrExpr;
+class CharExpr;
+class SubscriptExpr;
+class NameExpr;
 
 // EnumClass
 
@@ -248,22 +248,22 @@ public:
   BasicTypeKind getType() const { return type; }
 };
 
-class Read : public Stmt {
+class ReadStmt : public Stmt {
 public:
   std::vector<Expr *> names;
 
-  Read(std::vector<Expr *> names, const Location &loc)
+  ReadStmt(std::vector<Expr *> names, const Location &loc)
       : Stmt(Stmt::Read, loc), names(std::move(names)) {}
 
   // Disable copy and move.
-  Read(const Read &) = delete;
-  Read(Read &&) = delete;
-  Read &operator=(const Read &) = delete;
-  Read &operator=(Read &&) = delete;
+  ReadStmt(const ReadStmt &) = delete;
+  ReadStmt(ReadStmt &&) = delete;
+  ReadStmt &operator=(const ReadStmt &) = delete;
+  ReadStmt &operator=(ReadStmt &&) = delete;
 
-  ~Read() override;
+  ~ReadStmt() override;
 
-  const char *GetClassName() const override { return "Read"; }
+  const char *GetClassName() const override { return "ReadStmt"; }
 
   void Format(std::ostream &os) const override;
 
@@ -272,23 +272,23 @@ public:
   const std::vector<Expr *> &getNames() const { return names; }
 };
 
-class Write : public Stmt {
+class WriteStmt : public Stmt {
 public:
   Expr *str;
   Expr *value;
 
-  Write(Expr *str, Expr *value, const Location &loc)
+  WriteStmt(Expr *str, Expr *value, const Location &loc)
       : Stmt(Stmt::Write, loc), str(str), value(value) {}
 
   // Disable copy and move.
-  Write(const Write &) = delete;
-  Write(Write &&) = delete;
-  Write &operator=(const Write &) = delete;
-  Write &operator=(Write &&) = delete;
+  WriteStmt(const WriteStmt &) = delete;
+  WriteStmt(WriteStmt &&) = delete;
+  WriteStmt &operator=(const WriteStmt &) = delete;
+  WriteStmt &operator=(WriteStmt &&) = delete;
 
-  ~Write() override;
+  ~WriteStmt() override;
 
-  const char *GetClassName() const override { return "Write"; }
+  const char *GetClassName() const override { return "WriteStmt"; }
 
   void Format(std::ostream &os) const override;
 
@@ -298,23 +298,23 @@ public:
   Expr *getValue() const { return value; }
 };
 
-class Assign : public Stmt {
+class AssignStmt : public Stmt {
 public:
   Expr *target;
   Expr *value;
 
-  Assign(Expr *target, Expr *value, const Location &loc)
+  AssignStmt(Expr *target, Expr *value, const Location &loc)
       : Stmt(Stmt::Assign, loc), target(target), value(value) {}
 
   // Disable copy and move.
-  Assign(const Assign &) = delete;
-  Assign(Assign &&) = delete;
-  Assign &operator=(const Assign &) = delete;
-  Assign &operator=(Assign &&) = delete;
+  AssignStmt(const AssignStmt &) = delete;
+  AssignStmt(AssignStmt &&) = delete;
+  AssignStmt &operator=(const AssignStmt &) = delete;
+  AssignStmt &operator=(AssignStmt &&) = delete;
 
-  ~Assign() override;
+  ~AssignStmt() override;
 
-  const char *GetClassName() const override { return "Assign"; }
+  const char *GetClassName() const override { return "AssignStmt"; }
 
   void Format(std::ostream &os) const override;
 
@@ -324,27 +324,27 @@ public:
   Expr *getValue() const { return value; }
 };
 
-class For : public Stmt {
+class ForStmt : public Stmt {
 public:
   Stmt *initial;
   Expr *condition;
   Stmt *step;
   std::vector<Stmt *> body;
 
-  For(Stmt *initial, Expr *condition, Stmt *step, std::vector<Stmt *> body,
-      const Location &loc)
+  ForStmt(Stmt *initial, Expr *condition, Stmt *step, std::vector<Stmt *> body,
+          const Location &loc)
       : Stmt(Stmt::For, loc), initial(initial), condition(condition),
         step(step), body(std::move(body)) {}
 
   // Disable copy and move.
-  For(const For &) = delete;
-  For(For &&) = delete;
-  For &operator=(const For &) = delete;
-  For &operator=(For &&) = delete;
+  ForStmt(const ForStmt &) = delete;
+  ForStmt(ForStmt &&) = delete;
+  ForStmt &operator=(const ForStmt &) = delete;
+  ForStmt &operator=(ForStmt &&) = delete;
 
-  ~For() override;
+  ~ForStmt() override;
 
-  const char *GetClassName() const override { return "For"; }
+  const char *GetClassName() const override { return "ForStmt"; }
 
   void Format(std::ostream &os) const override;
 
@@ -357,23 +357,23 @@ public:
   const std::vector<Stmt *> &getBody() const { return body; }
 };
 
-class While : public Stmt {
+class WhileStmt : public Stmt {
 public:
   Expr *condition;
   std::vector<Stmt *> body;
 
-  While(Expr *condition, std::vector<Stmt *> body, const Location &loc)
+  WhileStmt(Expr *condition, std::vector<Stmt *> body, const Location &loc)
       : Stmt(Stmt::While, loc), condition(condition), body(std::move(body)) {}
 
   // Disable copy and move.
-  While(const While &) = delete;
-  While(While &&) = delete;
-  While &operator=(const While &) = delete;
-  While &operator=(While &&) = delete;
+  WhileStmt(const WhileStmt &) = delete;
+  WhileStmt(WhileStmt &&) = delete;
+  WhileStmt &operator=(const WhileStmt &) = delete;
+  WhileStmt &operator=(WhileStmt &&) = delete;
 
-  ~While() override;
+  ~WhileStmt() override;
 
-  const char *GetClassName() const override { return "While"; }
+  const char *GetClassName() const override { return "WhileStmt"; }
 
   void Format(std::ostream &os) const override;
 
@@ -384,22 +384,22 @@ public:
   const std::vector<Stmt *> &getBody() const { return body; }
 };
 
-class Return : public Stmt {
+class ReturnStmt : public Stmt {
 public:
   Expr *value;
 
-  Return(Expr *value, const Location &loc)
+  ReturnStmt(Expr *value, const Location &loc)
       : Stmt(Stmt::Return, loc), value(value) {}
 
   // Disable copy and move.
-  Return(const Return &) = delete;
-  Return(Return &&) = delete;
-  Return &operator=(const Return &) = delete;
-  Return &operator=(Return &&) = delete;
+  ReturnStmt(const ReturnStmt &) = delete;
+  ReturnStmt(ReturnStmt &&) = delete;
+  ReturnStmt &operator=(const ReturnStmt &) = delete;
+  ReturnStmt &operator=(ReturnStmt &&) = delete;
 
-  ~Return() override;
+  ~ReturnStmt() override;
 
-  const char *GetClassName() const override { return "Return"; }
+  const char *GetClassName() const override { return "ReturnStmt"; }
 
   void Format(std::ostream &os) const override;
 
@@ -408,26 +408,26 @@ public:
   Expr *getValue() const { return value; }
 };
 
-class If : public Stmt {
+class IfStmt : public Stmt {
 public:
   Expr *test;
   std::vector<Stmt *> body;
   std::vector<Stmt *> orelse;
 
-  If(Expr *test, std::vector<Stmt *> body, std::vector<Stmt *> orelse,
-     const Location &loc)
+  IfStmt(Expr *test, std::vector<Stmt *> body, std::vector<Stmt *> orelse,
+         const Location &loc)
       : Stmt(Stmt::If, loc), test(test), body(std::move(body)),
         orelse(std::move(orelse)) {}
 
   // Disable copy and move.
-  If(const If &) = delete;
-  If(If &&) = delete;
-  If &operator=(const If &) = delete;
-  If &operator=(If &&) = delete;
+  IfStmt(const IfStmt &) = delete;
+  IfStmt(IfStmt &&) = delete;
+  IfStmt &operator=(const IfStmt &) = delete;
+  IfStmt &operator=(IfStmt &&) = delete;
 
-  ~If() override;
+  ~IfStmt() override;
 
-  const char *GetClassName() const override { return "If"; }
+  const char *GetClassName() const override { return "IfStmt"; }
 
   void Format(std::ostream &os) const override;
 
@@ -464,24 +464,24 @@ public:
   Expr *getValue() const { return value; }
 };
 
-class BinOp : public Expr {
+class BinOpExpr : public Expr {
 public:
   Expr *left;
   OperatorKind op;
   Expr *right;
 
-  BinOp(Expr *left, OperatorKind op, Expr *right, const Location &loc)
+  BinOpExpr(Expr *left, OperatorKind op, Expr *right, const Location &loc)
       : Expr(Expr::BinOp, loc), left(left), op(op), right(right) {}
 
   // Disable copy and move.
-  BinOp(const BinOp &) = delete;
-  BinOp(BinOp &&) = delete;
-  BinOp &operator=(const BinOp &) = delete;
-  BinOp &operator=(BinOp &&) = delete;
+  BinOpExpr(const BinOpExpr &) = delete;
+  BinOpExpr(BinOpExpr &&) = delete;
+  BinOpExpr &operator=(const BinOpExpr &) = delete;
+  BinOpExpr &operator=(BinOpExpr &&) = delete;
 
-  ~BinOp() override;
+  ~BinOpExpr() override;
 
-  const char *GetClassName() const override { return "BinOp"; }
+  const char *GetClassName() const override { return "BinOpExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -516,23 +516,23 @@ public:
   Expr *getValue() const { return value; }
 };
 
-class BoolOp : public Expr {
+class BoolOpExpr : public Expr {
 public:
   Expr *value;
   int has_cmpop;
 
-  BoolOp(Expr *value, int has_cmpop, const Location &loc)
+  BoolOpExpr(Expr *value, int has_cmpop, const Location &loc)
       : Expr(Expr::BoolOp, loc), value(value), has_cmpop(has_cmpop) {}
 
   // Disable copy and move.
-  BoolOp(const BoolOp &) = delete;
-  BoolOp(BoolOp &&) = delete;
-  BoolOp &operator=(const BoolOp &) = delete;
-  BoolOp &operator=(BoolOp &&) = delete;
+  BoolOpExpr(const BoolOpExpr &) = delete;
+  BoolOpExpr(BoolOpExpr &&) = delete;
+  BoolOpExpr &operator=(const BoolOpExpr &) = delete;
+  BoolOpExpr &operator=(BoolOpExpr &&) = delete;
 
-  ~BoolOp() override;
+  ~BoolOpExpr() override;
 
-  const char *GetClassName() const override { return "BoolOp"; }
+  const char *GetClassName() const override { return "BoolOpExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -543,23 +543,23 @@ public:
   int getHasCmpop() const { return has_cmpop; }
 };
 
-class UnaryOp : public Expr {
+class UnaryOpExpr : public Expr {
 public:
   UnaryopKind op;
   Expr *operand;
 
-  UnaryOp(UnaryopKind op, Expr *operand, const Location &loc)
+  UnaryOpExpr(UnaryopKind op, Expr *operand, const Location &loc)
       : Expr(Expr::UnaryOp, loc), op(op), operand(operand) {}
 
   // Disable copy and move.
-  UnaryOp(const UnaryOp &) = delete;
-  UnaryOp(UnaryOp &&) = delete;
-  UnaryOp &operator=(const UnaryOp &) = delete;
-  UnaryOp &operator=(UnaryOp &&) = delete;
+  UnaryOpExpr(const UnaryOpExpr &) = delete;
+  UnaryOpExpr(UnaryOpExpr &&) = delete;
+  UnaryOpExpr &operator=(const UnaryOpExpr &) = delete;
+  UnaryOpExpr &operator=(UnaryOpExpr &&) = delete;
 
-  ~UnaryOp() override;
+  ~UnaryOpExpr() override;
 
-  const char *GetClassName() const override { return "UnaryOp"; }
+  const char *GetClassName() const override { return "UnaryOpExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -569,23 +569,23 @@ public:
   Expr *getOperand() const { return operand; }
 };
 
-class Call : public Expr {
+class CallExpr : public Expr {
 public:
   std::string func;
   std::vector<Expr *> args;
 
-  Call(std::string func, std::vector<Expr *> args, const Location &loc)
+  CallExpr(std::string func, std::vector<Expr *> args, const Location &loc)
       : Expr(Expr::Call, loc), func(std::move(func)), args(std::move(args)) {}
 
   // Disable copy and move.
-  Call(const Call &) = delete;
-  Call(Call &&) = delete;
-  Call &operator=(const Call &) = delete;
-  Call &operator=(Call &&) = delete;
+  CallExpr(const CallExpr &) = delete;
+  CallExpr(CallExpr &&) = delete;
+  CallExpr &operator=(const CallExpr &) = delete;
+  CallExpr &operator=(CallExpr &&) = delete;
 
-  ~Call() override;
+  ~CallExpr() override;
 
-  const char *GetClassName() const override { return "Call"; }
+  const char *GetClassName() const override { return "CallExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -596,21 +596,21 @@ public:
   const std::vector<Expr *> &getArgs() const { return args; }
 };
 
-class Num : public Expr {
+class NumExpr : public Expr {
 public:
   int n;
 
-  Num(int n, const Location &loc) : Expr(Expr::Num, loc), n(n) {}
+  NumExpr(int n, const Location &loc) : Expr(Expr::Num, loc), n(n) {}
 
   // Disable copy and move.
-  Num(const Num &) = delete;
-  Num(Num &&) = delete;
-  Num &operator=(const Num &) = delete;
-  Num &operator=(Num &&) = delete;
+  NumExpr(const NumExpr &) = delete;
+  NumExpr(NumExpr &&) = delete;
+  NumExpr &operator=(const NumExpr &) = delete;
+  NumExpr &operator=(NumExpr &&) = delete;
 
-  ~Num() override;
+  ~NumExpr() override;
 
-  const char *GetClassName() const override { return "Num"; }
+  const char *GetClassName() const override { return "NumExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -619,22 +619,22 @@ public:
   int getN() const { return n; }
 };
 
-class Str : public Expr {
+class StrExpr : public Expr {
 public:
   std::string s;
 
-  Str(std::string s, const Location &loc)
+  StrExpr(std::string s, const Location &loc)
       : Expr(Expr::Str, loc), s(std::move(s)) {}
 
   // Disable copy and move.
-  Str(const Str &) = delete;
-  Str(Str &&) = delete;
-  Str &operator=(const Str &) = delete;
-  Str &operator=(Str &&) = delete;
+  StrExpr(const StrExpr &) = delete;
+  StrExpr(StrExpr &&) = delete;
+  StrExpr &operator=(const StrExpr &) = delete;
+  StrExpr &operator=(StrExpr &&) = delete;
 
-  ~Str() override;
+  ~StrExpr() override;
 
-  const char *GetClassName() const override { return "Str"; }
+  const char *GetClassName() const override { return "StrExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -643,21 +643,21 @@ public:
   const std::string &getS() const { return s; }
 };
 
-class Char : public Expr {
+class CharExpr : public Expr {
 public:
   int c;
 
-  Char(int c, const Location &loc) : Expr(Expr::Char, loc), c(c) {}
+  CharExpr(int c, const Location &loc) : Expr(Expr::Char, loc), c(c) {}
 
   // Disable copy and move.
-  Char(const Char &) = delete;
-  Char(Char &&) = delete;
-  Char &operator=(const Char &) = delete;
-  Char &operator=(Char &&) = delete;
+  CharExpr(const CharExpr &) = delete;
+  CharExpr(CharExpr &&) = delete;
+  CharExpr &operator=(const CharExpr &) = delete;
+  CharExpr &operator=(CharExpr &&) = delete;
 
-  ~Char() override;
+  ~CharExpr() override;
 
-  const char *GetClassName() const override { return "Char"; }
+  const char *GetClassName() const override { return "CharExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -666,26 +666,26 @@ public:
   int getC() const { return c; }
 };
 
-class Subscript : public Expr {
+class SubscriptExpr : public Expr {
 public:
   std::string name;
   Expr *index;
   ExprContextKind ctx;
 
-  Subscript(std::string name, Expr *index, ExprContextKind ctx,
-            const Location &loc)
+  SubscriptExpr(std::string name, Expr *index, ExprContextKind ctx,
+                const Location &loc)
       : Expr(Expr::Subscript, loc), name(std::move(name)), index(index),
         ctx(ctx) {}
 
   // Disable copy and move.
-  Subscript(const Subscript &) = delete;
-  Subscript(Subscript &&) = delete;
-  Subscript &operator=(const Subscript &) = delete;
-  Subscript &operator=(Subscript &&) = delete;
+  SubscriptExpr(const SubscriptExpr &) = delete;
+  SubscriptExpr(SubscriptExpr &&) = delete;
+  SubscriptExpr &operator=(const SubscriptExpr &) = delete;
+  SubscriptExpr &operator=(SubscriptExpr &&) = delete;
 
-  ~Subscript() override;
+  ~SubscriptExpr() override;
 
-  const char *GetClassName() const override { return "Subscript"; }
+  const char *GetClassName() const override { return "SubscriptExpr"; }
 
   void Format(std::ostream &os) const override;
 
@@ -696,23 +696,23 @@ public:
   ExprContextKind getCtx() const { return ctx; }
 };
 
-class Name : public Expr {
+class NameExpr : public Expr {
 public:
   std::string id;
   ExprContextKind ctx;
 
-  Name(std::string id, ExprContextKind ctx, const Location &loc)
+  NameExpr(std::string id, ExprContextKind ctx, const Location &loc)
       : Expr(Expr::Name, loc), id(std::move(id)), ctx(ctx) {}
 
   // Disable copy and move.
-  Name(const Name &) = delete;
-  Name(Name &&) = delete;
-  Name &operator=(const Name &) = delete;
-  Name &operator=(Name &&) = delete;
+  NameExpr(const NameExpr &) = delete;
+  NameExpr(NameExpr &&) = delete;
+  NameExpr &operator=(const NameExpr &) = delete;
+  NameExpr &operator=(NameExpr &&) = delete;
 
-  ~Name() override;
+  ~NameExpr() override;
 
-  const char *GetClassName() const override { return "Name"; }
+  const char *GetClassName() const override { return "NameExpr"; }
 
   void Format(std::ostream &os) const override;
 

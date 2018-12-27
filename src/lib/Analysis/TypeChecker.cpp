@@ -10,9 +10,9 @@ bool TypeChecker::Check(Program *P, SymbolTable &S) {
   return !EM.IsOk();
 }
 
-void TypeChecker::visitRead(Read *RD) {
+void TypeChecker::visitRead(ReadStmt *RD) {
   for (auto E : RD->getNames()) {
-    auto N = subclass_cast<Name>(E);
+    auto N = subclass_cast<NameExpr>(E);
     assert(N);
     const auto &Entry = TheLocalTable[N->getId()];
     if (!Entry.IsVariable()) {
@@ -24,13 +24,13 @@ void TypeChecker::visitRead(Read *RD) {
   }
 }
 
-void TypeChecker::visitWrite(Write *WR) {
+void TypeChecker::visitWrite(WriteStmt *WR) {
   if (WR->getValue()) {
     CheckExprOperand(WR->getValue());
   }
 }
 
-void TypeChecker::visitReturn(Return *R) {
+void TypeChecker::visitReturn(ReturnStmt *R) {
   auto ActuallyReturn =
       R->getValue() ? visitExpr(R->getValue()) : BasicTypeKind::Void;
   auto ShouldReturn = TheFuncDef->getReturnType();
@@ -42,7 +42,7 @@ void TypeChecker::visitReturn(Return *R) {
   }
 }
 
-void TypeChecker::visitAssign(Assign *A) {
+void TypeChecker::visitAssign(AssignStmt *A) {
   int Errs = EM.getErrorCount();
   auto RHS = CheckExprOperand(A->getValue());
   auto LHS = visitExpr(A->getTarget());
@@ -53,7 +53,7 @@ void TypeChecker::visitAssign(Assign *A) {
   }
 }
 
-// check the operand of BoolOp, restrict to int
+// check the operand of BoolOpExpr, restrict to int
 void TypeChecker::CheckBoolOpOperand(Expr *E) {
   auto Msg = "operands of condition must be all int";
   auto Errs = EM.getErrorCount();
@@ -63,9 +63,9 @@ void TypeChecker::CheckBoolOpOperand(Expr *E) {
   }
 }
 
-BasicTypeKind TypeChecker::visitBoolOp(BoolOp *B) {
+BasicTypeKind TypeChecker::visitBoolOp(BoolOpExpr *B) {
   if (B->getHasCmpop()) {
-    auto Bin = static_cast<BinOp *>(B->getValue());
+    auto Bin = static_cast<BinOpExpr *>(B->getValue());
     CheckBoolOpOperand(Bin->getLeft());
     CheckBoolOpOperand(Bin->getRight());
   } else {
@@ -85,13 +85,13 @@ BasicTypeKind TypeChecker::CheckExprOperand(Expr *E) {
   return T;
 }
 
-BasicTypeKind TypeChecker::visitBinOp(BinOp *B) {
+BasicTypeKind TypeChecker::visitBinOp(BinOpExpr *B) {
   CheckExprOperand(B->getLeft());
   CheckExprOperand(B->getRight());
   return BasicTypeKind::Int;
 }
 
-BasicTypeKind TypeChecker::visitUnaryOp(UnaryOp *U) {
+BasicTypeKind TypeChecker::visitUnaryOp(UnaryOpExpr *U) {
   CheckExprOperand(U->getOperand());
   return BasicTypeKind::Int;
 }
@@ -101,7 +101,7 @@ BasicTypeKind TypeChecker::visitParenExpr(ParenExpr *PE) {
   return BasicTypeKind::Int;
 }
 
-BasicTypeKind TypeChecker::visitCall(Call *C) {
+BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
   const auto &Entry = TheLocalTable[C->getFunc()];
   if (!Entry.IsFunction()) {
     EM.Error(C->getLoc(), Entry.getName(), "is not a function");
@@ -129,7 +129,7 @@ BasicTypeKind TypeChecker::visitCall(Call *C) {
   return Ty.getReturnType();
 }
 
-BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
+BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
   const auto &Entry = TheLocalTable[SB->getName()];
   if (!Entry.IsArray()) {
     EM.Error(SB->getLoc(), Entry.getName(), "is not an array");
@@ -145,7 +145,7 @@ BasicTypeKind TypeChecker::visitSubscript(Subscript *SB) {
   return Entry.AsArray().getElementType();
 }
 
-BasicTypeKind TypeChecker::visitName(Name *N) {
+BasicTypeKind TypeChecker::visitName(NameExpr *N) {
   const auto &Entry = TheLocalTable[N->getId()];
   if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
     EM.Error(N->getLoc(), "using an array in an expression");
@@ -161,7 +161,7 @@ BasicTypeKind TypeChecker::visitName(Name *N) {
 }
 
 // not actually used, for instantiation only
-BasicTypeKind TypeChecker::visitStr(Str *) {
+BasicTypeKind TypeChecker::visitStr(StrExpr *) {
   assert(false && "visitStr() shall not be called");
   return BasicTypeKind::Void;
 }

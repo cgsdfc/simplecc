@@ -4,19 +4,19 @@
 
 using namespace simplecc;
 
-void ImplicitCallTransformer::visitWrite(Write *W) {
+void ImplicitCallTransformer::visitWrite(WriteStmt *W) {
   if (W->getValue()) {
     TransformExpr(W->value);
   }
 }
 
-void ImplicitCallTransformer::visitAssign(Assign *A) {
+void ImplicitCallTransformer::visitAssign(AssignStmt *A) {
   /// Don't transform the target!
   visitExpr(A->getTarget());
   TransformExpr(A->value);
 }
 
-void ImplicitCallTransformer::visitFor(For *F) {
+void ImplicitCallTransformer::visitFor(ForStmt *F) {
   visitStmt(F->initial);
   TransformExpr(F->condition);
   visitStmt(F->getStep());
@@ -25,20 +25,20 @@ void ImplicitCallTransformer::visitFor(For *F) {
   }
 }
 
-void ImplicitCallTransformer::visitWhile(While *W) {
+void ImplicitCallTransformer::visitWhile(WhileStmt *W) {
   TransformExpr(W->condition);
   for (auto s : W->getBody()) {
     visitStmt(s);
   }
 }
 
-void ImplicitCallTransformer::visitReturn(Return *R) {
+void ImplicitCallTransformer::visitReturn(ReturnStmt *R) {
   if (R->getValue()) {
     TransformExpr(R->value);
   }
 }
 
-void ImplicitCallTransformer::visitIf(If *I) {
+void ImplicitCallTransformer::visitIf(IfStmt *I) {
   TransformExpr(I->test);
   for (auto s : I->getBody()) {
     visitStmt(s);
@@ -48,12 +48,12 @@ void ImplicitCallTransformer::visitIf(If *I) {
   }
 }
 
-void ImplicitCallTransformer::visitBinOp(BinOp *B) {
+void ImplicitCallTransformer::visitBinOp(BinOpExpr *B) {
   TransformExpr(B->left);
   TransformExpr(B->right);
 }
 
-void ImplicitCallTransformer::visitCall(Call *C) {
+void ImplicitCallTransformer::visitCall(CallExpr *C) {
   for (int I = 0, Size = C->getArgs().size(); I < Size; I++) {
     TransformExpr(C->args[I]);
   }
@@ -73,12 +73,12 @@ void ImplicitCallTransformer::visitFuncDef(FuncDef *FD) {
 /// perform any transformation.
 /// Note: This modifies its argument with reference!
 void ImplicitCallTransformer::TransformExpr(Expr *&E) {
-  if (!IsInstance<Name>(E))
+  if (!IsInstance<NameExpr>(E))
     return visitExpr(E);
-  Name *N = static_cast<Name *>(E);
+  NameExpr *N = static_cast<NameExpr *>(E);
   if (!TheLocalTable[N->getId()].IsFunction())
     return visitExpr(E);
-  Call *C = new Call(N->getId(), {}, E->getLoc());
+  CallExpr *C = new CallExpr(N->getId(), {}, E->getLoc());
   delete E;
   E = C;
 }

@@ -19,16 +19,16 @@ void ByteCodeCompiler::visitVarDecl(VarDecl *VD) {
   TheFunction->GetLocalVariables().push_back(TheLocalTable[VD->getName()]);
 }
 
-void ByteCodeCompiler::visitRead(Read *RD) {
+void ByteCodeCompiler::visitRead(ReadStmt *RD) {
   for (auto E : RD->getNames()) {
-    auto N = static_cast<Name *>(E);
+    auto N = static_cast<NameExpr *>(E);
     const auto &Entry = TheLocalTable[N->getId()];
     Builder.CreateRead(Entry.AsVariable().getType());
     Builder.CreateStore(Entry.getScope(), Entry.getName());
   }
 }
 
-void ByteCodeCompiler::visitWrite(Write *WR) {
+void ByteCodeCompiler::visitWrite(WriteStmt *WR) {
   if (WR->getStr()) {
     visitExpr(WR->getStr());
     Builder.CreatePrintString();
@@ -40,14 +40,14 @@ void ByteCodeCompiler::visitWrite(Write *WR) {
   Builder.CreatePrintNewline();
 }
 
-void ByteCodeCompiler::visitFor(For *node) {
+void ByteCodeCompiler::visitFor(ForStmt *node) {
   visitStmt(node->getInitial());
   unsigned JumpToStart = Builder.CreateJumpForward();
 
   unsigned Loop = Builder.getSize();
   visitStmt(node->getStep());
   unsigned JumpToEnd =
-      CompileBoolOp(static_cast<BoolOp *>(node->getCondition()));
+      CompileBoolOp(static_cast<BoolOpExpr *>(node->getCondition()));
 
   unsigned Start = Builder.getSize();
   for (auto s : node->getBody()) {
@@ -61,9 +61,9 @@ void ByteCodeCompiler::visitFor(For *node) {
   Builder.setJumpTargetAt(JumpToLoop, Loop);
 }
 
-void ByteCodeCompiler::visitWhile(While *W) {
+void ByteCodeCompiler::visitWhile(WhileStmt *W) {
   unsigned Loop = Builder.getSize();
-  unsigned JumpToEnd = CompileBoolOp(static_cast<BoolOp *>(W->getCondition()));
+  unsigned JumpToEnd = CompileBoolOp(static_cast<BoolOpExpr *>(W->getCondition()));
 
   for (auto s : W->getBody()) {
     visitStmt(s);
@@ -75,8 +75,8 @@ void ByteCodeCompiler::visitWhile(While *W) {
   Builder.setJumpTargetAt(JumpToLoop, Loop);
 }
 
-void ByteCodeCompiler::visitIf(If *I) {
-  unsigned JumpToElse = CompileBoolOp(static_cast<BoolOp *>(I->getTest()));
+void ByteCodeCompiler::visitIf(IfStmt *I) {
+  unsigned JumpToElse = CompileBoolOp(static_cast<BoolOpExpr *>(I->getTest()));
   for (auto s : I->getBody()) {
     visitStmt(s);
   }
@@ -98,14 +98,14 @@ void ByteCodeCompiler::visitIf(If *I) {
   Builder.setJumpTargetAt(JumpToEnd, End);
 }
 
-void ByteCodeCompiler::visitReturn(Return *R) {
+void ByteCodeCompiler::visitReturn(ReturnStmt *R) {
   ChildrenVisitor::visitReturn(R);
   R->getValue() ? Builder.CreateReturnValue() : Builder.CreateReturnNone();
 }
 
-unsigned ByteCodeCompiler::CompileBoolOp(BoolOp *B) {
+unsigned ByteCodeCompiler::CompileBoolOp(BoolOpExpr *B) {
   if (B->getHasCmpop()) {
-    auto BO = static_cast<BinOp *>(B->getValue());
+    auto BO = static_cast<BinOpExpr *>(B->getValue());
     visitExpr(BO->getLeft());
     visitExpr(BO->getRight());
     return Builder.CreateJump(BO->getOp());
@@ -115,17 +115,17 @@ unsigned ByteCodeCompiler::CompileBoolOp(BoolOp *B) {
   return Builder.CreateJumpIfFalse();
 }
 
-void ByteCodeCompiler::visitCall(Call *C) {
+void ByteCodeCompiler::visitCall(CallExpr *C) {
   /// Visit all the args first.
   ChildrenVisitor::visitCall(C);
   Builder.CreateCallFunction(C->getFunc(), C->getArgs().size());
 }
 
-void ByteCodeCompiler::visitStr(simplecc::Str *S) {
+void ByteCodeCompiler::visitStr(simplecc::StrExpr *S) {
   Builder.CreateLoadString(TheModule->getStringLiteralID(S->getS()));
 }
 
-void ByteCodeCompiler::visitSubscript(Subscript *SB) {
+void ByteCodeCompiler::visitSubscript(SubscriptExpr *SB) {
   const auto &Entry = TheLocalTable[SB->getName()];
   // load array
   Builder.CreateLoad(Entry.getScope(), SB->getName());
@@ -135,7 +135,7 @@ void ByteCodeCompiler::visitSubscript(Subscript *SB) {
   Builder.CreateSubscr(SB->getCtx());
 }
 
-void ByteCodeCompiler::visitName(Name *N) {
+void ByteCodeCompiler::visitName(NameExpr *N) {
   const auto &Entry = TheLocalTable[N->getId()];
   if (Entry.IsConstant()) {
     Builder.CreateLoadConst(Entry.AsConstant().getValue());

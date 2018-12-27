@@ -31,7 +31,7 @@ using llvm::Value;
 class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
   bool visitStmtList(const std::vector<Stmt *> &StatementList);
-  Value *visitUnaryOp(UnaryOp *U);
+  Value *visitUnaryOp(UnaryOpExpr *U);
 
   /// Declare builtin functions (external really, but let's call it builtin).
   void DeclareBuiltinFunctions();
@@ -52,24 +52,24 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   ///      a printf("%s\n", Str) for printf(<string>);
   ///      a printf("%s%d\n", Str, Var) for printf(<string>, <int-expr>);
   ///      a printf("%s%c\n", Str, Var) for printf(<string>, <char-expr>);
-  void visitWrite(Write *WR);
-  void visitRead(Read *RD);
+  void visitWrite(WriteStmt *WR);
+  void visitRead(ReadStmt *RD);
 
   /// The logic varies depending on whether it is a load/store
-  Value *visitSubscript(Subscript *SB);
-  void visitAssign(Assign *A);
-  void visitReturn(Return *Ret);
-  Value *visitCall(Call *C);
+  Value *visitSubscript(SubscriptExpr *SB);
+  void visitAssign(AssignStmt *A);
+  void visitReturn(ReturnStmt *Ret);
+  Value *visitCall(CallExpr *C);
 
   /// For is the most complicated beast, and with the requirement to
   /// execute the body **before** the evaluation of condition at first
   /// make it no like ordinary for.
-  void visitFor(For *F);
-  void visitWhile(While *W);
-  void visitIf(If *I);
+  void visitFor(ForStmt *F);
+  void visitWhile(WhileStmt *W);
+  void visitIf(IfStmt *I);
 
   /// BinOp requires both operands to be int's.
-  Value *visitBinOp(BinOp *B);
+  Value *visitBinOp(BinOpExpr *B);
 
   /// This method accept an int or char and cast it to an int.
   Value *PromoteToInt(Value *Val);
@@ -85,7 +85,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   /// is true. We have these in grammar:
   /// Form-1: <Expr> <RichCompareOp> <Expr> => bool -- already a bool.
   /// Form-2: <Expr> => int -- not a bool yet, compare it to int(0).
-  Value *visitBoolOp(BoolOp *B);
+  Value *visitBoolOp(BoolOpExpr *B);
 
   void visitExprStmt(ExprStmt *ES) { visitExpr(ES->getValue()); }
 
@@ -94,12 +94,12 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
     return visitExprPromoteToInt(PE->getValue());
   }
 
-  Value *visitName(Name *Nn);
-  Value *visitStr(Str *S);
+  Value *visitName(NameExpr *Nn);
+  Value *visitStr(StrExpr *S);
 
   /// Simple atom nodes.
-  Value *visitNum(Num *N) { return VM.getInt(N->getN()); }
-  Value *visitChar(Char *C) { return VM.getChar(C->getC()); }
+  Value *visitNum(NumExpr *N) { return VM.getInt(N->getN()); }
+  Value *visitChar(CharExpr *C) { return VM.getChar(C->getC()); }
 
 private:
   /// Data members:

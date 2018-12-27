@@ -30,11 +30,11 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
   void ResolveName(const String &Name, const Location &L);
 
   /// Overloads to visit AstNodes that have names.
-  void visitName(Name *N) { ResolveName(N->getId(), N->getLoc()); }
+  void visitName(NameExpr *N) { ResolveName(N->getId(), N->getLoc()); }
 
-  void visitCall(Call *C);
+  void visitCall(CallExpr *C);
 
-  void visitSubscript(Subscript *SB);
+  void visitSubscript(SubscriptExpr *SB);
 
   void visitDecl(Decl *D);
   /// Trivial setters for important states during the construction

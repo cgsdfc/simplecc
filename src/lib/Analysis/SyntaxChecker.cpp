@@ -45,12 +45,12 @@ void SyntaxChecker::visitProgram(Program *P) {
 }
 
 void SyntaxChecker::visitConstDecl(ConstDecl *CD) {
-  if (CD->getType() == BasicTypeKind::Int && !IsInstance<Num>(CD->getValue())) {
+  if (CD->getType() == BasicTypeKind::Int && !IsInstance<NumExpr>(CD->getValue())) {
     EM.Error(CD->getLoc(), "expected int initializer");
   }
 
   if (CD->getType() == BasicTypeKind::Character &&
-      !IsInstance<Char>(CD->getValue())) {
+      !IsInstance<CharExpr>(CD->getValue())) {
     EM.Error(CD->getLoc(), "expected char initializer");
   }
 }

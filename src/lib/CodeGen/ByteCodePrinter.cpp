@@ -30,13 +30,13 @@ void ByteCodePrinter::visitFuncDef(FuncDef *FD) {
   w.WriteLine();
 }
 
-void ByteCodePrinter::visitRead(Read *RD) {
+void ByteCodePrinter::visitRead(ReadStmt *RD) {
   for (auto name : RD->getNames()) {
     w.WriteLine("scanf", visitExpr(name));
   }
 }
 
-void ByteCodePrinter::visitWrite(Write *WR) {
+void ByteCodePrinter::visitWrite(WriteStmt *WR) {
   if (WR->getStr()) {
     w.WriteLine("printf", visitExpr(WR->getStr()));
   }
@@ -45,21 +45,21 @@ void ByteCodePrinter::visitWrite(Write *WR) {
   }
 }
 
-void ByteCodePrinter::visitAssign(Assign *A) {
+void ByteCodePrinter::visitAssign(AssignStmt *A) {
   ExprValue RHS = visitExpr(A->getValue());
-  if (IsInstance<Name>(A->getTarget())) {
+  if (IsInstance<NameExpr>(A->getTarget())) {
     ExprValue LHS = visitExpr(A->getTarget());
     w.WriteLine(LHS, "=", RHS);
     return;
   }
 
-  auto SB = subclass_cast<Subscript>(A->getTarget());
+  auto SB = subclass_cast<SubscriptExpr>(A->getTarget());
   assert(SB);
   ExprValue Idx = visitExpr(SB->getIndex());
   w.getOuts() << SB->getName() << "[" << Idx << "] = " << RHS << "\n";
 }
 
-void ByteCodePrinter::visitReturn(Return *R) {
+void ByteCodePrinter::visitReturn(ReturnStmt *R) {
   if (R->getValue()) {
     w.WriteLine("ret", visitExpr(R->getValue()));
     return;
@@ -67,7 +67,7 @@ void ByteCodePrinter::visitReturn(Return *R) {
   w.WriteLine("ret");
 }
 
-ExprValue ByteCodePrinter::visitCall(Call *C) {
+ExprValue ByteCodePrinter::visitCall(CallExpr *C) {
   for (auto A : C->getArgs()) {
     w.WriteLine("push", visitExpr(A));
   }
@@ -78,7 +78,7 @@ ExprValue ByteCodePrinter::visitCall(Call *C) {
   return Ret;
 }
 
-LineLabel ByteCodePrinter::CompileBoolOp(BoolOp *B) {
+LineLabel ByteCodePrinter::CompileBoolOp(BoolOpExpr *B) {
   auto OldTmp = getTempCounter();
   ExprValue Val = visitExpr(B->getValue());
   if (OldTmp == getTempCounter()) {
@@ -90,7 +90,7 @@ LineLabel ByteCodePrinter::CompileBoolOp(BoolOp *B) {
   return LB;
 }
 
-void ByteCodePrinter::visitFor(For *F) {
+void ByteCodePrinter::visitFor(ForStmt *F) {
   LineLabel Start = MakeLineLabel();
   visitStmt(F->getInitial());
   w.WriteLine("GOTO", Start.Inline(true));
@@ -99,7 +99,7 @@ void ByteCodePrinter::visitFor(For *F) {
   w.WriteLine(Loop.Inline(false));
   visitStmt(F->getStep());
 
-  LineLabel End = CompileBoolOp(static_cast<BoolOp *>(F->getCondition()));
+  LineLabel End = CompileBoolOp(static_cast<BoolOpExpr *>(F->getCondition()));
   w.WriteLine(Start.Inline(false));
 
   for (Stmt *S : F->getBody()) {
@@ -110,8 +110,8 @@ void ByteCodePrinter::visitFor(For *F) {
   w.WriteLine(End.Inline(false));
 }
 
-void ByteCodePrinter::visitIf(If *I) {
-  LineLabel Else = CompileBoolOp(static_cast<BoolOp *>(I->getTest()));
+void ByteCodePrinter::visitIf(IfStmt *I) {
+  LineLabel Else = CompileBoolOp(static_cast<BoolOpExpr *>(I->getTest()));
 
   for (auto S : I->getBody()) {
     visitStmt(S);
@@ -132,10 +132,10 @@ void ByteCodePrinter::visitIf(If *I) {
   w.WriteLine(End.Inline(false));
 }
 
-void ByteCodePrinter::visitWhile(While *W) {
+void ByteCodePrinter::visitWhile(WhileStmt *W) {
   LineLabel Loop = MakeLineLabel();
   w.WriteLine(Loop.Inline(false));
-  LineLabel End = CompileBoolOp(static_cast<BoolOp *>(W->getCondition()));
+  LineLabel End = CompileBoolOp(static_cast<BoolOpExpr *>(W->getCondition()));
 
   for (auto S : W->getBody()) {
     visitStmt(S);
@@ -145,7 +145,7 @@ void ByteCodePrinter::visitWhile(While *W) {
   w.WriteLine(End.Inline(false));
 }
 
-ExprValue ByteCodePrinter::visitBinOp(BinOp *B) {
+ExprValue ByteCodePrinter::visitBinOp(BinOpExpr *B) {
   auto Op = CStringFromOperatorKind(B->getOp());
   ExprValue L = visitExpr(B->getLeft());
   ExprValue R = visitExpr(B->getRight());
@@ -154,7 +154,7 @@ ExprValue ByteCodePrinter::visitBinOp(BinOp *B) {
   return Result;
 }
 
-ExprValue ByteCodePrinter::visitUnaryOp(UnaryOp *U) {
+ExprValue ByteCodePrinter::visitUnaryOp(UnaryOpExpr *U) {
   auto Op = CStringFromUnaryopKind(U->getOp());
   ExprValue Operand = visitExpr(U->getOperand());
   ExprValue Result = MakeTemporary();
@@ -162,7 +162,7 @@ ExprValue ByteCodePrinter::visitUnaryOp(UnaryOp *U) {
   return Result;
 }
 
-ExprValue ByteCodePrinter::visitSubscript(Subscript *SB) {
+ExprValue ByteCodePrinter::visitSubscript(SubscriptExpr *SB) {
   assert(SB->getCtx() == ExprContextKind::Load &&
          "Store must be handle by visitAssign()");
   ExprValue Idx = visitExpr(SB->getIndex());
@@ -176,8 +176,8 @@ bool ExprValue::Check() const {
   if (!Factor) {
     return Temporary >= 0;
   } else {
-    return (IsInstance<Char>(Factor) || IsInstance<Num>(Factor) ||
-            IsInstance<Name>(Factor) || IsInstance<Str>(Factor));
+    return (IsInstance<CharExpr>(Factor) || IsInstance<NumExpr>(Factor) ||
+        IsInstance<NameExpr>(Factor) || IsInstance<StrExpr>(Factor));
   }
 }
 
@@ -187,17 +187,13 @@ void ExprValue::Format(std::ostream &O) const {
     return;
   }
   switch (Factor->GetKind()) {
-  case Expr::Char:
-    O << "'" << char(static_cast<Char *>(Factor)->getC()) << "'";
+  case Expr::Char:O << "'" << char(static_cast<CharExpr *>(Factor)->getC()) << "'";
     break;
-  case Expr::Num:
-    O << static_cast<Num *>(Factor)->getN();
+  case Expr::Num:O << static_cast<NumExpr *>(Factor)->getN();
     break;
-  case Expr::Name:
-    O << static_cast<Name *>(Factor)->getId();
+  case Expr::Name:O << static_cast<NameExpr *>(Factor)->getId();
     break;
-  case Expr::Str:
-    O << static_cast<Str *>(Factor)->getS();
+  case Expr::Str:O << static_cast<StrExpr *>(Factor)->getS();
     break;
   default:
     assert(false && "Unhandled Factor Expr");

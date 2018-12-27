@@ -12,23 +12,23 @@ class AstVerifier : ChildrenVisitor<AstVerifier> {
   /// Helper to check each condition in one single statement.
   void AssertThat(bool Predicate, const char *ErrMsg);
 
-  void visitRead(Read *RD);
+  void visitRead(ReadStmt *RD);
 
-  void visitWrite(Write *WR);
+  void visitWrite(WriteStmt *WR);
 
-  void visitAssign(Assign *A);
+  void visitAssign(AssignStmt *A);
 
-  void visitBoolOp(BoolOp *B);
+  void visitBoolOp(BoolOpExpr *B);
 
   void visitExprStmt(ExprStmt *ES);
 
   void visitConstDecl(ConstDecl *CD);
 
-  void visitFor(For *F);
+  void visitFor(ForStmt *F);
 
-  void visitWhile(While *W);
+  void visitWhile(WhileStmt *W);
 
-  void visitIf(If *I);
+  void visitIf(IfStmt *I);
 
   void visitFuncDef(FuncDef *FD);
 

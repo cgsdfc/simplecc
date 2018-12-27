@@ -25,9 +25,9 @@ String DescriptionVisitor::visitConstDecl(ConstDecl *CD) {
   std::ostringstream O;
   /// lambda to extract the numeric value of a Num or Char.
   auto MakeCV = [](Expr *E) {
-    if (auto x = subclass_cast<Char>(E))
+    if (auto x = subclass_cast<CharExpr>(E))
       return x->getC();
-    if (auto x = subclass_cast<Num>(E))
+    if (auto x = subclass_cast<NumExpr>(E))
       return x->getN();
     assert(false && "Unknown Expr class");
   };
@@ -58,19 +58,19 @@ String DescriptionVisitor::visitArgDecl(ArgDecl *A) {
   return O.str();
 }
 
-String DescriptionVisitor::visitNum(Num *N) {
+String DescriptionVisitor::visitNum(NumExpr *N) {
   std::ostringstream O;
   O << N->getN();
   return O.str();
 }
 
-String DescriptionVisitor::visitChar(Char *C) {
+String DescriptionVisitor::visitChar(CharExpr *C) {
   std::ostringstream O;
   O << "'" << static_cast<char>(C->getC()) << "'";
   return O.str();
 }
 
-String DescriptionVisitor::visitStr(Str *S) {
+String DescriptionVisitor::visitStr(StrExpr *S) {
   std::ostringstream O;
   O << S->getS();
   return O.str();

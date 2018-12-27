@@ -66,31 +66,31 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   void visitVarDecl(VarDecl *VD);
   void visitArgDecl(ArgDecl *AD);
   void visitFuncDef(FuncDef *FD);
-  void visitRead(Read *RD);
+  void visitRead(ReadStmt *RD);
 
-  void visitWrite(Write *WR);
-  void visitAssign(Assign *A);
-  void visitReturn(Return *R);
-  ExprValue visitCall(Call *C);
-  LineLabel CompileBoolOp(BoolOp *B);
-  void visitFor(For *F);
-  void visitIf(If *I);
-  void visitWhile(While *W);
-  ExprValue visitBinOp(BinOp *B);
-  ExprValue visitUnaryOp(UnaryOp *U);
-  ExprValue visitSubscript(Subscript *SB);
+  void visitWrite(WriteStmt *WR);
+  void visitAssign(AssignStmt *A);
+  void visitReturn(ReturnStmt *R);
+  ExprValue visitCall(CallExpr *C);
+  LineLabel CompileBoolOp(BoolOpExpr *B);
+  void visitFor(ForStmt *F);
+  void visitIf(IfStmt *I);
+  void visitWhile(WhileStmt *W);
+  ExprValue visitBinOp(BinOpExpr *B);
+  ExprValue visitUnaryOp(UnaryOpExpr *U);
+  ExprValue visitSubscript(SubscriptExpr *SB);
 
   ExprValue visitExpr(Expr *E) {
     return ChildrenVisitor::visitExpr<ExprValue>(E);
   }
   ExprValue visitParenExpr(ParenExpr *PE) { return visitExpr(PE->getValue()); }
-  ExprValue visitName(Name *N) { return ExprValue(N); }
-  ExprValue visitChar(Char *C) { return ExprValue(C); }
-  ExprValue visitNum(Num *N) { return ExprValue(N); }
-  ExprValue visitStr(Str *S) { return ExprValue(S); }
+  ExprValue visitName(NameExpr *N) { return ExprValue(N); }
+  ExprValue visitChar(CharExpr *C) { return ExprValue(C); }
+  ExprValue visitNum(NumExpr *N) { return ExprValue(N); }
+  ExprValue visitStr(StrExpr *S) { return ExprValue(S); }
 
-  ExprValue visitBoolOp(BoolOp *) {
-    assert(false && "BoolOp should be handled by CompileBoolOp()");
+  ExprValue visitBoolOp(BoolOpExpr *) {
+    assert(false && "BoolOpExpr should be handled by CompileBoolOp()");
     return ExprValue();
   }
 

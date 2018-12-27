@@ -19,29 +19,29 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   String visitFuncDef(FuncDef *FD);
   String visitArgDecl(ArgDecl *A);
 
-  String visitBoolOp(BoolOp *BO) { return ""; }
+  String visitBoolOp(BoolOpExpr *BO) { return ""; }
   String visitParenExpr(ParenExpr *PE) { return "()"; }
 
-  String visitNum(Num *N);
+  String visitNum(NumExpr *N);
 
-  String visitChar(Char *C);
-  String visitStr(Str *S);
+  String visitChar(CharExpr *C);
+  String visitStr(StrExpr *S);
 
-  String visitBinOp(BinOp *BO) { return CStringFromOperatorKind(BO->getOp()); }
-  String visitUnaryOp(UnaryOp *UO) {
+  String visitBinOp(BinOpExpr *BO) { return CStringFromOperatorKind(BO->getOp()); }
+  String visitUnaryOp(UnaryOpExpr *UO) {
     return CStringFromUnaryopKind(UO->getOp());
   }
-  String visitCall(Call *C) { return C->getFunc(); }
-  String visitName(Name *N) { return N->getId(); }
-  String visitRead(Read *) { return "scanf"; }
-  String visitWrite(Write *) { return "printf"; }
-  String visitAssign(Assign *) { return "="; }
-  String visitSubscript(Subscript *SB) { return SB->getName(); }
+  String visitCall(CallExpr *C) { return C->getFunc(); }
+  String visitName(NameExpr *N) { return N->getId(); }
+  String visitRead(ReadStmt *) { return "scanf"; }
+  String visitWrite(WriteStmt *) { return "printf"; }
+  String visitAssign(AssignStmt *) { return "="; }
+  String visitSubscript(SubscriptExpr *SB) { return SB->getName(); }
   String visitExprStmt(ExprStmt *ES) { return ""; }
-  String visitFor(For *) { return ""; }
-  String visitIf(If *) { return ""; }
-  String visitWhile(While *) { return ""; }
-  String visitReturn(Return *) { return ""; }
+  String visitFor(ForStmt *) { return ""; }
+  String visitIf(IfStmt *) { return ""; }
+  String visitWhile(WhileStmt *) { return ""; }
+  String visitReturn(ReturnStmt *) { return ""; }
 
 public:
   DescriptionVisitor() = default;

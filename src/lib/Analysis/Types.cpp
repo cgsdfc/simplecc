@@ -11,11 +11,9 @@ ArrayType::ArrayType(VarDecl *VD)
 ConstType::ConstType(ConstDecl *CD) : Type(CD->getType()) {
   auto Val = CD->getValue();
   switch (Val->GetKind()) {
-  case Expr::Char:
-    Value = static_cast<Char *>(Val)->getC();
+  case Expr::Char:Value = static_cast<CharExpr *>(Val)->getC();
     break;
-  case Expr::Num:
-    Value = static_cast<Num *>(Val)->getN();
+  case Expr::Num:Value = static_cast<NumExpr *>(Val)->getN();
     break;
   default:
     assert(false && "Value of ConstDecl must be a Constant!");

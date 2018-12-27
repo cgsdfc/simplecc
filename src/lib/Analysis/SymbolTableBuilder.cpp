@@ -43,13 +43,13 @@ void SymbolTableBuilder::ResolveName(const String &Name, const Location &L) {
            TheFuncDef->getName());
 }
 
-void SymbolTableBuilder::visitCall(Call *C) {
+void SymbolTableBuilder::visitCall(CallExpr *C) {
   ResolveName(C->getFunc(), C->getLoc());
   /// Recurse into children.
   ChildrenVisitor::visitCall(C);
 }
 
-void SymbolTableBuilder::visitSubscript(Subscript *SB) {
+void SymbolTableBuilder::visitSubscript(SubscriptExpr *SB) {
   ResolveName(SB->getName(), SB->getLoc());
   /// Recurse into children.
   ChildrenVisitor::visitSubscript(SB);

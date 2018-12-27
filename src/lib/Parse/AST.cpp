@@ -65,28 +65,28 @@ void ArgDecl::Format(std::ostream &os) const {
      << "loc=" << loc << ")";
 }
 
-void Read::Format(std::ostream &os) const {
-  os << "Read("
+void ReadStmt::Format(std::ostream &os) const {
+  os << "ReadStmt("
      << "names=" << names << ", "
      << "loc=" << loc << ")";
 }
 
-void Write::Format(std::ostream &os) const {
-  os << "Write("
+void WriteStmt::Format(std::ostream &os) const {
+  os << "WriteStmt("
      << "str=" << str << ", "
      << "value=" << value << ", "
      << "loc=" << loc << ")";
 }
 
-void Assign::Format(std::ostream &os) const {
-  os << "Assign("
+void AssignStmt::Format(std::ostream &os) const {
+  os << "AssignStmt("
      << "target=" << target << ", "
      << "value=" << value << ", "
      << "loc=" << loc << ")";
 }
 
-void For::Format(std::ostream &os) const {
-  os << "For("
+void ForStmt::Format(std::ostream &os) const {
+  os << "ForStmt("
      << "initial=" << initial << ", "
      << "condition=" << condition << ", "
      << "step=" << step << ", "
@@ -94,21 +94,21 @@ void For::Format(std::ostream &os) const {
      << "loc=" << loc << ")";
 }
 
-void While::Format(std::ostream &os) const {
-  os << "While("
+void WhileStmt::Format(std::ostream &os) const {
+  os << "WhileStmt("
      << "condition=" << condition << ", "
      << "body=" << body << ", "
      << "loc=" << loc << ")";
 }
 
-void Return::Format(std::ostream &os) const {
-  os << "Return("
+void ReturnStmt::Format(std::ostream &os) const {
+  os << "ReturnStmt("
      << "value=" << value << ", "
      << "loc=" << loc << ")";
 }
 
-void If::Format(std::ostream &os) const {
-  os << "If("
+void IfStmt::Format(std::ostream &os) const {
+  os << "IfStmt("
      << "test=" << test << ", "
      << "body=" << body << ", "
      << "orelse=" << orelse << ", "
@@ -121,8 +121,8 @@ void ExprStmt::Format(std::ostream &os) const {
      << "loc=" << loc << ")";
 }
 
-void BinOp::Format(std::ostream &os) const {
-  os << "BinOp("
+void BinOpExpr::Format(std::ostream &os) const {
+  os << "BinOpExpr("
      << "left=" << left << ", "
      << "op=" << op << ", "
      << "right=" << right << ", "
@@ -135,55 +135,55 @@ void ParenExpr::Format(std::ostream &os) const {
      << "loc=" << loc << ")";
 }
 
-void BoolOp::Format(std::ostream &os) const {
-  os << "BoolOp("
+void BoolOpExpr::Format(std::ostream &os) const {
+  os << "BoolOpExpr("
      << "value=" << value << ", "
      << "has_cmpop=" << has_cmpop << ", "
      << "loc=" << loc << ")";
 }
 
-void UnaryOp::Format(std::ostream &os) const {
-  os << "UnaryOp("
+void UnaryOpExpr::Format(std::ostream &os) const {
+  os << "UnaryOpExpr("
      << "op=" << op << ", "
      << "operand=" << operand << ", "
      << "loc=" << loc << ")";
 }
 
-void Call::Format(std::ostream &os) const {
-  os << "Call("
+void CallExpr::Format(std::ostream &os) const {
+  os << "CallExpr("
      << "func=" << func << ", "
      << "args=" << args << ", "
      << "loc=" << loc << ")";
 }
 
-void Num::Format(std::ostream &os) const {
-  os << "Num("
+void NumExpr::Format(std::ostream &os) const {
+  os << "NumExpr("
      << "n=" << n << ", "
      << "loc=" << loc << ")";
 }
 
-void Str::Format(std::ostream &os) const {
-  os << "Str("
+void StrExpr::Format(std::ostream &os) const {
+  os << "StrExpr("
      << "s=" << s << ", "
      << "loc=" << loc << ")";
 }
 
-void Char::Format(std::ostream &os) const {
-  os << "Char("
+void CharExpr::Format(std::ostream &os) const {
+  os << "CharExpr("
      << "c=" << c << ", "
      << "loc=" << loc << ")";
 }
 
-void Subscript::Format(std::ostream &os) const {
-  os << "Subscript("
+void SubscriptExpr::Format(std::ostream &os) const {
+  os << "SubscriptExpr("
      << "name=" << name << ", "
      << "index=" << index << ", "
      << "ctx=" << ctx << ", "
      << "loc=" << loc << ")";
 }
 
-void Name::Format(std::ostream &os) const {
-  os << "Name("
+void NameExpr::Format(std::ostream &os) const {
+  os << "NameExpr("
      << "id=" << id << ", "
      << "ctx=" << ctx << ", "
      << "loc=" << loc << ")";
@@ -263,22 +263,22 @@ FuncDef::~FuncDef() {
 
 ArgDecl::~ArgDecl() = default;
 
-Read::~Read() {
+ReadStmt::~ReadStmt() {
   for (auto v : names)
     delete v;
 }
 
-Write::~Write() {
+WriteStmt::~WriteStmt() {
   delete str;
   delete value;
 }
 
-Assign::~Assign() {
+AssignStmt::~AssignStmt() {
   delete target;
   delete value;
 }
 
-For::~For() {
+ForStmt::~ForStmt() {
   delete initial;
   delete condition;
   delete step;
@@ -286,15 +286,15 @@ For::~For() {
     delete v;
 }
 
-While::~While() {
+WhileStmt::~WhileStmt() {
   delete condition;
   for (auto v : body)
     delete v;
 }
 
-Return::~Return() { delete value; }
+ReturnStmt::~ReturnStmt() { delete value; }
 
-If::~If() {
+IfStmt::~IfStmt() {
   delete test;
   for (auto v : body)
     delete v;
@@ -304,29 +304,29 @@ If::~If() {
 
 ExprStmt::~ExprStmt() { delete value; }
 
-BinOp::~BinOp() {
+BinOpExpr::~BinOpExpr() {
   delete left;
   delete right;
 }
 
 ParenExpr::~ParenExpr() { delete value; }
 
-BoolOp::~BoolOp() { delete value; }
+BoolOpExpr::~BoolOpExpr() { delete value; }
 
-UnaryOp::~UnaryOp() { delete operand; }
+UnaryOpExpr::~UnaryOpExpr() { delete operand; }
 
-Call::~Call() {
+CallExpr::~CallExpr() {
   for (auto v : args)
     delete v;
 }
 
-Num::~Num() = default;
-Str::~Str() = default;
-Char::~Char() = default;
+NumExpr::~NumExpr() = default;
+StrExpr::~StrExpr() = default;
+CharExpr::~CharExpr() = default;
 
-Subscript::~Subscript() { delete index; }
+SubscriptExpr::~SubscriptExpr() { delete index; }
 
-Name::~Name() = default;
+NameExpr::~NameExpr() = default;
 
 OperatorKind OperatorKindFromString(const String &s) {
   if (s == "+")

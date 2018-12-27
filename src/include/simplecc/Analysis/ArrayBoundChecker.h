@@ -8,7 +8,7 @@
 namespace simplecc {
 class ArrayBoundChecker : ChildrenVisitor<ArrayBoundChecker> {
   std::pair<bool, int> getIndex(Expr *E) const;
-  void visitSubscript(Subscript *SB);
+  void visitSubscript(SubscriptExpr *SB);
   void visitFuncDef(FuncDef *FD);
 
 public:

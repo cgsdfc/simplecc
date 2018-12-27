@@ -7,44 +7,44 @@
 namespace simplecc {
 class TypeChecker : ChildrenVisitor<TypeChecker> {
 
-  void visitRead(Read *RD);
+  void visitRead(ReadStmt *RD);
 
-  void visitWrite(Write *WR);
+  void visitWrite(WriteStmt *WR);
 
-  void visitReturn(Return *R);
+  void visitReturn(ReturnStmt *R);
 
-  void visitAssign(Assign *A);
+  void visitAssign(AssignStmt *A);
 
-  // check the operand of BoolOp, restrict to int
+  // check the operand of BoolOpExpr, restrict to int
   void CheckBoolOpOperand(Expr *E);
 
-  BasicTypeKind visitBoolOp(BoolOp *B);
+  BasicTypeKind visitBoolOp(BoolOpExpr *B);
 
   // check the operand of Expr, restrict to NOT void
   BasicTypeKind CheckExprOperand(Expr *E);
 
-  BasicTypeKind visitBinOp(BinOp *B);
+  BasicTypeKind visitBinOp(BinOpExpr *B);
 
-  BasicTypeKind visitUnaryOp(UnaryOp *U);
+  BasicTypeKind visitUnaryOp(UnaryOpExpr *U);
 
   BasicTypeKind visitParenExpr(ParenExpr *PE);
 
-  BasicTypeKind visitCall(Call *C);
+  BasicTypeKind visitCall(CallExpr *C);
 
-  BasicTypeKind visitSubscript(Subscript *SB);
+  BasicTypeKind visitSubscript(SubscriptExpr *SB);
 
-  BasicTypeKind visitName(Name *N);
+  BasicTypeKind visitName(NameExpr *N);
   // not actually used, for instantiation only
-  BasicTypeKind visitStr(Str *);
+  BasicTypeKind visitStr(StrExpr *);
 
-  // Return the type of evaluating the expression
+  // ReturnStmt the type of evaluating the expression
   BasicTypeKind visitExpr(Expr *E);
 
   void visitFuncDef(FuncDef *FD);
 
-  BasicTypeKind visitNum(Num *) { return BasicTypeKind::Int; }
+  BasicTypeKind visitNum(NumExpr *) { return BasicTypeKind::Int; }
 
-  BasicTypeKind visitChar(Char *) { return BasicTypeKind::Character; }
+  BasicTypeKind visitChar(CharExpr *) { return BasicTypeKind::Character; }
 
   void setLocalTable(SymbolTableView L) { TheLocalTable = L; }
   void setTable(SymbolTable *S) { TheTable = S; }
