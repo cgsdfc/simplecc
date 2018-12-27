@@ -56,17 +56,17 @@ void SymbolTableBuilder::visitSubscript(SubscriptExpr *SB) {
 }
 
 void SymbolTableBuilder::visitDecl(Decl *D) {
-  switch (D->GetKind()) {
-  case Decl::FuncDef:
+  switch (D->getKind()) {
+  case Decl::FuncDefKind:
     setFuncDef(static_cast<FuncDef *>(D));
     setLocal(&TheTable->getLocal(TheFuncDef));
     /// Define this function globally.
     DefineGlobalDecl(D);
     return visitFuncDef(TheFuncDef);
 
-  case Decl::ConstDecl:
-  case Decl::VarDecl:
-  case Decl::ArgDecl:
+  case Decl::ConstDeclKind:
+  case Decl::VarDeclKind:
+  case Decl::ArgDeclKind:
     /* Fall through */
     return TheLocal ? DefineLocalDecl(D) : DefineGlobalDecl(D);
   default:

@@ -10,9 +10,21 @@
 
 namespace simplecc {
 class AST {
+  unsigned SubclassID;
+protected:
+  AST(unsigned Kind) : SubclassID(Kind) {}
 public:
+  enum ASTKind : unsigned {
+#define HANDLE_AST(CLASS) CLASS##Kind,
+#include "simplecc/Parse/AST.def"
+  };
+
+  static const char *getClassName(unsigned Kind);
+  const char *getClassName() const { return getClassName(getKind()); }
+  unsigned getKind() const { return SubclassID; }
+
   virtual ~AST() = default;
-  virtual const char *GetClassName() const = 0;
+
   virtual void Format(std::ostream &os) const = 0;
 };
 
@@ -70,64 +82,33 @@ std::ostream &operator<<(std::ostream &os, BasicTypeKind val);
 // AbstractNode
 
 class Decl : public AST {
-  int Kind;
-
 public:
-  int GetKind() const { return Kind; }
   std::string name;
   Location loc;
 
   Decl(int Kind, std::string name, const Location &loc)
-      : AST(), Kind(Kind), name(std::move(name)), loc(loc) {}
-
-  enum DeclKind { ConstDecl, VarDecl, FuncDef, ArgDecl };
-
+      : AST(Kind), name(std::move(name)), loc(loc) {}
   const std::string &getName() const { return name; }
 
   const Location &getLoc() const { return loc; }
 };
 
 class Stmt : public AST {
-  int Kind;
-
 public:
-  int GetKind() const { return Kind; }
   Location loc;
 
-  Stmt(int Kind, const Location &loc) : AST(), Kind(Kind), loc(loc) {}
-
-  enum StmtKind { Read, Write, Assign, For, While, Return, If, ExprStmt };
-
+  Stmt(int Kind, const Location &loc) : AST(Kind), loc(loc) {}
   const Location &getLoc() const { return loc; }
 };
 
 class Expr : public AST {
-  int Kind;
-
 public:
-  int GetKind() const { return Kind; }
   Location loc;
-
-  Expr(int Kind, const Location &loc) : AST(), Kind(Kind), loc(loc) {}
-
-  enum ExprKind {
-    BinOp,
-    ParenExpr,
-    BoolOp,
-    UnaryOp,
-    Call,
-    Num,
-    Str,
-    Char,
-    Subscript,
-    Name
-  };
-
+  Expr(int Kind, const Location &loc) : AST(Kind), loc(loc) {}
   const Location &getLoc() const { return loc; }
 };
 
 // ConcreteNode
-
 class ConstDecl : public Decl {
 public:
   BasicTypeKind type;
@@ -135,7 +116,7 @@ public:
 
   ConstDecl(BasicTypeKind type, Expr *value, std::string name,
             const Location &loc)
-      : Decl(Decl::ConstDecl, std::move(name), loc), type(type), value(value) {}
+      : Decl(Decl::ConstDeclKind, std::move(name), loc), type(type), value(value) {}
 
   // Disable copy and move.
   ConstDecl(const ConstDecl &) = delete;
@@ -145,11 +126,9 @@ public:
 
   ~ConstDecl() override;
 
-  const char *GetClassName() const override { return "ConstDecl"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::ConstDecl; }
+  static bool InstanceCheck(Decl *x) { return x->getKind() == Decl::ConstDeclKind; }
 
   BasicTypeKind getType() const { return type; }
   Expr *getValue() const { return value; }
@@ -163,7 +142,7 @@ public:
 
   VarDecl(BasicTypeKind type, int is_array, int size, std::string name,
           const Location &loc)
-      : Decl(Decl::VarDecl, std::move(name), loc), type(type),
+      : Decl(Decl::VarDeclKind, std::move(name), loc), type(type),
         is_array(is_array), size(size) {}
 
   // Disable copy and move.
@@ -174,11 +153,9 @@ public:
 
   ~VarDecl() override;
 
-  const char *GetClassName() const override { return "VarDecl"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::VarDecl; }
+  static bool InstanceCheck(Decl *x) { return x->getKind() == Decl::VarDeclKind; }
 
   BasicTypeKind getType() const { return type; }
 
@@ -197,7 +174,7 @@ public:
   FuncDef(BasicTypeKind return_type, std::vector<Decl *> args,
           std::vector<Decl *> decls, std::vector<Stmt *> stmts,
           std::string name, const Location &loc)
-      : Decl(Decl::FuncDef, std::move(name), loc), return_type(return_type),
+      : Decl(Decl::FuncDefKind, std::move(name), loc), return_type(return_type),
         args(std::move(args)), decls(std::move(decls)),
         stmts(std::move(stmts)) {}
 
@@ -209,11 +186,9 @@ public:
 
   ~FuncDef() override;
 
-  const char *GetClassName() const override { return "FuncDef"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::FuncDef; }
+  static bool InstanceCheck(Decl *x) { return x->getKind() == Decl::FuncDefKind; }
 
   BasicTypeKind getReturnType() const { return return_type; }
 
@@ -229,7 +204,7 @@ public:
   BasicTypeKind type;
 
   ArgDecl(BasicTypeKind type, std::string name, const Location &loc)
-      : Decl(Decl::ArgDecl, std::move(name), loc), type(type) {}
+      : Decl(Decl::ArgDeclKind, std::move(name), loc), type(type) {}
 
   // Disable copy and move.
   ArgDecl(const ArgDecl &) = delete;
@@ -239,11 +214,9 @@ public:
 
   ~ArgDecl() override;
 
-  const char *GetClassName() const override { return "ArgDecl"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Decl *x) { return x->GetKind() == Decl::ArgDecl; }
+  static bool InstanceCheck(Decl *x) { return x->getKind() == Decl::ArgDeclKind; }
 
   BasicTypeKind getType() const { return type; }
 };
@@ -253,7 +226,7 @@ public:
   std::vector<Expr *> names;
 
   ReadStmt(std::vector<Expr *> names, const Location &loc)
-      : Stmt(Stmt::Read, loc), names(std::move(names)) {}
+      : Stmt(Stmt::ReadStmtKind, loc), names(std::move(names)) {}
 
   // Disable copy and move.
   ReadStmt(const ReadStmt &) = delete;
@@ -263,11 +236,9 @@ public:
 
   ~ReadStmt() override;
 
-  const char *GetClassName() const override { return "ReadStmt"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Read; }
+  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::ReadStmtKind; }
 
   const std::vector<Expr *> &getNames() const { return names; }
 };
@@ -278,7 +249,7 @@ public:
   Expr *value;
 
   WriteStmt(Expr *str, Expr *value, const Location &loc)
-      : Stmt(Stmt::Write, loc), str(str), value(value) {}
+      : Stmt(Stmt::WriteStmtKind, loc), str(str), value(value) {}
 
   // Disable copy and move.
   WriteStmt(const WriteStmt &) = delete;
@@ -288,11 +259,9 @@ public:
 
   ~WriteStmt() override;
 
-  const char *GetClassName() const override { return "WriteStmt"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Write; }
+  static bool InstanceCheck(Stmt *x) { return x->getKind() == WriteStmtKind; }
 
   Expr *getStr() const { return str; }
   Expr *getValue() const { return value; }
@@ -304,7 +273,7 @@ public:
   Expr *value;
 
   AssignStmt(Expr *target, Expr *value, const Location &loc)
-      : Stmt(Stmt::Assign, loc), target(target), value(value) {}
+      : Stmt(Stmt::AssignStmtKind, loc), target(target), value(value) {}
 
   // Disable copy and move.
   AssignStmt(const AssignStmt &) = delete;
@@ -314,11 +283,9 @@ public:
 
   ~AssignStmt() override;
 
-  const char *GetClassName() const override { return "AssignStmt"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Assign; }
+  static bool InstanceCheck(Stmt *x) { return x->getKind() == AssignStmtKind; }
 
   Expr *getTarget() const { return target; }
   Expr *getValue() const { return value; }
@@ -333,7 +300,7 @@ public:
 
   ForStmt(Stmt *initial, Expr *condition, Stmt *step, std::vector<Stmt *> body,
           const Location &loc)
-      : Stmt(Stmt::For, loc), initial(initial), condition(condition),
+      : Stmt(Stmt::ForStmtKind, loc), initial(initial), condition(condition),
         step(step), body(std::move(body)) {}
 
   // Disable copy and move.
@@ -344,11 +311,9 @@ public:
 
   ~ForStmt() override;
 
-  const char *GetClassName() const override { return "ForStmt"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::For; }
+  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::ForStmtKind; }
 
   Stmt *getInitial() const { return initial; }
   Expr *getCondition() const { return condition; }
@@ -363,7 +328,7 @@ public:
   std::vector<Stmt *> body;
 
   WhileStmt(Expr *condition, std::vector<Stmt *> body, const Location &loc)
-      : Stmt(Stmt::While, loc), condition(condition), body(std::move(body)) {}
+      : Stmt(WhileStmtKind, loc), condition(condition), body(std::move(body)) {}
 
   // Disable copy and move.
   WhileStmt(const WhileStmt &) = delete;
@@ -373,11 +338,9 @@ public:
 
   ~WhileStmt() override;
 
-  const char *GetClassName() const override { return "WhileStmt"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::While; }
+  static bool InstanceCheck(Stmt *x) { return x->getKind() == WhileStmtKind; }
 
   Expr *getCondition() const { return condition; }
 
@@ -389,7 +352,7 @@ public:
   Expr *value;
 
   ReturnStmt(Expr *value, const Location &loc)
-      : Stmt(Stmt::Return, loc), value(value) {}
+      : Stmt(Stmt::ReturnStmtKind, loc), value(value) {}
 
   // Disable copy and move.
   ReturnStmt(const ReturnStmt &) = delete;
@@ -399,11 +362,9 @@ public:
 
   ~ReturnStmt() override;
 
-  const char *GetClassName() const override { return "ReturnStmt"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::Return; }
+  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::ReturnStmtKind; }
 
   Expr *getValue() const { return value; }
 };
@@ -416,7 +377,7 @@ public:
 
   IfStmt(Expr *test, std::vector<Stmt *> body, std::vector<Stmt *> orelse,
          const Location &loc)
-      : Stmt(Stmt::If, loc), test(test), body(std::move(body)),
+      : Stmt(Stmt::IfStmtKind, loc), test(test), body(std::move(body)),
         orelse(std::move(orelse)) {}
 
   // Disable copy and move.
@@ -427,11 +388,9 @@ public:
 
   ~IfStmt() override;
 
-  const char *GetClassName() const override { return "IfStmt"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::If; }
+  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::IfStmtKind; }
 
   Expr *getTest() const { return test; }
 
@@ -445,7 +404,7 @@ public:
   Expr *value;
 
   ExprStmt(Expr *value, const Location &loc)
-      : Stmt(Stmt::ExprStmt, loc), value(value) {}
+      : Stmt(Stmt::ExprStmtKind, loc), value(value) {}
 
   // Disable copy and move.
   ExprStmt(const ExprStmt &) = delete;
@@ -455,11 +414,9 @@ public:
 
   ~ExprStmt() override;
 
-  const char *GetClassName() const override { return "ExprStmt"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Stmt *x) { return x->GetKind() == Stmt::ExprStmt; }
+  static bool InstanceCheck(Stmt *x) { return x->getKind() == Stmt::ExprStmtKind; }
 
   Expr *getValue() const { return value; }
 };
@@ -471,7 +428,7 @@ public:
   Expr *right;
 
   BinOpExpr(Expr *left, OperatorKind op, Expr *right, const Location &loc)
-      : Expr(Expr::BinOp, loc), left(left), op(op), right(right) {}
+      : Expr(Expr::BinOpExprKind, loc), left(left), op(op), right(right) {}
 
   // Disable copy and move.
   BinOpExpr(const BinOpExpr &) = delete;
@@ -481,11 +438,9 @@ public:
 
   ~BinOpExpr() override;
 
-  const char *GetClassName() const override { return "BinOpExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::BinOp; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::BinOpExprKind; }
 
   Expr *getLeft() const { return left; }
   OperatorKind getOp() const { return op; }
@@ -497,7 +452,7 @@ public:
   Expr *value;
 
   ParenExpr(Expr *value, const Location &loc)
-      : Expr(Expr::ParenExpr, loc), value(value) {}
+      : Expr(Expr::ParenExprKind, loc), value(value) {}
 
   // Disable copy and move.
   ParenExpr(const ParenExpr &) = delete;
@@ -507,11 +462,9 @@ public:
 
   ~ParenExpr() override;
 
-  const char *GetClassName() const override { return "ParenExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::ParenExpr; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::ParenExprKind; }
 
   Expr *getValue() const { return value; }
 };
@@ -522,7 +475,7 @@ public:
   int has_cmpop;
 
   BoolOpExpr(Expr *value, int has_cmpop, const Location &loc)
-      : Expr(Expr::BoolOp, loc), value(value), has_cmpop(has_cmpop) {}
+      : Expr(BoolOpExprKind, loc), value(value), has_cmpop(has_cmpop) {}
 
   // Disable copy and move.
   BoolOpExpr(const BoolOpExpr &) = delete;
@@ -532,11 +485,9 @@ public:
 
   ~BoolOpExpr() override;
 
-  const char *GetClassName() const override { return "BoolOpExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::BoolOp; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == BoolOpExprKind; }
 
   Expr *getValue() const { return value; }
 
@@ -549,7 +500,7 @@ public:
   Expr *operand;
 
   UnaryOpExpr(UnaryopKind op, Expr *operand, const Location &loc)
-      : Expr(Expr::UnaryOp, loc), op(op), operand(operand) {}
+      : Expr(UnaryOpExprKind, loc), op(op), operand(operand) {}
 
   // Disable copy and move.
   UnaryOpExpr(const UnaryOpExpr &) = delete;
@@ -559,11 +510,9 @@ public:
 
   ~UnaryOpExpr() override;
 
-  const char *GetClassName() const override { return "UnaryOpExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::UnaryOp; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::UnaryOpExprKind; }
 
   UnaryopKind getOp() const { return op; }
   Expr *getOperand() const { return operand; }
@@ -575,7 +524,7 @@ public:
   std::vector<Expr *> args;
 
   CallExpr(std::string func, std::vector<Expr *> args, const Location &loc)
-      : Expr(Expr::Call, loc), func(std::move(func)), args(std::move(args)) {}
+      : Expr(Expr::CallExprKind, loc), func(std::move(func)), args(std::move(args)) {}
 
   // Disable copy and move.
   CallExpr(const CallExpr &) = delete;
@@ -585,11 +534,9 @@ public:
 
   ~CallExpr() override;
 
-  const char *GetClassName() const override { return "CallExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Call; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::CallExprKind; }
 
   const std::string &getFunc() const { return func; }
 
@@ -600,7 +547,7 @@ class NumExpr : public Expr {
 public:
   int n;
 
-  NumExpr(int n, const Location &loc) : Expr(Expr::Num, loc), n(n) {}
+  NumExpr(int n, const Location &loc) : Expr(Expr::NumExprKind, loc), n(n) {}
 
   // Disable copy and move.
   NumExpr(const NumExpr &) = delete;
@@ -610,11 +557,9 @@ public:
 
   ~NumExpr() override;
 
-  const char *GetClassName() const override { return "NumExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Num; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::NumExprKind; }
 
   int getN() const { return n; }
 };
@@ -624,7 +569,7 @@ public:
   std::string s;
 
   StrExpr(std::string s, const Location &loc)
-      : Expr(Expr::Str, loc), s(std::move(s)) {}
+      : Expr(Expr::StrExprKind, loc), s(std::move(s)) {}
 
   // Disable copy and move.
   StrExpr(const StrExpr &) = delete;
@@ -634,11 +579,9 @@ public:
 
   ~StrExpr() override;
 
-  const char *GetClassName() const override { return "StrExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Str; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::StrExprKind; }
 
   const std::string &getS() const { return s; }
 };
@@ -647,7 +590,7 @@ class CharExpr : public Expr {
 public:
   int c;
 
-  CharExpr(int c, const Location &loc) : Expr(Expr::Char, loc), c(c) {}
+  CharExpr(int c, const Location &loc) : Expr(Expr::CharExprKind, loc), c(c) {}
 
   // Disable copy and move.
   CharExpr(const CharExpr &) = delete;
@@ -657,11 +600,9 @@ public:
 
   ~CharExpr() override;
 
-  const char *GetClassName() const override { return "CharExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Char; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == Expr::CharExprKind; }
 
   int getC() const { return c; }
 };
@@ -674,7 +615,7 @@ public:
 
   SubscriptExpr(std::string name, Expr *index, ExprContextKind ctx,
                 const Location &loc)
-      : Expr(Expr::Subscript, loc), name(std::move(name)), index(index),
+      : Expr(SubscriptExprKind, loc), name(std::move(name)), index(index),
         ctx(ctx) {}
 
   // Disable copy and move.
@@ -685,11 +626,9 @@ public:
 
   ~SubscriptExpr() override;
 
-  const char *GetClassName() const override { return "SubscriptExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Subscript; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == SubscriptExprKind; }
 
   const std::string &getName() const { return name; }
   Expr *getIndex() const { return index; }
@@ -702,7 +641,7 @@ public:
   ExprContextKind ctx;
 
   NameExpr(std::string id, ExprContextKind ctx, const Location &loc)
-      : Expr(Expr::Name, loc), id(std::move(id)), ctx(ctx) {}
+      : Expr(NameExprKind, loc), id(std::move(id)), ctx(ctx) {}
 
   // Disable copy and move.
   NameExpr(const NameExpr &) = delete;
@@ -712,11 +651,9 @@ public:
 
   ~NameExpr() override;
 
-  const char *GetClassName() const override { return "NameExpr"; }
-
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->GetKind() == Expr::Name; }
+  static bool InstanceCheck(Expr *x) { return x->getKind() == NameExprKind; }
 
   const std::string &getId() const { return id; }
   ExprContextKind getCtx() const { return ctx; }
@@ -729,7 +666,7 @@ public:
   std::vector<Decl *> decls;
 
   explicit Program(std::vector<Decl *> decls)
-      : AST(), decls(std::move(decls)) {}
+      : AST(ProgramKind), decls(std::move(decls)) {}
 
   // Disable copy and move.
   Program(const Program &) = delete;
@@ -739,11 +676,12 @@ public:
 
   ~Program() override;
 
-  const char *GetClassName() const override { return "Program"; }
-
   void Format(std::ostream &os) const override;
-
   const std::vector<Decl *> &getDecls() const { return decls; }
+
+  static bool InstanceCheck(AST *A) {
+    return A->getKind() == ProgramKind;
+  }
 };
 
 // EnumFromString

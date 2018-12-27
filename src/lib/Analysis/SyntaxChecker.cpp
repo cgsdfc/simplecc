@@ -10,28 +10,28 @@ void SyntaxChecker::visitProgram(Program *P) {
   }
 
   // Check the order of declarations.
-  int PrevDecl = Decl::ConstDecl;
+  int PrevDecl = Decl::ConstDeclKind;
   for (auto D : P->getDecls()) {
-    switch (D->GetKind()) {
-    case Decl::ConstDecl:
-      if (PrevDecl != Decl::ConstDecl) {
+    switch (D->getKind()) {
+    case Decl::ConstDeclKind:
+      if (PrevDecl != Decl::ConstDeclKind) {
         // ConstDecl can only be preceded by ConstDecl.
         EM.Error(D->getLoc(), "unexpected const declaration");
       }
       break;
-    case Decl::VarDecl:
-      if (PrevDecl == Decl::FuncDef) {
+    case Decl::VarDeclKind:
+      if (PrevDecl == Decl::FuncDefKind) {
         // VarDecl cannot be preceded by FuncDef.
         EM.Error(D->getLoc(), "unexpected variable declaration");
       }
       break;
-    case Decl::FuncDef:
+    case Decl::FuncDefKind:
       // FuncDef can be preceded by anything.
       break;
     default:
       assert(false && "Impossible Decl Kind");
     }
-    PrevDecl = D->GetKind();
+    PrevDecl = D->getKind();
     VisitorBase::visitDecl(D);
   }
 

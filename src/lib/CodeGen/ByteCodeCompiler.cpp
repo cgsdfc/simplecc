@@ -164,11 +164,11 @@ void ByteCodeCompiler::visitFuncDef(FuncDef *FD) {
 
 void ByteCodeCompiler::visitProgram(Program *P) {
   for (Decl *D : P->getDecls()) {
-    switch (D->GetKind()) {
-    case Decl::FuncDef:
+    switch (D->getKind()) {
+    case Decl::FuncDefKind:
       visitFuncDef(static_cast<FuncDef *>(D));
       break;
-    case Decl::VarDecl:
+    case Decl::VarDeclKind:
       // Collect global objects.
       TheModule->getGlobalVariables().push_back(
           TheTable->getGlobalEntry(D->getName()));

@@ -9,7 +9,7 @@ using namespace simplecc;
 /// Wrap AST::GetClassName().
 const char *AstRef::getClassName() const {
   assert(Ref);
-  return Ref->GetClassName();
+  return Ref->getClassName();
 }
 
 /// Return the Location of the wrapped AST node.

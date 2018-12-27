@@ -1,0 +1,50 @@
+#ifndef HANDLE_AST
+#define HANDLE_AST(CLASS)
+#endif
+
+#ifndef HANDLE_DECL
+#define HANDLE_DECL(CLASS) HANDLE_AST(CLASS)
+#endif
+
+#ifndef HANDLE_STMT
+#define HANDLE_STMT(CLASS) HANDLE_AST(CLASS)
+#endif
+
+#ifndef HANDLE_EXPR
+#define HANDLE_EXPR(CLASS) HANDLE_AST(CLASS)
+#endif
+
+HANDLE_AST(Program)
+HANDLE_AST(Decl)
+HANDLE_AST(Stmt)
+HANDLE_AST(Expr)
+
+HANDLE_DECL(ArgDecl)
+HANDLE_DECL(ConstDecl)
+HANDLE_DECL(VarDecl)
+HANDLE_DECL(FuncDef)
+
+HANDLE_STMT(ReadStmt)
+HANDLE_STMT(WriteStmt)
+HANDLE_STMT(AssignStmt)
+HANDLE_STMT(ForStmt)
+HANDLE_STMT(WhileStmt)
+HANDLE_STMT(ReturnStmt)
+HANDLE_STMT(IfStmt)
+HANDLE_STMT(ExprStmt)
+
+HANDLE_EXPR(BinOpExpr)
+HANDLE_EXPR(ParenExpr)
+HANDLE_EXPR(BoolOpExpr)
+HANDLE_EXPR(UnaryOpExpr)
+HANDLE_EXPR(CallExpr)
+HANDLE_EXPR(NumExpr)
+HANDLE_EXPR(StrExpr)
+HANDLE_EXPR(CharExpr)
+HANDLE_EXPR(SubscriptExpr)
+HANDLE_EXPR(NameExpr)
+
+#undef HANDLE_DECL
+#undef HANDLE_STMT
+#undef HANDLE_EXPR
+#undef HANDLE_AST

@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include <simplecc/Parse/AST.h>
 
 namespace simplecc {
 
@@ -13,7 +14,7 @@ std::ostream &operator<<(std::ostream &os, const AST *ast) {
 }
 
 // Format Sequential Ast
-template <typename T>
+template<typename T>
 std::ostream &operator<<(std::ostream &os, const std::vector<T> &v) {
   os << "[";
   for (auto b = v.begin(), e = v.end(); b != e; ++b) {
@@ -191,55 +192,38 @@ void NameExpr::Format(std::ostream &os) const {
 
 std::ostream &operator<<(std::ostream &os, OperatorKind val) {
   switch (val) {
-  case OperatorKind::Add:
-    return os << "OperatorKind::Add";
-  case OperatorKind::Sub:
-    return os << "OperatorKind::Sub";
-  case OperatorKind::Mult:
-    return os << "OperatorKind::Mult";
-  case OperatorKind::Div:
-    return os << "OperatorKind::Div";
-  case OperatorKind::Eq:
-    return os << "OperatorKind::Eq";
-  case OperatorKind::NotEq:
-    return os << "OperatorKind::NotEq";
-  case OperatorKind::Lt:
-    return os << "OperatorKind::Lt";
-  case OperatorKind::LtE:
-    return os << "OperatorKind::LtE";
-  case OperatorKind::Gt:
-    return os << "OperatorKind::Gt";
-  case OperatorKind::GtE:
-    return os << "OperatorKind::GtE";
+  case OperatorKind::Add:return os << "OperatorKind::Add";
+  case OperatorKind::Sub:return os << "OperatorKind::Sub";
+  case OperatorKind::Mult:return os << "OperatorKind::Mult";
+  case OperatorKind::Div:return os << "OperatorKind::Div";
+  case OperatorKind::Eq:return os << "OperatorKind::Eq";
+  case OperatorKind::NotEq:return os << "OperatorKind::NotEq";
+  case OperatorKind::Lt:return os << "OperatorKind::Lt";
+  case OperatorKind::LtE:return os << "OperatorKind::LtE";
+  case OperatorKind::Gt:return os << "OperatorKind::Gt";
+  case OperatorKind::GtE:return os << "OperatorKind::GtE";
   }
 }
 
 std::ostream &operator<<(std::ostream &os, UnaryopKind val) {
   switch (val) {
-  case UnaryopKind::UAdd:
-    return os << "UnaryopKind::UAdd";
-  case UnaryopKind::USub:
-    return os << "UnaryopKind::USub";
+  case UnaryopKind::UAdd:return os << "UnaryopKind::UAdd";
+  case UnaryopKind::USub:return os << "UnaryopKind::USub";
   }
 }
 
 std::ostream &operator<<(std::ostream &os, ExprContextKind val) {
   switch (val) {
-  case ExprContextKind::Load:
-    return os << "ExprContextKind::Load";
-  case ExprContextKind::Store:
-    return os << "ExprContextKind::Store";
+  case ExprContextKind::Load:return os << "ExprContextKind::Load";
+  case ExprContextKind::Store:return os << "ExprContextKind::Store";
   }
 }
 
 std::ostream &operator<<(std::ostream &os, BasicTypeKind val) {
   switch (val) {
-  case BasicTypeKind::Int:
-    return os << "BasicTypeKind::Int";
-  case BasicTypeKind::Character:
-    return os << "BasicTypeKind::Character";
-  case BasicTypeKind::Void:
-    return os << "BasicTypeKind::Void";
+  case BasicTypeKind::Int:return os << "BasicTypeKind::Int";
+  case BasicTypeKind::Character:return os << "BasicTypeKind::Character";
+  case BasicTypeKind::Void:return os << "BasicTypeKind::Void";
   }
 }
 
@@ -354,26 +338,16 @@ OperatorKind OperatorKindFromString(const String &s) {
 
 const char *CStringFromOperatorKind(OperatorKind val) {
   switch (val) {
-  case OperatorKind::Add:
-    return "+";
-  case OperatorKind::Sub:
-    return "-";
-  case OperatorKind::Mult:
-    return "*";
-  case OperatorKind::Div:
-    return "/";
-  case OperatorKind::Eq:
-    return "==";
-  case OperatorKind::NotEq:
-    return "!=";
-  case OperatorKind::Lt:
-    return "<";
-  case OperatorKind::LtE:
-    return "<=";
-  case OperatorKind::Gt:
-    return ">";
-  case OperatorKind::GtE:
-    return ">=";
+  case OperatorKind::Add:return "+";
+  case OperatorKind::Sub:return "-";
+  case OperatorKind::Mult:return "*";
+  case OperatorKind::Div:return "/";
+  case OperatorKind::Eq:return "==";
+  case OperatorKind::NotEq:return "!=";
+  case OperatorKind::Lt:return "<";
+  case OperatorKind::LtE:return "<=";
+  case OperatorKind::Gt:return ">";
+  case OperatorKind::GtE:return ">=";
   }
 }
 
@@ -387,10 +361,8 @@ UnaryopKind UnaryopKindFromString(const String &s) {
 
 const char *CStringFromUnaryopKind(UnaryopKind val) {
   switch (val) {
-  case UnaryopKind::UAdd:
-    return "+";
-  case UnaryopKind::USub:
-    return "-";
+  case UnaryopKind::UAdd:return "+";
+  case UnaryopKind::USub:return "-";
   }
 }
 
@@ -406,12 +378,17 @@ BasicTypeKind BasicTypeKindFromString(const String &s) {
 
 const char *CStringFromBasicTypeKind(BasicTypeKind val) {
   switch (val) {
-  case BasicTypeKind::Int:
-    return "int";
-  case BasicTypeKind::Character:
-    return "char";
-  case BasicTypeKind::Void:
-    return "void";
+  case BasicTypeKind::Int:return "int";
+  case BasicTypeKind::Character:return "char";
+  case BasicTypeKind::Void:return "void";
+  }
+}
+
+const char *AST::getClassName(unsigned Kind) {
+  switch (Kind) {
+  default: assert(false && "Unhandled AST Kind");
+#define HANDLE_AST(CLASS) case CLASS##Kind: return #CLASS;
+#include "simplecc/Parse/AST.def"
   }
 }
 

@@ -186,14 +186,18 @@ void ExprValue::Format(std::ostream &O) const {
     O << "t" << Temporary;
     return;
   }
-  switch (Factor->GetKind()) {
-  case Expr::Char:O << "'" << char(static_cast<CharExpr *>(Factor)->getC()) << "'";
+  switch (Factor->getKind()) {
+  case Expr::CharExprKind:
+    O << "'" << char(static_cast<CharExpr *>(Factor)->getC()) << "'";
     break;
-  case Expr::Num:O << static_cast<NumExpr *>(Factor)->getN();
+  case Expr::NumExprKind:
+    O << static_cast<NumExpr *>(Factor)->getN();
     break;
-  case Expr::Name:O << static_cast<NameExpr *>(Factor)->getId();
+  case Expr::NameExprKind:
+    O << static_cast<NameExpr *>(Factor)->getId();
     break;
-  case Expr::Str:O << static_cast<StrExpr *>(Factor)->getS();
+  case Expr::StrExprKind:
+    O << static_cast<StrExpr *>(Factor)->getS();
     break;
   default:
     assert(false && "Unhandled Factor Expr");
