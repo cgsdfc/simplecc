@@ -498,7 +498,7 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == BoolOpExprKind; }
+  static bool InstanceCheck(const Expr *x) { return x->getKind() == BoolOpExprKind; }
 
   Expr *getValue() const { return value; }
   void setValue(Expr *E);
@@ -524,7 +524,7 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
+  static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::UnaryOpExprKind;
   }
 
@@ -552,7 +552,7 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
+  static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::CallExprKind;
   }
 
@@ -580,7 +580,7 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
+  static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::NumExprKind;
   }
 
@@ -604,7 +604,7 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
+  static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::StrExprKind;
   }
 
@@ -627,7 +627,7 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
+  static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::CharExprKind;
   }
 
@@ -655,7 +655,7 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) {
+  static bool InstanceCheck(const Expr *x) {
     return x->getKind() == SubscriptExprKind;
   }
 
@@ -684,7 +684,7 @@ public:
 
   void Format(std::ostream &os) const override;
 
-  static bool InstanceCheck(Expr *x) { return x->getKind() == NameExprKind; }
+  static bool InstanceCheck(const Expr *x) { return x->getKind() == NameExprKind; }
 
   const std::string &getId() const { return id; }
   ExprContextKind getCtx() const { return ctx; }
@@ -710,7 +710,7 @@ public:
   void Format(std::ostream &os) const override;
   const std::vector<Decl *> &getDecls() const { return decls; }
 
-  static bool InstanceCheck(AST *A) { return A->getKind() == ProgramKind; }
+  static bool InstanceCheck(const AST *A) { return A->getKind() == ProgramKind; }
 };
 
 // EnumFromString
