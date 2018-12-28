@@ -20,7 +20,7 @@ static inline bool IsNameMiddle(char Chr) {
   return Chr == '_' || std::isalnum(Chr);
 }
 
-static bool IsBlank(const String &Line) {
+static bool IsBlank(const std::string &Line) {
   for (auto Chr : Line)
     if (!std::isspace(Chr))
       return false;
@@ -28,28 +28,28 @@ static bool IsBlank(const String &Line) {
 }
 
 static inline bool IsValidChar(char Chr) {
-  static const String ValidChars("+-*/_");
-  return ValidChars.find(Chr) != String::npos || std::isalnum(Chr);
+  static const std::string ValidChars("+-*/_");
+  return ValidChars.find(Chr) != std::string::npos || std::isalnum(Chr);
 }
 
 static inline bool IsSpecial(char Chr) {
-  static const String Special("[](){};:,");
-  return Special.find(Chr) != String::npos;
+  static const std::string Special("[](){};:,");
+  return Special.find(Chr) != std::string::npos;
 }
 
 static inline bool IsOperator(char Chr) {
-  static const String Operators("+-*/<>!=");
-  return Operators.find(Chr) != String::npos;
+  static const std::string Operators("+-*/<>!=");
+  return Operators.find(Chr) != std::string::npos;
 }
 
-static inline void ToLowerInplace(String &Str) {
+static inline void ToLowerInplace(std::string &Str) {
   std::transform(Str.begin(), Str.end(), Str.begin(), ::tolower);
 }
 
 namespace simplecc {
 void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
   unsigned Lineno = 0;
-  String TheLine;
+  std::string TheLine;
 
   Output.clear();
   while (std::getline(Input, TheLine)) {
@@ -118,7 +118,7 @@ void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
       } else {
         ++Pos; // ERRORTOKEN
       }
-      String Str(TheLine.begin() + Start.getColOffset(), TheLine.begin() + Pos);
+      std::string Str(TheLine.begin() + Start.getColOffset(), TheLine.begin() + Pos);
       if (Type == Symbol::NAME) {
         ToLowerInplace(Str);
       }

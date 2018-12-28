@@ -60,7 +60,7 @@ bool LocalContext::IsArray(const char *Name) const {
   return TheFunction->GetLocal()[Name].IsArray();
 }
 
-const String &LocalContext::getName() const { return TheFunction->getName(); }
+const std::string &LocalContext::getName() const { return TheFunction->getName(); }
 
 /// Initialize both LocalOffsets and JumpTargets.
 void LocalContext::Initialize(const ByteCodeFunction &F) {

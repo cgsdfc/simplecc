@@ -4,7 +4,6 @@
 #include <string>
 
 namespace simplecc {
-using String = std::string;
 
 // Return the bytes for n entries
 inline constexpr int BytesFromEntries(int NumEntry) { return 4 * NumEntry; }
@@ -58,7 +57,7 @@ class JumpTargetLabel : public LabelBase<JumpTargetLabel> {
 public:
   JumpTargetLabel(const char *PN, unsigned T, bool NeedColon)
       : LabelBase(NeedColon), ParentName(PN), Target(T) {}
-  JumpTargetLabel(const String &PN, unsigned T, bool NeedColon)
+  JumpTargetLabel(const std::string &PN, unsigned T, bool NeedColon)
       : JumpTargetLabel(PN.data(), T, NeedColon) {}
 
   void FormatImpl(std::ostream &O) const;
@@ -68,7 +67,7 @@ class ReturnLabel : public LabelBase<ReturnLabel> {
   const char *ParentName;
 
 public:
-  ReturnLabel(const String &PN, bool NeedColon)
+  ReturnLabel(const std::string &PN, bool NeedColon)
       : LabelBase(NeedColon), ParentName(PN.data()) {}
   void FormatImpl(std::ostream &O) const;
 };
@@ -79,7 +78,7 @@ class GlobalLabel : public LabelBase<GlobalLabel> {
 
 public:
   GlobalLabel(const char *N, bool NeedColon) : LabelBase(NeedColon), Name(N) {}
-  GlobalLabel(const String &N, bool NeedColon)
+  GlobalLabel(const std::string &N, bool NeedColon)
       : GlobalLabel(N.data(), NeedColon) {}
 
   void FormatImpl(std::ostream &O) const;
@@ -87,10 +86,10 @@ public:
 
 /// A wrapper class that escapes the string when Format'ted.
 class EscapedString {
-  const String &Str;
+  const std::string &Str;
 
 public:
-  EscapedString(const String &S) : Str(S) {}
+  EscapedString(const std::string &S) : Str(S) {}
   void Format(std::ostream &O) const;
 };
 

@@ -5,7 +5,6 @@
 #include <unordered_set>
 
 namespace simplecc {
-using String = std::string;
 class ByteCodeFunction;
 
 // Provide local information for ByteCodeToMipsTranslator
@@ -40,10 +39,10 @@ public:
   // Return whether a name is an array
   bool IsArray(const char *Name) const;
 
-  const String &getName() const;
+  const std::string &getName() const;
 
 private:
-  std::unordered_map<String, signed> LocalOffsets;
+  std::unordered_map<std::string, signed> LocalOffsets;
   std::unordered_set<unsigned> JumpTargets;
   const ByteCodeFunction *TheFunction = nullptr;
 };
