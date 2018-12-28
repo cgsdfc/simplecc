@@ -41,14 +41,14 @@ set(SOURCE_FILES
         Target/MipsSupport.cpp
         Target/MipsAssemblyWriter.cpp
 
-        Driver/Driver.cpp
-
         # Optimization is not implemented currently.
         # That's why they come last.
         Optimize/Module.cpp
         Optimize/Function.cpp
         Optimize/Instruction.cpp
         Optimize/BasicBlock.cpp
+
+        #Transform/ConstantInliner.cpp
         Driver/Driver.cpp)
 
 set(EXTRA_LIBRARIES "")
