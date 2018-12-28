@@ -28,7 +28,8 @@ public:
     return ErrorType;
   }
 
-  template <typename... Args> void Error(const Location &loc, Args &&... args) {
+  /// TODO: these 2 overloads are too easy to be ambiguous.
+  template<typename... Args> void Error(Location loc, Args &&... args) {
     getOuts() << getErrorType() << " at ";
     loc.FormatCompact(getOuts());
     getOuts() << " ";

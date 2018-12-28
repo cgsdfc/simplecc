@@ -10,15 +10,15 @@ namespace simplecc {
 /// This class is a CRTP base for classes that perform analysis on the AST.
 /// subclasses are **allowed** to mutate both the AST and the SymbolTable.
 template<typename Derived>
-class AnalysisVisitor : public ChildrenVisitor<Derived> {
+class AnalysisVisitor : public ChildrenVisitor<Derived>, public ErrorManager {
 public:
   AnalysisVisitor(const char *ErrorType = nullptr)
-      : TheTable(), TheLocalTable(), EM(ErrorType) {}
+      : ErrorManager(ErrorType), TheTable(), TheLocalTable() {}
 
   bool Check(Program *P, SymbolTable &S) {
     setTable(S);
     static_cast<Derived *>(this)->visitProgram(P);
-    return !EM.IsOk();
+    return !IsOk();
   }
 
 protected:
@@ -44,12 +44,6 @@ protected:
     return TheLocalTable[Name];
   }
 
-  /// Forward to EM.Error()
-  template<typename ... Ts>
-  void Error(Location L, Ts &&... Args) {
-    EM.Error(L, std::forward<Ts>(Args)...);
-  }
-
   void visitFuncDef(FuncDef *FD) {
     setLocalTable(FD);
     ChildrenVisitor<Derived>::visitFuncDef(FD);
@@ -58,7 +52,6 @@ protected:
 private:
   SymbolTable *TheTable;
   LocalSymbolTable TheLocalTable;
-  ErrorManager EM;
 };
 
 }

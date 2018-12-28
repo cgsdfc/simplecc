@@ -1,69 +1,46 @@
 #ifndef SIMPLECC_ANALYSIS_TYPECHECKER_H
 #define SIMPLECC_ANALYSIS_TYPECHECKER_H
-#include "simplecc/Analysis/SymbolTable.h"
-#include "simplecc/Analysis/Visitor.h"
-#include "simplecc/Support/ErrorManager.h"
+#include "simplecc/Analysis/AnalysisVisitor.h"
 
 namespace simplecc {
-class TypeChecker : ChildrenVisitor<TypeChecker> {
-
+class TypeChecker : AnalysisVisitor<TypeChecker> {
   void visitRead(ReadStmt *RD);
-
   void visitWrite(WriteStmt *WR);
-
   void visitReturn(ReturnStmt *R);
-
   void visitAssign(AssignStmt *A);
 
   // check the operand of BoolOpExpr, restrict to int
   void CheckBoolOpOperand(Expr *E);
-
   BasicTypeKind visitBoolOp(BoolOpExpr *B);
 
   // check the operand of Expr, restrict to NOT void
   BasicTypeKind CheckExprOperand(Expr *E);
-
   BasicTypeKind visitBinOp(BinOpExpr *B);
-
   BasicTypeKind visitUnaryOp(UnaryOpExpr *U);
-
   BasicTypeKind visitParenExpr(ParenExpr *PE);
-
   BasicTypeKind visitCall(CallExpr *C);
-
   BasicTypeKind visitSubscript(SubscriptExpr *SB);
-
   BasicTypeKind visitName(NameExpr *N);
-  // not actually used, for instantiation only
-  BasicTypeKind visitStr(StrExpr *);
 
-  // ReturnStmt the type of evaluating the expression
+  // Return the type of evaluating the expression.
   BasicTypeKind visitExpr(Expr *E);
 
-  void visitFuncDef(FuncDef *FD);
-
   BasicTypeKind visitNum(NumExpr *) { return BasicTypeKind::Int; }
-
   BasicTypeKind visitChar(CharExpr *) { return BasicTypeKind::Character; }
 
-  void setLocalTable(LocalSymbolTable L) { TheLocalTable = L; }
-  void setTable(SymbolTable *S) { TheTable = S; }
+  void visitFuncDef(FuncDef *FD);
   void setFuncDef(FuncDef *FD) { TheFuncDef = FD; }
 
+  // not actually used, for instantiation only.
+  BasicTypeKind visitStr(StrExpr *);
 public:
-  TypeChecker() = default;
-
-  // public interface
-  bool Check(Program *P, SymbolTable &S);
-
+  TypeChecker() : AnalysisVisitor("TypeError") {}
+  using AnalysisVisitor::Check;
 private:
+  friend AnalysisVisitor;
   friend ChildrenVisitor;
   friend VisitorBase;
-
-  SymbolTable *TheTable;
-  LocalSymbolTable TheLocalTable;
   FuncDef *TheFuncDef;
-  ErrorManager EM;
 };
 } // namespace simplecc
 #endif

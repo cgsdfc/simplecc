@@ -3,24 +3,17 @@
 
 using namespace simplecc;
 
-bool TypeChecker::Check(Program *P, SymbolTable &S) {
-  EM.setErrorType("TypeError");
-  setTable(&S);
-  visitProgram(P);
-  return !EM.IsOk();
-}
-
 void TypeChecker::visitRead(ReadStmt *RD) {
   for (auto E : RD->getNames()) {
     auto N = subclass_cast<NameExpr>(E);
     assert(N);
-    const auto &Entry = TheLocalTable[N->getId()];
+    const auto &Entry = getSymbolEntry(N->getId());
     if (!Entry.IsVariable()) {
-      EM.Error(N->getLocation(), "scanf() only applies to variables.");
+      Error(N->getLocation(), "scanf() only applies to variables.");
       continue;
     }
     /// set the Expr type for this.
-    TheTable->setExprType(E, Entry.AsVariable().getType());
+    getSymbolTable().setExprType(E, Entry.AsVariable().getType());
   }
 }
 
@@ -37,29 +30,29 @@ void TypeChecker::visitReturn(ReturnStmt *R) {
 
   // order a strict match
   if (ShouldReturn != ActuallyReturn) {
-    EM.Error(R->getLocation(), TheFuncDef->getName(), "must return",
-             CStringFromBasicTypeKind(ShouldReturn));
+    Error(R->getLocation(), TheFuncDef->getName(), "must return",
+          CStringFromBasicTypeKind(ShouldReturn));
   }
 }
 
 void TypeChecker::visitAssign(AssignStmt *A) {
-  int Errs = EM.getErrorCount();
+  int Errs = getErrorCount();
   auto RHS = CheckExprOperand(A->getValue());
   auto LHS = visitExpr(A->getTarget());
 
-  if (EM.IsOk(Errs) && LHS != RHS) {
-    EM.Error(A->getLocation(), "cannot assign", CStringFromBasicTypeKind(RHS),
-             "to", CStringFromBasicTypeKind(LHS));
+  if (IsOk(Errs) && LHS != RHS) {
+    Error(A->getLocation(), "cannot assign", CStringFromBasicTypeKind(RHS),
+          "to", CStringFromBasicTypeKind(LHS));
   }
 }
 
 // check the operand of BoolOpExpr, restrict to int
 void TypeChecker::CheckBoolOpOperand(Expr *E) {
   auto Msg = "operands of condition must be all int";
-  auto Errs = EM.getErrorCount();
+  auto Errs = getErrorCount();
   auto T = visitExpr(E);
-  if (EM.IsOk(Errs) && T != BasicTypeKind::Int) {
-    EM.Error(E->getLocation(), Msg);
+  if (IsOk(Errs) && T != BasicTypeKind::Int) {
+    Error(E->getLocation(), Msg);
   }
 }
 
@@ -77,10 +70,10 @@ BasicTypeKind TypeChecker::visitBoolOp(BoolOpExpr *B) {
 // check the operand of Expr, restrict to NOT void
 BasicTypeKind TypeChecker::CheckExprOperand(Expr *E) {
   auto Msg = "using void value in an expression";
-  auto Errs = EM.getErrorCount();
+  auto Errs = getErrorCount();
   auto T = visitExpr(E);
-  if (EM.IsOk(Errs) && T == BasicTypeKind::Void) {
-    EM.Error(E->getLocation(), Msg);
+  if (IsOk(Errs) && T == BasicTypeKind::Void) {
+    Error(E->getLocation(), Msg);
   }
   return T;
 }
@@ -102,9 +95,9 @@ BasicTypeKind TypeChecker::visitParenExpr(ParenExpr *PE) {
 }
 
 BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
-  const auto &Entry = TheLocalTable[C->getFunc()];
+  const auto &Entry = getSymbolEntry(C->getFunc());
   if (!Entry.IsFunction()) {
-    EM.Error(C->getLocation(), Entry.getName(), "is not a function");
+    Error(C->getLocation(), Entry.getName(), "is not a function");
     return BasicTypeKind::Void;
   }
 
@@ -112,8 +105,8 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
   auto NumFormal = Ty.getArgCount();
   auto NumActual = C->getArgs().size();
   if (NumFormal != NumActual) {
-    EM.Error(C->getLocation(), C->getFunc(), "expects", NumFormal,
-             "arguments, got", NumActual);
+    Error(C->getLocation(), C->getFunc(), "expects", NumFormal,
+          "arguments, got", NumActual);
   }
 
   // check args
@@ -122,40 +115,45 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
     auto ActualTy = visitExpr(C->getArgs()[I]);
     auto FormalTy = Ty.getArgTypeAt(I);
     if (ActualTy != FormalTy) {
-      EM.Error(C->getArgs()[I]->getLocation(), "argument", I + 1, "of",
-               C->getFunc(), "must be", CStringFromBasicTypeKind(FormalTy));
+      Error(C->getArgs()[I]->getLocation(), "argument", I + 1, "of",
+            C->getFunc(), "must be", CStringFromBasicTypeKind(FormalTy));
     }
   }
   return Ty.getReturnType();
 }
 
 BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
-  const auto &Entry = TheLocalTable[SB->getName()];
+  const auto &Entry = getSymbolEntry(SB->getName());
   if (!Entry.IsArray()) {
-    EM.Error(SB->getLocation(), Entry.getName(), "is not an array");
+    Error(SB->getLocation(), Entry.getName(), "is not an array");
     return BasicTypeKind::Void;
   }
 
-  int Errs = EM.getErrorCount();
+  int Errs = getErrorCount();
   auto Idx = visitExpr(SB->getIndex());
-  if (EM.IsOk(Errs) && Idx != BasicTypeKind::Int) {
-    EM.Error(SB->getLocation(), "array index must be int");
+  if (IsOk(Errs) && Idx != BasicTypeKind::Int) {
+    Error(SB->getLocation(), "array index must be int");
   }
 
   return Entry.AsArray().getElementType();
 }
 
+static void CheckNoLoadFunction(SymbolEntry Entry, NameExpr *N) {
+  assert(!(Entry.IsFunction() && N->getCtx() == ExprContextKind::Load)
+             && "There should be no NameExpr being a Function!");
+}
+
 BasicTypeKind TypeChecker::visitName(NameExpr *N) {
-  const auto &Entry = TheLocalTable[N->getId()];
+  const auto &Entry = getSymbolEntry(N->getId());
   // Catch this frequent error first.
-  assert(!Entry.IsFunction() && "There should be no NameExpr being a Function!");
+  CheckNoLoadFunction(Entry, N);
 
   if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
-    EM.Error(N->getLocation(), "using an array in an expression");
+    Error(N->getLocation(), "using an array in an expression");
     return BasicTypeKind::Void;
   }
   if (N->getCtx() == ExprContextKind::Store && !Entry.IsVariable()) {
-    EM.Error(N->getLocation(), "only variables can be assigned to");
+    Error(N->getLocation(), "only variables can be assigned to");
     return BasicTypeKind::Void;
   }
   if (Entry.IsConstant())
@@ -172,13 +170,11 @@ BasicTypeKind TypeChecker::visitStr(StrExpr *) {
 // Return the type of evaluating the expression
 BasicTypeKind TypeChecker::visitExpr(Expr *E) {
   auto T = VisitorBase::visitExpr<BasicTypeKind>(E);
-  TheTable->setExprType(E, T);
+  getSymbolTable().setExprType(E, T);
   return T;
 }
 
 void TypeChecker::visitFuncDef(FuncDef *FD) {
-  assert(TheTable);
   setFuncDef(FD);
-  setLocalTable(TheTable->getLocalTable(FD));
-  ChildrenVisitor::visitFuncDef(FD);
+  AnalysisVisitor::visitFuncDef(FD);
 }
