@@ -7,8 +7,7 @@ namespace simplecc {
 class Program;
 class SymbolTable;
 
-bool CompileToLLVMIR(std::string InputFile, Program *P, const SymbolTable &S,
-                     llvm::raw_ostream &OS);
+bool CompileToLLVMIR(Program *P, const SymbolTable &S, llvm::raw_ostream &OS);
 } // namespace simplecc
 
 #endif

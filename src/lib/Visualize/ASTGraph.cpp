@@ -62,8 +62,8 @@ template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
   explicit DOTGraphTraits(bool simple = false)
       : DefaultDOTGraphTraits(simple) {}
 
-  static std::string getGraphName(const AstGraph &) {
-    return "Abstract Syntax Tree";
+  static std::string getGraphName(const AstGraph &G) {
+    return G.getProgram()->getFilename();
   }
 
   std::string getNodeLabel(const void *NodeRef, const AstGraph &) {

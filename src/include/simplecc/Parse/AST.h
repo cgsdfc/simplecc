@@ -605,11 +605,12 @@ public:
 };
 
 class Program : public AST {
+  std::string Filename;
   std::vector<Decl *> decls;
 public:
   ~Program();
-  explicit Program(std::vector<Decl *> decls)
-      : AST(ProgramKind, Location(0, 0)), decls(std::move(decls)) {}
+  Program(std::string FN, std::vector<Decl *> decls)
+      : AST(ProgramKind, Location(0, 0)), Filename(std::move(FN)), decls(std::move(decls)) {}
 
   // Disable copy and move.
   Program(const Program &) = delete;
@@ -618,7 +619,7 @@ public:
   Program &operator=(Program &&) = delete;
 
   const std::vector<Decl *> &getDecls() const { return decls; }
-
+  std::string getFilename() const { return Filename; }
   static bool InstanceCheck(const AST *A) { return A->getKind() == ProgramKind; }
 };
 

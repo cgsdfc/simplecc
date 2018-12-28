@@ -1,16 +1,10 @@
 #include "simplecc/Parse/AstBuilder.h"
-#include "simplecc/Parse/AST.h"
 #include "simplecc/Parse/Node.h"
 #include "simplecc/Support/ErrorManager.h"
 
-#include <cassert>
-#include <sstream>
-#include <string>
-#include <vector>
-
 using namespace simplecc;
 
-Program *AstBuilder::visit_program(Node *N) {
+Program *AstBuilder::visit_program(std::string Filename, Node *N) {
   assert(N->getType() == Symbol::program);
   std::vector<Decl *> Decls;
 
@@ -24,7 +18,7 @@ Program *AstBuilder::visit_program(Node *N) {
       break;
     }
   }
-  return new Program(std::move(Decls));
+  return new Program(std::move(Filename), std::move(Decls));
 }
 
 void AstBuilder::visit_const_decl(Node *N, std::vector<Decl *> &Decls) {

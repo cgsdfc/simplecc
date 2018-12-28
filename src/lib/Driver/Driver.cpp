@@ -1,13 +1,11 @@
 #include "simplecc/Driver/Driver.h"
 #include "simplecc/CodeGen/Compile.h"
 #include "simplecc/Lex/Tokenize.h"
-#include "simplecc/Parse/Parse.h"
 #include "simplecc/Target/Assemble.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "simplecc/LLVM/EmitLLVM.h"
 #include "simplecc/Visualize/Visualize.h"
-#include <llvm/Support/raw_ostream.h>
 #endif
 
 using namespace simplecc;
@@ -60,7 +58,7 @@ bool Driver::doTokenize() {
 bool Driver::doParse() {
   if (doTokenize())
     return true;
-  TheProgram = BuildAST(TheTokens);
+  TheProgram = BuildAST(getInputFile(), TheTokens);
   if (TheProgram)
     return false;
   EM.increaseErrorCount();
@@ -173,9 +171,7 @@ void Driver::runEmitLLVMIR() {
   auto OS = getLLVMRawOstream();
   if (!OS)
     return;
-  bool Result = CompileToLLVMIR(getInputFile(), TheProgram.get(),
-                                AM.getSymbolTable(), *OS);
-  if (!Result) {
+  if (CompileToLLVMIR(TheProgram.get(), AM.getSymbolTable(), *OS)) {
     EM.increaseErrorCount();
   }
 }
@@ -186,7 +182,7 @@ void Driver::runWriteAstGraph() {
   auto OS = getLLVMRawOstream();
   if (!OS)
     return;
- // PrintAllAstNodes(TheProgram.get(), std::cout);
+  // PrintAllAstNodes(TheProgram.get(), std::cout);
   WriteASTGraph(TheProgram.get(), *OS);
 }
 

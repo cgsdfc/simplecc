@@ -2,6 +2,7 @@
 #define SIMPLECC_PARSE_ASTBUILDER_H
 
 #include "simplecc/Parse/AST.h"
+#include <string>
 #include <vector>
 
 namespace simplecc {
@@ -13,7 +14,7 @@ class AstBuilder {
   Expr *makeNum(Node *N);
 
   /// program: const_decl* declaration* ENDMARKER
-  Program *visit_program(Node *N);
+  Program *visit_program(std::string Filename, Node *N);
 
   /// const_decl: 'const' type_name const_item (',' const_item)* ';'
   void visit_const_decl(Node *N, std::vector<Decl *> &Decls);
@@ -106,7 +107,9 @@ class AstBuilder {
   int visit_subscript2(Node *N);
 
 public:
-  Program *Build(const Node *N) { return visit_program(const_cast<Node *>(N)); }
+  Program *Build(const std::string &Filename, const Node *N) {
+    return visit_program(Filename, const_cast<Node *>(N));
+  }
 };
 } // namespace simplecc
 

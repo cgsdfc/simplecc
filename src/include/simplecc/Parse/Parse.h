@@ -8,6 +8,6 @@ namespace simplecc {
 using ProgramRef = std::unique_ptr<Program, DeleteAST>;
 
 std::unique_ptr<Node> BuildCST(const std::vector<TokenInfo> &TheTokens);
-ProgramRef BuildAST(const std::vector<TokenInfo> &TheTokens);
+ProgramRef BuildAST(const String &Filename, const std::vector<TokenInfo> &TheTokens);
 } // namespace simplecc
 #endif // SIMPLECC_PARSE_PARSE_H

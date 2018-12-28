@@ -70,6 +70,7 @@ public:
   /// Lazily create a node, namely an AstRef.
   AstRef *getNodeOrCreate(AST *Ptr);
 
+  const Program *getProgram() const { return TheProgram; }
 private:
   /// Root of AST.
   Program *TheProgram;

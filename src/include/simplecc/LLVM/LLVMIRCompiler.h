@@ -142,7 +142,7 @@ private:
 
 public:
   /// Don't put instance on the stack. It is about 1K.
-  LLVMIRCompiler(String Name, Program *P, const SymbolTable &S);
+  LLVMIRCompiler(Program *P, const SymbolTable &S);
 
   /// No copy no move.
   LLVMIRCompiler(const LLVMIRCompiler &) = delete;

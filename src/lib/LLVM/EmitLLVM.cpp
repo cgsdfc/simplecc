@@ -5,11 +5,9 @@ namespace simplecc {
 
 /// Compile a program to LLVM IR, dump resultant code to stderr.
 /// Return true for success.
-bool CompileToLLVMIR(std::string InputFile, Program *P, const SymbolTable &S,
-                     llvm::raw_ostream &OS) {
+bool CompileToLLVMIR(Program *P, const SymbolTable &S, llvm::raw_ostream &OS) {
 
-  std::unique_ptr<LLVMIRCompiler> TheCompiler(
-      new LLVMIRCompiler(std::move(InputFile), P, S));
+  auto TheCompiler = llvm::make_unique<LLVMIRCompiler>(P, S);
 
   /// Compile to llvm::Module, fail fast.
   if (TheCompiler->Compile())

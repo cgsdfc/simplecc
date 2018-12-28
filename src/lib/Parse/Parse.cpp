@@ -9,11 +9,11 @@ std::unique_ptr<Node> BuildCST(const std::vector<TokenInfo> &TheTokens) {
   return std::unique_ptr<Node>(P.ParseTokens(TheTokens));
 }
 
-ProgramRef BuildAST(const std::vector<TokenInfo> &TheTokens) {
+ProgramRef BuildAST(const String &Filename, const std::vector<TokenInfo> &TheTokens) {
   auto CST = BuildCST(TheTokens);
   if (!CST)
     return nullptr;
-  return ProgramRef(AstBuilder().Build(CST.get()));
+  return ProgramRef(AstBuilder().Build(Filename, CST.get()));
 }
 
 } // namespace simplecc
