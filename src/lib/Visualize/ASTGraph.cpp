@@ -9,16 +9,6 @@
 
 using namespace simplecc;
 
-AstIterator::AstIterator(Program *P, AstGraph *G)
-    : TreeLikeIterator(), Parent(G) {
-  Initialize(Parent->getNodeOrCreate(P));
-}
-
-AstIterator::EdgeRange AstIterator::getEdges(value_type N) {
-  const auto &LazyEdges = Parent->getEdgeOrCreate(*N);
-  return llvm::make_range(LazyEdges.begin(), LazyEdges.end());
-}
-
 AstRef *AstGraph::getNodeOrCreate(AST *Ptr) {
   auto iter = Nodes.find(Ptr);
   if (iter != Nodes.end())

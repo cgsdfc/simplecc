@@ -57,10 +57,8 @@ if (USE_LLVM)
     list(APPEND SOURCE_FILES
             # Visualize the CST.
             Visualize/CSTGraph.cpp
-
             # Visualize the AST.
             Visualize/ASTGraph.cpp
-            Visualize/AstIterator.cpp
             Visualize/DescriptionVisitor.cpp
 
             # Generate LLVM IR from the AST.

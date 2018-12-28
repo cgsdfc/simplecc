@@ -1,8 +1,8 @@
 #ifndef SIMPLECC_VISUALIZE_ASTGRAPH_H
 #define SIMPLECC_VISUALIZE_ASTGRAPH_H
 #include "simplecc/Parse/AST.h"
-#include "simplecc/Visualize/AstIterator.h"
 #include "simplecc/Visualize/AstRef.h"
+#include "simplecc/Visualize/TreeLikeIterator.h"
 
 #include <llvm/ADT/STLExtras.h>
 
@@ -19,10 +19,30 @@ class AST;
 // A class that keeps all the edges of an AstRef
 class AstGraph {
 public:
+  using EdgeType = std::vector<AstRef *>;
+  using ChildIteratorType = EdgeType::const_iterator;
+
+  /// Iterator to all nodes of a graph.
+  class AstIterator :
+      public TreeLikeIterator<AstIterator, AstRef *, ChildIteratorType> {
+  public:
+    AstIterator(Program *P, AstGraph *G) : TreeLikeIterator(), Parent(G) {
+      Initialize(Parent->getNodeOrCreate(P));
+    }
+    AstIterator() = default;
+
+    EdgeRange getEdges(value_type N) {
+      const auto &LazyEdges = Parent->getEdgeOrCreate(*N);
+      return llvm::make_range(LazyEdges.begin(), LazyEdges.end());
+    }
+
+  private:
+    AstGraph *Parent = nullptr;
+  };
+
   explicit AstGraph(Program *P) : TheProgram(P), Edges(), Nodes() {}
 
   using NodeIterator = AstIterator;
-  using ChildIteratorType = AstIterator::ChildIteratorType;
 
   /// Iterate over all nodes.
   NodeIterator nodes_begin() const {
@@ -54,7 +74,7 @@ private:
   /// Root of AST.
   Program *TheProgram;
   /// Lazily created edges for each node.
-  std::map<AST *, std::vector<AstRef *>> Edges;
+  std::map<AST *, EdgeType> Edges;
   /// Lazily created nodes.
   std::map<AST *, std::unique_ptr<AstRef>> Nodes;
 };

@@ -11,12 +11,12 @@ namespace simplecc {
 /// This is a CRTP base class can be used as an iterator to any
 /// tree-like object, provided that the Derived implement a getEdges()
 /// method, which fetches edges for a given node.
-template<typename Derived, typename ValueTy, typename EdgeIter>
-class TreeLikeIterator : public llvm::iterator_facade_base<TreeLikeIterator<Derived, ValueTy, EdgeIter>,
+template<typename Derived, typename ValueTy, typename ChildIter>
+class TreeLikeIterator : public llvm::iterator_facade_base<TreeLikeIterator<Derived, ValueTy, ChildIter>,
                                                            std::forward_iterator_tag, ValueTy> {
 public:
   using value_type = ValueTy;
-  using ChildIteratorType = EdgeIter;
+  using ChildIteratorType = ChildIter;
 
   /// This ctor is the first-phrase initialization.
   TreeLikeIterator(value_type Root) {
@@ -34,10 +34,10 @@ public:
   }
 
 protected:
-  using EdgeRange = llvm::iterator_range<EdgeIter>;
+  using EdgeRange = llvm::iterator_range<ChildIter>;
   /// The default makes an empty range.
   EdgeRange getEdges(value_type) {
-    return llvm::make_range(EdgeIter(), EdgeIter());
+    return llvm::make_range(ChildIter(), ChildIter());
   }
 
   // Second-phrase initialization. Derived can use this if it sees fit.

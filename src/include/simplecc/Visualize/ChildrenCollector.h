@@ -9,7 +9,10 @@ class AstRef;
 /// Collect children of an AstRef into a vector for later use.
 class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
   /// Add a child.
-  template <typename AstT> void AddChild(AstT *Ptr);
+  void AddChild(AST *Ptr) {
+    AstRef *AR = Parent->getNodeOrCreate(Ptr);
+    Children.push_back(AR);
+  }
 
   /// For ChildrenVisitor to hook in
   void visitExpr(Expr *E) { AddChild(E); }
@@ -35,12 +38,6 @@ private:
   /// Used to construct an AstRef.
   AstGraph *Parent;
 };
-
-/// Add a child.
-template <typename AstT> void ChildrenCollector::AddChild(AstT *Ptr) {
-  AstRef *AR = Parent->getNodeOrCreate(Ptr);
-  Children.push_back(AR);
-}
 } // namespace simplecc
 
 #endif // SIMPLECC_VISUALIZE_CHILDRENCOLLECTOR_H
