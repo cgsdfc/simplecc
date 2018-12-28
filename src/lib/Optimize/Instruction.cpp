@@ -49,4 +49,5 @@ const char *Instruction::getOpcodeName(unsigned Opcode) {
 
 Instruction *Instruction::cloneImpl() const {
   assert(false && "subclass should implement cloneImpl()");
+  return nullptr;
 }
