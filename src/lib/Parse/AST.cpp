@@ -1,11 +1,8 @@
 #include "simplecc/Parse/AST.h"
 #include <cassert>
-#include <iostream>
-#include <vector>
 #include <algorithm>
-#include <simplecc/Parse/AST.h>
 
-namespace simplecc {
+using namespace simplecc;
 
 template<typename AstT>
 static inline void setterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
@@ -27,6 +24,11 @@ static inline void deleteList(const std::vector<AstT *> &List) {
 
 static inline void deleteOptional(AST *A) {
   DeleteAST::apply(A);
+}
+
+static inline void deleteRequired(AST *A) {
+  assert(A && "Required field can't be null");
+  A->deleteAST();
 }
 
 Program::~Program() {
@@ -53,23 +55,23 @@ void WriteStmt::setValue(Expr *Val) {
 }
 
 AssignStmt::~AssignStmt() {
-  target->deleteAST();
-  value->deleteAST();
+  deleteRequired(target);
+  deleteRequired(value);
 }
 
 void AssignStmt::setValue(Expr *E) { setterImpl(value, E); }
 
 ForStmt::~ForStmt() {
-  initial->deleteAST();
-  condition->deleteAST();
-  step->deleteAST();
+  deleteRequired(initial);
+  deleteRequired(condition);
+  deleteRequired(step);
   deleteList(body);
 }
 
 void ForStmt::setCondition(Expr *E) { setterImpl(condition, E); }
 
 WhileStmt::~WhileStmt() {
-  condition->deleteAST();
+  deleteRequired(condition);
   deleteList(body);
 }
 
@@ -82,7 +84,7 @@ void ReturnStmt::setValue(Expr *E) {
 }
 
 IfStmt::~IfStmt() {
-  test->deleteAST();
+  deleteRequired(test);
   deleteList(body);
   deleteList(orelse);
 }
@@ -92,27 +94,27 @@ void IfStmt::setTest(Expr *E) {
 }
 
 ExprStmt::~ExprStmt() {
-  value->deleteAST();
+  deleteRequired(value);
 }
 
 BinOpExpr::~BinOpExpr() {
-  left->deleteAST();
-  right->deleteAST();
+ deleteRequired(left);
+ deleteRequired(right);
 }
 
 void BinOpExpr::setLeft(Expr *E) { setterImpl(left, E); }
 
 void BinOpExpr::setRight(Expr *E) { setterImpl(right, E); }
 
-ParenExpr::~ParenExpr() { value->deleteAST(); }
+ParenExpr::~ParenExpr() { deleteRequired(value); }
 
 void ParenExpr::setValue(Expr *E) { setterImpl(value, E); }
 
-BoolOpExpr::~BoolOpExpr() { value->deleteAST(); }
+BoolOpExpr::~BoolOpExpr() { deleteRequired(value); }
 
 void BoolOpExpr::setValue(Expr *E) { setterImpl(value, E); }
 
-UnaryOpExpr::~UnaryOpExpr() { operand->deleteAST(); }
+UnaryOpExpr::~UnaryOpExpr() { deleteRequired(operand); }
 
 void UnaryOpExpr::setOperand(Expr *E) { setterImpl(operand, E); }
 
@@ -122,7 +124,7 @@ CallExpr::~CallExpr() {
 
 void CallExpr::setArgAt(unsigned I, Expr *Val) { setterImpl(args[I], Val); }
 
-SubscriptExpr::~SubscriptExpr() { index->deleteAST(); }
+SubscriptExpr::~SubscriptExpr() { deleteRequired(index); }
 
 void SubscriptExpr::setIndex(Expr *E) { setterImpl(index, E); }
 
@@ -178,5 +180,3 @@ bool Expr::InstanceCheck(AST *A) {
     return true;
   }
 }
-
-} // namespace simplecc
