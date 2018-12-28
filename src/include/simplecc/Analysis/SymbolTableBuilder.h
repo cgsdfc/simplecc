@@ -15,29 +15,17 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
   /// declaration and its use site -- Names. So we let ChildrenVisitor
   /// to automatically recurse into children while we only implement
   /// visitors of interest.
-  friend class VisitorBase<SymbolTableBuilder>;
-  friend class ChildrenVisitor<SymbolTableBuilder>;
-
-  ErrorManager EM;
-  TableType *TheGlobal;
-  TableType *TheLocal;
-  FuncDef *TheFuncDef;
-  SymbolTable *TheTable;
 
   void DefineLocalDecl(Decl *D);
-
   void DefineGlobalDecl(Decl *D);
-
-  void ResolveName(const std::string &Name, Location L);
+  void visitDecl(Decl *D);
 
   /// Overloads to visit AstNodes that have names.
   void visitName(NameExpr *N) { ResolveName(N->getId(), N->getLocation()); }
-
   void visitCall(CallExpr *C);
-
   void visitSubscript(SubscriptExpr *SB);
+  void ResolveName(const std::string &Name, Location L);
 
-  void visitDecl(Decl *D);
   /// Trivial setters for important states during the construction
   /// of a table.
   void setFuncDef(FuncDef *FD) { TheFuncDef = FD; }
@@ -47,20 +35,22 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
 
   /// Clear the state of this SymbolTableBuilder
   void clear();
-
 public:
   /// Default construct and destruct.
   SymbolTableBuilder() { clear(); }
-  ~SymbolTableBuilder() = default;
-
-  /// Trivially copyable and movable.
-  SymbolTableBuilder(const SymbolTableBuilder &) = default;
-  SymbolTableBuilder(SymbolTableBuilder &&) = default;
 
   /// Build a SymbolTable from a program.
   /// Return true if errors happened.
   /// Note: the table will be cleared first.
   bool Build(Program *P, SymbolTable &S);
+private:
+  friend VisitorBase;
+  friend ChildrenVisitor;
+  ErrorManager EM;
+  TableType *TheGlobal;
+  TableType *TheLocal;
+  FuncDef *TheFuncDef;
+  SymbolTable *TheTable;
 };
 } // namespace simplecc
 
