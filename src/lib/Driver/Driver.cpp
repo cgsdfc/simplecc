@@ -124,7 +124,7 @@ void Driver::runPrintByteCode() {
   PrintByteCode(TheProgram.get(), *OStream);
 }
 
-void Driver::runDumpAst() {
+void Driver::runPrettyPrintAST() {
   if (doAnalyses())
     return;
   auto OStream = getStdOstream();

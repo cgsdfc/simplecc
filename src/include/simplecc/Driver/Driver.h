@@ -53,7 +53,7 @@ public:
   void runDumpByteCodeModule();
   void runAnalysisOnly();
   void runDumpSymbolTable();
-  void runDumpAst();
+  void runPrettyPrintAST();
   void runDumpCst();
 
 #ifdef SIMPLE_COMPILER_USE_LLVM

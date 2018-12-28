@@ -154,7 +154,7 @@ void AST::Format(std::ostream &os) const {
      << ">";
 }
 
-bool Decl::InstanceCheck(AST *A) {
+bool Decl::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
 #define HANDLE_DECL(CLASS) case AST::CLASS##Kind:
@@ -163,7 +163,7 @@ bool Decl::InstanceCheck(AST *A) {
   }
 }
 
-bool Stmt::InstanceCheck(AST *A) {
+bool Stmt::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
 #define HANDLE_STMT(CLASS) case AST::CLASS##Kind:
@@ -172,7 +172,7 @@ bool Stmt::InstanceCheck(AST *A) {
   }
 }
 
-bool Expr::InstanceCheck(AST *A) {
+bool Expr::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
 #define HANDLE_EXPR(CLASS) case AST::CLASS##Kind:

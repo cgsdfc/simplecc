@@ -8,10 +8,10 @@
 
 namespace simplecc {
 /// This class is a CRTP base for classes that perform analysis on the AST.
-/// It sets up the corresponding LocalSymbolTable for each FuncDef to be visit.
+/// It sets up the corresponding LocalSymbolTable for each FuncDef to be visited.
 /// It also acts as an ErrorManger so that subclass don't need to own one.
 /// It provides a Check() method that means to streamline the interface of subclasses.
-/// Due to CRTP, subclasses should
+/// Due to CRTP, subclasses should:
 /// 1. private inherit this class.
 /// 2. make friends with all its Visitor-like base classes. (Currently 3).
 /// 3. mark Check() as public.

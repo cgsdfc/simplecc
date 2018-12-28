@@ -41,21 +41,21 @@ protected:
 public:
   std::string name;
   const std::string &getName() const { return name; }
-  static bool InstanceCheck(AST *A);
+  static bool InstanceCheck(const AST *A);
 };
 
 class Stmt : public AST {
 protected:
   Stmt(unsigned int Kind, Location loc) : AST(Kind, loc) {}
 public:
-  static bool InstanceCheck(AST *A);
+  static bool InstanceCheck(const AST *A);
 };
 
 class Expr : public AST {
 protected:
   Expr(int Kind, Location loc) : AST(Kind, loc) {}
 public:
-  static bool InstanceCheck(AST *A);
+  static bool InstanceCheck(const AST *A);
 };
 
 // ConcreteNode
@@ -76,7 +76,7 @@ public:
 
   ConstDecl &operator=(ConstDecl &&) = delete;
 
-  static bool InstanceCheck(Decl *x) {
+  static bool InstanceCheck(const Decl *x) {
     return x->getKind() == Decl::ConstDeclKind;
   }
 
@@ -101,7 +101,7 @@ public:
   VarDecl &operator=(const VarDecl &) = delete;
   VarDecl &operator=(VarDecl &&) = delete;
 
-  static bool InstanceCheck(Decl *x) {
+  static bool InstanceCheck(const Decl *x) {
     return x->getKind() == Decl::VarDeclKind;
   }
 
@@ -134,7 +134,7 @@ public:
 
   ~FuncDef();
 
-  static bool InstanceCheck(Decl *x) {
+  static bool InstanceCheck(const Decl *x) {
     return x->getKind() == Decl::FuncDefKind;
   }
 
@@ -160,7 +160,7 @@ public:
   ArgDecl &operator=(const ArgDecl &) = delete;
   ArgDecl &operator=(ArgDecl &&) = delete;
 
-  static bool InstanceCheck(Decl *x) {
+  static bool InstanceCheck(const Decl *x) {
     return x->getKind() == Decl::ArgDeclKind;
   }
 
@@ -182,7 +182,7 @@ public:
 
   ~ReadStmt();
 
-  static bool InstanceCheck(Stmt *x) {
+  static bool InstanceCheck(const Stmt *x) {
     return x->getKind() == Stmt::ReadStmtKind;
   }
 
@@ -205,7 +205,7 @@ public:
 
   ~WriteStmt();
 
-  static bool InstanceCheck(Stmt *x) { return x->getKind() == WriteStmtKind; }
+  static bool InstanceCheck(const Stmt *x) { return x->getKind() == WriteStmtKind; }
 
   Expr *getStr() const { return str; }
   Expr *getValue() const { return value; }
@@ -229,7 +229,7 @@ public:
 
   ~AssignStmt();
 
-  static bool InstanceCheck(Stmt *x) { return x->getKind() == AssignStmtKind; }
+  static bool InstanceCheck(const Stmt *x) { return x->getKind() == AssignStmtKind; }
 
   Expr *getTarget() const { return target; }
   Expr *getValue() const { return value; }
@@ -256,7 +256,7 @@ public:
 
   ~ForStmt();
 
-  static bool InstanceCheck(Stmt *x) {
+  static bool InstanceCheck(const Stmt *x) {
     return x->getKind() == Stmt::ForStmtKind;
   }
 
@@ -286,7 +286,7 @@ public:
 
   ~WhileStmt();
 
-  static bool InstanceCheck(Stmt *x) { return x->getKind() == WhileStmtKind; }
+  static bool InstanceCheck(const Stmt *x) { return x->getKind() == WhileStmtKind; }
 
   Expr *getCondition() const { return condition; }
   void setCondition(Expr *E);
@@ -309,7 +309,7 @@ public:
 
   ~ReturnStmt();
 
-  static bool InstanceCheck(Stmt *x) {
+  static bool InstanceCheck(const Stmt *x) {
     return x->getKind() == Stmt::ReturnStmtKind;
   }
 
@@ -336,7 +336,7 @@ public:
 
   ~IfStmt();
 
-  static bool InstanceCheck(Stmt *x) {
+  static bool InstanceCheck(const Stmt *x) {
     return x->getKind() == Stmt::IfStmtKind;
   }
 
@@ -362,7 +362,7 @@ public:
 
   ~ExprStmt();
 
-  static bool InstanceCheck(Stmt *x) {
+  static bool InstanceCheck(const Stmt *x) {
     return x->getKind() == Stmt::ExprStmtKind;
   }
 
@@ -387,7 +387,7 @@ public:
 
   ~BinOpExpr();
 
-  static bool InstanceCheck(Expr *x) {
+  static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::BinOpExprKind;
   }
 
@@ -415,7 +415,7 @@ public:
 
   ~ParenExpr();
 
-  static bool InstanceCheck(Expr *x) {
+  static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::ParenExprKind;
   }
 

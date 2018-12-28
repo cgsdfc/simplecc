@@ -2,7 +2,7 @@
 #define SIMPLECC_SUPPORT_CASTING_H
 
 namespace simplecc {
-template<typename T, typename U> bool IsInstance(U *x) {
+template<typename T, typename U> bool IsInstance(const U *x) {
   return T::InstanceCheck(x);
 }
 

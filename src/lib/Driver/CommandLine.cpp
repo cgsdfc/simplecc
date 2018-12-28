@@ -3,13 +3,14 @@
 #include "simplecc/Support/Print.h"
 
 using namespace simplecc;
+// TODO: use Driver.def to simplify this.
 
 static tclap::SwitchArg TokenizeSwitch("", "tokenize", "tokenize the input",
                                        false);
 static tclap::SwitchArg PrintCSTSwitch("", "print-cst",
                                        "print the concrete syntax tree", false);
 static tclap::SwitchArg PrintASTSwitch("", "print-ast",
-                                       "print the abstract syntax tree", false);
+                                       "pretty print the abstract syntax tree", false);
 static tclap::SwitchArg
     PrintBytecodeSwitch("", "print-school-ir",
                         "print IR in the format required by school", false);
@@ -73,7 +74,7 @@ int CommandLine::run(int Argc, char **Argv) {
   } else if (PrintCSTSwitch.isSet()) {
     TheDriver->runDumpCst();
   } else if (PrintASTSwitch.isSet()) {
-    TheDriver->runDumpAst();
+    TheDriver->runPrettyPrintAST();
   } else if (PrintBytecodeSwitch.isSet()) {
     TheDriver->runPrintByteCode();
   } else if (PrintByteCodeModuleSwitch.isSet()) {
