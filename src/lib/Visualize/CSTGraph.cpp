@@ -5,35 +5,30 @@
 
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/Support/GraphWriter.h>
-#include <llvm/Support/raw_ostream.h>
-
-#include <cassert>
-#include <iostream>
-#include <string>
 
 namespace llvm {
-using simplecc::Node;
-using CSTGraphTy = Node *;
+using simplecc::NodeIterator;
+using CSTGraphTy = NodeIterator::value_type;
 
 /// Specialized GraphTraits
-template <> struct GraphTraits<CSTGraphTy> {
+template<> struct GraphTraits<CSTGraphTy> {
   using NodeRef = CSTGraphTy;
-  using nodes_iterator = simplecc::NodeIterator;
-  using ChildIteratorType = Node::const_iterator;
+  using nodes_iterator = NodeIterator;
+  using ChildIteratorType = NodeIterator::ChildIteratorType;
 
   static nodes_iterator nodes_begin(const CSTGraphTy &G) {
-    return simplecc::NodeIterator::begin(G);
+    return simplecc::NodeIterator(G);
   }
 
   static nodes_iterator nodes_end(const CSTGraphTy &) {
-    return simplecc::NodeIterator::end();
+    return simplecc::NodeIterator();
   }
 
   static ChildIteratorType child_begin(NodeRef N) { return N->begin(); }
   static ChildIteratorType child_end(NodeRef N) { return N->end(); }
 };
 
-template <> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
+template<> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
   explicit DOTGraphTraits(bool simple = false)
       : DefaultDOTGraphTraits(simple) {}
 
@@ -42,21 +37,22 @@ template <> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
   }
 
   std::string getNodeLabel(const void *NodeRef, const CSTGraphTy &) {
-    auto N = static_cast<Node *>(const_cast<void *>(NodeRef));
+    auto N = static_cast<CSTGraphTy>(const_cast<void *>(NodeRef));
     return N->getTypeName();
   }
 
   static std::string getNodeDescription(const void *NodeRef,
                                         const CSTGraphTy &) {
-    auto N = static_cast<Node *>(const_cast<void *>(NodeRef));
+    auto N = static_cast<CSTGraphTy>(const_cast<void *>(NodeRef));
     return N->getValue();
   }
 };
 } // namespace llvm
 
 namespace simplecc {
+
 void PrintAllNodes(Node *Root) {
-  for (const Node *N : NodeIterator::getIter(Root)) {
+  for (const Node *N : makeNodeRange(Root)) {
     Print(std::cout, N->getTypeName(), N->getValue(), N->getLocation());
   }
 }

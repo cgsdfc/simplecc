@@ -57,7 +57,6 @@ if (USE_LLVM)
     list(APPEND SOURCE_FILES
             # Visualize the CST.
             Visualize/CSTGraph.cpp
-            Visualize/NodeIterator.cpp
 
             # Visualize the AST.
             Visualize/ASTGraph.cpp
