@@ -3,25 +3,19 @@
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
+#include "simplecc/Analysis/AnalysisVisitor.h"
 #include <utility> // for pair
 
 namespace simplecc {
-class ArrayBoundChecker : ChildrenVisitor<ArrayBoundChecker> {
-  std::pair<bool, int> getIndex(Expr *E) const;
-  void visitSubscript(SubscriptExpr *SB);
-  void visitFuncDef(FuncDef *FD);
-
-public:
-  ArrayBoundChecker() = default;
-  bool Check(Program *P, const SymbolTable &S);
-
-private:
+class ArrayBoundChecker : AnalysisVisitor<ArrayBoundChecker> {
+  friend AnalysisVisitor;
   friend ChildrenVisitor;
   friend VisitorBase;
-
-  const SymbolTable *TheTable = nullptr;
-  LocalSymbolTable TheLocalTable;
-  ErrorManager EM;
+  std::pair<bool, int> getIndex(Expr *E) const;
+  void visitSubscript(SubscriptExpr *SB);
+public:
+  ArrayBoundChecker() = default;
+  using AnalysisVisitor::Check;
 };
 } // namespace simplecc
 

@@ -4,11 +4,9 @@
 #include "simplecc/Support/ErrorManager.h"
 
 namespace simplecc {
-class Program;
 /// This ensure that the AST is well-formed.
 /// In terms of well-formness:
 class AstVerifier : ChildrenVisitor<AstVerifier> {
-
   /// Helper to check each condition in one single statement.
   void AssertThat(bool Predicate, const char *ErrMsg);
 
