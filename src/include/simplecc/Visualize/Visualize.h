@@ -6,9 +6,11 @@
 namespace simplecc {
 class Program;
 class Node;
+class AST;
 
 void PrintAllAstNodes(Program *P, std::ostream &O);
 void WriteASTGraph(Program *P, llvm::raw_ostream &O);
+void PrettyPrintAST(const AST &A, std::ostream &O);
 
 void PrintAllNodes(Node *Root);
 void WriteCSTGraph(Node *Root, llvm::raw_ostream &O);

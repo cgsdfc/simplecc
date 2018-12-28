@@ -105,12 +105,12 @@ std::unique_ptr<Node> Driver::doBuildCST() {
 }
 
 void Driver::runPrintTokens() {
-  auto Ostream = getStdOstream();
-  if (!Ostream)
+  auto OS = getStdOstream();
+  if (!OS)
     return;
   if (doTokenize())
     return;
-  PrintTokens(TheTokens, *Ostream);
+  PrintTokens(TheTokens, *OS);
 }
 
 void Driver::runAssembleMips() { doAssemble(); }
@@ -130,8 +130,7 @@ void Driver::runDumpAst() {
   auto OStream = getStdOstream();
   if (!OStream)
     return;
-  /// TODO: use an AstPrettyPrinter.
-  Print(*OStream, *TheProgram);
+  PrettyPrintAST(*TheProgram, *OStream);
 }
 
 void Driver::runAnalysisOnly() { doAnalyses(); }

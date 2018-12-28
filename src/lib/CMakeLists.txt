@@ -48,8 +48,9 @@ set(SOURCE_FILES
         Optimize/Instruction.cpp
         Optimize/BasicBlock.cpp
 
+        Visualize/AstPrettyPrinter.cpp
         #Transform/ConstantInliner.cpp
-        Driver/Driver.cpp)
+        Driver/Driver.cpp Visualize/Visualize.cpp)
 
 set(EXTRA_LIBRARIES "")
 
