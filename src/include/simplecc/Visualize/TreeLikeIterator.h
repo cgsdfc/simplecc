@@ -4,6 +4,7 @@
 #include <llvm/ADT/iterator_range.h>
 #include <llvm/ADT/iterator.h>
 #include <stack>
+#include <cassert>
 
 namespace simplecc {
 
@@ -17,10 +18,9 @@ public:
   using value_type = ValueTy;
   using ChildIteratorType = EdgeIter;
 
+  /// This ctor is the first-phrase initialization.
   TreeLikeIterator(value_type Root) {
-    assert(Root && "cannot iterate null node");
-    TheStack.push(Root);
-    Val = getNext();
+    Initialize(Root);
   }
   TreeLikeIterator() : TheStack(), Val() {}
 
@@ -38,6 +38,14 @@ protected:
   /// The default makes an empty range.
   EdgeRange getEdges(value_type) {
     return llvm::make_range(EdgeIter(), EdgeIter());
+  }
+
+  // Second-phrase initialization. Derived can use this if it sees fit.
+  void Initialize(value_type Root) {
+    assert(Root && "cannot iterate null node");
+    assert(TheStack.empty());
+    TheStack.push(Root);
+    Val = getNext();
   }
 
 private:

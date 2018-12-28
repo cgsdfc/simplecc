@@ -22,7 +22,7 @@ public:
   explicit AstGraph(Program *P) : TheProgram(P), Edges(), Nodes() {}
 
   using NodeIterator = AstIterator;
-  using ChildIteratorType = std::vector<AstRef *>::const_iterator;
+  using ChildIteratorType = AstIterator::ChildIteratorType;
 
   /// Iterate over all nodes.
   NodeIterator nodes_begin() const {
@@ -47,8 +47,8 @@ public:
   /// Lazily create edges for a Node.
   const std::vector<AstRef *> &getEdgeOrCreate(const AstRef &R);
 
-  /// Lazily create a node, namely an AstRef
-  template <typename AstT> AstRef *getNodeOrCreate(AstT *Ptr);
+  /// Lazily create a node, namely an AstRef.
+  AstRef *getNodeOrCreate(AST *Ptr);
 
 private:
   /// Root of AST.
@@ -59,14 +59,6 @@ private:
   std::map<AST *, std::unique_ptr<AstRef>> Nodes;
 };
 
-template <typename AstT> AstRef *AstGraph::getNodeOrCreate(AstT *Ptr) {
-  auto iter = Nodes.find(Ptr);
-  if (iter != Nodes.end())
-    return iter->second.get();
-  auto Result = Nodes.emplace(Ptr, llvm::make_unique<AstRef>(Ptr, this));
-  assert(Result.second && "Emplace must succeed");
-  return Result.first->second.get();
-}
 } // namespace simplecc
 
 #endif

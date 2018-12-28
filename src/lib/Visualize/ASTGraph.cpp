@@ -7,11 +7,26 @@
 #include <llvm/ADT/GraphTraits.h>
 #include <llvm/Support/GraphWriter.h>
 
-#include <iostream>
-#include <utility> // for move
-#include <vector>
-
 using namespace simplecc;
+
+AstIterator::AstIterator(Program *P, AstGraph *G)
+    : TreeLikeIterator(), Parent(G) {
+  Initialize(Parent->getNodeOrCreate(P));
+}
+
+AstIterator::EdgeRange AstIterator::getEdges(value_type N) {
+  const auto &LazyEdges = Parent->getEdgeOrCreate(*N);
+  return llvm::make_range(LazyEdges.begin(), LazyEdges.end());
+}
+
+AstRef *AstGraph::getNodeOrCreate(AST *Ptr) {
+  auto iter = Nodes.find(Ptr);
+  if (iter != Nodes.end())
+    return iter->second.get();
+  auto Result = Nodes.emplace(Ptr, llvm::make_unique<AstRef>(Ptr, this));
+  assert(Result.second && "Emplace must succeed");
+  return Result.first->second.get();
+}
 
 const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
   auto iter = Edges.find(R.get());
@@ -32,7 +47,7 @@ using simplecc::AstGraph;
 using simplecc::AstRef;
 
 /// Specialized GraphTraits for AstGraph
-template <> struct GraphTraits<AstGraph> {
+template<> struct GraphTraits<AstGraph> {
   using NodeRef = AstRef *;
   using nodes_iterator = AstGraph::NodeIterator;
   using ChildIteratorType = AstGraph::ChildIteratorType;
@@ -53,7 +68,7 @@ template <> struct GraphTraits<AstGraph> {
 };
 
 /// Specialized DOTGraphTraits for AstGraph.
-template <> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
+template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
   explicit DOTGraphTraits(bool simple = false)
       : DefaultDOTGraphTraits(simple) {}
 

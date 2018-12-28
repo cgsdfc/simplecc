@@ -1,49 +1,23 @@
 #ifndef SIMPLECC_VISUALIZE_ASTITERATOR_H
 #define SIMPLECC_VISUALIZE_ASTITERATOR_H
-#include <llvm/ADT/iterator.h>
+#include "simplecc/Visualize/TreeLikeIterator.h"
 #include <vector>
 
 namespace simplecc {
 class AstRef;
-class Program;
 class AstGraph;
-
-/// Implementation of AstIterator
-class AstIteratorImpl {
-  std::vector<AstRef *> TheStack;
-  AstGraph *Parent = nullptr;
-
-public:
-  /// Begin Iterator.
-  AstIteratorImpl(Program *Ptr, AstGraph *G);
-
-  /// End Iterator.
-  AstIteratorImpl() : TheStack() {}
-  /// Return the next node in the graph.
-  AstRef *getNext();
-};
+class Program;
 
 /// Iterator to all nodes of a graph.
-class AstIterator
-    : private AstIteratorImpl,
-      public llvm::iterator_facade_base<AstIterator, std::forward_iterator_tag,
-                                        AstRef *> {
-
+class AstIterator : public TreeLikeIterator<AstIterator, AstRef *, std::vector<AstRef *>::const_iterator> {
 public:
-  AstIterator(Program *P, AstGraph *G) : AstIteratorImpl(P, G) { operator++(); }
+  AstIterator(Program *P, AstGraph *G);
+  AstIterator() = default;
 
-  AstIterator() : AstIteratorImpl() {}
-
-  AstRef *operator*() const { return Ref; }
-  bool operator==(const AstIterator &O) const { return O.Ref == Ref; }
-
-  AstIterator &operator++() {
-    Ref = getNext();
-    return *this;
-  }
+  EdgeRange getEdges(value_type N);
 
 private:
-  AstRef *Ref = nullptr;
+  AstGraph *Parent = nullptr;
 };
 } // namespace simplecc
 
