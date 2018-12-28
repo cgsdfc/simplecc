@@ -1,22 +1,23 @@
 #ifndef SIMPLECC_PARSE_NODE_H
 #define SIMPLECC_PARSE_NODE_H
-
-#include "simplecc/Lex/TokenInfo.h"
+#include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Grammar.h"
 
+#include <string>
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include <utility>
 
 namespace simplecc {
 class Node {
-  String FormatValue() const;
+  std::string FormatValue() const;
 
 public:
   using ChildrenListT = std::vector<Node *>;
 
-  Node(Symbol Ty, const String &Val, const Location &L)
-      : Type(Ty), Value(Val), Children(), Loc(L) {}
+  Node(Symbol Ty, std::string Val, Location L)
+      : Type(Ty), Value(std::move(Val)), Children(), Loc(L) {}
 
   ~Node();
 
@@ -51,11 +52,11 @@ public:
   Symbol getType() const { return Type; }
   const char *getTypeName() const;
   const Location &getLocation() const { return Loc; }
-  const String &getValue() const { return Value; }
+  const std::string &getValue() const { return Value; }
 
 private:
   Symbol Type;
-  String Value;
+  std::string Value;
   ChildrenListT Children;
   Location Loc;
 };

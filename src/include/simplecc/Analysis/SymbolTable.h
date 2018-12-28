@@ -4,12 +4,13 @@
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/Parse/AST.h"
 
+#include <string>
 #include <iostream>
 #include <unordered_map>
 
 namespace simplecc {
 class SymbolTableBuilder;
-using TableType = std::unordered_map<String, SymbolEntry>;
+using TableType = std::unordered_map<std::string, SymbolEntry>;
 
 // Provide a safe const view to a sub-symbol table
 class SymbolTableView {
@@ -27,7 +28,7 @@ public:
   SymbolTableView &operator=(const SymbolTableView &) = default;
   SymbolTableView &operator=(SymbolTableView &&) = default;
 
-  const SymbolEntry &operator[](const String &Name) const;
+  const SymbolEntry &operator[](const std::string &Name) const;
 
   using const_iterator = TableType::const_iterator;
   const_iterator begin() const { return TheTable->begin(); }
@@ -47,7 +48,7 @@ public:
   SymbolTableView getLocalTable(FuncDef *FD) const;
 
   // Return a SymbolEntry for a global name
-  SymbolEntry getGlobalEntry(const String &Name) const;
+  SymbolEntry getGlobalEntry(const std::string &Name) const;
 
   // Return the BasicTypeKind for an expression
   BasicTypeKind getExprType(Expr *E) const;

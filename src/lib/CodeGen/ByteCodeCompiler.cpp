@@ -11,12 +11,12 @@ void ByteCodeCompiler::visitStmt(Stmt *S) {
 
 void ByteCodeCompiler::visitArgDecl(ArgDecl *A) {
   auto TheFunction = Builder.getInsertPoint();
-  TheFunction->GetFormalArguments().push_back(TheLocalTable[A->getName()]);
+  TheFunction->getFormalArguments().push_back(TheLocalTable[A->getName()]);
 }
 
 void ByteCodeCompiler::visitVarDecl(VarDecl *VD) {
   auto TheFunction = Builder.getInsertPoint();
-  TheFunction->GetLocalVariables().push_back(TheLocalTable[VD->getName()]);
+  TheFunction->getLocalVariables().push_back(TheLocalTable[VD->getName()]);
 }
 
 void ByteCodeCompiler::visitRead(ReadStmt *RD) {

@@ -1,5 +1,6 @@
 #include "simplecc/Parse/Node.h"
 #include "simplecc/Support/ErrorManager.h"
+#include "simplecc/Lex/TokenInfo.h"
 
 #include <algorithm> // for_each
 
@@ -9,7 +10,7 @@ Node::~Node() {
   std::for_each(Children.begin(), Children.end(), [](Node *N) { delete N; });
 }
 
-String Node::FormatValue() const {
+std::string Node::FormatValue() const {
   return Type != Symbol::ENDMARKER && Value.empty() ? "None" : Quote(Value);
 }
 

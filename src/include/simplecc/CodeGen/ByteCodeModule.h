@@ -2,6 +2,7 @@
 #define SIMPLECC_CODEGEN_BYTECODEMODULE_H
 #include "simplecc/Analysis/Types.h"
 
+#include <string>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -15,7 +16,7 @@ class ByteCodeModule {
 public:
   using GlobalVariableListTy = std::vector<SymbolEntry>;
   using FunctionListTy = std::vector<ByteCodeFunction *>;
-  using StringLiteralTable = std::unordered_map<String, unsigned>;
+  using StringLiteralTable = std::unordered_map<std::string, unsigned>;
 
   ByteCodeModule() = default;
   ~ByteCodeModule();
@@ -25,7 +26,7 @@ public:
     return StringLiterals;
   }
   /// For a string literal, this method returns the corresponding ID.
-  unsigned getStringLiteralID(const String &Str);
+  unsigned getStringLiteralID(const std::string &Str);
 
   /// Function and global variables interface.
   const FunctionListTy &getFunctionList() const { return FunctionList; }

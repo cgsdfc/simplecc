@@ -33,7 +33,7 @@ class AstBuilder {
   void visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
                           std::vector<Decl *> &Decls);
 
-  Decl *visit_funcdef(BasicTypeKind RetTy, String Name, Node *decl_trailer,
+  Decl *visit_funcdef(BasicTypeKind RetTy, std::string Name, Node *decl_trailer,
                       const Location &L);
 
   /// paralist: '(' type_name NAME (',' type_name NAME)* ')'
@@ -97,7 +97,7 @@ class AstBuilder {
   Expr *visit_atom(Node *N, ExprContextKind Context);
 
   /// atom_trailer: '[' expr ']' | arglist
-  Expr *visit_atom_trailer(Node *N, const String &Name,
+  Expr *visit_atom_trailer(Node *N, const std::string &Name,
                            ExprContextKind Context);
 
   /// arglist: '(' expr (',' expr)* ')'

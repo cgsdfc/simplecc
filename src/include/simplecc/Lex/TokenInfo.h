@@ -1,10 +1,12 @@
 #ifndef SIMPLECC_LEX_TOKENINFO_H
 #define SIMPLECC_LEX_TOKENINFO_H
 #include "simplecc/Parse/Grammar.h"
+#include "simplecc/Lex/Location.h"
 
 #include <iostream>
 #include <string>
 #include <utility>
+
 namespace simplecc {
 using String = std::string;
 
@@ -13,29 +15,6 @@ bool IsTerminal(Symbol S);
 inline bool IsNonTerminal(Symbol S) { return !IsTerminal(S); }
 
 const char *getSymbolName(Symbol S);
-
-class Location {
-  unsigned Line;
-  unsigned Column;
-
-public:
-  Location() : Line(0), Column(0) {}
-  Location(unsigned lineno, unsigned col_offset)
-      : Line(lineno), Column(col_offset) {}
-
-  unsigned getLineNo() const { return Line; }
-
-  unsigned getColOffset() const { return Column; }
-
-  void Format(std::ostream &O) const;
-
-  void FormatCompact(std::ostream &O) const;
-};
-
-inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
-  loc.Format(os);
-  return os;
-}
 
 class TokenInfo {
 public:

@@ -3,9 +3,7 @@
 #include "simplecc/CodeGen/ByteCodeFunction.h"
 #include "simplecc/CodeGen/ByteCodeModule.h"
 #include "simplecc/Target/ByteCodeToMipsTranslator.h"
-#include "simplecc/Target/MipsSupport.h"
 
-#include <iostream>
 #include <numeric> // accumulate()
 
 using namespace simplecc;
@@ -41,7 +39,7 @@ int MipsAssemblyWriter::getLocalObjectsInBytes(
     const ByteCodeFunction &TheFunction) const {
   unsigned Entries = std::accumulate(
       TheFunction.local_begin(), TheFunction.local_end(),
-      TheFunction.GetFormalArgumentCount(),
+      TheFunction.getFormalArgumentCount(),
       [](unsigned Entries, const SymbolEntry &E) {
         return Entries + (E.IsArray() ? E.AsArray().getSize() : 1);
       });
@@ -86,7 +84,7 @@ void MipsAssemblyWriter::WritePrologue(Printer &W,
   W.WriteLine("addi $sp, $sp,", -BytesFromEntries(2));
   W.WriteLine();
 
-  auto NumArgs = TheFunction.GetFormalArgumentCount();
+  auto NumArgs = TheFunction.getFormalArgumentCount();
   if (NumArgs) {
     // copy arguments here
     W.WriteLine("# Passing Arguments");

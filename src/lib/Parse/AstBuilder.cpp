@@ -81,7 +81,7 @@ std::vector<Expr *> AstBuilder::visit_arglist(Node *N) {
   return std::move(Args);
 }
 
-Expr *AstBuilder::visit_atom_trailer(Node *N, const String &Name,
+Expr *AstBuilder::visit_atom_trailer(Node *N, const std::string &Name,
                                      ExprContextKind Context) {
   auto first = N->FirstChild();
   if (first->getType() == Symbol::arglist) {
@@ -242,7 +242,7 @@ Expr *AstBuilder::visit_binop(Node *N, ExprContextKind Context) {
   return result;
 }
 
-Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, String Name,
+Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, std::string Name,
                                 Node *decl_trailer, const Location &L) {
   std::vector<Decl *> ParamList;
   std::vector<Decl *> FnDecls;

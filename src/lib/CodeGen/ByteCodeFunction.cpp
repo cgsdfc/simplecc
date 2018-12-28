@@ -13,11 +13,11 @@ ByteCodeFunction::ByteCodeFunction(ByteCodeModule *M) : Parent(M) {
 void ByteCodeFunction::Format(std::ostream &O) const {
   O << getName() << ":\n";
 
-  for (const SymbolEntry &Arg : GetFormalArguments()) {
+  for (const SymbolEntry &Arg : getFormalArguments()) {
     O << Arg << "\n";
   }
 
-  for (const SymbolEntry &LV : GetLocalVariables()) {
+  for (const SymbolEntry &LV : getLocalVariables()) {
     O << LV << "\n";
   }
 

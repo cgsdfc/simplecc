@@ -124,7 +124,7 @@ private:
   /// Local Constant => ConstantInt.
   /// Local Array/Variable => Alloca(Type, ArraySize=nullptr).
   /// Global Stuffs => As it in GlobalValues.
-  std::unordered_map<String, Value *> LocalValues;
+  std::unordered_map<std::string, Value *> LocalValues;
 
   /// Keep track of global name binding.
   /// Global Constant => GlobalVariable(IsConstant=true, ExternalLinkage).
@@ -134,7 +134,7 @@ private:
   /// Global Function => Function(ExternalLinkage).
   /// printf/scanf => External Function Declaration, Function(ExternalLinkage,
   /// BasicBlocks=None).
-  std::unordered_map<String, Value *> GlobalValues;
+  std::unordered_map<std::string, Value *> GlobalValues;
 
   /// Error handling. There should not be any user's errors in the stage.
   /// But we developer can make mistakes and this EM will tell.

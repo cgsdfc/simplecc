@@ -2,6 +2,7 @@
 #define SIMPLECC_ANALYSIS_TYPES_H
 #include "simplecc/Parse/AST.h"
 #include <cassert>
+#include <string>
 
 /// Types of simplecc
 namespace simplecc {
@@ -76,7 +77,7 @@ public:
 
   Location getLocation() const;
 
-  const String &getName() const;
+  const std::string &getName() const;
 
   Scope getScope() const { return TheScope; }
 

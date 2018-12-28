@@ -2,7 +2,7 @@
 #define SIMPLECC_CODEGEN_BYTECODEFUNCTION_H
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/CodeGen/ByteCode.h"
-
+#include <string>
 #include <iostream>
 #include <utility> // move()
 #include <vector>
@@ -19,8 +19,8 @@ public:
     return new ByteCodeFunction(M);
   }
 
-  const String &getName() const { return Name; }
-  void setName(String Str) { Name = std::move(Str); }
+  const std::string &getName() const { return Name; }
+  void setName(std::string Str) { Name = std::move(Str); }
 
   void setLocalTable(SymbolTableView L) { Symbols = L; }
   SymbolTableView GetLocal() const { return Symbols; }
@@ -45,9 +45,9 @@ public:
   const_iterator begin() const { return ByteCodeList.begin(); }
   const_iterator end() const { return ByteCodeList.end(); }
 
-  const LocalVariableListTy &GetFormalArguments() const { return Arguments; }
-  LocalVariableListTy &GetFormalArguments() { return Arguments; }
-  unsigned GetFormalArgumentCount() const { return Arguments.size(); }
+  const LocalVariableListTy &getFormalArguments() const { return Arguments; }
+  LocalVariableListTy &getFormalArguments() { return Arguments; }
+  unsigned getFormalArgumentCount() const { return Arguments.size(); }
 
   /// Iterator of local variables.
   using local_iterator = LocalVariableListTy::iterator;
@@ -58,10 +58,10 @@ public:
   const_local_iterator local_begin() const { return LocalVariables.begin(); }
   const_local_iterator local_end() const { return LocalVariables.end(); }
 
-  const LocalVariableListTy &GetLocalVariables() const {
+  const LocalVariableListTy &getLocalVariables() const {
     return LocalVariables;
   }
-  LocalVariableListTy &GetLocalVariables() { return LocalVariables; }
+  LocalVariableListTy &getLocalVariables() { return LocalVariables; }
 
   ByteCodeModule *getParent() const { return Parent; }
   void Format(std::ostream &O) const;
@@ -72,7 +72,7 @@ private:
   ByteCodeListTy ByteCodeList;
   LocalVariableListTy Arguments;
   LocalVariableListTy LocalVariables;
-  String Name;
+  std::string Name;
 
   ByteCodeFunction(ByteCodeModule *M);
 };

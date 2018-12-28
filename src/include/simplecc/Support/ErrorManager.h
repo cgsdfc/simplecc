@@ -1,16 +1,14 @@
 #ifndef SIMPLECC_SUPPORT_ERRORMANAGER_H
 #define SIMPLECC_SUPPORT_ERRORMANAGER_H
-
-#include "simplecc/Lex/TokenInfo.h"
+#include "simplecc/Lex/Location.h"
 #include "simplecc/Support/Print.h"
-
 #include <cassert>
 #include <iostream>
 #include <sstream>
 #include <utility>
 
 namespace simplecc {
-inline String Quote(const String &string) { return '\'' + string + '\''; }
+inline std::string Quote(const std::string &string) { return '\'' + string + '\''; }
 
 class ErrorManager : private Printer {
   int ErrorCount = 0;

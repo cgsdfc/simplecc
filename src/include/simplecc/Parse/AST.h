@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_PARSE_AST_H
 #define SIMPLECC_PARSE_AST_H
-#include "simplecc/Lex/TokenInfo.h"
+#include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Enums.h"
 
 #include <iostream>
@@ -610,7 +610,7 @@ class Program : public AST {
 public:
   ~Program();
   Program(std::string FN, std::vector<Decl *> decls)
-      : AST(ProgramKind, Location(0, 0)), Filename(std::move(FN)), decls(std::move(decls)) {}
+      : AST(ProgramKind, Location()), Filename(std::move(FN)), decls(std::move(decls)) {}
 
   // Disable copy and move.
   Program(const Program &) = delete;

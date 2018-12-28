@@ -14,13 +14,13 @@ void LocalContext::InitializeLocalOffsets() {
   signed Off = -BytesFromEntries(2);
 
   /// Allocate space for formal arguments.
-  for (const SymbolEntry &Arg : TheFunction->GetFormalArguments()) {
+  for (const SymbolEntry &Arg : TheFunction->getFormalArguments()) {
     LocalOffsets.emplace(Arg.getName(), Off);
     Off -= BytesFromEntries(1);
   }
 
   /// Allocate space for non-arg local variables.
-  for (const SymbolEntry &Var : TheFunction->GetLocalVariables()) {
+  for (const SymbolEntry &Var : TheFunction->getLocalVariables()) {
     if (Var.IsArray()) {
       Off -= BytesFromEntries(Var.AsArray().getSize());
       LocalOffsets.emplace(Var.getName(), Off + BytesFromEntries(1));

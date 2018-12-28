@@ -83,7 +83,7 @@ Value *LLVMIRCompiler::visitStr(StrExpr *S) {
   /// Strip quotes first.
   auto &&Str = S->getS();
   assert(Str.size() >= 2 && "StrExpr must have quotes");
-  String Stripped(Str.begin() + 1, Str.end() - 1);
+  std::string Stripped(Str.begin() + 1, Str.end() - 1);
   return getString(Stripped);
 }
 
@@ -503,7 +503,7 @@ void LLVMIRCompiler::visitProgram(Program *P) {
     visitDecl(D);
   }
   /// Verify the Module.
-  String ErrorMsg;
+  std::string ErrorMsg;
   llvm::raw_string_ostream OS(ErrorMsg);
   if (llvm::verifyModule(TheModule, &OS)) {
     TheModule.print(llvm::errs(), nullptr);

@@ -29,7 +29,7 @@ void SymbolTableBuilder::DefineGlobalDecl(Decl *D) {
   TheGlobal->emplace(D->getName(), SymbolEntry(Scope::Global, D));
 }
 
-void SymbolTableBuilder::ResolveName(const String &Name, Location L) {
+void SymbolTableBuilder::ResolveName(const std::string &Name, Location L) {
   assert(TheLocal && TheGlobal && TheFuncDef);
   if (TheLocal->count(Name))
     return;

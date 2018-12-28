@@ -65,15 +65,15 @@ public:
   unsigned CreatePopTop() { return Create(ByteCode::POP_TOP); }
   unsigned CreateUnary(UnaryopKind Op) { return Create(MakeUnary(Op)); }
 
-  unsigned CreateCallFunction(const String &Name, unsigned Argc) {
+  unsigned CreateCallFunction(const std::string &Name, unsigned Argc) {
     return Create(ByteCode::CALL_FUNCTION, Name.data(), Argc);
   }
 
-  unsigned CreateLoad(Scope S, const String &Name) {
+  unsigned CreateLoad(Scope S, const std::string &Name) {
     return Create(MakeLoad(S), Name.data());
   }
 
-  unsigned CreateStore(Scope S, const String &Name) {
+  unsigned CreateStore(Scope S, const std::string &Name) {
     return Create(MakeStore(S), Name.data());
   }
 

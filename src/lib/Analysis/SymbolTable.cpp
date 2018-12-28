@@ -5,13 +5,13 @@ using namespace simplecc;
 
 void SymbolTable::Format(std::ostream &O) const {
   O << "Global:\n";
-  for (const std::pair<const String, SymbolEntry> &Pair : GlobalTable) {
+  for (const auto &Pair : GlobalTable) {
     O << "  " << Pair.first << ": " << Pair.second << "\n";
   }
   O << "\n";
-  for (const std::pair<FuncDef *const, TableType> &Pair : LocalTables) {
+  for (const auto &Pair : LocalTables) {
     O << "Local(" << Pair.first->getName() << "):\n";
-    for (const std::pair<const String, SymbolEntry> &Item : Pair.second) {
+    for (const std::pair<const std::string, SymbolEntry> &Item : Pair.second) {
       O << "  " << Item.first << ": " << Item.second << "\n";
     }
     O << "\n";
@@ -33,7 +33,7 @@ SymbolTableView SymbolTable::getLocalTable(FuncDef *FD) const {
 
 // Return a SymbolEntry for a global name.
 // Assert on failure.
-SymbolEntry SymbolTable::getGlobalEntry(const String &Name) const {
+SymbolEntry SymbolTable::getGlobalEntry(const std::string &Name) const {
   assert(GlobalTable.count(Name));
   return GlobalTable.find(Name)->second;
 }
@@ -51,7 +51,7 @@ void SymbolTable::setExprType(Expr *E, BasicTypeKind Ty) {
 
 /// Return the SymbolEntry for a name.
 /// Assert on failure.
-const SymbolEntry &SymbolTableView::operator[](const String &Name) const {
+const SymbolEntry &SymbolTableView::operator[](const std::string &Name) const {
   assert(TheTable->count(Name) && "Undefined Name");
   return TheTable->find(Name)->second;
 }

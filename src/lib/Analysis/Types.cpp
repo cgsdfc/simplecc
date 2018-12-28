@@ -100,7 +100,7 @@ Location SymbolEntry::getLocation() const {
   return TheDecl->getLocation();
 }
 
-const String &SymbolEntry::getName() const {
+const std::string & SymbolEntry::getName() const {
   assert(TheDecl);
   return TheDecl->getName();
 }

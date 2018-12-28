@@ -9,47 +9,47 @@ class AstRef;
 class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   friend class VisitorBase<DescriptionVisitor>;
 
-  String visitProgram(Program *) { return ""; }
+  std::string visitProgram(Program *) { return ""; }
 
   /// VisitorBase boilerplate code.
-  String visitDecl(Decl *D) { return VisitorBase::visitDecl<String>(D); }
-  String visitExpr(Expr *E) { return VisitorBase::visitExpr<String>(E); }
-  String visitStmt(Stmt *S) { return VisitorBase::visitStmt<String>(S); }
+  std::string visitDecl(Decl *D) { return VisitorBase::visitDecl<std::string>(D); }
+  std::string visitExpr(Expr *E) { return VisitorBase::visitExpr<std::string>(E); }
+  std::string visitStmt(Stmt *S) { return VisitorBase::visitStmt<std::string>(S); }
 
-  String visitConstDecl(ConstDecl *CD);
-  String visitVarDecl(VarDecl *VD);
-  String visitFuncDef(FuncDef *FD);
-  String visitArgDecl(ArgDecl *A);
+  std::string visitConstDecl(ConstDecl *CD);
+  std::string visitVarDecl(VarDecl *VD);
+  std::string visitFuncDef(FuncDef *FD);
+  std::string visitArgDecl(ArgDecl *A);
 
-  String visitBoolOp(BoolOpExpr *BO) { return ""; }
-  String visitParenExpr(ParenExpr *PE) { return "()"; }
+  std::string visitBoolOp(BoolOpExpr *BO) { return ""; }
+  std::string visitParenExpr(ParenExpr *PE) { return "()"; }
 
-  String visitNum(NumExpr *N);
+  std::string visitNum(NumExpr *N);
 
-  String visitChar(CharExpr *C);
-  String visitStr(StrExpr *S);
+  std::string visitChar(CharExpr *C);
+  std::string visitStr(StrExpr *S);
 
-  String visitBinOp(BinOpExpr *BO) { return CStringFromOperatorKind(BO->getOp()); }
-  String visitUnaryOp(UnaryOpExpr *UO) {
+  std::string visitBinOp(BinOpExpr *BO) { return CStringFromOperatorKind(BO->getOp()); }
+  std::string visitUnaryOp(UnaryOpExpr *UO) {
     return CStringFromUnaryopKind(UO->getOp());
   }
-  String visitCall(CallExpr *C) { return C->getFunc(); }
-  String visitName(NameExpr *N) { return N->getId(); }
-  String visitRead(ReadStmt *) { return "scanf"; }
-  String visitWrite(WriteStmt *) { return "printf"; }
-  String visitAssign(AssignStmt *) { return "="; }
-  String visitSubscript(SubscriptExpr *SB) { return SB->getName(); }
-  String visitExprStmt(ExprStmt *ES) { return ""; }
-  String visitFor(ForStmt *) { return ""; }
-  String visitIf(IfStmt *) { return ""; }
-  String visitWhile(WhileStmt *) { return ""; }
-  String visitReturn(ReturnStmt *) { return ""; }
+  std::string visitCall(CallExpr *C) { return C->getFunc(); }
+  std::string visitName(NameExpr *N) { return N->getId(); }
+  std::string visitRead(ReadStmt *) { return "scanf"; }
+  std::string visitWrite(WriteStmt *) { return "printf"; }
+  std::string visitAssign(AssignStmt *) { return "="; }
+  std::string visitSubscript(SubscriptExpr *SB) { return SB->getName(); }
+  std::string visitExprStmt(ExprStmt *ES) { return ""; }
+  std::string visitFor(ForStmt *) { return ""; }
+  std::string visitIf(IfStmt *) { return ""; }
+  std::string visitWhile(WhileStmt *) { return ""; }
+  std::string visitReturn(ReturnStmt *) { return ""; }
 
 public:
   DescriptionVisitor() = default;
 
   /// Return a descriptive string for AR.
-  String makeDescription(const AstRef &AR);
+  std::string makeDescription(const AstRef &AR);
 };
 
 } // namespace simplecc

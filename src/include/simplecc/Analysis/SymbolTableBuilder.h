@@ -3,6 +3,7 @@
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
+#include <string>
 
 namespace simplecc {
 /// This all-in-one class does what MakeLocal(), MakeGlobal()
@@ -27,7 +28,7 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
 
   void DefineGlobalDecl(Decl *D);
 
-  void ResolveName(const String &Name, Location L);
+  void ResolveName(const std::string &Name, Location L);
 
   /// Overloads to visit AstNodes that have names.
   void visitName(NameExpr *N) { ResolveName(N->getId(), N->getLocation()); }
