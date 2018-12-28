@@ -63,7 +63,6 @@ if (USE_LLVM)
             Visualize/ASTGraph.cpp
             Visualize/AstIterator.cpp
             Visualize/DescriptionVisitor.cpp
-            Visualize/ChildrenCollector.cpp
 
             # Generate LLVM IR from the AST.
             LLVM/LLVMTypeMap.cpp

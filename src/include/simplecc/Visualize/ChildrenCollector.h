@@ -21,7 +21,10 @@ public:
       : Children(Vec), Parent(G) {}
 
   /// Call this to do the collecting. Otherwise, nothing will happen.
-  void Collect(const AstRef &R);
+  void Collect(const AstRef &R) {
+    Children.clear();
+    visitAST(R.get());
+  }
 
 private:
   friend class ChildrenVisitor<ChildrenCollector>;
