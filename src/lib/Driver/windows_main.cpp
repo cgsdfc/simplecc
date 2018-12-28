@@ -1,6 +1,7 @@
 #include "simplecc/Support/Print.h"
 #include <simplecc/Driver/Driver.h>
 
+#include <string>
 #include <iostream> // for cin
 #include <memory>   // for unique_ptr
 
@@ -13,7 +14,7 @@ static inline void PressAnyKeyToContinue() {
 }
 
 int main(int argc, char **argv) {
-  String Filename;
+  std::string Filename;
   /// Prompt the user for an input filename.
   PrintErrs("Please input a filename:");
   std::getline(std::cin, Filename);
