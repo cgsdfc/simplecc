@@ -9,7 +9,7 @@ set(SOURCE_FILES
         Parse/Grammar.cpp
         Parse/AstBuilder.cpp
         Parse/Parser.cpp
-        Parse/gramdef.cpp
+        Parse/GramDef.cpp
         Parse/Node.cpp
         Parse/Parse.cpp
         Parse/Enums.cpp
