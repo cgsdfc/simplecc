@@ -22,8 +22,8 @@ public:
   const std::string &getName() const { return Name; }
   void setName(std::string Str) { Name = std::move(Str); }
 
-  void setLocalTable(SymbolTableView L) { Symbols = L; }
-  SymbolTableView GetLocal() const { return Symbols; }
+  void setLocalTable(LocalSymbolTable L) { Symbols = L; }
+  LocalSymbolTable GetLocal() const { return Symbols; }
 
   ByteCodeListTy &GetByteCodeList() { return ByteCodeList; }
   const ByteCodeListTy &GetByteCodeList() const { return ByteCodeList; }
@@ -68,7 +68,7 @@ public:
 
 private:
   ByteCodeModule *Parent;
-  SymbolTableView Symbols;
+  LocalSymbolTable Symbols;
   ByteCodeListTy ByteCodeList;
   LocalVariableListTy Arguments;
   LocalVariableListTy LocalVariables;

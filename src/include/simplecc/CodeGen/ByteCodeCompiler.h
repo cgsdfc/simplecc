@@ -79,7 +79,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
 
   void setModule(ByteCodeModule *M) { TheModule = M; }
   void setTable(const SymbolTable *S) { TheTable = S; }
-  void setLocalTable(SymbolTableView V) { TheLocalTable = V; }
+  void setLocalTable(LocalSymbolTable V) { TheLocalTable = V; }
 
 public:
   ByteCodeCompiler() = default;
@@ -92,7 +92,7 @@ private:
   friend class VisitorBase<ByteCodeCompiler>;
 
   ByteCodeBuilder Builder;
-  SymbolTableView TheLocalTable;
+  LocalSymbolTable TheLocalTable;
   const SymbolTable *TheTable = nullptr;
   ByteCodeModule *TheModule = nullptr;
   ErrorManager EM;

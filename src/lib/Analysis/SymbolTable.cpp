@@ -26,9 +26,10 @@ void SymbolTable::clear() {
 
 /// Return a SymbolTableView for a given FuncDef.
 /// Assert on failure.
-SymbolTableView SymbolTable::getLocalTable(FuncDef *FD) const {
+LocalSymbolTable SymbolTable::getLocalTable(FuncDef *FD) const {
   assert(LocalTables.count(FD));
-  return SymbolTableView(LocalTables.find(FD)->second);
+  // TODO: Fix this const_cast.
+  return LocalSymbolTable(const_cast<SymbolTable *>(this)->LocalTables.find(FD)->second);
 }
 
 // Return a SymbolEntry for a global name.
@@ -51,7 +52,7 @@ void SymbolTable::setExprType(Expr *E, BasicTypeKind Ty) {
 
 /// Return the SymbolEntry for a name.
 /// Assert on failure.
-const SymbolEntry &SymbolTableView::operator[](const std::string &Name) const {
+const SymbolEntry &LocalSymbolTable::operator[](const std::string &Name) const {
   assert(TheTable->count(Name) && "Undefined Name");
   return TheTable->find(Name)->second;
 }

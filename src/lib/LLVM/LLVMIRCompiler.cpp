@@ -429,7 +429,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   }
 
   /// Populate LocalValues with global objects.
-  SymbolTableView Local = TheTable.getLocalTable(FD);
+  LocalSymbolTable Local = TheTable.getLocalTable(FD);
   for (auto &&Pair : Local) {
     const SymbolEntry &E = Pair.second;
     if (E.IsLocal()) {
