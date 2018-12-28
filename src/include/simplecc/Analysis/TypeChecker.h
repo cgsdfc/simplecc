@@ -46,7 +46,7 @@ class TypeChecker : ChildrenVisitor<TypeChecker> {
 
   BasicTypeKind visitChar(CharExpr *) { return BasicTypeKind::Character; }
 
-  void setLocalTable(SymbolTableView L) { TheLocalTable = L; }
+  void setLocalTable(LocalSymbolTable L) { TheLocalTable = L; }
   void setTable(SymbolTable *S) { TheTable = S; }
   void setFuncDef(FuncDef *FD) { TheFuncDef = FD; }
 
@@ -57,11 +57,11 @@ public:
   bool Check(Program *P, SymbolTable &S);
 
 private:
-  friend class ChildrenVisitor<TypeChecker>;
-  friend class VisitorBase<TypeChecker>;
+  friend ChildrenVisitor;
+  friend VisitorBase;
 
   SymbolTable *TheTable;
-  SymbolTableView TheLocalTable;
+  LocalSymbolTable TheLocalTable;
   FuncDef *TheFuncDef;
   ErrorManager EM;
 };

@@ -40,7 +40,7 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   Expr *TransformExpr(Expr *E);
 
   /// Setters.
-  void setLocalTable(SymbolTableView L) { TheLocalTable = L; }
+  void setLocalTable(LocalSymbolTable L) { TheLocalTable = L; }
   void setTable(const SymbolTable *S) { TheTable = S; }
 
 public:
@@ -48,10 +48,10 @@ public:
   void Transform(Program *P, const SymbolTable &S);
 
 private:
-  friend class VisitorBase<ImplicitCallTransformer>;
-  friend class ChildrenVisitor<ImplicitCallTransformer>;
+  friend VisitorBase;
+  friend ChildrenVisitor;
 
-  SymbolTableView TheLocalTable;
+  LocalSymbolTable TheLocalTable;
   const SymbolTable *TheTable;
 };
 } // namespace simplecc

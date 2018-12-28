@@ -41,8 +41,8 @@ public:
   bool Verify(Program *P);
 
 private:
-  friend class ChildrenVisitor<AstVerifier>;
-  friend class VisitorBase<AstVerifier>;
+  friend ChildrenVisitor;
+  friend VisitorBase;
   ErrorManager EM;
 };
 } // namespace simplecc

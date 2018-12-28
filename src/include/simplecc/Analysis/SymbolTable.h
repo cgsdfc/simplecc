@@ -13,20 +13,20 @@ class SymbolTableBuilder;
 using TableType = std::unordered_map<std::string, SymbolEntry>;
 
 // Provide a safe const view to a sub-symbol table
-class SymbolTableView {
+class LocalSymbolTable {
   friend class SymbolTable;
-  const TableType *TheTable;
-  explicit SymbolTableView(const TableType &T) : TheTable(&T) {}
+  TableType *TheTable;
+  explicit LocalSymbolTable(TableType &T) : TheTable(&T) {}
 
 public:
-  SymbolTableView() = default;
-  ~SymbolTableView() = default;
+  LocalSymbolTable() = default;
+  ~LocalSymbolTable() = default;
 
-  SymbolTableView(const SymbolTableView &) = default;
-  SymbolTableView(SymbolTableView &&) = default;
+  LocalSymbolTable(const LocalSymbolTable &) = default;
+  LocalSymbolTable(LocalSymbolTable &&) = default;
 
-  SymbolTableView &operator=(const SymbolTableView &) = default;
-  SymbolTableView &operator=(SymbolTableView &&) = default;
+  LocalSymbolTable &operator=(const LocalSymbolTable &) = default;
+  LocalSymbolTable &operator=(LocalSymbolTable &&) = default;
 
   const SymbolEntry &operator[](const std::string &Name) const;
 
@@ -45,7 +45,7 @@ public:
   void setExprType(Expr *E, BasicTypeKind Ty);
 
   // Return local symbol table for a function
-  SymbolTableView getLocalTable(FuncDef *FD) const;
+  LocalSymbolTable getLocalTable(FuncDef *FD) const;
 
   // Return a SymbolEntry for a global name
   SymbolEntry getGlobalEntry(const std::string &Name) const;

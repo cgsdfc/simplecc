@@ -16,11 +16,11 @@ public:
   bool Check(Program *P, const SymbolTable &S);
 
 private:
-  friend class ChildrenVisitor<ArrayBoundChecker>;
-  friend class VisitorBase<ArrayBoundChecker>;
+  friend ChildrenVisitor;
+  friend VisitorBase;
 
   const SymbolTable *TheTable = nullptr;
-  SymbolTableView TheLocalTable;
+  LocalSymbolTable TheLocalTable;
   ErrorManager EM;
 };
 } // namespace simplecc

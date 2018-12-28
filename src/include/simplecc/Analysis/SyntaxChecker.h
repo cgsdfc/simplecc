@@ -8,7 +8,7 @@ class Program;
 
 class SyntaxChecker : private VisitorBase<SyntaxChecker> {
   ErrorManager EM;
-  friend class VisitorBase<SyntaxChecker>;
+  friend VisitorBase;
 
   void visitProgram(Program *P);
 
