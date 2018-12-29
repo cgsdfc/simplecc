@@ -85,4 +85,12 @@ void WriteASTGraph(Program *P, llvm::raw_ostream &O) {
   AstGraph Graph(P);
   llvm::WriteGraph(O, Graph);
 }
+
+/// Print all ast nodes from a root.
+void PrintAllAstNodes(Program *P, std::ostream &O) {
+  AstGraph Graph(P);
+  for (auto AR : Graph.nodes()) {
+    Print(O, AR->getClassName(), AR->getLocation());
+  }
+}
 } // namespace simplecc

@@ -51,7 +51,7 @@ set(SOURCE_FILES
         Optimize/BasicBlock.cpp
 
         #Transform/ConstantInliner.cpp
-        Driver/Driver.cpp Visualize/Visualize.cpp)
+        Driver/Driver.cpp)
 
 set(EXTRA_LIBRARIES "")
 
