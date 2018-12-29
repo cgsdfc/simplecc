@@ -47,20 +47,13 @@ public:
   std::string getInputFile() const { return InputFile; }
   std::string getOutputFile() const { return OutputFile; }
 
-  void runAssembleMips();
-  void runPrintTokens();
-  void runPrintByteCode();
-  void runDumpByteCodeModule();
-  void runAnalysisOnly();
+#define HANDLE_COMMAND(Name, Arg, Description) void run##Name();
+#include "simplecc/Driver/Driver.def"
+
   void runDumpSymbolTable();
-  void runPrettyPrintAST();
-  void runDumpCst();
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
   std::unique_ptr<llvm::raw_ostream> getLLVMRawOstream();
-  void runEmitLLVMIR();
-  void runWriteAstGraph();
-  void runWriteCstGraph();
 #endif
 
   int status() const { return !EM.IsOk(); }

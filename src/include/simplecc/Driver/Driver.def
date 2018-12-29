@@ -1,0 +1,20 @@
+/// Definitions of all commands.
+#ifndef HANDLE_COMMAND
+#define HANDLE_COMMAND(Name, Arg, Description)
+#endif
+
+HANDLE_COMMAND(PrintTokens, "print-tokens", "print the tokens")
+HANDLE_COMMAND(PrintCST, "print-cst", "print the concrete syntax tree")
+HANDLE_COMMAND(PrintAST, "print-ast", "pretty print the abstract syntax tree")
+HANDLE_COMMAND(PrintByteCode, "print-school-ir", "print IR in the format required by school")
+HANDLE_COMMAND(PrintByteCodeModule, "print-bc-ir", "print IR in the byte code form")
+HANDLE_COMMAND(AssembleMips, "asm", "emit MIPS assembly")
+HANDLE_COMMAND(CheckOnly, "check-only", "merely perform checks on the input")
+
+#ifdef SIMPLE_COMPILER_USE_LLVM
+HANDLE_COMMAND(WriteASTGraph, "ast-graph", "print the dot file for the AST");
+HANDLE_COMMAND(WriteCSTGraph, "cst-graph", "print the dot file for the CST");
+HANDLE_COMMAND(EmitLLVMIR, "emit-llvm", "emit LLVM IR")
+#endif
+
+#undef HANDLE_COMMAND

@@ -124,7 +124,7 @@ void Driver::runPrintByteCode() {
   PrintByteCode(TheProgram.get(), *OS);
 }
 
-void Driver::runPrettyPrintAST() {
+void Driver::runPrintAST() {
   if (doAnalyses())
     return;
   auto OS = getStdOstream();
@@ -133,9 +133,9 @@ void Driver::runPrettyPrintAST() {
   PrettyPrintAST(*TheProgram, *OS);
 }
 
-void Driver::runAnalysisOnly() { doAnalyses(); }
+void Driver::runCheckOnly() { doAnalyses(); }
 
-void Driver::runDumpCst() {
+void Driver::runPrintCST() {
   auto TheCST = doBuildCST();
   if (!TheCST)
     return;
@@ -145,7 +145,7 @@ void Driver::runDumpCst() {
   Print(*OS, *TheCST);
 }
 
-void Driver::runDumpByteCodeModule() {
+void Driver::runPrintByteCodeModule() {
   if (doCodeGen())
     return;
   auto OS = getStdOstream();
@@ -175,7 +175,7 @@ void Driver::runEmitLLVMIR() {
   }
 }
 
-void Driver::runWriteAstGraph() {
+void Driver::runWriteASTGraph() {
   if (doAnalyses())
     return;
   auto OS = getLLVMRawOstream();
@@ -185,7 +185,7 @@ void Driver::runWriteAstGraph() {
   WriteASTGraph(TheProgram.get(), *OS);
 }
 
-void Driver::runWriteCstGraph() {
+void Driver::runWriteCSTGraph() {
   auto TheCST = doBuildCST();
   if (!TheCST)
     return;
