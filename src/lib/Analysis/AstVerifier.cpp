@@ -2,7 +2,7 @@
 
 using namespace simplecc;
 
-void AstVerifier::visitWrite(simplecc::WriteStmt *WR) {
+void AstVerifier::visitWrite(WriteStmt *WR) {
   AssertThat(WR->getStr() || WR->getValue(),
              "Both StrExpr and Value of WriteStmt are empty");
 }
@@ -28,20 +28,14 @@ void AstVerifier::visitIf(IfStmt *I) {
              "Test of IfStmt must be a BoolOpExpr");
 }
 
-void AstVerifier::visitBoolOp(simplecc::BoolOpExpr *B) {
+void AstVerifier::visitBoolOp(BoolOpExpr *B) {
   if (B->getHasCmpop()) {
     AssertThat(IsInstance<BinOpExpr>(B->getValue()),
                "HasCmpOp implies BinOpExpr");
   }
 }
 
-void AstVerifier::visitRead(ReadStmt *RD) {
-  for (Expr *E : RD->getNames()) {
-    AssertThat(IsInstance<NameExpr>(E), "Names in ReadStmt must be NameExpr");
-  }
-}
-
-void AstVerifier::visitAssign(simplecc::AssignStmt *A) {
+void AstVerifier::visitAssign(AssignStmt *A) {
   AssertThat(IsInstance<NameExpr>(A->getTarget()) ||
                  IsInstance<SubscriptExpr>(A->getTarget()),
              "Target of AssignStmt must be NameExpr or SubscriptExpr");
@@ -71,7 +65,7 @@ void AstVerifier::visitFuncDef(FuncDef *FD) {
   }
 }
 
-void AstVerifier::visitProgram(simplecc::Program *P) {
+void AstVerifier::visitProgram(Program *P) {
   for (Decl *D : P->getDecls()) {
     AssertThat(!IsInstance<ArgDecl>(D),
                "ArgDecl cannot appear in Decls of Program");

@@ -4,16 +4,14 @@
 using namespace simplecc;
 
 void TypeChecker::visitRead(ReadStmt *RD) {
-  for (auto E : RD->getNames()) {
-    auto N = subclass_cast<NameExpr>(E);
-    assert(N);
+  for (NameExpr *N : RD->getNames()) {
     const auto &Entry = getSymbolEntry(N->getId());
     if (!Entry.IsVariable()) {
       Error(N->getLocation(), "scanf() only applies to variables.");
       continue;
     }
     /// set the Expr type for this.
-    getSymbolTable().setExprType(E, Entry.AsVariable().getType());
+    getSymbolTable().setExprType(N, Entry.AsVariable().getType());
   }
 }
 

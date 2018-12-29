@@ -33,6 +33,10 @@ inline std::ostream &operator<<(std::ostream &O, const AST &A) {
   return O;
 }
 
+// Forward declare all AST subclasses.
+#define HANDLE_AST(CLASS) class CLASS;
+#include "simplecc/Parse/AST.def"
+
 // AbstractNode
 class Decl : public AST {
 protected:
@@ -168,10 +172,10 @@ public:
 };
 
 class ReadStmt : public Stmt {
-  std::vector<Expr *> names;
+  std::vector<NameExpr *> names;
 
 public:
-  ReadStmt(std::vector<Expr *> names, const Location &loc)
+  ReadStmt(std::vector<NameExpr *> names, const Location &loc)
       : Stmt(Stmt::ReadStmtKind, loc), names(std::move(names)) {}
 
   // Disable copy and move.
@@ -186,7 +190,7 @@ public:
     return x->getKind() == Stmt::ReadStmtKind;
   }
 
-  const std::vector<Expr *> &getNames() const { return names; }
+  const std::vector<NameExpr *> &getNames() const { return names; }
 };
 
 class WriteStmt : public Stmt {

@@ -10,8 +10,6 @@ class AstVerifier : ChildrenVisitor<AstVerifier> {
   /// Helper to check each condition in one single statement.
   void AssertThat(bool Predicate, const char *ErrMsg);
 
-  void visitRead(ReadStmt *RD);
-
   void visitWrite(WriteStmt *WR);
 
   void visitAssign(AssignStmt *A);

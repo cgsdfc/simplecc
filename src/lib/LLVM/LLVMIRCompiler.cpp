@@ -319,8 +319,7 @@ void LLVMIRCompiler::visitRead(ReadStmt *RD) {
     }
   };
 
-  for (Expr *E : RD->getNames()) {
-    auto Nn = static_cast<NameExpr *>(E);
+  for (auto Nn : RD->getNames()) {
     Value *FmtV = getString(SelectFmtSpc(Nn));
     Value *Var = LocalValues[Nn->getId()];
     assert(Var && "Var must be created");

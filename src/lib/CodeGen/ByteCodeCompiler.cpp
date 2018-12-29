@@ -20,8 +20,7 @@ void ByteCodeCompiler::visitVarDecl(VarDecl *VD) {
 }
 
 void ByteCodeCompiler::visitRead(ReadStmt *RD) {
-  for (auto E : RD->getNames()) {
-    auto N = static_cast<NameExpr *>(E);
+  for (NameExpr *N : RD->getNames()) {
     const auto &Entry = TheLocalTable[N->getId()];
     Builder.CreateRead(Entry.AsVariable().getType());
     Builder.CreateStore(Entry.getScope(), Entry.getName());

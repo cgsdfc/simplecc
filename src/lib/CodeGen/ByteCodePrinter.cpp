@@ -31,8 +31,8 @@ void ByteCodePrinter::visitFuncDef(FuncDef *FD) {
 }
 
 void ByteCodePrinter::visitRead(ReadStmt *RD) {
-  for (auto name : RD->getNames()) {
-    w.WriteLine("scanf", visitExpr(name));
+  for (auto N : RD->getNames()) {
+    w.WriteLine("scanf", visitExpr(N));
   }
 }
 
