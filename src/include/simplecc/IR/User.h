@@ -1,16 +1,14 @@
-#ifndef SIMPLECC_OPTIMIZE_USER_H
-#define SIMPLECC_OPTIMIZE_USER_H
+#ifndef SIMPLECC_IR_USER_H
+#define SIMPLECC_IR_USER_H
 #include "simplecc/IR/Value.h"
 #include <vector>
+#include <cassert>
 
 namespace simplecc {
-class Type;
-
-/// User represents a Value that can use other Value's as operands.
+/// User represents a Value that can use other Values as operands.
 class User : public Value {
 public:
   using OperandListType = std::vector<Use>;
-  /// Iterator interface of Operands.
   using op_iterator = OperandListType::iterator;
   using const_op_iterator = OperandListType::const_iterator;
 
@@ -19,28 +17,50 @@ public:
   const_op_iterator op_begin() const { return Operands.begin(); }
   const_op_iterator op_end() const { return Operands.end(); }
 
-  OperandListType &getOperandList() { return Operands; }
-  const OperandListType &getOperandList() const { return Operands; }
-
-  Value *getOperand(unsigned I) const;
-  void setOperand(unsigned I, Value *Val);
   unsigned getNumOperands() const { return Operands.size(); }
 
-  const Use &getOperandUse(unsigned I) const;
-  Use &getOperandUse(unsigned I);
+  iterator_range<op_iterator> operands() {
+    return make_range(op_begin(), op_end());
+  }
+
+  iterator_range<const_op_iterator> operands() const {
+    return make_range(op_begin(), op_end());
+  }
+  OperandListType &getOperandList() { return Operands; }
+
+  const OperandListType &getOperandList() const { return Operands; }
+
+  Value *getOperand(unsigned I) const {
+    return getOperandUse(I);
+  }
+
+  void setOperand(unsigned I, Value *Val) {
+    assert(I < getNumOperands() && "# operand out of range");
+    // this uses Val. old Use of this
+    Operands[I] = Val;
+  }
+
+  const Use &getOperandUse(unsigned I) const {
+    assert(I < getNumOperands() && "# operand out of range");
+    return Operands[I];
+  }
+
+  Use &getOperandUse(unsigned I) {
+    return const_cast<Use &>(
+        const_cast<const User *>(this)->getOperandUse(I));
+  }
 
   User(const User &) = delete;
   User &operator=(const User &) = delete;
 
 protected:
   User(Type *Ty, unsigned ValTy, unsigned NumOps) : Value(Ty, ValTy) {
-    Operands.reserve(NumOps);
+    Operands.resize(NumOps);
   }
-
+  ~User() = default;
 private:
   OperandListType Operands;
-
 };
 }
 
-#endif //SIMPLECC_OPTIMIZE_USER_H
+#endif //SIMPLECC_IR_USER_H

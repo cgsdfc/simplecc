@@ -1,5 +1,5 @@
-#ifndef BASIC_BLOCK_H
-#define BASIC_BLOCK_H
+#ifndef SIMPLECC_IR_BASIC_BLOCK_H
+#define SIMPLECC_IR_BASIC_BLOCK_H
 #include "simplecc/IR/Value.h"
 
 namespace simplecc {

@@ -1,5 +1,22 @@
-//
-// Created by cgsdfc on 18-12-25.
-//
+#include <simplecc/IR/Type.h>
+#include "simplecc/IR/IRContext.h"
 
-#include "simplecc/IR/Type.h"
+using namespace simplecc;
+
+Type *Type::getVoidTy(IRContext &Context) {
+  return &Context.VoidTy;
+}
+
+Type *Type::getLabelTy(IRContext &Context) {
+  return &Context.LabelTy;
+}
+
+Type *Type::getIntTy(IRContext &Context) {
+  return &Context.IntTy;
+}
+
+Type *Type::getPointerTy(IRContext &Context) {
+  return &Context.PointerType;
+}
+
+

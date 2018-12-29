@@ -1,5 +1,5 @@
-#ifndef SIMPLECC_OPTIMIZE_INSTRUCTION_H
-#define SIMPLECC_OPTIMIZE_INSTRUCTION_H
+#ifndef SIMPLECC_IR_INSTRUCTION_H
+#define SIMPLECC_IR_INSTRUCTION_H
 #include "simplecc/IR/User.h"
 
 namespace simplecc {
