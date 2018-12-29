@@ -2,4 +2,4 @@
 // Created by cgsdfc on 18-12-25.
 //
 
-#include "simplecc/Optimize/Use.h"
+#include "simplecc/IR/Value.h"

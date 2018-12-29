@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_OPTIMIZE_INSTRUCTION_H
 #define SIMPLECC_OPTIMIZE_INSTRUCTION_H
-#include "simplecc/Optimize/User.h"
+#include "simplecc/IR/User.h"
 
 namespace simplecc {
 class BasicBlock;

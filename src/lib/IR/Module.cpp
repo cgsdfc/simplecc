@@ -1,5 +1,4 @@
-#include "simplecc/Optimize/Module.h"
-#include <string>
+#include "simplecc/IR/Module.h"
 #include <utility>
 
 using namespace simplecc;

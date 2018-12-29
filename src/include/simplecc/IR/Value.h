@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_OPTIMIZE_VALUE_H
 #define SIMPLECC_OPTIMIZE_VALUE_H
-#include "simplecc/Optimize/Use.h"
-#include "simplecc/Optimize/Type.h"
+#include "simplecc/IR/Use.h"
+#include "simplecc/IR/Type.h"
 
 #include <string>
 #include <vector>

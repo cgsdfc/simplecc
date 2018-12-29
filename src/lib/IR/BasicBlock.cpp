@@ -1,4 +1,4 @@
-#include "simplecc/Optimize/BasicBlock.h"
+#include "simplecc/IR/BasicBlock.h"
 #include <algorithm>
 
 using namespace simplecc;

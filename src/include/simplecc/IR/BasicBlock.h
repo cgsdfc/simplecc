@@ -1,6 +1,6 @@
 #ifndef BASIC_BLOCK_H
 #define BASIC_BLOCK_H
-#include "simplecc/Optimize/Value.h"
+#include "simplecc/IR/Value.h"
 
 namespace simplecc {
 class Instruction;

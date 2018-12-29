@@ -1,6 +1,5 @@
-#include "simplecc/Optimize/Instruction.h"
+#include "simplecc/IR/Instruction.h"
 #include <cassert>
-#include <simplecc/Optimize/Instruction.h>
 
 using namespace simplecc;
 

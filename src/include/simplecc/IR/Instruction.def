@@ -1,0 +1,17 @@
+/// Definitions of Instruction
+#ifndef HANDLE_INSTRUCTION
+#define HANDLE_INSTRUCTION(Class, Name)
+#endif
+
+#ifndef HANDLE_TERMINATOR
+#define HANDLE_TERMINATOR(Class, Name) HANDLE_INSTRUCTION(Class, Name)
+#endif
+
+#ifndef HANDLE_BINARY_OPERATOR
+#define HANDLE_BINARY_OPERATOR(Class, Name) HANDLE_INSTRUCTION(Class, Name)
+#endif
+
+HANDLE_TERMINATOR(RetInst, "ret")
+HANDLE_TERMINATOR(BranchInst, "br")
+
+HANDLE_BINARY_OPERATOR()

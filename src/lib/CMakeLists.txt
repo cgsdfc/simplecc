@@ -45,10 +45,10 @@ set(SOURCE_FILES
 
         # Optimization is not implemented currently.
         # That's why they come last.
-        Optimize/Module.cpp
-        Optimize/Function.cpp
-        Optimize/Instruction.cpp
-        Optimize/BasicBlock.cpp
+        IR/Module.cpp
+        IR/Function.cpp
+        IR/Instruction.cpp
+        IR/BasicBlock.cpp
 
         #Transform/ConstantInliner.cpp
         Driver/Driver.cpp)

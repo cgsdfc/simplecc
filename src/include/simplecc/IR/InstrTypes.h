@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_OPTIMIZE_INSTRTYPES_H
 #define SIMPLECC_OPTIMIZE_INSTRTYPES_H
 #include <simplecc/Parse/AST.h>
-#include "simplecc/Optimize/Instruction.h"
+#include "simplecc/IR/Instruction.h"
 
 namespace simplecc {
 class UnaryInstruction : public Instruction {
