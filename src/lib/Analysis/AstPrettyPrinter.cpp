@@ -1,4 +1,4 @@
-#include <simplecc/Visualize/AstPrettyPrinter.h>
+#include <simplecc/Analysis/AstPrettyPrinter.h>
 
 using namespace simplecc;
 
@@ -528,4 +528,10 @@ void AstPrettyPrinter::printArgs(const std::vector<Decl *> &Args) {
 
 void AstPrettyPrinter::PrettyPrint(const AST *A) {
   visitAST(const_cast<AST *>(A));
+}
+
+namespace simplecc {
+void PrettyPrintAST(const AST &A, std::ostream &O) {
+  AstPrettyPrinter(O).PrettyPrint(&A);
+}
 }

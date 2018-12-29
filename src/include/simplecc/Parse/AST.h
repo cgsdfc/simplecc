@@ -634,5 +634,7 @@ struct DeleteAST {
   }
 };
 
+/// Pretty print.
+void PrettyPrintAST(const AST &A, std::ostream &O);
 } // namespace simplecc
 #endif

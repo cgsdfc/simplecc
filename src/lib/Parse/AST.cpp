@@ -150,8 +150,7 @@ void AST::deleteAST() {
 }
 
 void AST::Format(std::ostream &os) const {
-  os << "<" << getClassName() << " object at " << static_cast<const void *>(this)
-     << ">";
+  PrettyPrintAST(*this, os);
 }
 
 bool Decl::InstanceCheck(const AST *A) {

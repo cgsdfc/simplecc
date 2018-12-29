@@ -85,12 +85,12 @@ bool Driver::doCodeGen() {
 }
 
 bool Driver::doAssemble() {
-  auto OStream = getStdOstream();
-  if (!OStream)
+  auto OS = getStdOstream();
+  if (!OS)
     return false;
   if (doCodeGen())
     return true;
-  AssembleMips(TheModule, *OStream);
+  AssembleMips(TheModule, *OS);
   return false;
 }
 
@@ -118,19 +118,19 @@ void Driver::runAssembleMips() { doAssemble(); }
 void Driver::runPrintByteCode() {
   if (doAnalyses())
     return;
-  auto OStream = getStdOstream();
-  if (!OStream)
+  auto OS = getStdOstream();
+  if (!OS)
     return;
-  PrintByteCode(TheProgram.get(), *OStream);
+  PrintByteCode(TheProgram.get(), *OS);
 }
 
 void Driver::runPrettyPrintAST() {
   if (doAnalyses())
     return;
-  auto OStream = getStdOstream();
-  if (!OStream)
+  auto OS = getStdOstream();
+  if (!OS)
     return;
-  PrettyPrintAST(*TheProgram, *OStream);
+  PrettyPrintAST(*TheProgram, *OS);
 }
 
 void Driver::runAnalysisOnly() { doAnalyses(); }
@@ -198,7 +198,6 @@ void Driver::runWriteCstGraph() {
 std::unique_ptr<llvm::raw_ostream> Driver::getLLVMRawOstream() {
   std::error_code EC;
   auto OS = llvm::make_unique<llvm::raw_fd_ostream>(getOutputFile(), EC);
-
   if (EC) {
     // Destroy the raw_fd_ostream as told by their doc.
     OS.release();

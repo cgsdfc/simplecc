@@ -1,6 +1,5 @@
 #include "simplecc/Visualize/Visualize.h"
 #include "simplecc/Visualize/ASTGraph.h"
-#include "simplecc/Visualize/AstPrettyPrinter.h"
 #include "simplecc/Support/Print.h"
 
 namespace simplecc {
@@ -10,11 +9,5 @@ void PrintAllAstNodes(Program *P, std::ostream &O) {
   for (auto AR : Graph.nodes()) {
     Print(O, AR->getClassName(), AR->getLocation());
   }
-}
-
-/// Pretty print an AST node.
-void PrettyPrintAST(const AST &A, std::ostream &O) {
-  AstPrettyPrinter(O).PrettyPrint(&A);
-  O << "\n";
 }
 }

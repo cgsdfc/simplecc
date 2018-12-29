@@ -24,6 +24,8 @@ set(SOURCE_FILES
         Analysis/SymbolTableBuilder.cpp
         Analysis/AnalysisManager.cpp
         Analysis/ArrayBoundChecker.cpp
+        Analysis/AstPrettyPrinter.cpp
+
 
         # Generate ByteCode from the AST.
         CodeGen/ByteCodePrinter.cpp
@@ -48,7 +50,6 @@ set(SOURCE_FILES
         Optimize/Instruction.cpp
         Optimize/BasicBlock.cpp
 
-        Visualize/AstPrettyPrinter.cpp
         #Transform/ConstantInliner.cpp
         Driver/Driver.cpp Visualize/Visualize.cpp)
 
