@@ -12,9 +12,10 @@ namespace simplecc {
 /// Derived should implement a TransformExpr() method.
 template<typename Derived>
 class ExprTransformer : public ContextualVisitor<ExprTransformer<Derived>> {
-protected:
-  using ChildrenVisitor<Derived>::visitStmt;
-  using ChildrenVisitor<Derived>::visitExpr;
+  using BaseT = ContextualVisitor<ExprTransformer<Derived>>;
+public:
+  using BaseT::visitStmt;
+  using BaseT::visitExpr;
 
   /// Default implementation.
   Expr *TransformExpr(Expr *E, AST *Parent) { return E; }
@@ -42,7 +43,8 @@ public:
 template<typename Derived>
 void ExprTransformer<Derived>::visitWhile(WhileStmt *W) {
   W->setCondition(
-      static_cast<Derived *>(this)->TransformExpr(W->getCondition(), W));
+      static_cast<Derived *>(this)->TransformExpr(W->getCondition(), W)
+  );
   for (Stmt *S : W->getBody())
     visitStmt(S);
 }
@@ -50,20 +52,23 @@ void ExprTransformer<Derived>::visitWhile(WhileStmt *W) {
 template<typename Derived>
 void ExprTransformer<Derived>::visitWrite(WriteStmt *W) {
   W->setValue(
-      static_cast<Derived *>(this)->TransformExpr(W->getValue(), W));
+      static_cast<Derived *>(this)->TransformExpr(W->getValue(), W)
+  );
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitAssign(AssignStmt *A) {
   A->setValue(
-      static_cast<Derived *>(this)->TransformExpr(A->getValue()), A);
+      static_cast<Derived *>(this)->TransformExpr(A->getValue(), A)
+  );
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitFor(ForStmt *F) {
   visitStmt(F->getInitial());
   F->setCondition(
-      static_cast<Derived *>(this)->TransformExpr(F->getCondition()));
+      static_cast<Derived *>(this)->TransformExpr(F->getCondition(), F)
+  );
   visitStmt(F->getStep());
   for (Stmt *S : F->getBody())
     visitStmt(S);
@@ -72,13 +77,15 @@ void ExprTransformer<Derived>::visitFor(ForStmt *F) {
 template<typename Derived>
 void ExprTransformer<Derived>::visitReturn(ReturnStmt *R) {
   R->setValue(
-      static_cast<Derived *>(this)->TransformExpr(R->getValue()));
+      static_cast<Derived *>(this)->TransformExpr(R->getValue(), R)
+  );
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitIf(IfStmt *I) {
   I->setTest(
-      static_cast<Derived *>(this)->TransformExpr(I->getTest()));
+      static_cast<Derived *>(this)->TransformExpr(I->getTest(), I)
+  );
   for (auto S : I->getBody())
     visitStmt(S);
   for (auto S : I->getOrelse())
@@ -88,40 +95,48 @@ void ExprTransformer<Derived>::visitIf(IfStmt *I) {
 template<typename Derived>
 void ExprTransformer<Derived>::visitCall(CallExpr *C) {
   for (unsigned I = 0, E = C->getNumArgs(); I < E; I++) {
-    C->setArgAt(I, static_cast<Derived *>(this)->TransformExpr(C->getArgAt(I)));
+    C->setArgAt(
+        I, static_cast<Derived *>(this)->TransformExpr(C->getArgAt(I), C)
+    );
   }
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitBinOp(BinOpExpr *B) {
   B->setLeft(
-      static_cast<Derived *>(this)->TransformExpr(B->getLeft()));
+      static_cast<Derived *>(this)->TransformExpr(B->getLeft(), B)
+  );
   B->setRight(
-      static_cast<Derived *>(this)->TransformExpr(B->getRight()));
+      static_cast<Derived *>(this)->TransformExpr(B->getRight(), B)
+  );
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitBoolOp(BoolOpExpr *B) {
   B->setValue(
-      static_cast<Derived *>(this)->TransformExpr(B->getValue()));
+      static_cast<Derived *>(this)->TransformExpr(B->getValue(), B)
+  );
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitParenExpr(ParenExpr *PE) {
   PE->setValue(
-      static_cast<Derived *>(this)->TransformExpr(PE->getValue()));
+      static_cast<Derived *>(this)->TransformExpr(PE->getValue(), PE)
+  );
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitUnaryOp(UnaryOpExpr *U) {
   U->setOperand(
-      static_cast<Derived *>(this)->TransformExpr(U->getOperand()));
+      static_cast<Derived *>(this)->TransformExpr(U->getOperand(), U)
+  );
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitSubscript(SubscriptExpr *SB) {
   SB->setIndex(
-      static_cast<Derived *>(this)->TransformExpr(SB->getIndex()));
+      static_cast<Derived *>(this)->TransformExpr(SB->getIndex(), SB)
+  );
 }
 }
 

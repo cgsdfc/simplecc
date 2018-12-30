@@ -59,7 +59,7 @@ set(SOURCE_FILES
         IR/Constant.cpp
         IR/IRContext.cpp
 
-        #Transform/ConstantInliner.cpp
+        Transform/InlineConstDeclTransformer.cpp
         Driver/Driver.cpp IR/Instructions.cpp)
 
 set(EXTRA_LIBRARIES "")
