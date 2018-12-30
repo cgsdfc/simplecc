@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_TRANSFORMER_H
 #define SIMPLECC_TRANSFORMER_H
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/Analysis/ContextualVisitor.h"
 
 namespace simplecc {
 
@@ -11,8 +11,8 @@ namespace simplecc {
 /// 2. Thus one must cover all the nodes that have Expr children.
 /// Derived should implement a TransformExpr() method.
 template<typename Derived>
-class ExprTransformer : public ChildrenVisitor<ExprTransformer<Derived>> {
-public:
+class ExprTransformer : public ContextualVisitor<ExprTransformer<Derived>> {
+protected:
   using ChildrenVisitor<Derived>::visitStmt;
   using ChildrenVisitor<Derived>::visitExpr;
 
@@ -32,8 +32,11 @@ public:
   void visitParenExpr(ParenExpr *PE);
   void visitUnaryOp(UnaryOpExpr *U);
   void visitSubscript(SubscriptExpr *SB);
-
-  void visitFuncDef(FuncDef *FD);
+public:
+  ExprTransformer() = default;
+  void Transform(Program *P, SymbolTable &S) {
+    ContextualVisitor<Derived>::visitProgram(P, S);
+  }
 };
 
 template<typename Derived>
@@ -52,13 +55,15 @@ void ExprTransformer<Derived>::visitWrite(WriteStmt *W) {
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitAssign(AssignStmt *A) {
-  A->setValue(static_cast<Derived *>(this)->TransformExpr(A->getValue()), A);
+  A->setValue(
+      static_cast<Derived *>(this)->TransformExpr(A->getValue()), A);
 }
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitFor(ForStmt *F) {
   visitStmt(F->getInitial());
-  F->setCondition(static_cast<Derived *>(this)->TransformExpr(F->getCondition()));
+  F->setCondition(
+      static_cast<Derived *>(this)->TransformExpr(F->getCondition()));
   visitStmt(F->getStep());
   for (Stmt *S : F->getBody())
     visitStmt(S);
@@ -66,7 +71,8 @@ void ExprTransformer<Derived>::visitFor(ForStmt *F) {
 
 template<typename Derived>
 void ExprTransformer<Derived>::visitReturn(ReturnStmt *R) {
-  R->setValue(static_cast<Derived *>(this)->TransformExpr(R->getValue()));
+  R->setValue(
+      static_cast<Derived *>(this)->TransformExpr(R->getValue()));
 }
 
 template<typename Derived>
@@ -117,7 +123,6 @@ void ExprTransformer<Derived>::visitSubscript(SubscriptExpr *SB) {
   SB->setIndex(
       static_cast<Derived *>(this)->TransformExpr(SB->getIndex()));
 }
-
 }
 
 #endif //SIMPLECC_TRANSFORMER_H
