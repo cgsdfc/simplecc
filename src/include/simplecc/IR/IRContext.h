@@ -4,15 +4,7 @@
 #include "Type.h"
 
 namespace simplecc {
-class IRContext {
-  friend class Type;
-  Type VoidTy;
-  Type LabelTy;
-  Type IntTy;
-  Type PointerType;
-public:
-  IRContext();
-};
+class IRContext {};
 
 }
 
