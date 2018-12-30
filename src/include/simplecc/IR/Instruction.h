@@ -9,9 +9,6 @@ class Function;
 
 class Instruction : public User {
   BasicBlock *Parent;
-protected:
-  ~Instruction();
-
 public:
   const BasicBlock *getParent() const { return Parent; }
   BasicBlock *getParent() { return Parent; }
@@ -42,6 +39,7 @@ public:
 
 protected:
   Instruction(Type *Ty, unsigned Opcode, unsigned NumOps, BasicBlock *InsertAtEnd);
+  ~Instruction();
 
 public:
   Instruction(const Instruction &) = delete;

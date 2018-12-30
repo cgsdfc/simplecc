@@ -60,7 +60,7 @@ set(SOURCE_FILES
         IR/IRContext.cpp
 
         #Transform/ConstantInliner.cpp
-        Driver/Driver.cpp)
+        Driver/Driver.cpp IR/Instructions.cpp)
 
 set(EXTRA_LIBRARIES "")
 

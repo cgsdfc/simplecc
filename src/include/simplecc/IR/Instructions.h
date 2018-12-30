@@ -5,22 +5,27 @@
 
 /// All subclasses of Instruction defined here.
 namespace simplecc {
+
+/// This class represents the ret instruction. ret is a terminator instruction
+/// that terminates the execution of a function. Its type is void. It optionally
+/// accepts a Value returned to the caller. If the return Value is void, it is treated as
+/// no return Value. Otherwise the type of it must be int.
+/// ret int %1
 /// ret void
-/// ret Val
 class ReturnInstr : public Instruction {
 private:
-  ReturnInstr(Value *Val = nullptr);
+  explicit ReturnInstr(Value *Val, BasicBlock *BB);
   friend class Instruction;
-
 public:
+  /// Return the ret value. If it has none, return nullptr.
   Value *getReturnValue() const {
     return getNumOperands() != 0 ? getOperand(0) : nullptr;
   }
 
   unsigned getNumSuccessors() const { return 0; }
 
-  static ReturnInstr *Create(Value *Val = nullptr) {
-    return new ReturnInstr(Val);
+  static ReturnInstr *Create(Value *Val, BasicBlock *BB) {
+    return new ReturnInstr(Val, BB);
   }
   static bool InstanceCheck(const Instruction *I) {
     return I->getOpcode() == Instruction::Ret;
@@ -34,18 +39,28 @@ private:
   }
 };
 
-/// br B
-/// br C T F
+/// This class represents the br instruction.
+/// The br instruction represents either a conditional branch or unconditional branch.
+/// When it is a conditional branch, it accepts 3 Values, one for the condition, one for
+/// the BB when the condition is true and one for the BB when the condition is false.
+/// When it is an unconditional branch, it only accepts the BB to branch to.
+/// It returns no Value. Its type is void.
+/// br label %end
+/// br int %cmp, label %true, label %false.
 class BranchInst : public Instruction {
 private:
-  explicit BranchInst(BasicBlock *IfTrue);
-  BranchInst(BasicBlock *IfTrue, BasicBlock *IfFalse, Value *Cond);
+  BranchInst(unsigned NumOps, BasicBlock *BB);
+  BranchInst(BasicBlock *IfTrue, BasicBlock *BB);
+  BranchInst(BasicBlock *IfTrue,
+             BasicBlock *IfFalse,
+             Value *Cond,
+             BasicBlock *BB);
 public:
-  static BranchInst *Create(BasicBlock *IfTrue) {
-    return new BranchInst(IfTrue);
+  static BranchInst *Create(BasicBlock *IfTrue, BasicBlock *IAE = nullptr) {
+    return new BranchInst(IfTrue, IAE);
   }
-  static BranchInst *Create(BasicBlock *IfTrue, BasicBlock *IfFalse, Value *Cond) {
-    return new BranchInst(IfTrue, IfFalse, Cond);
+  static BranchInst *Create(BasicBlock *IfTrue, BasicBlock *IfFalse, Value *Cond, BasicBlock *IAE) {
+    return new BranchInst(IfTrue, IfFalse, Cond, IAE);
   }
   static bool InstanceCheck(const Instruction *I) {
     return I->getOpcode() == Instruction::Br;
@@ -65,30 +80,46 @@ public:
   }
 
   unsigned getNumSuccessors() const { return 1 + isConditional(); }
-  BasicBlock *getSuccessor(unsigned I) const {
-    assert(I < getNumSuccessors() && "Successor # out of range for Branch");
-    return nullptr;
-  }
-  void setSuccessor(unsigned I, BasicBlock *NewSucc) {
-    assert(I < getNumSuccessors() && "Successor # out of range for Branch");
-  }
+  BasicBlock *getSuccessor(unsigned I) const;
+  void setSuccessor(unsigned I, BasicBlock *NewSucc);
   void swapSuccessors();
 };
 
+/// This class represents the load instruction.
+/// The load instruction accepts a ptr and returns an int as the loaded value.
+/// %1 = load ptr %2
 class LoadInst : public Instruction {
-
+  LoadInst(Value *Ptr, BasicBlock *IAE);
+public:
+  LoadInst *Create(Value *Ptr, BasicBlock *IAE) {
+    return new LoadInst(Ptr, IAE);
+  }
+  /// Return the ptr being loaded.
+  Value *getPtr() const { return getOperand(0); }
+  static bool InstanceCheck(const Instruction *I) {
+    return I->getOpcode() == Instruction::Load;
+  }
 };
 
+/// This class represents the alloca instruction.
 /// AllocaInst allocates N Int on the stack and return a ptr to the first element.
-/// The type of it is PointerTy.
+/// The type of it is PointerType.
 class AllocaInst : public Instruction {
-  AllocaInst(Value *NumAlloc);
+  explicit AllocaInst(unsigned int NumAlloc, BasicBlock *IAE);
 public:
-  static AllocaInst *Create(Value *NumAlloc);
-  Value *getNumAlloc() const;
+  static AllocaInst *Create(unsigned int NumAlloc, BasicBlock *IAE) {
+    return new AllocaInst(NumAlloc, IAE);
+  }
+
+  /// Return the numebr of int allocated.
+  unsigned int getNumAlloc() const {
+    return NumAlloc;
+  }
   static bool InstanceCheck(const Instruction *I) {
     return I->getOpcode() == Alloca;
   }
+private:
+  unsigned NumAlloc;
 };
 
 /// GetElementPtrInst accepts a base ptr and an offset and returns a ptr to the element at the
@@ -100,7 +131,7 @@ public:
   Value *getBasePtr() const;
   Value *getOffset() const;
   static bool InstanceCheck(const Instruction *I) {
-    return I->getOpcode() == GetElementPtr;
+    return I->getOpcode() == GEP;
   }
 };
 

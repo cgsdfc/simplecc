@@ -1,5 +1,6 @@
 #include <simplecc/IR/Instruction.h>
 #include "simplecc/IR/BasicBlock.h"
+#include "simplecc/IR/Function.h"
 
 using namespace simplecc;
 
@@ -42,4 +43,12 @@ bool Instruction::isBinaryOp(unsigned Opcode) {
 const Function *Instruction::getFunction() const {
   assert(Parent && "Parent not set!");
   return Parent->getParent();
+}
+
+const Module *Instruction::getModule() const {
+  return getFunction()->getParent();
+}
+
+Instruction::~Instruction() {
+
 }
