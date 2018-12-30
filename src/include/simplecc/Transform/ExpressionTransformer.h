@@ -1,5 +1,5 @@
-#ifndef SIMPLECC_TRANSFORM_EXPRTRANSFORMER_H
-#define SIMPLECC_TRANSFORM_EXPRTRANSFORMER_H
+#ifndef SIMPLECC_TRANSFORM_EXPRESSIONTRANSFORMER_H
+#define SIMPLECC_TRANSFORM_EXPRESSIONTRANSFORMER_H
 #include "simplecc/Analysis/ContextualVisitor.h"
 
 namespace simplecc {
@@ -11,8 +11,8 @@ namespace simplecc {
 /// 2. Thus one must cover all the nodes that have Expr children.
 /// Derived should implement a TransformExpr() method.
 template<typename Derived>
-class ExprTransformer : public ContextualVisitor<ExprTransformer<Derived>> {
-  using BaseT = ContextualVisitor<ExprTransformer<Derived>>;
+class ExpressionTransformer : public ContextualVisitor<ExpressionTransformer<Derived>> {
+  using BaseT = ContextualVisitor<ExpressionTransformer<Derived>>;
 public:
   using BaseT::visitStmt;
   using BaseT::visitExpr;
@@ -37,14 +37,14 @@ public:
   void visitUnaryOp(UnaryOpExpr *U);
   void visitSubscript(SubscriptExpr *SB);
 public:
-  ExprTransformer() = default;
+  ExpressionTransformer() = default;
   void Transform(Program *P, SymbolTable &S) {
     ContextualVisitor<Derived>::visitProgram(P, S);
   }
 };
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitWhile(WhileStmt *W) {
+void ExpressionTransformer<Derived>::visitWhile(WhileStmt *W) {
   W->setCondition(
       static_cast<Derived *>(this)->TransformExpr(W->getCondition(), W)
   );
@@ -53,21 +53,21 @@ void ExprTransformer<Derived>::visitWhile(WhileStmt *W) {
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitWrite(WriteStmt *W) {
+void ExpressionTransformer<Derived>::visitWrite(WriteStmt *W) {
   W->setValue(
       static_cast<Derived *>(this)->TransformExpr(W->getValue(), W)
   );
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitAssign(AssignStmt *A) {
+void ExpressionTransformer<Derived>::visitAssign(AssignStmt *A) {
   A->setValue(
       static_cast<Derived *>(this)->TransformExpr(A->getValue(), A)
   );
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitFor(ForStmt *F) {
+void ExpressionTransformer<Derived>::visitFor(ForStmt *F) {
   visitStmt(F->getInitial());
   F->setCondition(
       static_cast<Derived *>(this)->TransformExpr(F->getCondition(), F)
@@ -78,14 +78,14 @@ void ExprTransformer<Derived>::visitFor(ForStmt *F) {
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitReturn(ReturnStmt *R) {
+void ExpressionTransformer<Derived>::visitReturn(ReturnStmt *R) {
   R->setValue(
       static_cast<Derived *>(this)->TransformExpr(R->getValue(), R)
   );
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitIf(IfStmt *I) {
+void ExpressionTransformer<Derived>::visitIf(IfStmt *I) {
   I->setTest(
       static_cast<Derived *>(this)->TransformExpr(I->getTest(), I)
   );
@@ -96,7 +96,7 @@ void ExprTransformer<Derived>::visitIf(IfStmt *I) {
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitCall(CallExpr *C) {
+void ExpressionTransformer<Derived>::visitCall(CallExpr *C) {
   for (unsigned I = 0, E = C->getNumArgs(); I < E; I++) {
     C->setArgAt(
         I, static_cast<Derived *>(this)->TransformExpr(C->getArgAt(I), C)
@@ -105,7 +105,7 @@ void ExprTransformer<Derived>::visitCall(CallExpr *C) {
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitBinOp(BinOpExpr *B) {
+void ExpressionTransformer<Derived>::visitBinOp(BinOpExpr *B) {
   B->setLeft(
       static_cast<Derived *>(this)->TransformExpr(B->getLeft(), B)
   );
@@ -115,32 +115,32 @@ void ExprTransformer<Derived>::visitBinOp(BinOpExpr *B) {
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitBoolOp(BoolOpExpr *B) {
+void ExpressionTransformer<Derived>::visitBoolOp(BoolOpExpr *B) {
   B->setValue(
       static_cast<Derived *>(this)->TransformExpr(B->getValue(), B)
   );
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitParenExpr(ParenExpr *PE) {
+void ExpressionTransformer<Derived>::visitParenExpr(ParenExpr *PE) {
   PE->setValue(
       static_cast<Derived *>(this)->TransformExpr(PE->getValue(), PE)
   );
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitUnaryOp(UnaryOpExpr *U) {
+void ExpressionTransformer<Derived>::visitUnaryOp(UnaryOpExpr *U) {
   U->setOperand(
       static_cast<Derived *>(this)->TransformExpr(U->getOperand(), U)
   );
 }
 
 template<typename Derived>
-void ExprTransformer<Derived>::visitSubscript(SubscriptExpr *SB) {
+void ExpressionTransformer<Derived>::visitSubscript(SubscriptExpr *SB) {
   SB->setIndex(
       static_cast<Derived *>(this)->TransformExpr(SB->getIndex(), SB)
   );
 }
 }
 
-#endif //SIMPLECC_TRANSFORM_EXPRTRANSFORMER_H
+#endif //SIMPLECC_TRANSFORM_EXPRESSIONTRANSFORMER_H

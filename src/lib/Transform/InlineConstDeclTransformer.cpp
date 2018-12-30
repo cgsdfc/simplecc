@@ -4,11 +4,11 @@ using namespace simplecc;
 
 Expr *InlineConstDeclTransformer::TransformExpr(Expr *E, AST *Parent) {
   if (!IsInstance<NameExpr>(E)) {
-    return ExprTransformer::TransformExpr(E, Parent);
+    return ExpressionTransformer::TransformExpr(E, Parent);
   }
   auto Entry = getSymbolEntry(static_cast<NameExpr *>(E)->getId());
   if (!Entry.IsConstant()) {
-    return ExprTransformer::TransformExpr(E, Parent);
+    return ExpressionTransformer::TransformExpr(E, Parent);
   }
   auto CT = Entry.AsConstant();
   switch (CT.getType()) {

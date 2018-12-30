@@ -60,7 +60,7 @@ set(SOURCE_FILES
         IR/IRContext.cpp
 
         Transform/InlineConstDeclTransformer.cpp
-        Driver/Driver.cpp IR/Instructions.cpp)
+        Driver/Driver.cpp IR/Instructions.cpp Transform/TrivialConstantFolder.cpp ../include/simplecc/Transform/TrivialConstantFolder.h)
 
 set(EXTRA_LIBRARIES "")
 
