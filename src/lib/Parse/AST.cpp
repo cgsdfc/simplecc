@@ -9,8 +9,7 @@ static inline void setterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
   assert((Optional || RHS) && "Only optional field can be null");
   if (LHS == RHS)
     return;
-  assert(LHS && "LHS cannot be null");
-  LHS->deleteAST();
+  DeleteAST::apply(LHS);
   LHS = RHS;
 }
 
@@ -98,8 +97,8 @@ ExprStmt::~ExprStmt() {
 }
 
 BinOpExpr::~BinOpExpr() {
- deleteRequired(left);
- deleteRequired(right);
+  deleteRequired(left);
+  deleteRequired(right);
 }
 
 void BinOpExpr::setLeft(Expr *E) { setterImpl(left, E); }

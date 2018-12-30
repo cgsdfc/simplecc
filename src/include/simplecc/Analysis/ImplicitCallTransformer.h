@@ -28,14 +28,15 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   void visitWhile(WhileStmt *W);
   void visitReturn(ReturnStmt *R);
   void visitIf(IfStmt *I);
+
   void visitCall(CallExpr *C);
   void visitBinOp(BinOpExpr *B);
-  void visitFuncDef(FuncDef *FD);
-
   void visitBoolOp(BoolOpExpr *B);
   void visitParenExpr(ParenExpr *PE);
   void visitUnaryOp(UnaryOpExpr *U);
   void visitSubscript(SubscriptExpr *SB);
+
+  void visitFuncDef(FuncDef *FD);
 
   Expr *TransformExpr(Expr *E);
 
