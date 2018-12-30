@@ -13,21 +13,19 @@ static inline void setterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
   LHS = RHS;
 }
 
+/// Implement the rvalue getter
+template<typename AstT>
+static inline UniquePtrToAST rvalueGetterImpl(AstT *&Ref) {
+  AstT *tmp = nullptr;
+  std::swap(tmp, Ref);
+  return UniquePtrToAST(tmp);
+}
+
 template<typename AstT>
 static inline void deleteList(const std::vector<AstT *> &List) {
   std::for_each(List.begin(), List.end(), [](AstT *A) {
-    assert(A && "AST in a List can't be null");
-    A->deleteAST();
+    DeleteAST::apply(A);
   });
-}
-
-static inline void deleteOptional(AST *A) {
-  DeleteAST::apply(A);
-}
-
-static inline void deleteRequired(AST *A) {
-  assert(A && "Required field can't be null");
-  A->deleteAST();
 }
 
 Program::~Program() {
@@ -45,8 +43,8 @@ ReadStmt::~ReadStmt() {
 }
 
 WriteStmt::~WriteStmt() {
-  deleteOptional(str);
-  deleteOptional(value);
+  DeleteAST::apply(str);
+  DeleteAST::apply(value);
 }
 
 void WriteStmt::setValue(Expr *Val) {
@@ -54,36 +52,36 @@ void WriteStmt::setValue(Expr *Val) {
 }
 
 AssignStmt::~AssignStmt() {
-  deleteRequired(target);
-  deleteRequired(value);
+  DeleteAST::apply(target);
+  DeleteAST::apply(value);
 }
 
 void AssignStmt::setValue(Expr *E) { setterImpl(value, E); }
 
 ForStmt::~ForStmt() {
-  deleteRequired(initial);
-  deleteRequired(condition);
-  deleteRequired(step);
+  DeleteAST::apply(initial);
+  DeleteAST::apply(condition);
+  DeleteAST::apply(step);
   deleteList(body);
 }
 
 void ForStmt::setCondition(Expr *E) { setterImpl(condition, E); }
 
 WhileStmt::~WhileStmt() {
-  deleteRequired(condition);
+  DeleteAST::apply(condition);
   deleteList(body);
 }
 
 void WhileStmt::setCondition(Expr *E) { setterImpl(condition, E); }
 
-ReturnStmt::~ReturnStmt() { deleteOptional(value); }
+ReturnStmt::~ReturnStmt() { DeleteAST::apply(value); }
 
 void ReturnStmt::setValue(Expr *E) {
   setterImpl(value, E, /* Optional */ true);
 }
 
 IfStmt::~IfStmt() {
-  deleteRequired(test);
+  DeleteAST::apply(test);
   deleteList(body);
   deleteList(orelse);
 }
@@ -93,27 +91,27 @@ void IfStmt::setTest(Expr *E) {
 }
 
 ExprStmt::~ExprStmt() {
-  deleteRequired(value);
+  DeleteAST::apply(value);
 }
 
 BinOpExpr::~BinOpExpr() {
-  deleteRequired(left);
-  deleteRequired(right);
+  DeleteAST::apply(left);
+  DeleteAST::apply(right);
 }
 
 void BinOpExpr::setLeft(Expr *E) { setterImpl(left, E); }
 
 void BinOpExpr::setRight(Expr *E) { setterImpl(right, E); }
 
-ParenExpr::~ParenExpr() { deleteRequired(value); }
+ParenExpr::~ParenExpr() { DeleteAST::apply(value); }
 
 void ParenExpr::setValue(Expr *E) { setterImpl(value, E); }
 
-BoolOpExpr::~BoolOpExpr() { deleteRequired(value); }
+BoolOpExpr::~BoolOpExpr() { DeleteAST::apply(value); }
 
 void BoolOpExpr::setValue(Expr *E) { setterImpl(value, E); }
 
-UnaryOpExpr::~UnaryOpExpr() { deleteRequired(operand); }
+UnaryOpExpr::~UnaryOpExpr() { DeleteAST::apply(operand); }
 
 void UnaryOpExpr::setOperand(Expr *E) { setterImpl(operand, E); }
 
@@ -123,7 +121,7 @@ CallExpr::~CallExpr() {
 
 void CallExpr::setArgAt(unsigned I, Expr *Val) { setterImpl(args[I], Val); }
 
-SubscriptExpr::~SubscriptExpr() { deleteRequired(index); }
+SubscriptExpr::~SubscriptExpr() { DeleteAST::apply(index); }
 
 void SubscriptExpr::setIndex(Expr *E) { setterImpl(index, E); }
 

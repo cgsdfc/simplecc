@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <memory>
 
 namespace simplecc {
 class AST {
@@ -32,6 +33,18 @@ inline std::ostream &operator<<(std::ostream &O, const AST &A) {
   A.Format(O);
   return O;
 }
+/// To be used with std::unique_ptr.
+struct DeleteAST {
+  static void apply(AST *A) {
+    if (A)
+      A->deleteAST();
+  }
+  void operator()(AST *A) const {
+    apply(A);
+  }
+};
+
+using UniquePtrToAST = std::unique_ptr<AST, DeleteAST>;
 
 // AbstractNode
 class Decl : public AST {
@@ -40,7 +53,7 @@ protected:
       : AST(Kind, loc), name(std::move(name)) {}
 public:
   std::string name;
-  const std::string &getName() const { return name; }
+  const std::string &getName() const &{ return name; }
   static bool InstanceCheck(const AST *A);
 };
 
@@ -73,7 +86,6 @@ public:
   ConstDecl(const ConstDecl &) = delete;
   ConstDecl(ConstDecl &&) = delete;
   ConstDecl &operator=(const ConstDecl &) = delete;
-
   ConstDecl &operator=(ConstDecl &&) = delete;
 
   static bool InstanceCheck(const Decl *x) {
@@ -468,7 +480,8 @@ public:
   }
 
   UnaryopKind getOp() const { return op; }
-  Expr *getOperand() const { return operand; }
+  UniquePtrToAST getOperand() &&;
+  Expr *getOperand() const &{ return operand; }
   void setOperand(Expr *E);
 };
 
@@ -621,17 +634,6 @@ public:
   const std::vector<Decl *> &getDecls() const { return decls; }
   std::string getFilename() const { return Filename; }
   static bool InstanceCheck(const AST *A) { return A->getKind() == ProgramKind; }
-};
-
-/// To be used with std::unique_ptr.
-struct DeleteAST {
-  static void apply(AST *A) {
-    if (A)
-      A->deleteAST();
-  }
-  void operator()(AST *A) const {
-    apply(A);
-  }
 };
 
 /// Pretty print.
