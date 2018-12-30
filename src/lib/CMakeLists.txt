@@ -49,6 +49,15 @@ set(SOURCE_FILES
         IR/Function.cpp
         IR/Instruction.cpp
         IR/BasicBlock.cpp
+        IR/Use.cpp
+        IR/IRBuilder.cpp
+        IR/Type.cpp
+        IR/Argument.cpp
+        IR/Value.cpp
+        IR/GlobalVariable.cpp
+        IR/User.cpp
+        IR/Constant.cpp
+        IR/IRContext.cpp
 
         #Transform/ConstantInliner.cpp
         Driver/Driver.cpp)

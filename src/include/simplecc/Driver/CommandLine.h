@@ -1,8 +1,7 @@
 #ifndef SIMPLECC_DRIVER_COMMANDLINE_H
 #define SIMPLECC_DRIVER_COMMANDLINE_H
-#include <memory>
-#include <string>
 #include <tclap/CmdLine.h>
+#include <string>
 #include <vector>
 
 namespace simplecc {

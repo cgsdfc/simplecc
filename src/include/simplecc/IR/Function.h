@@ -10,7 +10,9 @@ class BasicBlock;
 
 /// The Function class is merely an ordered list of BasicBlocks.
 class Function final : public Value {
-  Function(FunctionType *Ty, Module *M);
+  friend class Value;
+  Function(Type *ReturnType, unsigned NumArgs, Module *M);
+  ~Function();
 public:
   using BasicBlockListType = std::vector<BasicBlock *>;
   using iterator = BasicBlockListType::iterator;
@@ -53,24 +55,25 @@ public:
   const BasicBlockListType &getBasicBlockList() const { return BasicBlocks; }
 
   unsigned getInstructionCount() const;
-  FunctionType *getFunctionType() const;
-  Type *getReturnType() const;
+  Type *getReturnType() const { return ReturnType; }
 
   Function(const Function &) = delete;
   Function &operator=(const Function &) = delete;
 
-  static Function *Create(FunctionType *Ty, const std::string &N = "", Module *M = nullptr);
-  static Function *Create(FunctionType *Ty, const std::string &N, Module &M);
+  static Function *Create(Type *RetTy, unsigned NumArgs, const std::string &Name, Module &M) {
+    return new Function(RetTy, NumArgs, &M);
+  }
 
   Module *getParent() const { return Parent; }
   static bool InstanceCheck(const Value *V) {
     return V->getValueID() == FunctionVal;
   }
-
+  void eraseFromParent();
 private:
   Module *Parent;
-  BasicBlockListType BasicBlocks;
+  Type *ReturnType;
   ArgumentListType Arguments;
+  BasicBlockListType BasicBlocks;
 };
 } // namespace simplecc
 

@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <cassert>
+#include <simplecc/IR/Value.h>
+
 #include "simplecc/IR/Value.h"
 
 using namespace simplecc;
@@ -11,4 +13,12 @@ void Value::addUse(const Use &U) {
 
 void Value::removeUse(const Use &U) {
   UseList.erase(std::remove(UseList.begin(), UseList.end(), U), UseList.end());
+}
+
+void Value::deleteValue() {
+
+}
+
+Value::~Value() {
+
 }

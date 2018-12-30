@@ -34,11 +34,8 @@ public:
 
   /// Subclasses kind of Value.
   enum ValueKind : unsigned {
-    ConstantVal,
-    FunctionVal,
-    BasicBlockVal,
-    ArgumentVal,
-    InstructionVal,
+#define HANDLE_VALUE(Class) Class##Val,
+#include "simplecc/IR/Value.def"
   };
 
   Value(const Value &) = delete;
@@ -58,6 +55,7 @@ protected:
 
 private:
   const unsigned Kind;
+  std::string Name;
   Type *Ty;
   std::vector<Use> UseList;
 };

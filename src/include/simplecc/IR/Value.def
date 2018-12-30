@@ -1,0 +1,11 @@
+#ifndef HANDLE_VALUE
+#define HANDLE_VALUE(Class)
+#endif
+
+HANDLE_VALUE(ConstantInt)
+HANDLE_VALUE(StringLiteral)
+HANDLE_VALUE(Argument)
+HANDLE_VALUE(Function)
+HANDLE_VALUE(BasicBlock)
+HANDLE_VALUE(GlobalVariable)
+HANDLE_VALUE(Instruction)

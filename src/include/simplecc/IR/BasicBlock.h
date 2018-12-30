@@ -7,17 +7,20 @@ class Instruction;
 class Function;
 
 class BasicBlock final : public Value {
-  Function *Parent;
-  std::vector<Instruction *> InstList;
-
+  friend class Value;
+  explicit BasicBlock(Function *F);
+  ~BasicBlock();
 public:
   BasicBlock(const BasicBlock &) = delete;
   BasicBlock &operator=(const BasicBlock &) = delete;
 
+  static BasicBlock *Create(Function &F) {
+    return new BasicBlock(&F);
+  }
+
   Function *getParent() const { return Parent; }
 
-  /// Iterator interface to InstList.
-  using InstListType = decltype(InstList);
+  using InstListType = std::vector<Instruction *>;
   using iterator = InstListType::iterator;
   using const_iterator = InstListType::const_iterator;
   using reverse_iterator = InstListType::reverse_iterator;
@@ -40,7 +43,6 @@ public:
 
   Instruction &front() { return *InstList.front(); };
   const Instruction &front() const { return *InstList.front(); }
-
   Instruction &back() { return *InstList.back(); }
   const Instruction &back() const { return *InstList.back(); }
 
@@ -57,7 +59,9 @@ public:
   }
 
   void removeInst(const Instruction *I);
-
+private:
+  Function *Parent;
+  InstListType InstList;
 };
 } // namespace simplecc
 

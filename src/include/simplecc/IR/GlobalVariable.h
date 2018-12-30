@@ -5,9 +5,11 @@
 namespace simplecc {
 class Module;
 
+/// GlobalVariable is a list of int. Its type is PointerTy.
 class GlobalVariable : public Value {
-public:
   GlobalVariable(unsigned Size, Module *M);
+public:
+  GlobalVariable *Create(unsigned Size, Module *M = nullptr);
   unsigned getSize() const {
     return Size;
   }

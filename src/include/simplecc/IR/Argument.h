@@ -6,15 +6,18 @@
 namespace simplecc {
 class Function;
 
+/// This class represents a formal argument in a Function.
+/// Argument Type is always int.
 class Argument : public Value {
-  Function *Parent;
-  unsigned ArgNo;
-  friend class Function;
+  Argument(Function *F, unsigned ArgNo);
 public:
-  explicit Argument(Type *Ty, Function *F = nullptr, unsigned ArgNo = 0);
+  static Argument *Create(Function &F, unsigned ArgNo) {
+    return new Argument(&F, ArgNo);
+  }
+
   const Function *getParent() const { return Parent; }
   Function *getParent() { return Parent; }
-  void setParent(Function *F);
+
   unsigned getArgNo() const {
     assert(Parent && "can't get number of arg without parent");
     return ArgNo;
@@ -22,6 +25,9 @@ public:
   static bool InstanceCheck(const Value *V) {
     return V->getValueID() == ArgumentVal;
   }
+private:
+  Function *Parent;
+  unsigned ArgNo;
 };
 }
 
