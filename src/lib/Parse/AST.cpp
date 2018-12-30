@@ -1,6 +1,5 @@
 #include "simplecc/Parse/AST.h"
 #include <cassert>
-#include <algorithm>
 
 using namespace simplecc;
 
@@ -21,25 +20,19 @@ static inline UniquePtrToAST rvalueGetterImpl(AstT *&Ref) {
   return UniquePtrToAST(tmp);
 }
 
-template<typename AstT>
-static inline void deleteList(const std::vector<AstT *> &List) {
-  std::for_each(List.begin(), List.end(), [](AstT *A) {
-    DeleteAST::apply(A);
-  });
-}
 
 Program::~Program() {
-  deleteList(decls);
+  DeleteAST::apply(decls);
 }
 
 FuncDef::~FuncDef() {
-  deleteList(args);
-  deleteList(decls);
-  deleteList(stmts);
+  DeleteAST::apply(args);
+  DeleteAST::apply(decls);
+  DeleteAST::apply(stmts);
 }
 
 ReadStmt::~ReadStmt() {
-  deleteList(names);
+  DeleteAST::apply(names);
 }
 
 WriteStmt::~WriteStmt() {
@@ -62,14 +55,14 @@ ForStmt::~ForStmt() {
   DeleteAST::apply(initial);
   DeleteAST::apply(condition);
   DeleteAST::apply(step);
-  deleteList(body);
+  DeleteAST::apply(body);
 }
 
 void ForStmt::setCondition(Expr *E) { setterImpl(condition, E); }
 
 WhileStmt::~WhileStmt() {
   DeleteAST::apply(condition);
-  deleteList(body);
+  DeleteAST::apply(body);
 }
 
 void WhileStmt::setCondition(Expr *E) { setterImpl(condition, E); }
@@ -82,8 +75,8 @@ void ReturnStmt::setValue(Expr *E) {
 
 IfStmt::~IfStmt() {
   DeleteAST::apply(test);
-  deleteList(body);
-  deleteList(orelse);
+  DeleteAST::apply(body);
+  DeleteAST::apply(orelse);
 }
 
 void IfStmt::setTest(Expr *E) {
@@ -116,7 +109,7 @@ UnaryOpExpr::~UnaryOpExpr() { DeleteAST::apply(operand); }
 void UnaryOpExpr::setOperand(Expr *E) { setterImpl(operand, E); }
 
 CallExpr::~CallExpr() {
-  deleteList(args);
+  DeleteAST::apply(args);
 }
 
 void CallExpr::setArgAt(unsigned I, Expr *Val) { setterImpl(args[I], Val); }

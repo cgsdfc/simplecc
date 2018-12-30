@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 namespace simplecc {
 class AST {
@@ -33,12 +34,21 @@ inline std::ostream &operator<<(std::ostream &O, const AST &A) {
   A.Format(O);
   return O;
 }
-/// To be used with std::unique_ptr.
+
+/// This struct knows how to delete an AST or a list of AST.
 struct DeleteAST {
+  template<typename AstT>
+  static void apply(const std::vector<AstT *> &List) {
+    std::for_each(List.begin(), List.end(), [](AstT *A) {
+      apply(A);
+    });
+  }
+
   static void apply(AST *A) {
     if (A)
       A->deleteAST();
   }
+
   void operator()(AST *A) const {
     apply(A);
   }
