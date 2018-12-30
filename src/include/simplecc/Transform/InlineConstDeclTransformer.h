@@ -9,11 +9,13 @@ namespace simplecc {
 /// It then deletes all the ConstDecl nodes from their parents along with their entries in
 /// the SymbolTable.
 class InlineConstDeclTransformer : ExprTransformer<InlineConstDeclTransformer> {
+  friend ExprTransformer;
   /// If E is a NameExpr and corresponds to a ConstType, create a corresponding literal
   /// node (CharExpr or NumExpr). If not, E is visited and then return as it.
-  Expr *TransformExpr(Expr *E, AST *);
-private:
-  friend ExprTransformer;
+  Expr *TransformExpr(Expr *E, AST *Parent);
+public:
+  InlineConstDeclTransformer() = default;
+  using ExprTransformer::Transform;
 };
 }
 

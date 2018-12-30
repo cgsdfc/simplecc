@@ -1,5 +1,5 @@
-#ifndef SIMPLECC_TRANSFORMER_H
-#define SIMPLECC_TRANSFORMER_H
+#ifndef SIMPLECC_TRANSFORM_EXPRTRANSFORMER_H
+#define SIMPLECC_TRANSFORM_EXPRTRANSFORMER_H
 #include "simplecc/Analysis/ContextualVisitor.h"
 
 namespace simplecc {
@@ -18,7 +18,10 @@ public:
   using BaseT::visitExpr;
 
   /// Default implementation.
-  Expr *TransformExpr(Expr *E, AST *Parent) { return E; }
+  Expr *TransformExpr(Expr *E, AST *Parent) {
+    visitExpr(E);
+    return E;
+  }
 
   void visitWrite(WriteStmt *W);
   void visitAssign(AssignStmt *A);
@@ -140,4 +143,4 @@ void ExprTransformer<Derived>::visitSubscript(SubscriptExpr *SB) {
 }
 }
 
-#endif //SIMPLECC_TRANSFORMER_H
+#endif //SIMPLECC_TRANSFORM_EXPRTRANSFORMER_H

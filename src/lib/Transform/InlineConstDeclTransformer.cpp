@@ -2,17 +2,15 @@
 
 using namespace simplecc;
 
-Expr *InlineConstDeclTransformer::TransformExpr(Expr *E, AST *) {
+Expr *InlineConstDeclTransformer::TransformExpr(Expr *E, AST *Parent) {
   if (!IsInstance<NameExpr>(E)) {
-    visitExpr(E);
-    return E;
+    return ExprTransformer::TransformExpr(E, Parent);
   }
   auto Entry = getSymbolEntry(static_cast<NameExpr *>(E)->getId());
   if (!Entry.IsConstant()) {
-    visitExpr(E);
-    return E;
+    return ExprTransformer::TransformExpr(E, Parent);
   }
-  ConstType CT(Entry.AsConstant());
+  auto CT = Entry.AsConstant();
   switch (CT.getType()) {
   case BasicTypeKind::Int:
     return new NumExpr(CT.getValue(), E->getLocation());
