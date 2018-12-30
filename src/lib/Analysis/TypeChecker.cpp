@@ -176,5 +176,5 @@ BasicTypeKind TypeChecker::visitExpr(Expr *E) {
 
 void TypeChecker::visitFuncDef(FuncDef *FD) {
   setFuncDef(FD);
-  AnalysisVisitor::visitFuncDef(FD);
+  ContextualVisitor::visitFuncDef(FD);
 }
