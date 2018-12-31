@@ -1,10 +1,11 @@
 #include "simplecc/Parse/AST.h"
 #include <cassert>
+#include <simplecc/Support/Casting.h>
 
 using namespace simplecc;
 
 template<typename AstT>
-static inline void setterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
+static inline void SetterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
   assert((Optional || RHS) && "Only optional field can be null");
   if (LHS == RHS)
     return;
@@ -14,12 +15,11 @@ static inline void setterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
 
 /// Implement the rvalue getter
 template<typename AstT>
-static inline UniquePtrToAST rvalueGetterImpl(AstT *&Ref) {
+static inline UniquePtrToAST RvalueGetterImpl(AstT *&Ref) {
   AstT *tmp = nullptr;
   std::swap(tmp, Ref);
   return UniquePtrToAST(tmp);
 }
-
 
 Program::~Program() {
   DeleteAST::apply(decls);
@@ -41,7 +41,7 @@ WriteStmt::~WriteStmt() {
 }
 
 void WriteStmt::setValue(Expr *Val) {
-  setterImpl(value, Val, /* Optional */ true);
+  SetterImpl(value, Val, /* Optional */ true);
 }
 
 AssignStmt::~AssignStmt() {
@@ -49,7 +49,7 @@ AssignStmt::~AssignStmt() {
   DeleteAST::apply(value);
 }
 
-void AssignStmt::setValue(Expr *E) { setterImpl(value, E); }
+void AssignStmt::setValue(Expr *E) { SetterImpl(value, E); }
 
 ForStmt::~ForStmt() {
   DeleteAST::apply(initial);
@@ -58,19 +58,19 @@ ForStmt::~ForStmt() {
   DeleteAST::apply(body);
 }
 
-void ForStmt::setCondition(Expr *E) { setterImpl(condition, E); }
+void ForStmt::setCondition(Expr *E) { SetterImpl(condition, E); }
 
 WhileStmt::~WhileStmt() {
   DeleteAST::apply(condition);
   DeleteAST::apply(body);
 }
 
-void WhileStmt::setCondition(Expr *E) { setterImpl(condition, E); }
+void WhileStmt::setCondition(Expr *E) { SetterImpl(condition, E); }
 
 ReturnStmt::~ReturnStmt() { DeleteAST::apply(value); }
 
 void ReturnStmt::setValue(Expr *E) {
-  setterImpl(value, E, /* Optional */ true);
+  SetterImpl(value, E, /* Optional */ true);
 }
 
 IfStmt::~IfStmt() {
@@ -80,11 +80,14 @@ IfStmt::~IfStmt() {
 }
 
 void IfStmt::setTest(Expr *E) {
-  setterImpl(test, E);
+  SetterImpl(test, E);
 }
 
 ExprStmt::~ExprStmt() {
   DeleteAST::apply(value);
+}
+UniquePtrToAST ExprStmt::getValue() &&{
+  return RvalueGetterImpl(value);
 }
 
 BinOpExpr::~BinOpExpr() {
@@ -92,31 +95,64 @@ BinOpExpr::~BinOpExpr() {
   DeleteAST::apply(right);
 }
 
-void BinOpExpr::setLeft(Expr *E) { setterImpl(left, E); }
+void BinOpExpr::setLeft(Expr *E) { SetterImpl(left, E); }
 
-void BinOpExpr::setRight(Expr *E) { setterImpl(right, E); }
+void BinOpExpr::setRight(Expr *E) { SetterImpl(right, E); }
+UniquePtrToAST BinOpExpr::getLeft() &&{
+  return RvalueGetterImpl(left);
+}
+UniquePtrToAST BinOpExpr::getRight() &&{
+  return RvalueGetterImpl(right);
+}
 
 ParenExpr::~ParenExpr() { DeleteAST::apply(value); }
 
-void ParenExpr::setValue(Expr *E) { setterImpl(value, E); }
+void ParenExpr::setValue(Expr *E) { SetterImpl(value, E); }
+UniquePtrToAST ParenExpr::getValue() &&{
+  return RvalueGetterImpl(value);
+}
 
 BoolOpExpr::~BoolOpExpr() { DeleteAST::apply(value); }
 
-void BoolOpExpr::setValue(Expr *E) { setterImpl(value, E); }
+void BoolOpExpr::setValue(Expr *E) {
+  SetterImpl(value, E);
+  setHasCompareOp(
+      IsInstance<BinOpExpr>(E) && isCompareOp(static_cast<BinOpExpr *>(E)->getOp()));
+}
+
+bool BoolOpExpr::isCompareOp(OperatorKind Op) {
+  switch (Op) {
+  default:return false;
+#define HANDLE_COMPARE_OPERATOR(VAL, OP, FUNC) case OperatorKind::VAL: return true;
+#include "simplecc/Parse/Enums.def"
+  }
+}
+
+UniquePtrToAST BoolOpExpr::getValue() &&{
+  return RvalueGetterImpl(value);
+}
 
 UnaryOpExpr::~UnaryOpExpr() { DeleteAST::apply(operand); }
 
-void UnaryOpExpr::setOperand(Expr *E) { setterImpl(operand, E); }
+void UnaryOpExpr::setOperand(Expr *E) { SetterImpl(operand, E); }
+
+UniquePtrToAST UnaryOpExpr::getOperand() &&{
+  return RvalueGetterImpl(operand);
+}
 
 CallExpr::~CallExpr() {
   DeleteAST::apply(args);
 }
 
-void CallExpr::setArgAt(unsigned I, Expr *Val) { setterImpl(args[I], Val); }
+void CallExpr::setArgAt(unsigned I, Expr *Val) { SetterImpl(args[I], Val); }
 
 SubscriptExpr::~SubscriptExpr() { DeleteAST::apply(index); }
 
-void SubscriptExpr::setIndex(Expr *E) { setterImpl(index, E); }
+void SubscriptExpr::setIndex(Expr *E) { SetterImpl(index, E); }
+
+UniquePtrToAST SubscriptExpr::getIndex() &&{
+  return RvalueGetterImpl(index);
+}
 
 const char *AST::getClassName(unsigned Kind) {
   switch (Kind) {
@@ -169,3 +205,14 @@ bool Expr::InstanceCheck(const AST *A) {
     return true;
   }
 }
+
+int Expr::getConstantValue() const {
+  assert(isConstant());
+  switch (getKind()) {
+  case CharExprKind:return static_cast<const CharExpr *>(this)->getC();
+  case NumExprKind:return static_cast<const NumExpr *>(this)->getN();
+  default:assert(false && "Unhandled Constant Expr");
+  }
+}
+
+

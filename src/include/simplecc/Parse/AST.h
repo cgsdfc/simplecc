@@ -78,6 +78,16 @@ class Expr : public AST {
 protected:
   Expr(int Kind, Location loc) : AST(Kind, loc) {}
 public:
+  bool isConstant() const {
+    return getKind() == CharExprKind || getKind() == NumExprKind;
+  }
+  int getConstantValue() const;
+  bool isZeroVal() const {
+    return isConstant() && 0 == getConstantValue();
+  }
+  bool isOneVal() const {
+    return isConstant() && 1 == getConstantValue();
+  }
   static bool InstanceCheck(const AST *A);
 };
 
@@ -371,7 +381,6 @@ public:
 
 class ExprStmt : public Stmt {
   Expr *value;
-
 public:
   ExprStmt(Expr *value, const Location &loc)
       : Stmt(Stmt::ExprStmtKind, loc), value(value) {}
@@ -388,7 +397,8 @@ public:
     return x->getKind() == Stmt::ExprStmtKind;
   }
 
-  Expr *getValue() const { return value; }
+  Expr *getValue() const &{ return value; }
+  UniquePtrToAST getValue() &&;
   void setValue(Expr *E);
 };
 
@@ -400,14 +410,14 @@ class BinOpExpr : public Expr {
 public:
   BinOpExpr(Expr *left, OperatorKind op, Expr *right, const Location &loc)
       : Expr(Expr::BinOpExprKind, loc), left(left), op(op), right(right) {}
+  ~BinOpExpr();
 
   // Disable copy and move.
   BinOpExpr(const BinOpExpr &) = delete;
   BinOpExpr(BinOpExpr &&) = delete;
   BinOpExpr &operator=(const BinOpExpr &) = delete;
-  BinOpExpr &operator=(BinOpExpr &&) = delete;
 
-  ~BinOpExpr();
+  BinOpExpr &operator=(BinOpExpr &&) = delete;
 
   static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::BinOpExprKind;
@@ -415,19 +425,21 @@ public:
 
   OperatorKind getOp() const { return op; }
 
-  Expr *getLeft() const { return left; }
+  Expr *getLeft() const &{ return left; }
+  UniquePtrToAST getLeft() &&;
   void setLeft(Expr *E);
 
-  Expr *getRight() const { return right; }
+  Expr *getRight() const &{ return right; }
+  UniquePtrToAST getRight() &&;
   void setRight(Expr *E);
 };
 
 class ParenExpr : public Expr {
   Expr *value;
-
 public:
   ParenExpr(Expr *value, const Location &loc)
       : Expr(Expr::ParenExprKind, loc), value(value) {}
+  ~ParenExpr();
 
   // Disable copy and move.
   ParenExpr(const ParenExpr &) = delete;
@@ -435,23 +447,23 @@ public:
   ParenExpr &operator=(const ParenExpr &) = delete;
   ParenExpr &operator=(ParenExpr &&) = delete;
 
-  ~ParenExpr();
-
   static bool InstanceCheck(const Expr *x) {
     return x->getKind() == Expr::ParenExprKind;
   }
 
-  Expr *getValue() const { return value; }
+  Expr *getValue() const &{ return value; }
+  UniquePtrToAST getValue() &&;
   void setValue(Expr *E);
 };
 
 class BoolOpExpr : public Expr {
   Expr *value;
-  int has_cmpop;
-
+  bool has_cmpop;
+  void setHasCompareOp(bool B) { has_cmpop = B; }
 public:
-  BoolOpExpr(Expr *value, int has_cmpop, const Location &loc)
+  BoolOpExpr(Expr *value, bool has_cmpop, const Location &loc)
       : Expr(BoolOpExprKind, loc), value(value), has_cmpop(has_cmpop) {}
+  ~BoolOpExpr();
 
   // Disable copy and move.
   BoolOpExpr(const BoolOpExpr &) = delete;
@@ -459,14 +471,14 @@ public:
   BoolOpExpr &operator=(const BoolOpExpr &) = delete;
   BoolOpExpr &operator=(BoolOpExpr &&) = delete;
 
-  ~BoolOpExpr();
-
   static bool InstanceCheck(const Expr *x) { return x->getKind() == BoolOpExprKind; }
+  static bool isCompareOp(OperatorKind Op);
 
-  Expr *getValue() const { return value; }
+  Expr *getValue() const &{ return value; }
+  UniquePtrToAST getValue() &&;
   void setValue(Expr *E);
 
-  int getHasCmpop() const { return has_cmpop; }
+  bool hasCompareOp() const { return has_cmpop; }
 };
 
 class UnaryOpExpr : public Expr {
@@ -604,7 +616,8 @@ public:
   const std::string &getName() const { return name; }
   ExprContextKind getCtx() const { return ctx; }
 
-  Expr *getIndex() const { return index; }
+  Expr *getIndex() const &{ return index; }
+  UniquePtrToAST getIndex() &&;
   void setIndex(Expr *E);
 };
 
