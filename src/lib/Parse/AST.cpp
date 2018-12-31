@@ -50,6 +50,9 @@ AssignStmt::~AssignStmt() {
 }
 
 void AssignStmt::setValue(ExprAST *E) { SetterImpl(value, E); }
+void AssignStmt::setTarget(ExprAST *E) {
+  SetterImpl(target, E);
+}
 
 ForStmt::~ForStmt() {
   DeleteAST::apply(initial);

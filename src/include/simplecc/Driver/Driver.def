@@ -10,6 +10,7 @@ HANDLE_COMMAND(PrintByteCode, "print-school-ir", "print IR in the format require
 HANDLE_COMMAND(PrintByteCodeModule, "print-bc-ir", "print IR in the byte code form")
 HANDLE_COMMAND(AssembleMips, "asm", "emit MIPS assembly")
 HANDLE_COMMAND(CheckOnly, "check-only", "merely perform checks on the input")
+HANDLE_COMMAND(Transform, "transform", "run transformation on the AST and print it")
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 HANDLE_COMMAND(WriteASTGraph, "ast-graph", "print the dot file for the AST");

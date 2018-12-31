@@ -64,6 +64,9 @@ void ExpressionTransformer<Derived>::visitAssign(AssignStmt *A) {
   A->setValue(
       static_cast<Derived *>(this)->TransformExpr(A->getValue(), A)
   );
+  A->setTarget(
+      static_cast<Derived *>(this)->TransformExpr(A->getTarget(), A)
+  );
 }
 
 template<typename Derived>

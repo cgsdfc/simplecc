@@ -277,6 +277,7 @@ public:
   ExprAST *getTarget() const { return target; }
   ExprAST *getValue() const { return value; }
   void setValue(ExprAST *E);
+  void setTarget(ExprAST *E);
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == AssignStmtKind;

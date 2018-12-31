@@ -451,7 +451,7 @@ void AstPrettyPrinter::visitWhile(WhileStmt *W) {
 ///   index=NumExpr(...),
 /// )
 void AstPrettyPrinter::visitSubscript(SubscriptExpr *SB) {
-  OS << SB->getClassName() << "(\n";
+  OS << SB->getClassName() << "(" << SB->getContext() << "\n";
   increaseIndentLevel();
 
   printIndent();
@@ -533,5 +533,6 @@ void AstPrettyPrinter::PrettyPrint(const AST *A) {
 namespace simplecc {
 void PrettyPrintAST(const AST &A, std::ostream &O) {
   AstPrettyPrinter(O).PrettyPrint(&A);
+  O << "\n";
 }
 }

@@ -10,8 +10,8 @@ namespace simplecc {
 /// Printf(C);
 /// becomes
 /// Printf('a');
-/// It then deletes all the ConstDecl nodes from their parents along with their entries in
-/// the SymbolTable.
+/// Note: it does not delete the ConstDecl nodes since that would require removing
+/// corresponding SymbolEntry in the SymbolTable, which does not give any benefit.
 class InlineConstDeclTransformer : ExpressionTransformer<InlineConstDeclTransformer> {
   friend ExpressionTransformer;
   /// If E is a NameExpr and corresponds to a ConstType, create a corresponding literal

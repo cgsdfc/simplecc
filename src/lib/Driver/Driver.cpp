@@ -1,7 +1,6 @@
 
 #include <simplecc/Driver/Driver.h>
 
-#include "simplecc/Driver/Driver.h"
 #include "simplecc/CodeGen/Compile.h"
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Target/Assemble.h"
@@ -172,6 +171,15 @@ void Driver::runDumpSymbolTable() {
   if (!OS)
     return;
   Print(*OS, AM.getSymbolTable());
+}
+
+void Driver::runTransform() {
+  auto OS = getStdOstream();
+  if (!OS)
+    return;
+  if (doTransform())
+    return;
+  PrettyPrintAST(*TheProgram, *OS);
 }
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
