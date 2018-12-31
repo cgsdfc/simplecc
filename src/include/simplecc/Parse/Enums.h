@@ -5,7 +5,7 @@
 
 namespace simplecc {
 enum class OperatorKind {
-#define HANDLE_OPERATOR(Val, Str) Val,
+#define HANDLE_OPERATOR(Val, Str, FUNC) Val,
 #include "simplecc/Parse/Enums.def"
 };
 

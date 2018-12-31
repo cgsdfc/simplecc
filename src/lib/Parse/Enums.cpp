@@ -6,7 +6,7 @@ namespace simplecc {
 std::ostream &operator<<(std::ostream &os, OperatorKind val) {
   switch (val) {
   default: assert(false && "Invalid Enum Value");
-#define HANDLE_OPERATOR(VAL, STR)  \
+#define HANDLE_OPERATOR(VAL, STR, FUNC)  \
 case OperatorKind::VAL: return os << #VAL;
 #include "simplecc/Parse/Enums.def"
   }
@@ -40,7 +40,7 @@ case BasicTypeKind::VAL: return os << #VAL;
 }
 
 OperatorKind OperatorKindFromString(const std::string &s) {
-#define HANDLE_OPERATOR(Val, Str) \
+#define HANDLE_OPERATOR(Val, Str, FUNC) \
 if (s == Str) return OperatorKind::Val;
 #include "simplecc/Parse/Enums.def"
   assert(false && "Invalid String Conversion");
@@ -49,7 +49,7 @@ if (s == Str) return OperatorKind::Val;
 const char *CStringFromOperatorKind(OperatorKind val) {
   switch (val) {
   default: assert(false && "Invalid Enum Value");
-#define HANDLE_OPERATOR(Val, Str) case OperatorKind::Val: return Str;
+#define HANDLE_OPERATOR(Val, Str, FUNC) case OperatorKind::Val: return Str;
 #include "simplecc/Parse/Enums.def"
   }
 }
