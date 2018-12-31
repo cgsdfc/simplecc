@@ -4,12 +4,12 @@ void NoneConstants(int _) {
   printf(IntVar + IntVar);
   printf(IntVar / IntVar);
   printf(IntVar * IntVar);
-  printf(IntVar - IntVar);
 }
 
 void ZeroDivisor(int _) {
   printf(IntVar / 0);
   printf(1 / 0);
+  printf(0 / IntVar);
 }
 
 void OneSideNoOpportunity(int _) {
@@ -59,9 +59,20 @@ void OneSideConstant(int _) {
   OneSideConstant_Div(0);
 }
 
+void BothNoneConstantOpt(int _) {
+  printf(IntVar - IntVar);
+}
+
+void BinOpExprChain(int _) {
+  printf(1 + 2 + 3 + 4 + 5);
+  printf(2 * 2 * 2 * 2);
+}
+
 void Opt(int _) {
   BothConstants(0);
   OneSideConstant(0);
+  BothNoneConstantOpt(0);
+  BinOpExprChain(0);
 }
 
 void main() {
