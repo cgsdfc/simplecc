@@ -116,7 +116,7 @@ Value *LLVMIRCompiler::visitBoolOp(BoolOpExpr *B) {
 
   if (Val->getType() == VM.getBoolType()) {
     /// RichCompareOp produces a bool, we cross validate that.
-    assert(B->getHasCmpop() && "RichCompareOp must produce a bool");
+    assert(B->hasCompareOp() && "RichCompareOp must produce a bool");
     /// We already got a bool
     return Val;
   } else if (Val->getType() == VM.getIntType()) {

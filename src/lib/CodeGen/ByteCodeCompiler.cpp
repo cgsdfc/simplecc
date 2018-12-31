@@ -105,7 +105,7 @@ void ByteCodeCompiler::visitReturn(ReturnStmt *R) {
 }
 
 unsigned ByteCodeCompiler::CompileBoolOp(BoolOpExpr *B) {
-  if (B->getHasCmpop()) {
+  if (B->hasCompareOp()) {
     auto BO = static_cast<BinOpExpr *>(B->getValue());
     visitExpr(BO->getLeft());
     visitExpr(BO->getRight());

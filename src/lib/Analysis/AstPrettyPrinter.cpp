@@ -149,7 +149,7 @@ void AstPrettyPrinter::visitParenExpr(ParenExpr *P) {
 ///  )
 /// )
 void AstPrettyPrinter::visitBoolOp(BoolOpExpr *B) {
-  OS << B->getClassName() << "(" << std::boolalpha << bool(B->getHasCmpop());
+  OS << B->getClassName() << "(" << std::boolalpha << bool(B->hasCompareOp());
   if (isAtomicExpr(B->getValue())) {
     OS << ", ";
     visitExpr(B->getValue());

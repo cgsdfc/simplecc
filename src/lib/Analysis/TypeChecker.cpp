@@ -1,5 +1,4 @@
 #include "simplecc/Analysis/TypeChecker.h"
-#include <algorithm>
 
 using namespace simplecc;
 
@@ -57,7 +56,7 @@ void TypeChecker::CheckBoolOpOperand(Expr *E) {
 }
 
 BasicTypeKind TypeChecker::visitBoolOp(BoolOpExpr *B) {
-  if (B->getHasCmpop()) {
+  if (B->hasCompareOp()) {
     auto Bin = static_cast<BinOpExpr *>(B->getValue());
     CheckBoolOpOperand(Bin->getLeft());
     CheckBoolOpOperand(Bin->getRight());

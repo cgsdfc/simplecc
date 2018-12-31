@@ -29,7 +29,7 @@ void AstVerifier::visitIf(IfStmt *I) {
 }
 
 void AstVerifier::visitBoolOp(simplecc::BoolOpExpr *B) {
-  if (B->getHasCmpop()) {
+  if (B->hasCompareOp()) {
     AssertThat(IsInstance<BinOpExpr>(B->getValue()),
                "HasCmpOp implies BinOpExpr");
   }
