@@ -15,9 +15,9 @@
 #endif
 
 HANDLE_AST(Program)
-//HANDLE_AST(Decl)
-//HANDLE_AST(Stmt)
-//HANDLE_AST(Expr)
+//HANDLE_AST(DeclAST)
+//HANDLE_AST(StmtAST)
+//HANDLE_AST(ExprAST)
 
 HANDLE_DECL(ArgDecl)
 HANDLE_DECL(ConstDecl)

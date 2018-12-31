@@ -3,21 +3,23 @@
 #include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Enums.h"
 
+#include <algorithm>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include <memory>
-#include <algorithm>
 
 namespace simplecc {
 class AST {
-  Location Loc;
   unsigned SubclassID;
+  Location Loc;
+
 protected:
   AST(unsigned Kind, Location L) : SubclassID(Kind), Loc(L) {}
-public:
   ~AST() = default;
+
+public:
   enum ASTKind : unsigned {
 #define HANDLE_AST(CLASS) CLASS##Kind,
 #include "simplecc/Parse/AST.def"
@@ -37,70 +39,73 @@ inline std::ostream &operator<<(std::ostream &O, const AST &A) {
 
 /// This struct knows how to delete an AST or a list of AST.
 struct DeleteAST {
-  template<typename AstT>
-  static void apply(const std::vector<AstT *> &List) {
-    std::for_each(List.begin(), List.end(), [](AstT *A) {
-      apply(A);
-    });
+  /// Delete a range of AST.
+  template <typename Iterator>
+  static void apply(Iterator first, Iterator last) {
+    std::for_each(first, last, DeleteAST());
   }
-
+  /// Delete a vector of AST, assuming the vector own them.
+  template <typename AstT> static void apply(const std::vector<AstT *> &List) {
+    apply(List.begin(), List.end());
+  }
+  /// Delete a single AST.
   static void apply(AST *A) {
     if (A)
       A->deleteAST();
   }
-
-  void operator()(AST *A) const {
-    apply(A);
-  }
+  // As a functor.
+  void operator()(AST *A) const { apply(A); }
 };
 
 using UniquePtrToAST = std::unique_ptr<AST, DeleteAST>;
 
 // AbstractNode
-class Decl : public AST {
-protected:
-  Decl(unsigned int Kind, std::string name, Location loc)
-      : AST(Kind, loc), name(std::move(name)) {}
-public:
+class DeclAST : public AST {
   std::string name;
-  const std::string &getName() const &{ return name; }
+
+protected:
+  DeclAST(unsigned int Kind, std::string name, Location loc)
+      : AST(Kind, loc), name(std::move(name)) {}
+
+public:
+  const std::string &getName() const & { return name; }
   static bool InstanceCheck(const AST *A);
 };
 
-class Stmt : public AST {
+class StmtAST : public AST {
 protected:
-  Stmt(unsigned int Kind, Location loc) : AST(Kind, loc) {}
+  StmtAST(unsigned int Kind, Location loc) : AST(Kind, loc) {}
+
 public:
   static bool InstanceCheck(const AST *A);
 };
 
-class Expr : public AST {
+class ExprAST : public AST {
 protected:
-  Expr(int Kind, Location loc) : AST(Kind, loc) {}
+  ExprAST(unsigned Kind, Location loc) : AST(Kind, loc) {}
+
 public:
   bool isConstant() const {
     return getKind() == CharExprKind || getKind() == NumExprKind;
   }
   int getConstantValue() const;
-  bool isZeroVal() const {
-    return isConstant() && 0 == getConstantValue();
-  }
-  bool isOneVal() const {
-    return isConstant() && 1 == getConstantValue();
-  }
+  bool isZeroVal() const { return isConstant() && 0 == getConstantValue(); }
+  bool isOneVal() const { return isConstant() && 1 == getConstantValue(); }
   static bool InstanceCheck(const AST *A);
 };
 
 // ConcreteNode
-class ConstDecl : public Decl {
+class ConstDecl : public DeclAST {
+  friend class AST;
   BasicTypeKind type;
-  Expr *value;
-public:
-  ConstDecl(BasicTypeKind type, Expr *value, std::string name,
-            const Location &loc)
-      : Decl(Decl::ConstDeclKind, std::move(name), loc), type(type),
-        value(value) {}
+  ExprAST *value;
   ~ConstDecl() { value->deleteAST(); }
+
+public:
+  ConstDecl(BasicTypeKind type, ExprAST *value, std::string name,
+            const Location &loc)
+      : DeclAST(DeclAST::ConstDeclKind, std::move(name), loc), type(type),
+        value(value) {}
 
   // Disable copy and move.
   ConstDecl(const ConstDecl &) = delete;
@@ -108,23 +113,25 @@ public:
   ConstDecl &operator=(const ConstDecl &) = delete;
   ConstDecl &operator=(ConstDecl &&) = delete;
 
-  static bool InstanceCheck(const Decl *x) {
-    return x->getKind() == Decl::ConstDeclKind;
-  }
-
   BasicTypeKind getType() const { return type; }
-  Expr *getValue() const { return value; }
+  ExprAST *getValue() const { return value; }
+
+  static bool InstanceCheck(const DeclAST *x) {
+    return x->getKind() == DeclAST::ConstDeclKind;
+  }
 };
 
-class VarDecl : public Decl {
+class VarDecl : public DeclAST {
+  friend class AST;
   BasicTypeKind type;
-  int is_array;
+  bool is_array;
   int size;
+  ~VarDecl() = default;
 
 public:
-  VarDecl(BasicTypeKind type, int is_array, int size, std::string name,
+  VarDecl(BasicTypeKind type, bool is_array, int size, std::string name,
           const Location &loc)
-      : Decl(Decl::VarDeclKind, std::move(name), loc), type(type),
+      : DeclAST(DeclAST::VarDeclKind, std::move(name), loc), type(type),
         is_array(is_array), size(size) {}
 
   // Disable copy and move.
@@ -133,28 +140,28 @@ public:
   VarDecl &operator=(const VarDecl &) = delete;
   VarDecl &operator=(VarDecl &&) = delete;
 
-  static bool InstanceCheck(const Decl *x) {
-    return x->getKind() == Decl::VarDeclKind;
-  }
-
   BasicTypeKind getType() const { return type; }
-
-  int getIsArray() const { return is_array; }
-
+  bool isArray() const { return is_array; }
   int getSize() const { return size; }
+
+  static bool InstanceCheck(const DeclAST *x) {
+    return x->getKind() == DeclAST::VarDeclKind;
+  }
 };
 
-class FuncDef : public Decl {
+class FuncDef : public DeclAST {
+  friend class AST;
   BasicTypeKind return_type;
-  std::vector<Decl *> args;
-  std::vector<Decl *> decls;
-  std::vector<Stmt *> stmts;
+  std::vector<DeclAST *> args;
+  std::vector<DeclAST *> decls;
+  std::vector<StmtAST *> stmts;
+  ~FuncDef();
 
 public:
-  FuncDef(BasicTypeKind return_type, std::vector<Decl *> args,
-          std::vector<Decl *> decls, std::vector<Stmt *> stmts,
+  FuncDef(BasicTypeKind return_type, std::vector<DeclAST *> args,
+          std::vector<DeclAST *> decls, std::vector<StmtAST *> stmts,
           std::string name, const Location &loc)
-      : Decl(Decl::FuncDefKind, std::move(name), loc), return_type(return_type),
+      : DeclAST(DeclAST::FuncDefKind, std::move(name), loc), return_type(return_type),
         args(std::move(args)), decls(std::move(decls)),
         stmts(std::move(stmts)) {}
 
@@ -164,27 +171,31 @@ public:
   FuncDef &operator=(const FuncDef &) = delete;
   FuncDef &operator=(FuncDef &&) = delete;
 
-  ~FuncDef();
-
-  static bool InstanceCheck(const Decl *x) {
-    return x->getKind() == Decl::FuncDefKind;
-  }
-
   BasicTypeKind getReturnType() const { return return_type; }
   void setReturnType(BasicTypeKind RetTy) { return_type = RetTy; }
 
-  const std::vector<Decl *> &getArgs() const { return args; }
+  const std::vector<DeclAST *> &getArgs() const { return args; }
+  std::vector<DeclAST *> &getArgs() { return args; }
 
-  const std::vector<Decl *> &getDecls() const { return decls; }
+  const std::vector<DeclAST *> &getDecls() const { return decls; }
+  std::vector<DeclAST *> &getDecls() { return decls; }
 
-  const std::vector<Stmt *> &getStmts() const { return stmts; }
+  const std::vector<StmtAST *> &getStmts() const { return stmts; }
+  std::vector<StmtAST *> &getStmts() { return stmts; }
+
+  static bool InstanceCheck(const DeclAST *x) {
+    return x->getKind() == DeclAST::FuncDefKind;
+  }
 };
 
-class ArgDecl : public Decl {
+class ArgDecl : public DeclAST {
+  friend class AST;
   BasicTypeKind type;
+  ~ArgDecl() = default;
+
 public:
   ArgDecl(BasicTypeKind type, std::string name, const Location &loc)
-      : Decl(Decl::ArgDeclKind, std::move(name), loc), type(type) {}
+      : DeclAST(DeclAST::ArgDeclKind, std::move(name), loc), type(type) {}
 
   // Disable copy and move.
   ArgDecl(const ArgDecl &) = delete;
@@ -192,19 +203,21 @@ public:
   ArgDecl &operator=(const ArgDecl &) = delete;
   ArgDecl &operator=(ArgDecl &&) = delete;
 
-  static bool InstanceCheck(const Decl *x) {
-    return x->getKind() == Decl::ArgDeclKind;
-  }
-
   BasicTypeKind getType() const { return type; }
+
+  static bool InstanceCheck(const DeclAST *x) {
+    return x->getKind() == DeclAST::ArgDeclKind;
+  }
 };
 
-class ReadStmt : public Stmt {
-  std::vector<Expr *> names;
+class ReadStmt : public StmtAST {
+  friend class AST;
+  std::vector<ExprAST *> names;
+  ~ReadStmt();
 
 public:
-  ReadStmt(std::vector<Expr *> names, const Location &loc)
-      : Stmt(Stmt::ReadStmtKind, loc), names(std::move(names)) {}
+  ReadStmt(std::vector<ExprAST *> names, const Location &loc)
+      : StmtAST(StmtAST::ReadStmtKind, loc), names(std::move(names)) {}
 
   // Disable copy and move.
   ReadStmt(const ReadStmt &) = delete;
@@ -212,22 +225,23 @@ public:
   ReadStmt &operator=(const ReadStmt &) = delete;
   ReadStmt &operator=(ReadStmt &&) = delete;
 
-  ~ReadStmt();
+  const std::vector<ExprAST *> &getNames() const { return names; }
+  std::vector<ExprAST *> &getNames() { return names; }
 
-  static bool InstanceCheck(const Stmt *x) {
-    return x->getKind() == Stmt::ReadStmtKind;
+  static bool InstanceCheck(const StmtAST *x) {
+    return x->getKind() == StmtAST::ReadStmtKind;
   }
-
-  const std::vector<Expr *> &getNames() const { return names; }
 };
 
-class WriteStmt : public Stmt {
-  Expr *str;
-  Expr *value;
+class WriteStmt : public StmtAST {
+  friend class AST;
+  ExprAST *str;
+  ExprAST *value;
+  ~WriteStmt();
 
 public:
-  WriteStmt(Expr *str, Expr *value, const Location &loc)
-      : Stmt(Stmt::WriteStmtKind, loc), str(str), value(value) {}
+  WriteStmt(ExprAST *str, ExprAST *value, const Location &loc)
+      : StmtAST(StmtAST::WriteStmtKind, loc), str(str), value(value) {}
 
   // Disable copy and move.
   WriteStmt(const WriteStmt &) = delete;
@@ -235,23 +249,24 @@ public:
   WriteStmt &operator=(const WriteStmt &) = delete;
   WriteStmt &operator=(WriteStmt &&) = delete;
 
-  ~WriteStmt();
+  ExprAST *getStr() const { return str; }
+  ExprAST *getValue() const { return value; }
+  void setValue(ExprAST *Val);
 
-  static bool InstanceCheck(const Stmt *x) { return x->getKind() == WriteStmtKind; }
-
-  Expr *getStr() const { return str; }
-  Expr *getValue() const { return value; }
-  Expr *&getValue() { return value; }
-  void setValue(Expr *Val);
+  static bool InstanceCheck(const StmtAST *x) {
+    return x->getKind() == WriteStmtKind;
+  }
 };
 
-class AssignStmt : public Stmt {
-  Expr *target;
-  Expr *value;
+class AssignStmt : public StmtAST {
+  friend class AST;
+  ExprAST *target;
+  ExprAST *value;
+  ~AssignStmt();
 
 public:
-  AssignStmt(Expr *target, Expr *value, const Location &loc)
-      : Stmt(Stmt::AssignStmtKind, loc), target(target), value(value) {}
+  AssignStmt(ExprAST *target, ExprAST *value, const Location &loc)
+      : StmtAST(StmtAST::AssignStmtKind, loc), target(target), value(value) {}
 
   // Disable copy and move.
   AssignStmt(const AssignStmt &) = delete;
@@ -259,25 +274,27 @@ public:
   AssignStmt &operator=(const AssignStmt &) = delete;
   AssignStmt &operator=(AssignStmt &&) = delete;
 
-  ~AssignStmt();
+  ExprAST *getTarget() const { return target; }
+  ExprAST *getValue() const { return value; }
+  void setValue(ExprAST *E);
 
-  static bool InstanceCheck(const Stmt *x) { return x->getKind() == AssignStmtKind; }
-
-  Expr *getTarget() const { return target; }
-  Expr *getValue() const { return value; }
-  void setValue(Expr *E);
+  static bool InstanceCheck(const StmtAST *x) {
+    return x->getKind() == AssignStmtKind;
+  }
 };
 
-class ForStmt : public Stmt {
-  Stmt *initial;
-  Expr *condition;
-  Stmt *step;
-  std::vector<Stmt *> body;
+class ForStmt : public StmtAST {
+  friend class AST;
+  StmtAST *initial;
+  ExprAST *condition;
+  StmtAST *step;
+  std::vector<StmtAST *> body;
+  ~ForStmt();
 
 public:
-  ForStmt(Stmt *initial, Expr *condition, Stmt *step, std::vector<Stmt *> body,
+  ForStmt(StmtAST *initial, ExprAST *condition, StmtAST *step, std::vector<StmtAST *> body,
           const Location &loc)
-      : Stmt(Stmt::ForStmtKind, loc), initial(initial), condition(condition),
+      : StmtAST(StmtAST::ForStmtKind, loc), initial(initial), condition(condition),
         step(step), body(std::move(body)) {}
 
   // Disable copy and move.
@@ -286,29 +303,27 @@ public:
   ForStmt &operator=(const ForStmt &) = delete;
   ForStmt &operator=(ForStmt &&) = delete;
 
-  ~ForStmt();
+  StmtAST *getInitial() const { return initial; }
+  ExprAST *getCondition() const { return condition; }
+  void setCondition(ExprAST *E);
+  StmtAST *getStep() const { return step; }
+  const std::vector<StmtAST *> &getBody() const { return body; }
+  std::vector<StmtAST *> &getBody() { return body; }
 
-  static bool InstanceCheck(const Stmt *x) {
-    return x->getKind() == Stmt::ForStmtKind;
+  static bool InstanceCheck(const StmtAST *x) {
+    return x->getKind() == StmtAST::ForStmtKind;
   }
-
-  Stmt *getInitial() const { return initial; }
-
-  Expr *getCondition() const { return condition; }
-  void setCondition(Expr *E);
-
-  Stmt *getStep() const { return step; }
-
-  const std::vector<Stmt *> &getBody() const { return body; }
 };
 
-class WhileStmt : public Stmt {
-  Expr *condition;
-  std::vector<Stmt *> body;
+class WhileStmt : public StmtAST {
+  friend class AST;
+  ExprAST *condition;
+  std::vector<StmtAST *> body;
+  ~WhileStmt();
 
 public:
-  WhileStmt(Expr *condition, std::vector<Stmt *> body, const Location &loc)
-      : Stmt(WhileStmtKind, loc), condition(condition), body(std::move(body)) {}
+  WhileStmt(ExprAST *condition, std::vector<StmtAST *> body, const Location &loc)
+      : StmtAST(WhileStmtKind, loc), condition(condition), body(std::move(body)) {}
 
   // Disable copy and move.
   WhileStmt(const WhileStmt &) = delete;
@@ -316,22 +331,24 @@ public:
   WhileStmt &operator=(const WhileStmt &) = delete;
   WhileStmt &operator=(WhileStmt &&) = delete;
 
-  ~WhileStmt();
+  ExprAST *getCondition() const { return condition; }
+  void setCondition(ExprAST *E);
+  const std::vector<StmtAST *> &getBody() const { return body; }
+  std::vector<StmtAST *> &getBody() { return body; }
 
-  static bool InstanceCheck(const Stmt *x) { return x->getKind() == WhileStmtKind; }
-
-  Expr *getCondition() const { return condition; }
-  void setCondition(Expr *E);
-
-  const std::vector<Stmt *> &getBody() const { return body; }
+  static bool InstanceCheck(const StmtAST *x) {
+    return x->getKind() == WhileStmtKind;
+  }
 };
 
-class ReturnStmt : public Stmt {
-  Expr *value;
+class ReturnStmt : public StmtAST {
+  ExprAST *value;
+  friend class AST;
+  ~ReturnStmt();
 
 public:
-  ReturnStmt(Expr *value, const Location &loc)
-      : Stmt(Stmt::ReturnStmtKind, loc), value(value) {}
+  ReturnStmt(ExprAST *value, const Location &loc)
+      : StmtAST(StmtAST::ReturnStmtKind, loc), value(value) {}
 
   // Disable copy and move.
   ReturnStmt(const ReturnStmt &) = delete;
@@ -339,25 +356,25 @@ public:
   ReturnStmt &operator=(const ReturnStmt &) = delete;
   ReturnStmt &operator=(ReturnStmt &&) = delete;
 
-  ~ReturnStmt();
+  ExprAST *getValue() const { return value; }
+  void setValue(ExprAST *E);
 
-  static bool InstanceCheck(const Stmt *x) {
-    return x->getKind() == Stmt::ReturnStmtKind;
+  static bool InstanceCheck(const StmtAST *x) {
+    return x->getKind() == StmtAST::ReturnStmtKind;
   }
-
-  Expr *getValue() const { return value; }
-  void setValue(Expr *E);
 };
 
-class IfStmt : public Stmt {
-  Expr *test;
-  std::vector<Stmt *> body;
-  std::vector<Stmt *> orelse;
+class IfStmt : public StmtAST {
+  ExprAST *test;
+  std::vector<StmtAST *> body;
+  std::vector<StmtAST *> orelse;
+  friend class AST;
+  ~IfStmt();
 
 public:
-  IfStmt(Expr *test, std::vector<Stmt *> body, std::vector<Stmt *> orelse,
+  IfStmt(ExprAST *test, std::vector<StmtAST *> body, std::vector<StmtAST *> orelse,
          const Location &loc)
-      : Stmt(Stmt::IfStmtKind, loc), test(test), body(std::move(body)),
+      : StmtAST(StmtAST::IfStmtKind, loc), test(test), body(std::move(body)),
         orelse(std::move(orelse)) {}
 
   // Disable copy and move.
@@ -366,24 +383,26 @@ public:
   IfStmt &operator=(const IfStmt &) = delete;
   IfStmt &operator=(IfStmt &&) = delete;
 
-  ~IfStmt();
+  ExprAST *getTest() const { return test; }
+  void setTest(ExprAST *E);
+  const std::vector<StmtAST *> &getBody() const { return body; }
+  std::vector<StmtAST *> &getBody() { return body; }
+  const std::vector<StmtAST *> &getOrelse() const { return orelse; }
+  std::vector<StmtAST *> &getOrelse() { return orelse; }
 
-  static bool InstanceCheck(const Stmt *x) {
-    return x->getKind() == Stmt::IfStmtKind;
+  static bool InstanceCheck(const StmtAST *x) {
+    return x->getKind() == StmtAST::IfStmtKind;
   }
-
-  Expr *getTest() const { return test; }
-  void setTest(Expr *E);
-
-  const std::vector<Stmt *> &getBody() const { return body; }
-  const std::vector<Stmt *> &getOrelse() const { return orelse; }
 };
 
-class ExprStmt : public Stmt {
-  Expr *value;
+class ExprStmt : public StmtAST {
+  ExprAST *value;
+  friend class AST;
+  ~ExprStmt();
+
 public:
-  ExprStmt(Expr *value, const Location &loc)
-      : Stmt(Stmt::ExprStmtKind, loc), value(value) {}
+  ExprStmt(ExprAST *value, const Location &loc)
+      : StmtAST(StmtAST::ExprStmtKind, loc), value(value) {}
 
   // Disable copy and move.
   ExprStmt(const ExprStmt &) = delete;
@@ -391,55 +410,55 @@ public:
   ExprStmt &operator=(const ExprStmt &) = delete;
   ExprStmt &operator=(ExprStmt &&) = delete;
 
-  ~ExprStmt();
-
-  static bool InstanceCheck(const Stmt *x) {
-    return x->getKind() == Stmt::ExprStmtKind;
-  }
-
-  Expr *getValue() const &{ return value; }
+  ExprAST *getValue() const & { return value; }
   UniquePtrToAST getValue() &&;
-  void setValue(Expr *E);
+  void setValue(ExprAST *E);
+
+  static bool InstanceCheck(const StmtAST *x) {
+    return x->getKind() == StmtAST::ExprStmtKind;
+  }
 };
 
-class BinOpExpr : public Expr {
-  Expr *left;
+class BinOpExpr : public ExprAST {
+  ExprAST *left;
   OperatorKind op;
-  Expr *right;
+  ExprAST *right;
+  friend class AST;
+  ~BinOpExpr();
 
 public:
-  BinOpExpr(Expr *left, OperatorKind op, Expr *right, const Location &loc)
-      : Expr(Expr::BinOpExprKind, loc), left(left), op(op), right(right) {}
-  ~BinOpExpr();
+  BinOpExpr(ExprAST *left, OperatorKind op, ExprAST *right, const Location &loc)
+      : ExprAST(ExprAST::BinOpExprKind, loc), left(left), op(op), right(right) {}
 
   // Disable copy and move.
   BinOpExpr(const BinOpExpr &) = delete;
   BinOpExpr(BinOpExpr &&) = delete;
   BinOpExpr &operator=(const BinOpExpr &) = delete;
-
   BinOpExpr &operator=(BinOpExpr &&) = delete;
-
-  static bool InstanceCheck(const Expr *x) {
-    return x->getKind() == Expr::BinOpExprKind;
-  }
 
   OperatorKind getOp() const { return op; }
 
-  Expr *getLeft() const &{ return left; }
+  ExprAST *getLeft() const & { return left; }
   UniquePtrToAST getLeft() &&;
-  void setLeft(Expr *E);
+  void setLeft(ExprAST *E);
 
-  Expr *getRight() const &{ return right; }
+  ExprAST *getRight() const & { return right; }
   UniquePtrToAST getRight() &&;
-  void setRight(Expr *E);
+  void setRight(ExprAST *E);
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == ExprAST::BinOpExprKind;
+  }
 };
 
-class ParenExpr : public Expr {
-  Expr *value;
-public:
-  ParenExpr(Expr *value, const Location &loc)
-      : Expr(Expr::ParenExprKind, loc), value(value) {}
+class ParenExpr : public ExprAST {
+  ExprAST *value;
   ~ParenExpr();
+  friend class AST;
+
+public:
+  ParenExpr(ExprAST *value, const Location &loc)
+      : ExprAST(ExprAST::ParenExprKind, loc), value(value) {}
 
   // Disable copy and move.
   ParenExpr(const ParenExpr &) = delete;
@@ -447,23 +466,25 @@ public:
   ParenExpr &operator=(const ParenExpr &) = delete;
   ParenExpr &operator=(ParenExpr &&) = delete;
 
-  static bool InstanceCheck(const Expr *x) {
-    return x->getKind() == Expr::ParenExprKind;
-  }
-
-  Expr *getValue() const &{ return value; }
+  ExprAST *getValue() const & { return value; }
   UniquePtrToAST getValue() &&;
-  void setValue(Expr *E);
+  void setValue(ExprAST *E);
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == ExprAST::ParenExprKind;
+  }
 };
 
-class BoolOpExpr : public Expr {
-  Expr *value;
+class BoolOpExpr : public ExprAST {
+  friend class AST;
+  ExprAST *value;
   bool has_cmpop;
   void setHasCompareOp(bool B) { has_cmpop = B; }
-public:
-  BoolOpExpr(Expr *value, bool has_cmpop, const Location &loc)
-      : Expr(BoolOpExprKind, loc), value(value), has_cmpop(has_cmpop) {}
   ~BoolOpExpr();
+
+public:
+  BoolOpExpr(ExprAST *value, bool has_cmpop, const Location &loc)
+      : ExprAST(BoolOpExprKind, loc), value(value), has_cmpop(has_cmpop) {}
 
   // Disable copy and move.
   BoolOpExpr(const BoolOpExpr &) = delete;
@@ -471,23 +492,26 @@ public:
   BoolOpExpr &operator=(const BoolOpExpr &) = delete;
   BoolOpExpr &operator=(BoolOpExpr &&) = delete;
 
-  static bool InstanceCheck(const Expr *x) { return x->getKind() == BoolOpExprKind; }
-  static bool isCompareOp(OperatorKind Op);
-
-  Expr *getValue() const &{ return value; }
+  ExprAST *getValue() const & { return value; }
   UniquePtrToAST getValue() &&;
-  void setValue(Expr *E);
-
+  void setValue(ExprAST *E);
   bool hasCompareOp() const { return has_cmpop; }
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == BoolOpExprKind;
+  }
+  static bool isCompareOp(OperatorKind Op);
 };
 
-class UnaryOpExpr : public Expr {
+class UnaryOpExpr : public ExprAST {
   UnaryopKind op;
-  Expr *operand;
+  ExprAST *operand;
+  friend class AST;
+  ~UnaryOpExpr();
 
 public:
-  UnaryOpExpr(UnaryopKind op, Expr *operand, const Location &loc)
-      : Expr(UnaryOpExprKind, loc), op(op), operand(operand) {}
+  UnaryOpExpr(UnaryopKind op, ExprAST *operand, const Location &loc)
+      : ExprAST(UnaryOpExprKind, loc), op(op), operand(operand) {}
 
   // Disable copy and move.
   UnaryOpExpr(const UnaryOpExpr &) = delete;
@@ -495,25 +519,25 @@ public:
   UnaryOpExpr &operator=(const UnaryOpExpr &) = delete;
   UnaryOpExpr &operator=(UnaryOpExpr &&) = delete;
 
-  ~UnaryOpExpr();
-
-  static bool InstanceCheck(const Expr *x) {
-    return x->getKind() == Expr::UnaryOpExprKind;
-  }
-
   UnaryopKind getOp() const { return op; }
   UniquePtrToAST getOperand() &&;
-  Expr *getOperand() const &{ return operand; }
-  void setOperand(Expr *E);
+  ExprAST *getOperand() const & { return operand; }
+  void setOperand(ExprAST *E);
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == ExprAST::UnaryOpExprKind;
+  }
 };
 
-class CallExpr : public Expr {
+class CallExpr : public ExprAST {
   std::string func;
-  std::vector<Expr *> args;
+  std::vector<ExprAST *> args;
+  friend class AST;
+  ~CallExpr();
 
 public:
-  CallExpr(std::string func, std::vector<Expr *> args, const Location &loc)
-      : Expr(Expr::CallExprKind, loc), func(std::move(func)),
+  CallExpr(std::string func, std::vector<ExprAST *> args, const Location &loc)
+      : ExprAST(ExprAST::CallExprKind, loc), func(std::move(func)),
         args(std::move(args)) {}
 
   // Disable copy and move.
@@ -522,24 +546,25 @@ public:
   CallExpr &operator=(const CallExpr &) = delete;
   CallExpr &operator=(CallExpr &&) = delete;
 
-  ~CallExpr();
-
-  static bool InstanceCheck(const Expr *x) {
-    return x->getKind() == Expr::CallExprKind;
-  }
-
   const std::string &getFunc() const { return func; }
-
-  const std::vector<Expr *> &getArgs() const { return args; }
-  Expr *getArgAt(unsigned I) const { return args[I]; }
-  void setArgAt(unsigned I, Expr *Val);
+  const std::vector<ExprAST *> &getArgs() const { return args; }
+  std::vector<ExprAST *> &getArgs() { return args; }
+  ExprAST *getArgAt(unsigned I) const { return args[I]; }
+  void setArgAt(unsigned I, ExprAST *Val);
   unsigned getNumArgs() const { return args.size(); }
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == ExprAST::CallExprKind;
+  }
 };
 
-class NumExpr : public Expr {
+class NumExpr : public ExprAST {
   int n;
+  friend class AST;
+  ~NumExpr() = default;
+
 public:
-  NumExpr(int n, const Location &loc) : Expr(Expr::NumExprKind, loc), n(n) {}
+  NumExpr(int n, const Location &loc) : ExprAST(ExprAST::NumExprKind, loc), n(n) {}
 
   // Disable copy and move.
   NumExpr(const NumExpr &) = delete;
@@ -547,18 +572,21 @@ public:
   NumExpr &operator=(const NumExpr &) = delete;
   NumExpr &operator=(NumExpr &&) = delete;
 
-  static bool InstanceCheck(const Expr *x) {
-    return x->getKind() == Expr::NumExprKind;
-  }
-
   int getN() const { return n; }
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == ExprAST::NumExprKind;
+  }
 };
 
-class StrExpr : public Expr {
+class StrExpr : public ExprAST {
   std::string s;
+  friend class AST;
+  ~StrExpr() = default;
+
 public:
   StrExpr(std::string s, const Location &loc)
-      : Expr(Expr::StrExprKind, loc), s(std::move(s)) {}
+      : ExprAST(ExprAST::StrExprKind, loc), s(std::move(s)) {}
 
   // Disable copy and move.
   StrExpr(const StrExpr &) = delete;
@@ -566,17 +594,20 @@ public:
   StrExpr &operator=(const StrExpr &) = delete;
   StrExpr &operator=(StrExpr &&) = delete;
 
-  static bool InstanceCheck(const Expr *x) {
-    return x->getKind() == Expr::StrExprKind;
-  }
-
   const std::string &getS() const { return s; }
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == ExprAST::StrExprKind;
+  }
 };
 
-class CharExpr : public Expr {
+class CharExpr : public ExprAST {
   int c;
+  friend class AST;
+  ~CharExpr() = default;
+
 public:
-  CharExpr(int c, const Location &loc) : Expr(Expr::CharExprKind, loc), c(c) {}
+  CharExpr(int c, const Location &loc) : ExprAST(ExprAST::CharExprKind, loc), c(c) {}
 
   // Disable copy and move.
   CharExpr(const CharExpr &) = delete;
@@ -584,22 +615,25 @@ public:
   CharExpr &operator=(const CharExpr &) = delete;
   CharExpr &operator=(CharExpr &&) = delete;
 
-  static bool InstanceCheck(const Expr *x) {
-    return x->getKind() == Expr::CharExprKind;
-  }
-
   int getC() const { return c; }
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == ExprAST::CharExprKind;
+  }
 };
 
-class SubscriptExpr : public Expr {
+class SubscriptExpr : public ExprAST {
   std::string name;
-  Expr *index;
-  ExprContextKind ctx;
+  ExprAST *index;
+  ExprContextKind context;
+  ~SubscriptExpr();
+  friend class AST;
+
 public:
-  SubscriptExpr(std::string name, Expr *index, ExprContextKind ctx,
+  SubscriptExpr(std::string name, ExprAST *index, ExprContextKind ctx,
                 const Location &loc)
-      : Expr(SubscriptExprKind, loc), name(std::move(name)), index(index),
-        ctx(ctx) {}
+      : ExprAST(SubscriptExprKind, loc), name(std::move(name)), index(index),
+        context(ctx) {}
 
   // Disable copy and move.
   SubscriptExpr(const SubscriptExpr &) = delete;
@@ -607,26 +641,26 @@ public:
   SubscriptExpr &operator=(const SubscriptExpr &) = delete;
   SubscriptExpr &operator=(SubscriptExpr &&) = delete;
 
-  ~SubscriptExpr();
+  const std::string &getName() const { return name; }
+  ExprContextKind getContext() const { return context; }
+  ExprAST *getIndex() const & { return index; }
+  UniquePtrToAST getIndex() &&;
+  void setIndex(ExprAST *E);
 
-  static bool InstanceCheck(const Expr *x) {
+  static bool InstanceCheck(const ExprAST *x) {
     return x->getKind() == SubscriptExprKind;
   }
-
-  const std::string &getName() const { return name; }
-  ExprContextKind getCtx() const { return ctx; }
-
-  Expr *getIndex() const &{ return index; }
-  UniquePtrToAST getIndex() &&;
-  void setIndex(Expr *E);
 };
 
-class NameExpr : public Expr {
+class NameExpr : public ExprAST {
   std::string id;
-  ExprContextKind ctx;
+  ExprContextKind context;
+  ~NameExpr() = default;
+  friend class AST;
+
 public:
   NameExpr(std::string id, ExprContextKind ctx, const Location &loc)
-      : Expr(NameExprKind, loc), id(std::move(id)), ctx(ctx) {}
+      : ExprAST(NameExprKind, loc), id(std::move(id)), context(ctx) {}
 
   // Disable copy and move.
   NameExpr(const NameExpr &) = delete;
@@ -634,19 +668,24 @@ public:
   NameExpr &operator=(const NameExpr &) = delete;
   NameExpr &operator=(NameExpr &&) = delete;
 
-  static bool InstanceCheck(const Expr *x) { return x->getKind() == NameExprKind; }
-
   const std::string &getId() const { return id; }
-  ExprContextKind getCtx() const { return ctx; }
+  ExprContextKind getContext() const { return context; }
+
+  static bool InstanceCheck(const ExprAST *x) {
+    return x->getKind() == NameExprKind;
+  }
 };
 
 class Program : public AST {
   std::string Filename;
-  std::vector<Decl *> decls;
-public:
+  std::vector<DeclAST *> decls;
+  friend class AST;
   ~Program();
-  Program(std::string FN, std::vector<Decl *> decls)
-      : AST(ProgramKind, Location()), Filename(std::move(FN)), decls(std::move(decls)) {}
+
+public:
+  Program(std::string Filename, std::vector<DeclAST *> decls)
+      : AST(ProgramKind, Location()), Filename(std::move(Filename)),
+        decls(std::move(decls)) {}
 
   // Disable copy and move.
   Program(const Program &) = delete;
@@ -654,9 +693,13 @@ public:
   Program &operator=(const Program &) = delete;
   Program &operator=(Program &&) = delete;
 
-  const std::vector<Decl *> &getDecls() const { return decls; }
+  const std::vector<DeclAST *> &getDecls() const { return decls; }
+  std::vector<DeclAST *> &getDecls() { return decls; }
   std::string getFilename() const { return Filename; }
-  static bool InstanceCheck(const AST *A) { return A->getKind() == ProgramKind; }
+
+  static bool InstanceCheck(const AST *A) {
+    return A->getKind() == ProgramKind;
+  }
 };
 
 /// Pretty print.

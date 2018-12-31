@@ -46,7 +46,7 @@ void TypeChecker::visitAssign(AssignStmt *A) {
 }
 
 // check the operand of BoolOpExpr, restrict to int
-void TypeChecker::CheckBoolOpOperand(Expr *E) {
+void TypeChecker::CheckBoolOpOperand(ExprAST *E) {
   auto Msg = "operands of condition must be all int";
   auto Errs = getErrorCount();
   auto T = visitExpr(E);
@@ -66,8 +66,8 @@ BasicTypeKind TypeChecker::visitBoolOp(BoolOpExpr *B) {
   return BasicTypeKind::Int;
 }
 
-// check the operand of Expr, restrict to NOT void
-BasicTypeKind TypeChecker::CheckExprOperand(Expr *E) {
+// check the operand of ExprAST, restrict to NOT void
+BasicTypeKind TypeChecker::CheckExprOperand(ExprAST *E) {
   auto Msg = "using void value in an expression";
   auto Errs = getErrorCount();
   auto T = visitExpr(E);
@@ -138,7 +138,7 @@ BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
 }
 
 static void CheckNoLoadFunction(SymbolEntry Entry, NameExpr *N) {
-  assert(!(Entry.IsFunction() && N->getCtx() == ExprContextKind::Load)
+  assert(!(Entry.IsFunction() && N->getContext() == ExprContextKind::Load)
              && "There should be no NameExpr being a Function!");
 }
 
@@ -147,11 +147,11 @@ BasicTypeKind TypeChecker::visitName(NameExpr *N) {
   // Catch this frequent error first.
   CheckNoLoadFunction(Entry, N);
 
-  if (N->getCtx() == ExprContextKind::Load && Entry.IsArray()) {
+  if (N->getContext() == ExprContextKind::Load && Entry.IsArray()) {
     Error(N->getLocation(), "using an array in an expression");
     return BasicTypeKind::Void;
   }
-  if (N->getCtx() == ExprContextKind::Store && !Entry.IsVariable()) {
+  if (N->getContext() == ExprContextKind::Store && !Entry.IsVariable()) {
     Error(N->getLocation(), "only variables can be assigned to");
     return BasicTypeKind::Void;
   }
@@ -167,7 +167,7 @@ BasicTypeKind TypeChecker::visitStr(StrExpr *) {
 }
 
 // Return the type of evaluating the expression
-BasicTypeKind TypeChecker::visitExpr(Expr *E) {
+BasicTypeKind TypeChecker::visitExpr(ExprAST *E) {
   auto T = VisitorBase::visitExpr<BasicTypeKind>(E);
   getSymbolTable().setExprType(E, T);
   return T;

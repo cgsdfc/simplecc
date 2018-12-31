@@ -1,7 +1,11 @@
+
+#include <simplecc/Driver/Driver.h>
+
 #include "simplecc/Driver/Driver.h"
 #include "simplecc/CodeGen/Compile.h"
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Target/Assemble.h"
+#include "simplecc/Transform/Transform.h"
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "simplecc/LLVM/EmitLLVM.h"
@@ -102,6 +106,13 @@ std::unique_ptr<Node> Driver::doBuildCST() {
     EM.increaseErrorCount();
   }
   return TheCST;
+}
+
+bool Driver::doTransform() {
+  if (doAnalyses())
+    return true;
+  TransformProgram(TheProgram.get(), AM.getSymbolTable());
+  return false;
 }
 
 void Driver::runPrintTokens() {
@@ -207,4 +218,5 @@ std::unique_ptr<llvm::raw_ostream> Driver::getLLVMRawOstream() {
   }
   return std::move(OS);
 }
+
 #endif

@@ -42,7 +42,7 @@ public:
 
   void clear();
 
-  void setExprType(Expr *E, BasicTypeKind Ty);
+  void setExprType(ExprAST *E, BasicTypeKind Ty);
 
   // Return local symbol table for a function
   LocalSymbolTable getLocalTable(FuncDef *FD) const;
@@ -51,14 +51,14 @@ public:
   SymbolEntry getGlobalEntry(const std::string &Name) const;
 
   // Return the BasicTypeKind for an expression
-  BasicTypeKind getExprType(Expr *E) const;
+  BasicTypeKind getExprType(ExprAST *E) const;
 
   void Format(std::ostream &O) const;
 
 private:
   TableType GlobalTable;
   std::unordered_map<FuncDef *, TableType> LocalTables;
-  std::unordered_map<Expr *, BasicTypeKind> ExprTypes;
+  std::unordered_map<ExprAST *, BasicTypeKind> ExprTypes;
 
   /// Interface for the builder.
   friend class SymbolTableBuilder;

@@ -17,7 +17,7 @@ void ArrayBoundChecker::visitSubscript(SubscriptExpr *SB) {
   }
 }
 
-std::pair<bool, int> ArrayBoundChecker::getIndex(Expr *E) const {
+std::pair<bool, int> ArrayBoundChecker::getIndex(ExprAST *E) const {
   std::pair<bool, int> False(false, 0);
   // Case-1: NumExpr.
   if (IsInstance<NumExpr>(E)) {

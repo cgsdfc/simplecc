@@ -30,7 +30,7 @@ using llvm::Value;
 /// 3. Avoid useless stuffs.
 class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
-  bool visitStmtList(const std::vector<Stmt *> &StatementList);
+  bool visitStmtList(const std::vector<StmtAST *> &StatementList);
   Value *visitUnaryOp(UnaryOpExpr *U);
 
   /// Declare builtin functions (external really, but let's call it builtin).
@@ -38,7 +38,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   Function *DeclareIOBuiltins(const char *Name);
 
   Value *getString(llvm::StringRef Str);
-  Value *visitExpr(Expr *E) { return VisitorBase::visitExpr<Value *>(E); }
+  Value *visitExpr(ExprAST *E) { return VisitorBase::visitExpr<Value *>(E); }
   void visitArgDecl(ArgDecl *) {}
   void visitProgram(Program *P);
   void visitVarDecl(VarDecl *VD);
@@ -76,7 +76,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
   /// This helper evaluates an Expr, optional emits a char-to-int cast
   /// to ensure the result is int.
-  Value *visitExprPromoteToInt(Expr *E) { return PromoteToInt(visitExpr(E)); }
+  Value *visitExprPromoteToInt(ExprAST *E) { return PromoteToInt(visitExpr(E)); }
 
   /// The tricky part of BoolOp:
   /// BoolOp has two forms, indicated by getHasCmpop() and should be handled

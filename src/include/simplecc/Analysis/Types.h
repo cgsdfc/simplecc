@@ -25,7 +25,7 @@ class VarType {
 
 public:
   explicit VarType(BasicTypeKind Ty) : Type(Ty) {}
-  explicit VarType(Decl *D);
+  explicit VarType(DeclAST *D);
   BasicTypeKind getType() const { return Type; }
 };
 
@@ -53,10 +53,10 @@ public:
 // a name within a block (global or local).
 class SymbolEntry {
   Scope TheScope;
-  Decl *TheDecl = nullptr;
+  DeclAST *TheDecl = nullptr;
 
 public:
-  SymbolEntry(Scope scope, Decl *decl) : TheScope(scope), TheDecl(decl) {}
+  SymbolEntry(Scope scope, DeclAST *decl) : TheScope(scope), TheDecl(decl) {}
   /// This constructs an invalid SymbolEntry.
   SymbolEntry() = default;
 

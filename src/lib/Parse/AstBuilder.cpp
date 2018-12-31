@@ -6,7 +6,7 @@ using namespace simplecc;
 
 Program *AstBuilder::visit_program(std::string Filename, Node *N) {
   assert(N->getType() == Symbol::program);
-  std::vector<Decl *> Decls;
+  std::vector<DeclAST *> Decls;
 
   for (auto C : N->getChildren()) {
     if (C->getType() == Symbol::const_decl) {
@@ -21,7 +21,7 @@ Program *AstBuilder::visit_program(std::string Filename, Node *N) {
   return new Program(std::move(Filename), std::move(Decls));
 }
 
-void AstBuilder::visit_const_decl(Node *N, std::vector<Decl *> &Decls) {
+void AstBuilder::visit_const_decl(Node *N, std::vector<DeclAST *> &Decls) {
   auto TypeName = N->getChild(1);
   auto Ty = visit_type_name(TypeName);
 
@@ -31,10 +31,10 @@ void AstBuilder::visit_const_decl(Node *N, std::vector<Decl *> &Decls) {
   }
 }
 
-Decl *AstBuilder::visit_const_item(Node *N, BasicTypeKind Ty) {
+DeclAST *AstBuilder::visit_const_item(Node *N, BasicTypeKind Ty) {
   auto name = N->FirstChild();
   auto constant = N->getChild(2);
-  Expr *Val;
+  ExprAST *Val;
 
   if (constant->getType() == Symbol::CHAR) {
     Val = makeChar(constant);
@@ -53,12 +53,12 @@ int AstBuilder::visit_integer(Node *N) {
   return std::stoi(os.str());
 }
 
-void AstBuilder::visit_declaration(Node *N, std::vector<Decl *> &Decls) {
+void AstBuilder::visit_declaration(Node *N, std::vector<DeclAST *> &Decls) {
   auto TypeName = N->FirstChild();
   auto name = N->getChild(1);
   if (name->getValue() == "main") {
-    std::vector<Decl *> FnDecls;
-    std::vector<Stmt *> FnStmts;
+    std::vector<DeclAST *> FnDecls;
+    std::vector<StmtAST *> FnStmts;
     auto Ty = visit_type_name(TypeName);
     visit_compound_stmt(N->LastChild(), FnDecls, FnStmts);
     Decls.push_back(new FuncDef(Ty, {}, std::move(FnDecls), std::move(FnStmts),
@@ -71,8 +71,8 @@ void AstBuilder::visit_declaration(Node *N, std::vector<Decl *> &Decls) {
   visit_decl_trailer(decl_trailer, TypeName, name, Decls);
 }
 
-std::vector<Expr *> AstBuilder::visit_arglist(Node *N) {
-  std::vector<Expr *> Args;
+std::vector<ExprAST *> AstBuilder::visit_arglist(Node *N) {
+  std::vector<ExprAST *> Args;
   for (auto C : N->getChildren()) {
     if (C->getType() == Symbol::expr) {
       Args.push_back(visit_expr(C));
@@ -81,12 +81,12 @@ std::vector<Expr *> AstBuilder::visit_arglist(Node *N) {
   return std::move(Args);
 }
 
-Expr *AstBuilder::visit_atom_trailer(Node *N, const std::string &Name,
+ExprAST *AstBuilder::visit_atom_trailer(Node *N, const std::string &Name,
                                      ExprContextKind Context) {
   auto first = N->FirstChild();
   if (first->getType() == Symbol::arglist) {
     // no empty arglist
-    std::vector<Expr *> Args = visit_arglist(first);
+    std::vector<ExprAST *> Args = visit_arglist(first);
     return new CallExpr(Name, Args, N->getLocation());
   }
 
@@ -95,7 +95,7 @@ Expr *AstBuilder::visit_atom_trailer(Node *N, const std::string &Name,
   return new SubscriptExpr(Name, index, Context, N->getLocation());
 }
 
-Expr *AstBuilder::visit_atom(Node *N, ExprContextKind Context) {
+ExprAST *AstBuilder::visit_atom(Node *N, ExprContextKind Context) {
   auto first = N->FirstChild();
   if (first->getType() == Symbol::NAME) {
     if (N->getNumChildren() == 1) {
@@ -120,9 +120,9 @@ Expr *AstBuilder::visit_atom(Node *N, ExprContextKind Context) {
   return new ParenExpr(value, first->getLocation());
 }
 
-Stmt *AstBuilder::visit_write_stmt(Node *N) {
-  Expr *S = nullptr;
-  Expr *E = nullptr;
+StmtAST *AstBuilder::visit_write_stmt(Node *N) {
+  ExprAST *S = nullptr;
+  ExprAST *E = nullptr;
 
   for (auto C : N->getChildren()) {
     if (C->getType() == Symbol::expr)
@@ -135,7 +135,7 @@ Stmt *AstBuilder::visit_write_stmt(Node *N) {
 }
 
 void AstBuilder::visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
-                                    std::vector<Decl *> &Decls) {
+                                    std::vector<DeclAST *> &Decls) {
 
   auto first = N->FirstChild();
   auto Ty = visit_type_name(TypeName);
@@ -165,7 +165,7 @@ void AstBuilder::visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
   }
 }
 
-Stmt *AstBuilder::visit_return_stmt(Node *N) {
+StmtAST *AstBuilder::visit_return_stmt(Node *N) {
   if (N->getNumChildren() == 1)
     return new ReturnStmt(nullptr, N->getLocation());
 
@@ -173,7 +173,7 @@ Stmt *AstBuilder::visit_return_stmt(Node *N) {
   return new ReturnStmt(expr, N->getLocation());
 }
 
-void AstBuilder::visit_stmt(Node *N, std::vector<Stmt *> &Stmts) {
+void AstBuilder::visit_stmt(Node *N, std::vector<StmtAST *> &Stmts) {
   auto first = N->FirstChild();
   if (first->getType() == Symbol::flow_stmt) {
     return Stmts.push_back(visit_flow_stmt(first));
@@ -199,7 +199,7 @@ void AstBuilder::visit_stmt(Node *N, std::vector<Stmt *> &Stmts) {
   assert(first->getValue() == ";" && N->getNumChildren() == 1);
 }
 
-Stmt *AstBuilder::visit_flow_stmt(Node *N) {
+StmtAST *AstBuilder::visit_flow_stmt(Node *N) {
   auto first = N->FirstChild();
   auto first_type = first->getType();
   if (first_type == Symbol::if_stmt)
@@ -217,18 +217,18 @@ Stmt *AstBuilder::visit_flow_stmt(Node *N) {
   assert(false && "should handle all flow_stmt");
 }
 
-Stmt *AstBuilder::visit_if_stmt(Node *N) {
+StmtAST *AstBuilder::visit_if_stmt(Node *N) {
   auto condition = N->getChild(2);
   auto stmt = N->getChild(4);
   auto test = visit_condition(condition);
-  std::vector<Stmt *> body, orelse;
+  std::vector<StmtAST *> body, orelse;
   visit_stmt(stmt, body);
   if (N->getNumChildren() > 5)
     visit_stmt(N->LastChild(), orelse);
   return new IfStmt(test, std::move(body), std::move(orelse), N->getLocation());
 }
 
-Expr *AstBuilder::visit_binop(Node *N, ExprContextKind Context) {
+ExprAST *AstBuilder::visit_binop(Node *N, ExprContextKind Context) {
   auto result = visit_expr(N->FirstChild(), Context);
   auto NumBinOp = (N->getNumChildren() - 1) / 2;
 
@@ -242,11 +242,11 @@ Expr *AstBuilder::visit_binop(Node *N, ExprContextKind Context) {
   return result;
 }
 
-Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, std::string Name,
+DeclAST *AstBuilder::visit_funcdef(BasicTypeKind RetTy, std::string Name,
                                 Node *decl_trailer, const Location &L) {
-  std::vector<Decl *> ParamList;
-  std::vector<Decl *> FnDecls;
-  std::vector<Stmt *> FnStmts;
+  std::vector<DeclAST *> ParamList;
+  std::vector<DeclAST *> FnDecls;
+  std::vector<StmtAST *> FnStmts;
 
   if (decl_trailer->getNumChildren() > 1) {
     visit_paralist(decl_trailer->FirstChild(), ParamList);
@@ -257,12 +257,12 @@ Decl *AstBuilder::visit_funcdef(BasicTypeKind RetTy, std::string Name,
                      std::move(FnStmts), Name, L);
 }
 
-Expr *AstBuilder::visit_condition(Node *N) {
+ExprAST *AstBuilder::visit_condition(Node *N) {
   bool has_cmpop = N->getNumChildren() == 3;
   return new BoolOpExpr(visit_expr(N), has_cmpop, N->getLocation());
 }
 
-Stmt *AstBuilder::visit_for_stmt(Node *N) {
+StmtAST *AstBuilder::visit_for_stmt(Node *N) {
   // initial: stmt
   auto Nn = N->getChild(2);
   auto expr = N->getChild(4);
@@ -294,12 +294,12 @@ Stmt *AstBuilder::visit_for_stmt(Node *N) {
       /* loc */ target->getLocation());
 
   // body: stmt*
-  std::vector<Stmt *> Body;
+  std::vector<StmtAST *> Body;
   visit_stmt(N->LastChild(), Body);
   return new ForStmt(Initial, Cond, Step, std::move(Body), N->getLocation());
 }
 
-void AstBuilder::visit_paralist(Node *N, std::vector<Decl *> &ParamList) {
+void AstBuilder::visit_paralist(Node *N, std::vector<DeclAST *> &ParamList) {
   int NumItems = (N->getNumChildren() - 1) / 3;
 
   for (unsigned i = 0; i < NumItems; i++) {
@@ -313,7 +313,7 @@ void AstBuilder::visit_paralist(Node *N, std::vector<Decl *> &ParamList) {
   }
 }
 
-Expr *AstBuilder::visit_factor(Node *N, ExprContextKind Context) {
+ExprAST *AstBuilder::visit_factor(Node *N, ExprContextKind Context) {
   if (N->getNumChildren() == 1) {
     return visit_atom(N->FirstChild(), Context);
   }
@@ -324,10 +324,10 @@ Expr *AstBuilder::visit_factor(Node *N, ExprContextKind Context) {
   return new UnaryOpExpr(op, operand, first->getLocation());
 }
 
-Stmt *AstBuilder::visit_stmt_trailer(Node *N, Node *Name) {
+StmtAST *AstBuilder::visit_stmt_trailer(Node *N, Node *Name) {
   auto first = N->FirstChild();
   if (first->getType() == Symbol::arglist) {
-    std::vector<Expr *> Args = visit_arglist(first);
+    std::vector<ExprAST *> Args = visit_arglist(first);
     auto C = new CallExpr(Name->getValue(), std::move(Args), Name->getLocation());
     return new ExprStmt(C, Name->getLocation());
 
@@ -347,8 +347,8 @@ Stmt *AstBuilder::visit_stmt_trailer(Node *N, Node *Name) {
   }
 }
 
-void AstBuilder::visit_compound_stmt(Node *N, std::vector<Decl *> &FnDecls,
-                                     std::vector<Stmt *> &FnStmts) {
+void AstBuilder::visit_compound_stmt(Node *N, std::vector<DeclAST *> &FnDecls,
+                                     std::vector<StmtAST *> &FnStmts) {
   for (auto C : N->getChildren()) {
     switch (C->getType()) {
     case Symbol::const_decl:visit_const_decl(C, FnDecls);
@@ -363,8 +363,8 @@ void AstBuilder::visit_compound_stmt(Node *N, std::vector<Decl *> &FnDecls,
   }
 }
 
-Stmt *AstBuilder::visit_read_stmt(Node *N) {
-  std::vector<Expr *> Names;
+StmtAST *AstBuilder::visit_read_stmt(Node *N) {
+  std::vector<ExprAST *> Names;
   for (unsigned i = 1, len = N->getNumChildren(); i < len; i++) {
     auto Child = N->getChild(i);
     if (Child->getType() == Symbol::NAME) {
@@ -375,7 +375,7 @@ Stmt *AstBuilder::visit_read_stmt(Node *N) {
   return new ReadStmt(std::move(Names), N->getLocation());
 }
 
-Expr *AstBuilder::visit_expr(Node *N, ExprContextKind Context) {
+ExprAST *AstBuilder::visit_expr(Node *N, ExprContextKind Context) {
 
   if (N->getType() == Symbol::term || N->getType() == Symbol::expr ||
       N->getType() == Symbol::condition) {
@@ -386,7 +386,7 @@ Expr *AstBuilder::visit_expr(Node *N, ExprContextKind Context) {
   return visit_factor(N, Context);
 }
 
-void AstBuilder::visit_var_decl(Node *N, std::vector<Decl *> &Decls) {
+void AstBuilder::visit_var_decl(Node *N, std::vector<DeclAST *> &Decls) {
   auto TypeName = N->FirstChild();
   auto Ty = visit_type_name(TypeName);
 
@@ -397,7 +397,7 @@ void AstBuilder::visit_var_decl(Node *N, std::vector<Decl *> &Decls) {
   }
 }
 
-Decl *AstBuilder::visit_var_item(Node *N, BasicTypeKind Ty) {
+DeclAST *AstBuilder::visit_var_item(Node *N, BasicTypeKind Ty) {
   auto name = N->FirstChild();
   bool IsArray = N->getNumChildren() > 1;
   int Size = IsArray ? visit_subscript2(N->getChild(1)) : 0;
@@ -407,9 +407,9 @@ Decl *AstBuilder::visit_var_item(Node *N, BasicTypeKind Ty) {
       /* name */ name->getValue(), name->getLocation());
 }
 
-Stmt *AstBuilder::visit_while_stmt(Node *N) {
+StmtAST *AstBuilder::visit_while_stmt(Node *N) {
   auto Cond = visit_condition(N->getChild(2));
-  std::vector<Stmt *> Body;
+  std::vector<StmtAST *> Body;
   visit_stmt(N->LastChild(), Body);
   return new WhileStmt(Cond, std::move(Body), N->getLocation());
 }
@@ -422,10 +422,10 @@ int AstBuilder::visit_subscript2(Node *N) {
   return std::stoi(N->getChild(1)->getValue());
 }
 
-Expr *AstBuilder::makeChar(Node *N) {
+ExprAST *AstBuilder::makeChar(Node *N) {
   return new CharExpr(static_cast<int>(N->getValue()[1]), N->getLocation());
 }
 
-Expr *AstBuilder::makeNum(Node *N) {
+ExprAST *AstBuilder::makeNum(Node *N) {
   return new NumExpr(std::stoi(N->getValue()), N->getLocation());
 }

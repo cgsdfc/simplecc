@@ -16,7 +16,7 @@ class InlineConstDeclTransformer : ExpressionTransformer<InlineConstDeclTransfor
   friend ExpressionTransformer;
   /// If E is a NameExpr and corresponds to a ConstType, create a corresponding literal
   /// node (CharExpr or NumExpr).
-  Expr *TransformExpr(Expr *E, AST *Parent);
+  ExprAST *TransformExpr(ExprAST *E, AST *Parent);
 public:
   InlineConstDeclTransformer() = default;
   using ExpressionTransformer::Transform;

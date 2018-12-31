@@ -14,7 +14,7 @@ class Program;
 
 class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
 
-  void visitStmt(Stmt *S);
+  void visitStmt(StmtAST *S);
 
   void visitArgDecl(ArgDecl *A);
 

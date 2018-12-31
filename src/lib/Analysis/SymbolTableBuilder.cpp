@@ -2,7 +2,7 @@
 
 using namespace simplecc;
 
-void SymbolTableBuilder::DefineLocalDecl(Decl *D) {
+void SymbolTableBuilder::DefineLocalDecl(DeclAST *D) {
   assert(TheLocal && "TheLocal must be set!");
   if (TheLocal->count(D->getName())) {
     EM.Error(D->getLocation(), "redefinition of identifier", D->getName(),
@@ -19,7 +19,7 @@ void SymbolTableBuilder::DefineLocalDecl(Decl *D) {
   TheLocal->emplace(D->getName(), SymbolEntry(Scope::Local, D));
 }
 
-void SymbolTableBuilder::DefineGlobalDecl(Decl *D) {
+void SymbolTableBuilder::DefineGlobalDecl(DeclAST *D) {
   assert(TheGlobal && "TheGlobal must be set!");
   if (TheGlobal->count(D->getName())) {
     EM.Error(D->getLocation(), "redefinition of identifier", D->getName(),
@@ -55,22 +55,22 @@ void SymbolTableBuilder::visitSubscript(SubscriptExpr *SB) {
   ChildrenVisitor::visitSubscript(SB);
 }
 
-void SymbolTableBuilder::visitDecl(Decl *D) {
+void SymbolTableBuilder::visitDecl(DeclAST *D) {
   switch (D->getKind()) {
-  case Decl::FuncDefKind:
+  case DeclAST::FuncDefKind:
     setFuncDef(static_cast<FuncDef *>(D));
     setLocal(&TheTable->getLocal(TheFuncDef));
     /// Define this function globally.
     DefineGlobalDecl(D);
     return visitFuncDef(TheFuncDef);
 
-  case Decl::ConstDeclKind:
-  case Decl::VarDeclKind:
-  case Decl::ArgDeclKind:
+  case DeclAST::ConstDeclKind:
+  case DeclAST::VarDeclKind:
+  case DeclAST::ArgDeclKind:
     /* Fall through */
     return TheLocal ? DefineLocalDecl(D) : DefineGlobalDecl(D);
   default:
-    assert(false && "Unhandled Decl subclass!");
+    assert(false && "Unhandled DeclAST subclass!");
   }
 }
 

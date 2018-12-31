@@ -10,33 +10,33 @@ void SyntaxChecker::visitProgram(Program *P) {
   }
 
   // Check the order of declarations.
-  int PrevDecl = Decl::ConstDeclKind;
+  int PrevDecl = DeclAST::ConstDeclKind;
   for (auto D : P->getDecls()) {
     switch (D->getKind()) {
-    case Decl::ConstDeclKind:
-      if (PrevDecl != Decl::ConstDeclKind) {
+    case DeclAST::ConstDeclKind:
+      if (PrevDecl != DeclAST::ConstDeclKind) {
         // ConstDecl can only be preceded by ConstDecl.
         EM.Error(D->getLocation(), "unexpected const declaration");
       }
       break;
-    case Decl::VarDeclKind:
-      if (PrevDecl == Decl::FuncDefKind) {
+    case DeclAST::VarDeclKind:
+      if (PrevDecl == DeclAST::FuncDefKind) {
         // VarDecl cannot be preceded by FuncDef.
         EM.Error(D->getLocation(), "unexpected variable declaration");
       }
       break;
-    case Decl::FuncDefKind:
+    case DeclAST::FuncDefKind:
       // FuncDef can be preceded by anything.
       break;
     default:
-      assert(false && "Impossible Decl Kind");
+      assert(false && "Impossible DeclAST Kind");
     }
     PrevDecl = D->getKind();
     VisitorBase::visitDecl(D);
   }
 
   // check the last declaration is the void main() function
-  Decl *LastDecl = P->getDecls().back();
+  DeclAST *LastDecl = P->getDecls().back();
   if (IsInstance<FuncDef>(LastDecl) && LastDecl->getName() == "main" &&
       static_cast<FuncDef *>(LastDecl)->getReturnType() == BasicTypeKind::Void)
     return;
@@ -60,7 +60,7 @@ void SyntaxChecker::visitVarDecl(VarDecl *VD) {
   if (VD->getType() == BasicTypeKind::Void) {
     EM.Error(VD->getLocation(), "cannot declare void variable");
   }
-  if (VD->getIsArray() && VD->getSize() == 0) {
+  if (VD->isArray() && VD->getSize() == 0) {
     EM.Error(VD->getLocation(), "array size cannot be 0");
   }
 }

@@ -12,9 +12,9 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   std::string visitProgram(Program *) { return ""; }
 
   /// VisitorBase boilerplate code.
-  std::string visitDecl(Decl *D) { return VisitorBase::visitDecl<std::string>(D); }
-  std::string visitExpr(Expr *E) { return VisitorBase::visitExpr<std::string>(E); }
-  std::string visitStmt(Stmt *S) { return VisitorBase::visitStmt<std::string>(S); }
+  std::string visitDecl(DeclAST *D) { return VisitorBase::visitDecl<std::string>(D); }
+  std::string visitExpr(ExprAST *E) { return VisitorBase::visitExpr<std::string>(E); }
+  std::string visitStmt(StmtAST *S) { return VisitorBase::visitStmt<std::string>(S); }
 
   std::string visitConstDecl(ConstDecl *CD);
   std::string visitVarDecl(VarDecl *VD);

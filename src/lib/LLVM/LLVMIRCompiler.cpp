@@ -30,8 +30,8 @@ bool LLVMIRCompiler::Compile() {
 /// It returns true if **no Return** is found in between.
 /// Client can use its return value to judge whether they should insert
 /// a Terminator.
-bool LLVMIRCompiler::visitStmtList(const std::vector<Stmt *> &StatementList) {
-  for (Stmt *S : StatementList) {
+bool LLVMIRCompiler::visitStmtList(const std::vector<StmtAST *> &StatementList) {
+  for (StmtAST *S : StatementList) {
     visitStmt(S);
     if (IsInstance<ReturnStmt>(S)) {
       /// We see a Return.
@@ -92,7 +92,7 @@ Value *LLVMIRCompiler::visitName(NameExpr *Nn) {
   assert(Val);
 
   /// This is a Store, return its address.
-  if (Nn->getCtx() == ExprContextKind::Store) {
+  if (Nn->getContext() == ExprContextKind::Store) {
     return Val;
   }
 
@@ -254,7 +254,7 @@ Value *LLVMIRCompiler::visitCall(CallExpr *C) {
   assert(Callee && "Callee must be created");
   std::vector<Value *> ArgsV;
   ArgsV.reserve(C->getArgs().size());
-  for (Expr *A : C->getArgs()) {
+  for (ExprAST *A : C->getArgs()) {
     Value *Val = visitExpr(A);
     ArgsV.push_back(Val);
   }
@@ -289,7 +289,7 @@ Value *LLVMIRCompiler::visitSubscript(SubscriptExpr *SB) {
   Value *IdxList[2] = {VM.getInt(0), Index};
   Value *ElemPtr = Builder.CreateInBoundsGEP(Array, IdxList, "elemptr");
 
-  switch (SB->getCtx()) {
+  switch (SB->getContext()) {
   case ExprContextKind::Load:
     /// If this is a Load, emit a load.
     return Builder.CreateLoad(ElemPtr, "elemval");
@@ -308,7 +308,7 @@ void LLVMIRCompiler::visitRead(ReadStmt *RD) {
   llvm::SmallVector<Value *, 2> Args;
 
   /// Select appropriate format specifier by type.
-  auto SelectFmtSpc = [this](Expr *Name) {
+  auto SelectFmtSpc = [this](ExprAST *Name) {
     auto T = TheTable.getExprType(Name);
     switch (T) {
     case BasicTypeKind::Int:return "%d";
@@ -319,7 +319,7 @@ void LLVMIRCompiler::visitRead(ReadStmt *RD) {
     }
   };
 
-  for (Expr *E : RD->getNames()) {
+  for (ExprAST *E : RD->getNames()) {
     auto Nn = static_cast<NameExpr *>(E);
     Value *FmtV = getString(SelectFmtSpc(Nn));
     Value *Var = LocalValues[Nn->getId()];
@@ -405,7 +405,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
 
   /// Setup alloca for local storage.
   /// Setup local constants.
-  for (Decl *D : FD->getDecls()) {
+  for (DeclAST *D : FD->getDecls()) {
     if (auto VD = subclass_cast<VarDecl>(D)) {
       /// Important note about AllocaInst:
       /// The second argument ArraySize is a wrong name! It is actually
@@ -434,7 +434,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
     const SymbolEntry &E = Pair.second;
     if (E.IsLocal()) {
       assert(LocalValues.count(E.getName()) &&
-          "Local Decl must have been handled");
+          "Local DeclAST must have been handled");
       continue;
     }
     auto GV = GlobalValues[E.getName()];
@@ -499,7 +499,7 @@ void LLVMIRCompiler::visitVarDecl(VarDecl *VD) {
 }
 
 void LLVMIRCompiler::visitProgram(Program *P) {
-  for (Decl *D : P->getDecls()) {
+  for (DeclAST *D : P->getDecls()) {
     visitDecl(D);
   }
   /// Verify the Module.

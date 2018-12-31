@@ -3,7 +3,7 @@
 using namespace simplecc;
 
 Constant *LLVMValueMap::getGlobalInitializer(VarDecl *VD) {
-  if (VD->getIsArray()) {
+  if (VD->isArray()) {
     return llvm::ConstantAggregateZero::get(getTypeFromVarDecl(VD));
   }
   switch (VD->getType()) {
@@ -16,14 +16,14 @@ Constant *LLVMValueMap::getGlobalInitializer(VarDecl *VD) {
   }
 }
 
-Constant *LLVMValueMap::getConstantFromExpr(Expr *E) const {
+Constant *LLVMValueMap::getConstantFromExpr(ExprAST *E) const {
   switch (E->getKind()) {
-  case Expr::NumExprKind:
+  case ExprAST::NumExprKind:
     return getInt(static_cast<NumExpr *>(E)->getN());
-  case Expr::CharExprKind:
+  case ExprAST::CharExprKind:
     return getChar(static_cast<CharExpr *>(E)->getC());
   default:
-    llvm_unreachable("Expr must be NumExpr or CharExpr");
+    llvm_unreachable("ExprAST must be NumExpr or CharExpr");
   }
 }
 

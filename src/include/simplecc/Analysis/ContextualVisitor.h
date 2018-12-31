@@ -36,6 +36,7 @@ protected:
     return TheLocalTable[Name];
   }
 
+public:
   /// Initialize LocalSymbolTable before performing real visit.
   /// Subclass can override it and add more initialization.
   void visitFuncDef(FuncDef *FD) {

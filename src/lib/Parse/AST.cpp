@@ -40,7 +40,7 @@ WriteStmt::~WriteStmt() {
   DeleteAST::apply(value);
 }
 
-void WriteStmt::setValue(Expr *Val) {
+void WriteStmt::setValue(ExprAST *Val) {
   SetterImpl(value, Val, /* Optional */ true);
 }
 
@@ -49,7 +49,7 @@ AssignStmt::~AssignStmt() {
   DeleteAST::apply(value);
 }
 
-void AssignStmt::setValue(Expr *E) { SetterImpl(value, E); }
+void AssignStmt::setValue(ExprAST *E) { SetterImpl(value, E); }
 
 ForStmt::~ForStmt() {
   DeleteAST::apply(initial);
@@ -58,18 +58,18 @@ ForStmt::~ForStmt() {
   DeleteAST::apply(body);
 }
 
-void ForStmt::setCondition(Expr *E) { SetterImpl(condition, E); }
+void ForStmt::setCondition(ExprAST *E) { SetterImpl(condition, E); }
 
 WhileStmt::~WhileStmt() {
   DeleteAST::apply(condition);
   DeleteAST::apply(body);
 }
 
-void WhileStmt::setCondition(Expr *E) { SetterImpl(condition, E); }
+void WhileStmt::setCondition(ExprAST *E) { SetterImpl(condition, E); }
 
 ReturnStmt::~ReturnStmt() { DeleteAST::apply(value); }
 
-void ReturnStmt::setValue(Expr *E) {
+void ReturnStmt::setValue(ExprAST *E) {
   SetterImpl(value, E, /* Optional */ true);
 }
 
@@ -79,7 +79,7 @@ IfStmt::~IfStmt() {
   DeleteAST::apply(orelse);
 }
 
-void IfStmt::setTest(Expr *E) {
+void IfStmt::setTest(ExprAST *E) {
   SetterImpl(test, E);
 }
 
@@ -95,9 +95,9 @@ BinOpExpr::~BinOpExpr() {
   DeleteAST::apply(right);
 }
 
-void BinOpExpr::setLeft(Expr *E) { SetterImpl(left, E); }
+void BinOpExpr::setLeft(ExprAST *E) { SetterImpl(left, E); }
 
-void BinOpExpr::setRight(Expr *E) { SetterImpl(right, E); }
+void BinOpExpr::setRight(ExprAST *E) { SetterImpl(right, E); }
 UniquePtrToAST BinOpExpr::getLeft() &&{
   return RvalueGetterImpl(left);
 }
@@ -107,14 +107,14 @@ UniquePtrToAST BinOpExpr::getRight() &&{
 
 ParenExpr::~ParenExpr() { DeleteAST::apply(value); }
 
-void ParenExpr::setValue(Expr *E) { SetterImpl(value, E); }
+void ParenExpr::setValue(ExprAST *E) { SetterImpl(value, E); }
 UniquePtrToAST ParenExpr::getValue() &&{
   return RvalueGetterImpl(value);
 }
 
 BoolOpExpr::~BoolOpExpr() { DeleteAST::apply(value); }
 
-void BoolOpExpr::setValue(Expr *E) {
+void BoolOpExpr::setValue(ExprAST *E) {
   SetterImpl(value, E);
   setHasCompareOp(
       IsInstance<BinOpExpr>(E) && isCompareOp(static_cast<BinOpExpr *>(E)->getOp()));
@@ -134,7 +134,7 @@ UniquePtrToAST BoolOpExpr::getValue() &&{
 
 UnaryOpExpr::~UnaryOpExpr() { DeleteAST::apply(operand); }
 
-void UnaryOpExpr::setOperand(Expr *E) { SetterImpl(operand, E); }
+void UnaryOpExpr::setOperand(ExprAST *E) { SetterImpl(operand, E); }
 
 UniquePtrToAST UnaryOpExpr::getOperand() &&{
   return RvalueGetterImpl(operand);
@@ -144,11 +144,11 @@ CallExpr::~CallExpr() {
   DeleteAST::apply(args);
 }
 
-void CallExpr::setArgAt(unsigned I, Expr *Val) { SetterImpl(args[I], Val); }
+void CallExpr::setArgAt(unsigned I, ExprAST *Val) { SetterImpl(args[I], Val); }
 
 SubscriptExpr::~SubscriptExpr() { DeleteAST::apply(index); }
 
-void SubscriptExpr::setIndex(Expr *E) { SetterImpl(index, E); }
+void SubscriptExpr::setIndex(ExprAST *E) { SetterImpl(index, E); }
 
 UniquePtrToAST SubscriptExpr::getIndex() &&{
   return RvalueGetterImpl(index);
@@ -179,7 +179,7 @@ void AST::Format(std::ostream &os) const {
   PrettyPrintAST(*this, os);
 }
 
-bool Decl::InstanceCheck(const AST *A) {
+bool DeclAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
 #define HANDLE_DECL(CLASS) case AST::CLASS##Kind:
@@ -188,7 +188,7 @@ bool Decl::InstanceCheck(const AST *A) {
   }
 }
 
-bool Stmt::InstanceCheck(const AST *A) {
+bool StmtAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
 #define HANDLE_STMT(CLASS) case AST::CLASS##Kind:
@@ -197,7 +197,7 @@ bool Stmt::InstanceCheck(const AST *A) {
   }
 }
 
-bool Expr::InstanceCheck(const AST *A) {
+bool ExprAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
 #define HANDLE_EXPR(CLASS) case AST::CLASS##Kind:
@@ -206,12 +206,12 @@ bool Expr::InstanceCheck(const AST *A) {
   }
 }
 
-int Expr::getConstantValue() const {
+int ExprAST::getConstantValue() const {
   assert(isConstant());
   switch (getKind()) {
   case CharExprKind:return static_cast<const CharExpr *>(this)->getC();
   case NumExprKind:return static_cast<const NumExpr *>(this)->getN();
-  default:assert(false && "Unhandled Constant Expr");
+  default:assert(false && "Unhandled Constant ExprAST");
   }
 }
 

@@ -5,16 +5,16 @@ using namespace simplecc;
 
 ArrayType::ArrayType(VarDecl *VD)
     : ElemType(VD->getType()), Size(VD->getSize()) {
-  assert(VD->getIsArray());
+  assert(VD->isArray());
 }
 
 ConstType::ConstType(ConstDecl *CD) : Type(CD->getType()) {
   auto Val = CD->getValue();
   switch (Val->getKind()) {
-  case Expr::CharExprKind:
+  case ExprAST::CharExprKind:
     Value = static_cast<CharExpr *>(Val)->getC();
     break;
-  case Expr::NumExprKind:
+  case ExprAST::NumExprKind:
     Value = static_cast<NumExpr *>(Val)->getN();
     break;
   default:
@@ -22,16 +22,16 @@ ConstType::ConstType(ConstDecl *CD) : Type(CD->getType()) {
   }
 }
 
-VarType::VarType(Decl *D) {
+VarType::VarType(DeclAST *D) {
   switch (D->getKind()) {
-  case Decl::ArgDeclKind:
+  case DeclAST::ArgDeclKind:
     Type = static_cast<ArgDecl *>(D)->getType();
     break;
-  case Decl::VarDeclKind:
+  case DeclAST::VarDeclKind:
     Type = static_cast<VarDecl *>(D)->getType();
     break;
   default:
-    assert(false && "Decl not for Variable!");
+    assert(false && "DeclAST not for Variable!");
   }
 }
 
@@ -74,13 +74,13 @@ ConstType SymbolEntry::AsConstant() const {
 
 bool SymbolEntry::IsArray() const {
   return TheDecl && IsInstance<VarDecl>(TheDecl) &&
-         static_cast<VarDecl *>(TheDecl)->getIsArray();
+      static_cast<VarDecl *>(TheDecl)->isArray();
 }
 
 bool SymbolEntry::IsVariable() const {
   return TheDecl && (IsInstance<ArgDecl>(TheDecl) ||
                      (IsInstance<VarDecl>(TheDecl) &&
-                      !static_cast<VarDecl *>(TheDecl)->getIsArray()));
+                      !static_cast<VarDecl *>(TheDecl)->isArray()));
 }
 
 bool SymbolEntry::IsConstant() const {

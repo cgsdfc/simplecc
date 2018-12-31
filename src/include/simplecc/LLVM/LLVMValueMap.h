@@ -24,7 +24,7 @@ public:
   Constant *getChar(int C) const;
 
   // Convert a constant expression.
-  Constant *getConstantFromExpr(Expr *E) const;
+  Constant *getConstantFromExpr(ExprAST *E) const;
 
   Constant *getGlobalInitializer(VarDecl *VD);
 };

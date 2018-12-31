@@ -9,9 +9,9 @@ namespace simplecc {
 // Visitor Mixin that provides runtime visit of abstract nodes
 template<typename Derived> class VisitorBase {
 public:
-  template<typename RetTy = void> RetTy visitDecl(Decl *D);
-  template<typename RetTy = void> RetTy visitStmt(Stmt *S);
-  template<typename RetTy = void> RetTy visitExpr(Expr *E);
+  template<typename RetTy = void> RetTy visitDecl(DeclAST *D);
+  template<typename RetTy = void> RetTy visitStmt(StmtAST *S);
+  template<typename RetTy = void> RetTy visitExpr(ExprAST *E);
   template<typename RetTy = void> RetTy visitAST(AST *A);
 };
 
@@ -35,7 +35,7 @@ public:
   void visitIf(IfStmt *I);
   void visitExprStmt(ExprStmt *ES);
 
-  // Expr subclasses.
+  // ExprAST subclasses.
   void visitBinOp(BinOpExpr *B);
   void visitParenExpr(ParenExpr *PE);
   void visitBoolOp(BoolOpExpr *B);
@@ -57,7 +57,7 @@ public:
 // Methods of VisitorBase.
 template<typename Derived>
 template<typename RetTy>
-RetTy VisitorBase<Derived>::visitDecl(Decl *D) {
+RetTy VisitorBase<Derived>::visitDecl(DeclAST *D) {
   if (auto x = subclass_cast<ConstDecl>(D)) {
     return static_cast<Derived *>(this)->visitConstDecl(x);
   }
@@ -70,12 +70,12 @@ RetTy VisitorBase<Derived>::visitDecl(Decl *D) {
   if (auto x = subclass_cast<ArgDecl>(D)) {
     return static_cast<Derived *>(this)->visitArgDecl(x);
   }
-  assert(false && "Unhandled Decl subclasses");
+  assert(false && "Unhandled DeclAST subclasses");
 }
 
 template<typename Derived>
 template<typename RetTy>
-RetTy VisitorBase<Derived>::visitStmt(Stmt *S) {
+RetTy VisitorBase<Derived>::visitStmt(StmtAST *S) {
   if (auto x = subclass_cast<ReadStmt>(S)) {
     return static_cast<Derived *>(this)->visitRead(x);
   }
@@ -100,12 +100,12 @@ RetTy VisitorBase<Derived>::visitStmt(Stmt *S) {
   if (auto x = subclass_cast<ExprStmt>(S)) {
     return static_cast<Derived *>(this)->visitExprStmt(x);
   }
-  assert(false && "Unhandled Stmt subclasses");
+  assert(false && "Unhandled StmtAST subclasses");
 }
 
 template<typename Derived>
 template<typename RetTy>
-RetTy VisitorBase<Derived>::visitExpr(Expr *E) {
+RetTy VisitorBase<Derived>::visitExpr(ExprAST *E) {
   if (auto x = subclass_cast<BinOpExpr>(E)) {
     return static_cast<Derived *>(this)->visitBinOp(x);
   }
@@ -136,7 +136,7 @@ RetTy VisitorBase<Derived>::visitExpr(Expr *E) {
   if (auto x = subclass_cast<NameExpr>(E)) {
     return static_cast<Derived *>(this)->visitName(x);
   }
-  assert(false && "Unhandled Expr subclasses");
+  assert(false && "Unhandled ExprAST subclasses");
 }
 
 template<typename Derived>
@@ -144,11 +144,11 @@ template<typename RetTy>
 RetTy VisitorBase<Derived>::visitAST(AST *A) {
   if (auto x = subclass_cast<Program>(A))
     return static_cast<Derived *>(this)->visitProgram(x);
-  if (auto x = subclass_cast<Decl>(A))
+  if (auto x = subclass_cast<DeclAST>(A))
     return visitDecl<RetTy>(x);
-  if (auto x = subclass_cast<Stmt>(A))
+  if (auto x = subclass_cast<StmtAST>(A))
     return visitStmt<RetTy>(x);
-  if (auto x = subclass_cast<Expr>(A))
+  if (auto x = subclass_cast<ExprAST>(A))
     return visitExpr<RetTy>(x);
   assert(false && "Unhandled AST subclasses");
 }

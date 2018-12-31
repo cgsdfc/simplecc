@@ -14,7 +14,7 @@ llvm::Type *LLVMTypeMap::getType(BasicTypeKind Type) const {
 }
 
 llvm::Type *LLVMTypeMap::getTypeFromVarDecl(VarDecl *VD) const {
-  if (VD->getIsArray())
+  if (VD->isArray())
     return getType(ArrayType(VD));
   return getType(VarType(VD->getType()));
 }

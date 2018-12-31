@@ -10,11 +10,11 @@ class TypeChecker : AnalysisVisitor<TypeChecker> {
   void visitAssign(AssignStmt *A);
 
   // check the operand of BoolOpExpr, restrict to int
-  void CheckBoolOpOperand(Expr *E);
+  void CheckBoolOpOperand(ExprAST *E);
   BasicTypeKind visitBoolOp(BoolOpExpr *B);
 
-  // check the operand of Expr, restrict to NOT void
-  BasicTypeKind CheckExprOperand(Expr *E);
+  // check the operand of ExprAST, restrict to NOT void
+  BasicTypeKind CheckExprOperand(ExprAST *E);
   BasicTypeKind visitBinOp(BinOpExpr *B);
   BasicTypeKind visitUnaryOp(UnaryOpExpr *U);
   BasicTypeKind visitParenExpr(ParenExpr *PE);
@@ -23,7 +23,7 @@ class TypeChecker : AnalysisVisitor<TypeChecker> {
   BasicTypeKind visitName(NameExpr *N);
 
   // Return the type of evaluating the expression.
-  BasicTypeKind visitExpr(Expr *E);
+  BasicTypeKind visitExpr(ExprAST *E);
 
   BasicTypeKind visitNum(NumExpr *) { return BasicTypeKind::Int; }
   BasicTypeKind visitChar(CharExpr *) { return BasicTypeKind::Character; }

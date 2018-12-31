@@ -11,7 +11,7 @@ class ArrayBoundChecker : AnalysisVisitor<ArrayBoundChecker> {
   friend AnalysisVisitor;
   friend ChildrenVisitor;
   friend VisitorBase;
-  std::pair<bool, int> getIndex(Expr *E) const;
+  std::pair<bool, int> getIndex(ExprAST *E) const;
   void visitSubscript(SubscriptExpr *SB);
 public:
   ArrayBoundChecker() = default;

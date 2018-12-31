@@ -9,9 +9,9 @@ static inline int Compute(BinaryFunc Op, int L, int R) {
   return Op(L, R);
 }
 
-Expr *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
-  Expr *L = B->getLeft();
-  Expr *R = B->getRight();
+ExprAST *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
+  ExprAST *L = B->getLeft();
+  ExprAST *R = B->getRight();
 
   // Case-1: both side is non-constant.
   if (!L->isConstant() && !R->isConstant()) {
@@ -41,16 +41,16 @@ Expr *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
   case OperatorKind::Add:
     // 0 + X == X + 0 == X
     if (L->isZeroVal())
-      return static_cast<Expr *>(std::move(*B).getRight().release());
+      return static_cast<ExprAST *>(std::move(*B).getRight().release());
     if (R->isZeroVal())
-      return static_cast<Expr *>(std::move(*B).getLeft().release());
+      return static_cast<ExprAST *>(std::move(*B).getLeft().release());
     return B;
   case OperatorKind::Sub:
     // 0 - X == -X
     if (L->isZeroVal())
       return new UnaryOpExpr(
           UnaryopKind::USub,
-          static_cast<Expr *>(std::move(*B).getRight().release()),
+          static_cast<ExprAST *>(std::move(*B).getRight().release()),
           B->getLocation());
     return B;
   case OperatorKind::Mult:
@@ -59,9 +59,9 @@ Expr *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
       return new NumExpr(0, B->getLocation());
     // 1 * X == X * 1 == X
     if (L->isOneVal())
-      return static_cast<Expr *>(std::move(*B).getRight().release());
+      return static_cast<ExprAST *>(std::move(*B).getRight().release());
     if (R->isOneVal())
-      return static_cast<Expr *>(std::move(*B).getLeft().release());
+      return static_cast<ExprAST *>(std::move(*B).getLeft().release());
     return B;
   case OperatorKind::Div:
     // 0 / X == 0
@@ -69,16 +69,16 @@ Expr *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
       return new NumExpr(0, B->getLocation());
     // X / 1 == X
     if (R->isOneVal())
-      return static_cast<Expr *>(std::move(*B).getLeft().release());
+      return static_cast<ExprAST *>(std::move(*B).getLeft().release());
     return B;
   default:return B;
   }
 }
 
-Expr *TrivialConstantFolder::visitUnaryOp(UnaryOpExpr *U) {
+ExprAST *TrivialConstantFolder::visitUnaryOp(UnaryOpExpr *U) {
   // Case-1: Ignore UAdd, +X => X
   if (U->getOp() == UnaryopKind::UAdd) {
-    return static_cast<Expr *>(std::move(*U).getOperand().release());
+    return static_cast<ExprAST *>(std::move(*U).getOperand().release());
   }
   // Case-2: Compute negate of constant like -1, -2.
   assert(U->getOp() == UnaryopKind::USub);
@@ -91,26 +91,26 @@ Expr *TrivialConstantFolder::visitUnaryOp(UnaryOpExpr *U) {
   if (IsInstance<UnaryOpExpr>(Operand) &&
       static_cast<UnaryOpExpr *>(Operand)->getOp() == UnaryopKind::USub) {
     auto UO = static_cast<UnaryOpExpr *>(Operand);
-    return static_cast<Expr *>(std::move(*UO).getOperand().release());
+    return static_cast<ExprAST *>(std::move(*UO).getOperand().release());
   }
   return U;
 }
 
-Expr *TrivialConstantFolder::visitParenExpr(ParenExpr *P) {
+ExprAST *TrivialConstantFolder::visitParenExpr(ParenExpr *P) {
   // Extract wrapped value, (X) => X
-  return static_cast<Expr *>(std::move(*P).getValue().release());
+  return static_cast<ExprAST *>(std::move(*P).getValue().release());
 }
 
-Expr *TrivialConstantFolder::visitExpr(Expr *E) {
+ExprAST *TrivialConstantFolder::visitExpr(ExprAST *E) {
   switch (E->getKind()) {
-  case Expr::BinOpExprKind:return visitBinOp(static_cast<BinOpExpr *>(E));
-  case Expr::ParenExprKind:return visitParenExpr(static_cast<ParenExpr *>(E));
-  case Expr::UnaryOpExprKind:return visitUnaryOp(static_cast<UnaryOpExpr *>(E));
+  case ExprAST::BinOpExprKind:return visitBinOp(static_cast<BinOpExpr *>(E));
+  case ExprAST::ParenExprKind:return visitParenExpr(static_cast<ParenExpr *>(E));
+  case ExprAST::UnaryOpExprKind:return visitUnaryOp(static_cast<UnaryOpExpr *>(E));
   default:return E;
   }
 }
 
-Expr *TrivialConstantFolder::TransformExpr(Expr *E, AST *Parent) {
+ExprAST *TrivialConstantFolder::TransformExpr(ExprAST *E, AST *Parent) {
   ExpressionTransformer::visitExpr(E);
   return visitExpr(E);
 }

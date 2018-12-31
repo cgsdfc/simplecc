@@ -4,7 +4,7 @@
 
 using namespace simplecc;
 
-void ByteCodeCompiler::visitStmt(Stmt *S) {
+void ByteCodeCompiler::visitStmt(StmtAST *S) {
   Builder.setLocation(S->getLocation());
   ChildrenVisitor::visitStmt(S);
 }
@@ -133,7 +133,7 @@ void ByteCodeCompiler::visitSubscript(SubscriptExpr *SB) {
   // calculate index
   visitExpr(SB->getIndex());
   // do subscript
-  Builder.CreateSubscr(SB->getCtx());
+  Builder.CreateSubscr(SB->getContext());
 }
 
 void ByteCodeCompiler::visitName(NameExpr *N) {
@@ -142,7 +142,7 @@ void ByteCodeCompiler::visitName(NameExpr *N) {
     Builder.CreateLoadConst(Entry.AsConstant().getValue());
     return;
   }
-  N->getCtx() == ExprContextKind::Load
+  N->getContext() == ExprContextKind::Load
       ? Builder.CreateLoad(Entry.getScope(), N->getId())
       : Builder.CreateStore(Entry.getScope(), N->getId());
 }
@@ -164,12 +164,12 @@ void ByteCodeCompiler::visitFuncDef(FuncDef *FD) {
 }
 
 void ByteCodeCompiler::visitProgram(Program *P) {
-  for (Decl *D : P->getDecls()) {
+  for (DeclAST *D : P->getDecls()) {
     switch (D->getKind()) {
-    case Decl::FuncDefKind:
+    case DeclAST::FuncDefKind:
       visitFuncDef(static_cast<FuncDef *>(D));
       break;
-    case Decl::VarDeclKind:
+    case DeclAST::VarDeclKind:
       // Collect global objects.
       TheModule->getGlobalVariables().push_back(
           TheTable->getGlobalEntry(D->getName()));

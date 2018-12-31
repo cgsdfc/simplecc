@@ -2,7 +2,7 @@
 
 using namespace simplecc;
 
-Expr *InlineConstDeclTransformer::TransformExpr(Expr *E, AST *Parent) {
+ExprAST *InlineConstDeclTransformer::TransformExpr(ExprAST *E, AST *Parent) {
   if (!IsInstance<NameExpr>(E)) {
     return ExpressionTransformer::TransformExpr(E, Parent);
   }

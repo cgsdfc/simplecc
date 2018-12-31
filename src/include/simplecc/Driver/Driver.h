@@ -38,6 +38,7 @@ class Driver {
   bool doAnalyses();
   bool doCodeGen();
   bool doAssemble();
+  bool doTransform();
 
 public:
   Driver() = default;

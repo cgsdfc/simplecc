@@ -39,14 +39,14 @@ SymbolEntry SymbolTable::getGlobalEntry(const std::string &Name) const {
   return GlobalTable.find(Name)->second;
 }
 
-// Return the BasicTypeKind for an Expr.
+// Return the BasicTypeKind for an ExprAST.
 // Assert on failure.
-BasicTypeKind SymbolTable::getExprType(Expr *E) const {
+BasicTypeKind SymbolTable::getExprType(ExprAST *E) const {
   assert(ExprTypes.count(E));
   return ExprTypes.find(E)->second;
 }
 
-void SymbolTable::setExprType(Expr *E, BasicTypeKind Ty) {
+void SymbolTable::setExprType(ExprAST *E, BasicTypeKind Ty) {
   ExprTypes.emplace(E, Ty);
 }
 

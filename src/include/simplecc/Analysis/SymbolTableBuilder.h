@@ -16,9 +16,9 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
   /// to automatically recurse into children while we only implement
   /// visitors of interest.
 
-  void DefineLocalDecl(Decl *D);
-  void DefineGlobalDecl(Decl *D);
-  void visitDecl(Decl *D);
+  void DefineLocalDecl(DeclAST *D);
+  void DefineGlobalDecl(DeclAST *D);
+  void visitDecl(DeclAST *D);
 
   /// Overloads to visit AstNodes that have names.
   void visitName(NameExpr *N) { ResolveName(N->getId(), N->getLocation()); }

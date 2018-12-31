@@ -7,12 +7,12 @@ namespace simplecc {
 /// This class performs trivial constant folding on Expr nodes.
 class TrivialConstantFolder : ExpressionTransformer<TrivialConstantFolder> {
   friend ExpressionTransformer;
-  Expr *visitBinOp(BinOpExpr *B);
-  Expr *visitUnaryOp(UnaryOpExpr *U);
-  Expr *visitParenExpr(ParenExpr *P);
-  Expr *visitExpr(Expr *E);
+  ExprAST *visitBinOp(BinOpExpr *B);
+  ExprAST *visitUnaryOp(UnaryOpExpr *U);
+  ExprAST *visitParenExpr(ParenExpr *P);
+  ExprAST *visitExpr(ExprAST *E);
 
-  Expr *TransformExpr(Expr *E, AST *Parent);
+  ExprAST *TransformExpr(ExprAST *E, AST *Parent);
 public:
   TrivialConstantFolder() = default;
   using ExpressionTransformer::Transform;

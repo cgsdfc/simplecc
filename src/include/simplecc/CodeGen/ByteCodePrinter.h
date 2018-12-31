@@ -10,7 +10,7 @@ namespace simplecc {
 /// This class handles the formatting of the result of an expression
 /// It is a discriminated union of a factor Expr and a temporary.
 class ExprValue {
-  Expr *Factor;
+  ExprAST *Factor;
   int Temporary;
   bool Check() const;
 
@@ -22,7 +22,7 @@ public:
   ExprValue &operator=(const ExprValue &) = default;
 
   explicit ExprValue(int Temp);
-  explicit ExprValue(Expr *Factor);
+  explicit ExprValue(ExprAST *Factor);
 
   void Format(std::ostream &O) const;
 };
@@ -80,7 +80,7 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   ExprValue visitUnaryOp(UnaryOpExpr *U);
   ExprValue visitSubscript(SubscriptExpr *SB);
 
-  ExprValue visitExpr(Expr *E) {
+  ExprValue visitExpr(ExprAST *E) {
     return ChildrenVisitor::visitExpr<ExprValue>(E);
   }
   ExprValue visitParenExpr(ParenExpr *PE) { return visitExpr(PE->getValue()); }

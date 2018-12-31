@@ -38,7 +38,7 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
 
   void visitFuncDef(FuncDef *FD);
 
-  Expr *TransformExpr(Expr *E);
+  ExprAST *TransformExpr(ExprAST *E);
 
   /// Setters.
   void setLocalTable(LocalSymbolTable L) { TheLocalTable = L; }

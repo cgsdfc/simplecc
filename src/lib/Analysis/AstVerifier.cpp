@@ -36,7 +36,7 @@ void AstVerifier::visitBoolOp(simplecc::BoolOpExpr *B) {
 }
 
 void AstVerifier::visitRead(ReadStmt *RD) {
-  for (Expr *E : RD->getNames()) {
+  for (ExprAST *E : RD->getNames()) {
     AssertThat(IsInstance<NameExpr>(E), "Names in ReadStmt must be NameExpr");
   }
 }
@@ -59,20 +59,20 @@ void AstVerifier::visitFor(ForStmt *F) {
 }
 
 void AstVerifier::visitFuncDef(FuncDef *FD) {
-  for (Decl *D : FD->getArgs()) {
+  for (DeclAST *D : FD->getArgs()) {
     AssertThat(IsInstance<ArgDecl>(D), "Args of FuncDef must be ArgDecl's");
   }
-  for (Decl *D : FD->getDecls()) {
+  for (DeclAST *D : FD->getDecls()) {
     AssertThat(IsInstance<ConstDecl>(D) || IsInstance<VarDecl>(D),
                "Decls of FuncDef must be ConstDecl or VarDecl");
   }
-  for (Stmt *S : FD->getStmts()) {
+  for (StmtAST *S : FD->getStmts()) {
     visitStmt(S);
   }
 }
 
 void AstVerifier::visitProgram(simplecc::Program *P) {
-  for (Decl *D : P->getDecls()) {
+  for (DeclAST *D : P->getDecls()) {
     AssertThat(!IsInstance<ArgDecl>(D),
                "ArgDecl cannot appear in Decls of Program");
     visitDecl(D);

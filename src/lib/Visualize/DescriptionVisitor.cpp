@@ -14,12 +14,12 @@ std::string DescriptionVisitor::makeDescription(const ASTNode &AR) {
 std::string DescriptionVisitor::visitConstDecl(ConstDecl *CD) {
   std::ostringstream O;
   /// lambda to extract the numeric value of a Num or Char.
-  auto MakeCV = [](Expr *E) {
+  auto MakeCV = [](ExprAST *E) {
     if (auto x = subclass_cast<CharExpr>(E))
       return x->getC();
     if (auto x = subclass_cast<NumExpr>(E))
       return x->getN();
-    assert(false && "Unknown Expr class");
+    assert(false && "Unknown ExprAST class");
   };
 
   O << "const " << CStringFromBasicTypeKind(CD->getType()) << " "
@@ -30,7 +30,7 @@ std::string DescriptionVisitor::visitConstDecl(ConstDecl *CD) {
 std::string DescriptionVisitor::visitVarDecl(VarDecl *VD) {
   std::ostringstream O;
   O << CStringFromBasicTypeKind(VD->getType()) << " " << VD->getName();
-  if (VD->getIsArray()) {
+  if (VD->isArray()) {
     O << "[" << VD->getSize() << "]";
   }
   return O.str();

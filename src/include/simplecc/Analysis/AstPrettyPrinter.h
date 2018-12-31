@@ -36,15 +36,15 @@ class AstPrettyPrinter : VisitorBase<AstPrettyPrinter> {
   void decreaseIndentLevel() { --IndentLevel; }
   unsigned getIndentLevel() const { return IndentLevel; }
   void printIndent();
-  void printStmtList(const std::vector<Stmt *> &StmtList);
-  void printArgs(const std::vector<Decl *> &Args);
+  void printStmtList(const std::vector<StmtAST *> &StmtList);
+  void printArgs(const std::vector<DeclAST *> &Args);
 
-  bool isAtomicExpr(Expr *E) const {
+  bool isAtomicExpr(ExprAST *E) const {
     switch (E->getKind()) {
-    case Expr::NameExprKind:
-    case Expr::StrExprKind:
-    case Expr::NumExprKind:
-    case Expr::CharExprKind:return true;
+    case ExprAST::NameExprKind:
+    case ExprAST::StrExprKind:
+    case ExprAST::NumExprKind:
+    case ExprAST::CharExprKind:return true;
     default:return false;
     }
   }

@@ -10,7 +10,7 @@ void ByteCodePrinter::visitConstDecl(ConstDecl *CD) {
 
 void ByteCodePrinter::visitVarDecl(VarDecl *VD) {
   auto T = CStringFromBasicTypeKind(VD->getType());
-  if (!VD->getIsArray()) {
+  if (!VD->isArray()) {
     w.WriteLine("var", T, VD->getName());
     return;
   }
@@ -102,7 +102,7 @@ void ByteCodePrinter::visitFor(ForStmt *F) {
   LineLabel End = CompileBoolOp(static_cast<BoolOpExpr *>(F->getCondition()));
   w.WriteLine(Start.Inline(false));
 
-  for (Stmt *S : F->getBody()) {
+  for (StmtAST *S : F->getBody()) {
     visitStmt(S);
   }
 
@@ -163,7 +163,7 @@ ExprValue ByteCodePrinter::visitUnaryOp(UnaryOpExpr *U) {
 }
 
 ExprValue ByteCodePrinter::visitSubscript(SubscriptExpr *SB) {
-  assert(SB->getCtx() == ExprContextKind::Load &&
+  assert(SB->getContext() == ExprContextKind::Load &&
          "Store must be handle by visitAssign()");
   ExprValue Idx = visitExpr(SB->getIndex());
   ExprValue Result = MakeTemporary();
@@ -187,20 +187,20 @@ void ExprValue::Format(std::ostream &O) const {
     return;
   }
   switch (Factor->getKind()) {
-  case Expr::CharExprKind:
+  case ExprAST::CharExprKind:
     O << "'" << char(static_cast<CharExpr *>(Factor)->getC()) << "'";
     break;
-  case Expr::NumExprKind:
+  case ExprAST::NumExprKind:
     O << static_cast<NumExpr *>(Factor)->getN();
     break;
-  case Expr::NameExprKind:
+  case ExprAST::NameExprKind:
     O << static_cast<NameExpr *>(Factor)->getId();
     break;
-  case Expr::StrExprKind:
+  case ExprAST::StrExprKind:
     O << static_cast<StrExpr *>(Factor)->getS();
     break;
   default:
-    assert(false && "Unhandled Factor Expr");
+    assert(false && "Unhandled Factor ExprAST");
   }
 }
 
@@ -208,7 +208,7 @@ ExprValue::ExprValue(int Temp) : Factor(nullptr), Temporary(Temp) {
   assert(Check());
 }
 
-ExprValue::ExprValue(Expr *Factor) : Factor(Factor), Temporary(-1) {
+ExprValue::ExprValue(ExprAST *Factor) : Factor(Factor), Temporary(-1) {
   assert(Check());
 }
 

@@ -15,9 +15,9 @@ class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
   }
 
   /// For ChildrenVisitor to hook in
-  void visitExpr(Expr *E) { AddChild(E); }
-  void visitDecl(Decl *D) { AddChild(D); }
-  void visitStmt(Stmt *S) { AddChild(S); }
+  void visitExpr(ExprAST *E) { AddChild(E); }
+  void visitDecl(DeclAST *D) { AddChild(D); }
+  void visitStmt(StmtAST *S) { AddChild(S); }
 
 public:
   ChildrenCollector(std::vector<ASTNode *> &Vec, AstGraph *G)

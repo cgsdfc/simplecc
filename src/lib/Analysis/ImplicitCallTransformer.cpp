@@ -67,7 +67,7 @@ void ImplicitCallTransformer::visitFuncDef(FuncDef *FD) {
 /// need transformation. But ChildrenVisitor will still call it and visit all
 /// its children with visitExpr() so it is important that visitExpr() don't
 /// perform any transformation.
-Expr *ImplicitCallTransformer::TransformExpr(Expr *E) {
+ExprAST *ImplicitCallTransformer::TransformExpr(ExprAST *E) {
   if (!E)
     return E;
   if (!IsInstance<NameExpr>(E)) {

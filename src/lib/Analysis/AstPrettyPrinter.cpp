@@ -18,7 +18,7 @@ void AstPrettyPrinter::visitProgram(Program *P) {
   OS << P->getClassName() << "(";
   OS << "Filename='" << P->getFilename() << "', [\n";
   increaseIndentLevel();
-  for (Decl *D : P->getDecls()) {
+  for (DeclAST *D : P->getDecls()) {
     printIndent();
     visitDecl(D);
     OS << ",\n";
@@ -39,13 +39,13 @@ void AstPrettyPrinter::visitConstDecl(ConstDecl *CD) {
 void AstPrettyPrinter::visitVarDecl(VarDecl *VD) {
   OS << VD->getClassName() << "(" << VD->getType() << ", " <<
      VD->getName() << ", " <<
-     std::boolalpha << bool(VD->getIsArray()) << ", " <<
+     std::boolalpha << bool(VD->isArray()) << ", " <<
      VD->getSize() << ")";
 }
 
 /// NameExpr(Name, Load)
 void AstPrettyPrinter::visitName(NameExpr *N) {
-  OS << N->getClassName() << "(" << N->getId() << ", " << N->getCtx() << ")";
+  OS << N->getClassName() << "(" << N->getId() << ", " << N->getContext() << ")";
 }
 
 /// StrExpr("string")
@@ -179,7 +179,7 @@ void AstPrettyPrinter::visitCall(CallExpr *C) {
     OS << "[])";
     return;
   }
-  // Case-2: only one atomic Expr.
+  // Case-2: only one atomic ExprAST.
   if (C->getArgs().size() == 1 && isAtomicExpr(C->getArgs().front())) {
     OS << "[";
     visitExpr(C->getArgs().front());
@@ -188,7 +188,7 @@ void AstPrettyPrinter::visitCall(CallExpr *C) {
   }
   OS << "[\n";
   increaseIndentLevel();
-  for (Expr *E : C->getArgs()) {
+  for (ExprAST *E : C->getArgs()) {
     printIndent();
     visitExpr(E);
     OS << ",\n";
@@ -261,14 +261,14 @@ void AstPrettyPrinter::visitIf(IfStmt *I) {
 ///   WriteStmt(),
 ///   ReadStmt(),
 /// ]
-void AstPrettyPrinter::printStmtList(const std::vector<Stmt *> &StmtList) {
+void AstPrettyPrinter::printStmtList(const std::vector<StmtAST *> &StmtList) {
   if (StmtList.empty()) {
     OS << "[]";
     return;
   }
   OS << "[\n";
   increaseIndentLevel();
-  for (Stmt *S : StmtList) {
+  for (StmtAST *S : StmtList) {
     printIndent();
     visitStmt(S);
     OS << ",\n";
@@ -292,7 +292,7 @@ void AstPrettyPrinter::visitRead(ReadStmt *RD) {
   }
   OS << "\n";
   increaseIndentLevel();
-  for (Expr *E : RD->getNames()) {
+  for (ExprAST *E : RD->getNames()) {
     printIndent();
     visitExpr(E);
     OS << ",\n";
@@ -317,7 +317,7 @@ void AstPrettyPrinter::visitWrite(WriteStmt *WR) {
     return;
   }
   if (!WR->getStr() && isAtomicExpr(WR->getValue())) {
-    // Only atomic Expr.
+    // Only atomic ExprAST.
     visitExpr(WR->getValue());
     OS << ")";
     return;
@@ -490,12 +490,12 @@ void AstPrettyPrinter::visitFuncDef(FuncDef *FD) {
   }
   OS << "\n";
   increaseIndentLevel();
-  for (Decl *D : FD->getDecls()) {
+  for (DeclAST *D : FD->getDecls()) {
     printIndent();
     visitDecl(D);
     OS << ",\n";
   }
-  for (Stmt *S : FD->getStmts()) {
+  for (StmtAST *S : FD->getStmts()) {
     printIndent();
     visitStmt(S);
     OS << ",\n";
@@ -511,7 +511,7 @@ void AstPrettyPrinter::visitArgDecl(ArgDecl *AD) {
 
 /// Args()
 /// Args(Int A)
-void AstPrettyPrinter::printArgs(const std::vector<Decl *> &Args) {
+void AstPrettyPrinter::printArgs(const std::vector<DeclAST *> &Args) {
   OS << "Args";
   if (Args.empty()) {
     OS << "()";

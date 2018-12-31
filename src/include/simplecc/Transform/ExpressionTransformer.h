@@ -18,7 +18,7 @@ public:
   using BaseT::visitExpr;
 
   /// Default implementation.
-  Expr *TransformExpr(Expr *E, AST *Parent) {
+  ExprAST *TransformExpr(ExprAST *E, AST *Parent) {
     visitExpr(E);
     return E;
   }
@@ -39,7 +39,7 @@ public:
 public:
   ExpressionTransformer() = default;
   void Transform(Program *P, SymbolTable &S) {
-    ContextualVisitor<Derived>::visitProgram(P, S);
+    BaseT::visitProgram(P, S);
   }
 };
 
@@ -48,7 +48,7 @@ void ExpressionTransformer<Derived>::visitWhile(WhileStmt *W) {
   W->setCondition(
       static_cast<Derived *>(this)->TransformExpr(W->getCondition(), W)
   );
-  for (Stmt *S : W->getBody())
+  for (StmtAST *S : W->getBody())
     visitStmt(S);
 }
 
@@ -73,7 +73,7 @@ void ExpressionTransformer<Derived>::visitFor(ForStmt *F) {
       static_cast<Derived *>(this)->TransformExpr(F->getCondition(), F)
   );
   visitStmt(F->getStep());
-  for (Stmt *S : F->getBody())
+  for (StmtAST *S : F->getBody())
     visitStmt(S);
 }
 
