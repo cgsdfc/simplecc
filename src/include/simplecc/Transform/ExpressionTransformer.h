@@ -57,6 +57,8 @@ void ExpressionTransformer<Derived>::visitWhile(WhileStmt *W) {
 
 template<typename Derived>
 void ExpressionTransformer<Derived>::visitWrite(WriteStmt *W) {
+  if (!W->getValue())
+    return;
   W->setValue(
       static_cast<Derived *>(this)->TransformExpr(W->getValue(), W)
   );
@@ -85,6 +87,8 @@ void ExpressionTransformer<Derived>::visitFor(ForStmt *F) {
 
 template<typename Derived>
 void ExpressionTransformer<Derived>::visitReturn(ReturnStmt *R) {
+  if (!R->getValue())
+    return;
   R->setValue(
       static_cast<Derived *>(this)->TransformExpr(R->getValue(), R)
   );
