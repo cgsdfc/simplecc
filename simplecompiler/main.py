@@ -21,6 +21,7 @@ generators = {
     },
 }
 
+
 def do_generate(args):
     mod_name = generators[args.artifact][args.language]
     module = import_module('simplecompiler.generate.{}.{}'.format(args.artifact, mod_name))
@@ -41,29 +42,29 @@ def main():
     generate = commands.add_parser('generate', help='generate compiler a component')
 
     generate.add_argument('-l', '--lang',
-        dest='language',
-        choices=('py', 'cpp'),
-        help='language of the generated artifact',
-        required=True
-    )
+                          dest='language',
+                          choices=('py', 'cpp'),
+                          help='language of the generated artifact',
+                          required=True
+                          )
 
     generate.add_argument('-o', '--output',
-        dest='output',
-        help='output directory. write to stdout if omitted',
-    )
+                          dest='output',
+                          help='output directory. write to stdout if omitted',
+                          )
 
     generate.add_argument('-d', '--dump',
-        dest='dump',
-        action='store_true',
-        help='dump internal data structures without generating any files',
-    )
+                          dest='dump',
+                          action='store_true',
+                          help='dump internal data structures without generating any files',
+                          )
 
     generate.add_argument('-a', '--artifact',
-        dest='artifact',
-        choices=('grammar', 'ast',),
-        required=True,
-        help='artifact to generate',
-    )
+                          dest='artifact',
+                          choices=('grammar', 'ast',),
+                          required=True,
+                          help='artifact to generate',
+                          )
 
     generate.add_argument('input', help='input file to the generator')
     generate.set_defaults(func=do_generate)
@@ -74,37 +75,37 @@ def main():
     compile.add_argument('input', help='input file to the compiler')
 
     compile.add_argument('-o', '--output',
-        dest='output',
-        type=argparse.FileType('w'),
-        default=sys.stdout,
-        help='output file (default to stdout)',
-    )
+                         dest='output',
+                         type=argparse.FileType('w'),
+                         default=sys.stdout,
+                         help='output file (default to stdout)',
+                         )
 
     compile.add_argument('--pretty',
-        dest='pretty',
-        action='store_true',
-        help='prettify output if true',
-    )
+                         dest='pretty',
+                         action='store_true',
+                         help='prettify output if true',
+                         )
 
     compile.add_argument('-p', '--phrase',
-        dest='phrase',
-        required=True,
-        choices=(
-            "tokenize",
-            "parse",
-            "validate",
-            "build-ast",
-            "build-symtable",
-            "typecheck",
-        ),
-        help="compilation phrase to run",
-    )
+                         dest='phrase',
+                         required=True,
+                         choices=(
+                             "tokenize",
+                             "parse",
+                             "validate",
+                             "build-ast",
+                             "build-symtable",
+                             "typecheck",
+                         ),
+                         help="compilation phrase to run",
+                         )
 
     compile.add_argument('--cpp-test',
-        dest='cpp_test',
-        action='store_true',
-        help='produce cpp test based on internal data structures (symtable only)',
-    )
+                         dest='cpp_test',
+                         action='store_true',
+                         help='produce cpp test based on internal data structures (symtable only)',
+                         )
 
     compile.set_defaults(func=do_compile)
 

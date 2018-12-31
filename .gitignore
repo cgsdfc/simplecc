@@ -53,3 +53,6 @@ cmake-build-*
 
 # Temp folder
 t/
+
+# Python virtual environment
+venv/
