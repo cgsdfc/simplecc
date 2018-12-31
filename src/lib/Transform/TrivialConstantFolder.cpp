@@ -9,7 +9,7 @@ static inline int Compute(BinaryFunc Op, int L, int R) {
   return Op(L, R);
 }
 
-ExprAST *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
+ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
   ExprAST *L = B->getLeft();
   ExprAST *R = B->getRight();
 
@@ -18,13 +18,15 @@ ExprAST *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
     // No opportunity.
     return B;
   }
+
+  // Case-2: Zero divisor, no opportunity.
+  if (B->getOp() == OperatorKind::Div && R->isZeroVal()) {
+    // ZeroDivisorError.
+    return B;
+  }
+
   // Case-2: both side is constant, evaluate it directly.
   if (L->isConstant() && R->isConstant()) {
-    // If we see a zero divisor, left it to runtime.
-    if (B->getOp() == OperatorKind::Div && R->isZeroVal()) {
-      // ZeroDivisorError.
-      return B;
-    }
     switch (B->getOp()) {
     default:assert(false && "Unhandled Enum Value");
 #define HANDLE_OPERATOR(VAL, OP, FUNC)                                         \
@@ -52,6 +54,7 @@ ExprAST *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
           UnaryopKind::USub,
           static_cast<ExprAST *>(std::move(*B).getRight().release()),
           B->getLocation());
+    // TODO: X - X == 0
     return B;
   case OperatorKind::Mult:
     // 0 * X == X * 0 == 0
@@ -75,7 +78,7 @@ ExprAST *TrivialConstantFolder::visitBinOp(BinOpExpr *B) {
   }
 }
 
-ExprAST *TrivialConstantFolder::visitUnaryOp(UnaryOpExpr *U) {
+ExprAST *TrivialConstantFolder::FoldUnaryOpExpr(UnaryOpExpr *U) {
   // Case-1: Ignore UAdd, +X => X
   if (U->getOp() == UnaryopKind::UAdd) {
     return static_cast<ExprAST *>(std::move(*U).getOperand().release());
@@ -96,21 +99,23 @@ ExprAST *TrivialConstantFolder::visitUnaryOp(UnaryOpExpr *U) {
   return U;
 }
 
-ExprAST *TrivialConstantFolder::visitParenExpr(ParenExpr *P) {
+ExprAST *TrivialConstantFolder::FoldParenExpr(ParenExpr *P) {
   // Extract wrapped value, (X) => X
   return static_cast<ExprAST *>(std::move(*P).getValue().release());
 }
 
-ExprAST *TrivialConstantFolder::visitExpr(ExprAST *E) {
+ExprAST *TrivialConstantFolder::FoldExprAST(ExprAST *E) {
   switch (E->getKind()) {
-  case ExprAST::BinOpExprKind:return visitBinOp(static_cast<BinOpExpr *>(E));
-  case ExprAST::ParenExprKind:return visitParenExpr(static_cast<ParenExpr *>(E));
-  case ExprAST::UnaryOpExprKind:return visitUnaryOp(static_cast<UnaryOpExpr *>(E));
+  case ExprAST::BinOpExprKind:return FoldBinOpExpr(static_cast<BinOpExpr *>(E));
+  case ExprAST::ParenExprKind:return FoldParenExpr(static_cast<ParenExpr *>(E));
+  case ExprAST::UnaryOpExprKind:return FoldUnaryOpExpr(static_cast<UnaryOpExpr *>(E));
   default:return E;
   }
 }
 
 ExprAST *TrivialConstantFolder::TransformExpr(ExprAST *E, AST *Parent) {
+  // First use base class method to transform children of E.
   ExpressionTransformer::visitExpr(E);
-  return visitExpr(E);
+  // Then fold E.
+  return FoldExprAST(E);
 }

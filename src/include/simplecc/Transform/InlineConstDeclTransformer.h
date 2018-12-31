@@ -14,6 +14,8 @@ namespace simplecc {
 /// corresponding SymbolEntry in the SymbolTable, which does not give any benefit.
 class InlineConstDeclTransformer : ExpressionTransformer<InlineConstDeclTransformer> {
   friend ExpressionTransformer;
+  friend VisitorBase;
+  friend ChildrenVisitor;
   /// If E is a NameExpr and corresponds to a ConstType, create a corresponding literal
   /// node (CharExpr or NumExpr).
   ExprAST *TransformExpr(ExprAST *E, AST *Parent);

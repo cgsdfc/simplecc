@@ -23,6 +23,9 @@ public:
     return E;
   }
 
+  /// Currently ReadStmt don't need any transformation, but
+  /// for future expansion we add it here.
+  void visitRead(ReadStmt *R) {}
   void visitWrite(WriteStmt *W);
   void visitAssign(AssignStmt *A);
   void visitFor(ForStmt *F);
