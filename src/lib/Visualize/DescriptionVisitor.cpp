@@ -1,13 +1,13 @@
 #include "simplecc/Visualize/DescriptionVisitor.h"
 #include "simplecc/Support/Print.h"
-#include "simplecc/Visualize/AstRef.h"
+#include "simplecc/Visualize/ASTNode.h"
 
 #include <sstream>
 
 using namespace simplecc;
 
 /// Return a descriptive string for AR.
-std::string DescriptionVisitor::makeDescription(const AstRef &AR) {
+std::string DescriptionVisitor::makeDescription(const ASTNode &AR) {
   return VisitorBase::visitAST<std::string>(AR.get());
 }
 

@@ -6,13 +6,13 @@ class AstGraph;
 class AST;
 
 /// A wrapper class that binds an AstGraph to an AST ptr.
-class AstRef {
+class ASTNode {
   AST *Ref;
   /// Pointer to enclosing AstGraph. This is required since
   /// GraphTraits::child_XXX() takes **only** a NodeRef.
   AstGraph *Parent;
 public:
-  AstRef(AST *Ptr, AstGraph *P) : Ref(Ptr), Parent(P) {}
+  ASTNode(AST *Ptr, AstGraph *P) : Ref(Ptr), Parent(P) {}
 
   AST *get() const { return Ref; }
   AstGraph *getParent() const { return Parent; }

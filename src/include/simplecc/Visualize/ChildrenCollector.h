@@ -4,13 +4,13 @@
 #include "simplecc/Visualize/ASTGraph.h"
 
 namespace simplecc {
-class AstRef;
+class ASTNode;
 
 /// Collect children of an AstRef into a vector for later use.
 class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
   /// Add a child.
   void AddChild(AST *Ptr) {
-    AstRef *AR = Parent->getNodeOrCreate(Ptr);
+    ASTNode *AR = Parent->getNodeOrCreate(Ptr);
     Children.push_back(AR);
   }
 
@@ -20,11 +20,11 @@ class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
   void visitStmt(Stmt *S) { AddChild(S); }
 
 public:
-  ChildrenCollector(std::vector<AstRef *> &Vec, AstGraph *G)
+  ChildrenCollector(std::vector<ASTNode *> &Vec, AstGraph *G)
       : Children(Vec), Parent(G) {}
 
   /// Call this to do the collecting. Otherwise, nothing will happen.
-  void Collect(const AstRef &R) {
+  void Collect(const ASTNode &R) {
     Children.clear();
     visitAST(R.get());
   }
@@ -34,7 +34,7 @@ private:
   friend class VisitorBase<ChildrenCollector>;
 
   /// Keep a reference to the output vector.
-  std::vector<AstRef *> &Children;
+  std::vector<ASTNode *> &Children;
   /// Used to construct an AstRef.
   AstGraph *Parent;
 };

@@ -9,21 +9,21 @@
 
 using namespace simplecc;
 
-AstRef *AstGraph::getNodeOrCreate(AST *Ptr) {
+ASTNode *AstGraph::getNodeOrCreate(AST *Ptr) {
   auto iter = Nodes.find(Ptr);
   if (iter != Nodes.end())
     return iter->second.get();
-  auto Result = Nodes.emplace(Ptr, llvm::make_unique<AstRef>(Ptr, this));
+  auto Result = Nodes.emplace(Ptr, llvm::make_unique<ASTNode>(Ptr, this));
   assert(Result.second && "Emplace must succeed");
   return Result.first->second.get();
 }
 
-const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
+const std::vector<ASTNode *> &AstGraph::getEdgeOrCreate(const ASTNode &R) {
   auto iter = Edges.find(R.get());
   if (iter != Edges.end())
     return iter->second;
 
-  std::vector<AstRef *> E;
+  std::vector<ASTNode *> E;
   ChildrenCollector C(E, this);
   C.Collect(R);
 
@@ -34,11 +34,11 @@ const std::vector<AstRef *> &AstGraph::getEdgeOrCreate(const AstRef &R) {
 
 namespace llvm {
 using simplecc::AstGraph;
-using simplecc::AstRef;
+using simplecc::ASTNode;
 
 /// Specialized GraphTraits for AstGraph
 template<> struct GraphTraits<AstGraph> {
-  using NodeRef = AstRef *;
+  using NodeRef = ASTNode *;
   using nodes_iterator = AstGraph::NodeIterator;
   using ChildIteratorType = AstGraph::ChildIteratorType;
 
@@ -67,12 +67,12 @@ template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
   }
 
   std::string getNodeLabel(const void *NodeRef, const AstGraph &) {
-    auto N = static_cast<AstRef *>(const_cast<void *>(NodeRef));
+    auto N = static_cast<ASTNode *>(const_cast<void *>(NodeRef));
     return N->getClassName();
   }
 
   static std::string getNodeDescription(const void *NodeRef, const AstGraph &) {
-    auto N = static_cast<AstRef *>(const_cast<void *>(NodeRef));
+    auto N = static_cast<ASTNode *>(const_cast<void *>(NodeRef));
     simplecc::DescriptionVisitor DV;
     return DV.makeDescription(*N);
   }

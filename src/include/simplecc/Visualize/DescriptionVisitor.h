@@ -3,7 +3,7 @@
 #include "simplecc/Analysis/Visitor.h"
 
 namespace simplecc {
-class AstRef;
+class ASTNode;
 
 /// This class generates a description for each AST node.
 class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
@@ -49,7 +49,7 @@ public:
   DescriptionVisitor() = default;
 
   /// Return a descriptive string for AR.
-  std::string makeDescription(const AstRef &AR);
+  std::string makeDescription(const ASTNode &AR);
 };
 
 } // namespace simplecc
