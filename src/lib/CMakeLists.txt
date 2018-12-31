@@ -48,6 +48,7 @@ set(SOURCE_FILES
         IR/Module.cpp
         IR/Function.cpp
         IR/Instruction.cpp
+        IR/Instructions.cpp
         IR/BasicBlock.cpp
         IR/Use.cpp
         IR/IRBuilder.cpp
@@ -60,7 +61,11 @@ set(SOURCE_FILES
         IR/IRContext.cpp
 
         Transform/InlineConstDeclTransformer.cpp
-        Driver/Driver.cpp IR/Instructions.cpp Transform/TrivialConstantFolder.cpp ../include/simplecc/Transform/TrivialConstantFolder.h)
+        Transform/TrivialConstantFolder.cpp
+        Transform/DeadCodeEliminator.cpp
+        Transform/Transform.cpp
+
+        Driver/Driver.cpp)
 
 set(EXTRA_LIBRARIES "")
 

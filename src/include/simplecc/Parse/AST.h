@@ -40,12 +40,12 @@ inline std::ostream &operator<<(std::ostream &O, const AST &A) {
 /// This struct knows how to delete an AST or a list of AST.
 struct DeleteAST {
   /// Delete a range of AST.
-  template <typename Iterator>
+  template<typename Iterator>
   static void apply(Iterator first, Iterator last) {
     std::for_each(first, last, DeleteAST());
   }
   /// Delete a vector of AST, assuming the vector own them.
-  template <typename AstT> static void apply(const std::vector<AstT *> &List) {
+  template<typename AstT> static void apply(const std::vector<AstT *> &List) {
     apply(List.begin(), List.end());
   }
   /// Delete a single AST.
@@ -68,7 +68,7 @@ protected:
       : AST(Kind, loc), name(std::move(name)) {}
 
 public:
-  const std::string &getName() const & { return name; }
+  const std::string &getName() const &{ return name; }
   static bool InstanceCheck(const AST *A);
 };
 
@@ -303,12 +303,19 @@ public:
   ForStmt &operator=(const ForStmt &) = delete;
   ForStmt &operator=(ForStmt &&) = delete;
 
-  StmtAST *getInitial() const { return initial; }
-  ExprAST *getCondition() const { return condition; }
+  StmtAST *getInitial() const &{ return initial; }
+  UniquePtrToAST getInitial() &&;
+
+  ExprAST *getCondition() const &{ return condition; }
   void setCondition(ExprAST *E);
-  StmtAST *getStep() const { return step; }
-  const std::vector<StmtAST *> &getBody() const { return body; }
-  std::vector<StmtAST *> &getBody() { return body; }
+  UniquePtrToAST getCondition() &&;
+
+  StmtAST *getStep() const &{ return step; }
+  UniquePtrToAST getStep() &&;
+
+  const std::vector<StmtAST *> &getBody() const &{ return body; }
+  std::vector<StmtAST *> &getBody() &{ return body; }
+  std::vector<StmtAST *> getBody() &&{ return std::move(body); }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == StmtAST::ForStmtKind;
@@ -385,10 +392,13 @@ public:
 
   ExprAST *getTest() const { return test; }
   void setTest(ExprAST *E);
-  const std::vector<StmtAST *> &getBody() const { return body; }
-  std::vector<StmtAST *> &getBody() { return body; }
-  const std::vector<StmtAST *> &getOrelse() const { return orelse; }
-  std::vector<StmtAST *> &getOrelse() { return orelse; }
+  const std::vector<StmtAST *> &getBody() const &{ return body; }
+  std::vector<StmtAST *> &getBody() &{ return body; }
+  std::vector<StmtAST *> getBody() &&{ return std::move(body); }
+
+  const std::vector<StmtAST *> &getOrelse() const &{ return orelse; }
+  std::vector<StmtAST *> &getOrelse() &{ return orelse; }
+  std::vector<StmtAST *> getOrelse() &&{ return std::move(orelse); }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == StmtAST::IfStmtKind;
@@ -410,7 +420,7 @@ public:
   ExprStmt &operator=(const ExprStmt &) = delete;
   ExprStmt &operator=(ExprStmt &&) = delete;
 
-  ExprAST *getValue() const & { return value; }
+  ExprAST *getValue() const &{ return value; }
   UniquePtrToAST getValue() &&;
   void setValue(ExprAST *E);
 
@@ -438,11 +448,11 @@ public:
 
   OperatorKind getOp() const { return op; }
 
-  ExprAST *getLeft() const & { return left; }
+  ExprAST *getLeft() const &{ return left; }
   UniquePtrToAST getLeft() &&;
   void setLeft(ExprAST *E);
 
-  ExprAST *getRight() const & { return right; }
+  ExprAST *getRight() const &{ return right; }
   UniquePtrToAST getRight() &&;
   void setRight(ExprAST *E);
 
@@ -466,7 +476,7 @@ public:
   ParenExpr &operator=(const ParenExpr &) = delete;
   ParenExpr &operator=(ParenExpr &&) = delete;
 
-  ExprAST *getValue() const & { return value; }
+  ExprAST *getValue() const &{ return value; }
   UniquePtrToAST getValue() &&;
   void setValue(ExprAST *E);
 
@@ -492,7 +502,7 @@ public:
   BoolOpExpr &operator=(const BoolOpExpr &) = delete;
   BoolOpExpr &operator=(BoolOpExpr &&) = delete;
 
-  ExprAST *getValue() const & { return value; }
+  ExprAST *getValue() const &{ return value; }
   UniquePtrToAST getValue() &&;
   void setValue(ExprAST *E);
   bool hasCompareOp() const { return has_cmpop; }
@@ -521,7 +531,7 @@ public:
 
   UnaryopKind getOp() const { return op; }
   UniquePtrToAST getOperand() &&;
-  ExprAST *getOperand() const & { return operand; }
+  ExprAST *getOperand() const &{ return operand; }
   void setOperand(ExprAST *E);
 
   static bool InstanceCheck(const ExprAST *x) {
@@ -643,7 +653,7 @@ public:
 
   const std::string &getName() const { return name; }
   ExprContextKind getContext() const { return context; }
-  ExprAST *getIndex() const & { return index; }
+  ExprAST *getIndex() const &{ return index; }
   UniquePtrToAST getIndex() &&;
   void setIndex(ExprAST *E);
 

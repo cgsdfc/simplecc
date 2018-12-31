@@ -59,6 +59,15 @@ ForStmt::~ForStmt() {
 }
 
 void ForStmt::setCondition(ExprAST *E) { SetterImpl(condition, E); }
+UniquePtrToAST ForStmt::getInitial() &&{
+  return RvalueGetterImpl(initial);
+}
+UniquePtrToAST ForStmt::getCondition() &&{
+  return RvalueGetterImpl(condition);
+}
+UniquePtrToAST ForStmt::getStep() &&{
+  return RvalueGetterImpl(step);
+}
 
 WhileStmt::~WhileStmt() {
   DeleteAST::apply(condition);
