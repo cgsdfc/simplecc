@@ -111,7 +111,7 @@ public:
     return new AllocaInst(NumAlloc, IAE);
   }
 
-  /// Return the numebr of int allocated.
+  /// Return the numeber of int allocated.
   unsigned int getNumAlloc() const {
     return NumAlloc;
   }
@@ -125,11 +125,17 @@ private:
 /// GetElementPtrInst accepts a base ptr and an offset and returns a ptr to the element at the
 /// specific offset of the base ptr. The type of it is PointerTy.
 class GetElementPtrInst : public Instruction {
-  GetElementPtrInst(Value *BasePtr, Value *Offset);
+  GetElementPtrInst(Value *BasePtr, Value *Offset, BasicBlock *IAE);
 public:
-  static GetElementPtrInst *Create(Value *BasePtr, Value *Offset);
-  Value *getBasePtr() const;
-  Value *getOffset() const;
+  static GetElementPtrInst *Create(Value *BasePtr, Value *Offset, BasicBlock *IAE) {
+    new GetElementPtrInst(BasePtr, Offset, IAE);
+  }
+  Value *getBasePtr() const {
+    return getOperand(0);
+  }
+  Value *getOffset() const {
+    return getOperand(1);
+  }
   static bool InstanceCheck(const Instruction *I) {
     return I->getOpcode() == GEP;
   }
@@ -138,12 +144,17 @@ public:
 /// StoreInst accepts a ptr and an int and store that int into the address. It does not return a Value
 /// so its type is VoidTy.
 class StoreInst : public Instruction {
-  StoreInst(Value *Ptr, Value *Val);
+  StoreInst(Value *Ptr, Value *Val, BasicBlock *IAE);
 public:
-  static StoreInst *Create(Value *Ptr, Value *Val);
-  Value *getStoreToPtr() const;
-  Value *getStoredValue() const;
-
+  static StoreInst *Create(Value *Ptr, Value *Val, BasicBlock *IAE) {
+    return new StoreInst(Ptr, Val, IAE);
+  }
+  Value *getPtr() const {
+    return getOperand(0);
+  }
+  Value *getValue() const {
+    return getOperand(1);
+  }
   static bool InstanceCheck(const Instruction *I) {
     return I->getOpcode() == Store;
   }
@@ -152,9 +163,19 @@ public:
 /// BinaryOperator performs 4 basic arithmetic on its operands. Its name depends on its
 /// opcode, i.e., add, sub, mul and div. All these operations are signed.
 class BinaryOperator : public Instruction {
-  BinaryOperator(unsigned Op, Value *LHS, Value *RHS);
+  BinaryOperator(unsigned Op, Value *LHS, Value *RHS, BasicBlock *IAE);
 public:
-  static BinaryOperator *Create(unsigned Op, Value *LHS, Value *RHS);
+  static BinaryOperator *Create(unsigned Op, Value *LHS, Value *RHS, BasicBlock *IAE) {
+    return new BinaryOperator(Op, LHS, RHS, IAE);
+  }
+/// Creator of all kinds of BinaryOperators.
+#define HANDLE_BINARY_OPERATOR(Class, Opcode, Name) \
+  static BinaryOperator *Create##Opcode(Value *LHS, Value *RHS, BasicBlock *IAE) { \
+    return Create((Opcode), LHS, RHS, IAE); \
+  }
+#include "simplecc/IR/Instruction.def"
+  Value *getLeft() const { return getOperand(0); }
+  Value *getRight() const { return getOperand(1); }
   static bool InstanceCheck(const Instruction *I) {
     return I->isBinaryOp();
   }
@@ -164,8 +185,14 @@ public:
 /// and select one of the Value if the control flow comes from the corresponding BB.
 class PHINode : public Instruction {
   /// Construct an empty PHINode -- has no BB or Value.
-  PHINode();
+  explicit PHINode(BasicBlock *IAE);
 public:
+  static PHINode *Create(BasicBlock *IAE) {
+    return new PHINode(IAE);
+  }
+  static bool InstanceCheck(const Instruction *I) {
+    return I->getOpcode() == PHI;
+  }
   void addIncoming(Value *V, BasicBlock *BB);
 };
 
@@ -173,20 +200,27 @@ public:
 /// The type of it is the return type of the callee.
 class CallInst : public Instruction {
   /// The layout is: arg1, arg2, ..., callee.
-  CallInst(Function *Callee, const std::vector<Value *> Args);
+  CallInst(Function *Callee, const std::vector<Value *> &Args, BasicBlock *IAE);
 public:
-  User::op_iterator arg_begin() { return op_begin(); }
-  User::const_op_iterator arg_begin() const { return op_begin(); }
-  User::op_iterator arg_end() { return op_end() - 1; }
-  User::const_op_iterator arg_end() const { return op_end(); }
+  static CallInst *Create(Function *Callee, const std::vector<Value *> &Args, BasicBlock *IAE) {
+    return new CallInst(Callee, Args, IAE);
+  }
+
+  using arg_iterator = User::op_iterator;
+  using const_arg_iterator = User::const_op_iterator;
+
+  arg_iterator arg_begin() { return op_begin(); }
+  const_arg_iterator arg_begin() const { return op_begin(); }
+  arg_iterator arg_end() { return op_end() - 1; }
+  const_arg_iterator arg_end() const { return op_end(); }
 
   bool arg_empty() const { return arg_end() == arg_begin(); }
   size_t arg_size() const { return arg_end() - arg_begin(); }
 
-  iterator_range<User::op_iterator> args() {
+  iterator_range<arg_iterator> args() {
     return make_range(arg_begin(), arg_end());
   }
-  iterator_range<User::const_op_iterator> args() const {
+  iterator_range<const_arg_iterator> args() const {
     return make_range(arg_begin(), arg_end());
   }
   Value *getCalleeOperand() const { return getOperand(getNumOperands() - 1); }
@@ -197,12 +231,31 @@ public:
 
 /// CmpInst perform rich comparison on its 2 operands. Both operands must be int
 /// and the result type is also int.
-class CmpInst : public Instruction {
-  CmpInst(unsigned Predicate, Value *LHS, Value *RHS);
+class ICmpInst : public Instruction {
+  ICmpInst(unsigned Predicate, Value *LHS, Value *RHS, BasicBlock *IAE);
+  static ICmpInst *Create(unsigned Predicate, Value *LHS, Value *RHS, BasicBlock *IAE) {
+    return new ICmpInst(Predicate, LHS, RHS, IAE);
+  }
 public:
-  static CmpInst *Create(unsigned Predicate, Value *LHS, Value *RHS);
-  unsigned getPredicate() const;
-  static bool InstanceCheck(const Instruction *I);
+  enum PredicateKind {
+#define HANDLE_ICMP_PREDICATE(Class, Opcode, Name) Opcode,
+#include "simplecc/IR/Instruction.def"
+  };
+
+#define HANDLE_ICMP_PREDICATE(Class, Opcode, Name) \
+static ICmpInst *Create##Opcode(Value *LHS, Value *RHS, BasicBlock *IAE) { \
+  return new ICmpInst(Opcode, LHS, RHS, IAE); \
+}
+#include "simplecc/IR/Instruction.def"
+
+  unsigned getPredicate() const {
+    return Predicate;
+  }
+  static bool InstanceCheck(const Instruction *I) {
+    return I->getOpcode() == ICmp;
+  }
+private:
+  unsigned Predicate;
 };
 
 }

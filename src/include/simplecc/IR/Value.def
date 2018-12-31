@@ -9,3 +9,5 @@ HANDLE_VALUE(Function)
 HANDLE_VALUE(BasicBlock)
 HANDLE_VALUE(GlobalVariable)
 HANDLE_VALUE(Instruction)
+
+#undef HANDLE_VALUE

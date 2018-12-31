@@ -9,9 +9,14 @@ class Module;
 class GlobalVariable : public Value {
   GlobalVariable(unsigned Size, Module *M);
 public:
-  GlobalVariable *Create(unsigned Size, Module *M = nullptr);
+  GlobalVariable *Create(unsigned Size, Module *M = nullptr) {
+    return new GlobalVariable(Size, M);
+  }
   unsigned getSize() const {
     return Size;
+  }
+  static bool InstanceCheck(const Value *V) {
+    return GlobalVariableVal == V->getValueID();
   }
 private:
   unsigned Size;
