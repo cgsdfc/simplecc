@@ -31,7 +31,9 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
   for (auto Iter = StmtList.begin(); Iter != StmtList.end();) {
     // Case-1: find the first return-stmt and delete everything after it.
     if (IsInstance<ReturnStmt>(*Iter)) {
+      // Start from the next stmt of return-stmt.
       std::advance(Iter, 1);
+      // Delete and erase a range.
       DeleteAST::apply(Iter, StmtList.end());
       StmtList.erase(Iter, StmtList.end());
       break;
@@ -51,8 +53,11 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
       auto If = static_cast<IfStmt *>(*Iter);
       std::vector<StmtAST *> Branch = If->getTest()->isZeroVal() ?
                                       std::move(*If).getOrelse() : std::move(*If).getBody();
+      // Delete and erase the if-stmt.
       DeleteAST::apply(If);
       Iter = StmtList.erase(Iter);
+
+      // Replace with either Then or Else branch.
       Iter = StmtList.insert(Iter, Branch.begin(), Branch.end());
       std::advance(Iter, Branch.size());
       continue;

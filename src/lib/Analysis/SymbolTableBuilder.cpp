@@ -6,12 +6,12 @@ void SymbolTableBuilder::DefineLocalDecl(DeclAST *D) {
   assert(TheLocal && "TheLocal must be set!");
   if (TheLocal->count(D->getName())) {
     EM.Error(D->getLocation(), "redefinition of identifier", D->getName(),
-             "in function", TheFuncDef->getName());
+             "in", TheFuncDef->getName());
     return;
   }
   if (TheGlobal->count(D->getName()) &&
       (*TheGlobal)[D->getName()].IsFunction()) {
-    EM.Error(D->getLocation(), "local identifier", D->getName(), "in function",
+    EM.Error(D->getLocation(), "local identifier", D->getName(), "in",
              TheFuncDef->getName(), "shallows a global function");
     return;
   }
@@ -39,8 +39,7 @@ void SymbolTableBuilder::ResolveName(const std::string &Name, Location L) {
     return;
   }
   /// Undefined
-  EM.Error(L, "undefined identifier", Name, "in function",
-           TheFuncDef->getName());
+  EM.Error(L, "undefined identifier", Name, "in", TheFuncDef->getName());
 }
 
 void SymbolTableBuilder::visitCall(CallExpr *C) {
@@ -57,8 +56,7 @@ void SymbolTableBuilder::visitSubscript(SubscriptExpr *SB) {
 
 void SymbolTableBuilder::visitDecl(DeclAST *D) {
   switch (D->getKind()) {
-  case DeclAST::FuncDefKind:
-    setFuncDef(static_cast<FuncDef *>(D));
+  case DeclAST::FuncDefKind:setFuncDef(static_cast<FuncDef *>(D));
     setLocal(&TheTable->getLocal(TheFuncDef));
     /// Define this function globally.
     DefineGlobalDecl(D);
@@ -69,8 +67,7 @@ void SymbolTableBuilder::visitDecl(DeclAST *D) {
   case DeclAST::ArgDeclKind:
     /* Fall through */
     return TheLocal ? DefineLocalDecl(D) : DefineGlobalDecl(D);
-  default:
-    assert(false && "Unhandled DeclAST subclass!");
+  default:assert(false && "Unhandled DeclAST subclass!");
   }
 }
 

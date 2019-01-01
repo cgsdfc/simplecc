@@ -80,7 +80,7 @@ bool Driver::doAnalyses() {
 }
 
 bool Driver::doCodeGen() {
-  if (doAnalyses())
+  if (doTransform())
     return true;
   // CodeGen never fails.
   CompileToByteCode(TheProgram.get(), AM.getSymbolTable(), TheModule);

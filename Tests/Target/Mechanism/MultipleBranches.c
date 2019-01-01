@@ -1,5 +1,5 @@
 const int CompareEqual = 0, CompareNotEqual = 1, CompareLess = 2,
-          CompareLessEqual = 3, CompareGreater = 4, CompareGreaterEqual = 5;
+    CompareLessEqual = 3, CompareGreater = 4, CompareGreaterEqual = 5;
 
 void PrintCompareOp(int Op) {
   if (Op == CompareEqual)
