@@ -54,10 +54,11 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
       DeleteAST::apply(If);
       Iter = StmtList.erase(Iter);
       Iter = StmtList.insert(Iter, Branch.begin(), Branch.end());
-      Iter += Branch.size();
+      std::advance(Iter, Branch.size());
       continue;
     }
-    // Case-4: for-stmt.
+    // Case-4: for-stmt. for (initial; condition; step) body =>
+    // initial; body; step;
     if (IsInstance<ForStmt>(*Iter) &&
         static_cast<ForStmt *>(*Iter)->getCondition()->isZeroVal()) {
       auto For = static_cast<ForStmt *>(*Iter);
@@ -65,10 +66,21 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
       auto Step = std::move(*For).getStep();
       std::vector<StmtAST *> Body = std::move(*For).getBody();
       DeleteAST::apply(For);
-      *Iter = static_cast<StmtAST *>(Initial.release());
-      StmtList.insert(next(Iter), Body.begin(), Body.end());
-      Iter += Body.size();
-      *Iter++ = static_cast<StmtAST *>(Step.release());
+      // Note: Be careful with *Iter++ = thing!
+      // The container won't resize as you write to it via iterator, So when Iter went
+      // out of range (end()), the container was compromised.
+
+      // Note: This is replacing the old ForStmt at Iter with its Initial and
+      // advance Iter by one. Since Iter originally pointed to valid element,
+      // Iter+1 is always valid (even it is end()). Thus it can be passed to insert().
+      // Here, *Iter is valid storage and Iter+1 is valid iterator so it is a valid construct.
+      *Iter++ = static_cast<StmtAST *>(Initial.release());
+      Iter = StmtList.insert(Iter, Body.begin(), Body.end());
+      // Advance to the end of the Body stmt list.
+      std::advance(Iter, Body.size());
+      // Insert the Step stmt right after the Body.
+      Iter = StmtList.insert(Iter, static_cast<StmtAST *>(Step.release()));
+      ++Iter;
       continue;
     }
     ++Iter;
