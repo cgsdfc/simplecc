@@ -20,21 +20,20 @@ void DeadCodeEliminator::visitFuncDef(FuncDef *FD) {
 }
 
 void DeadCodeEliminator::visitStmtList(StmtListType &StmtList) {
-  bool Changed = true;
-  while (Changed) {
-    Changed |= TransformStmtList(StmtList);
-  }
+  // Transform each child first.
+  std::for_each(StmtList.begin(), StmtList.end(), [this](StmtAST *Stmt) {
+    visitStmt(Stmt);
+  });
+  TransformStmtList(StmtList);
 }
 
-bool DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
-  bool Changed = false;
+void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
   for (auto Iter = StmtList.begin(); Iter != StmtList.end();) {
     // Case-1: find the first return-stmt and delete everything after it.
     if (IsInstance<ReturnStmt>(*Iter)) {
       std::next(Iter);
       DeleteAST::apply(Iter, StmtList.end());
       StmtList.erase(Iter, StmtList.end());
-      Changed |= Iter != StmtList.end();
       break;
     }
     // Case-2: find any while-stmt with false condition, delete them.
@@ -42,7 +41,6 @@ bool DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
         static_cast<WhileStmt *>(*Iter)->getCondition()->isZeroVal()) {
       DeleteAST::apply(*Iter);
       Iter = StmtList.erase(Iter);
-      Changed |= true;
       continue;
     }
     // Case-3: if-stmt. replace it with its either branch if the condition is constant.
@@ -57,7 +55,6 @@ bool DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
       Iter = StmtList.erase(Iter);
       Iter = StmtList.insert(Iter, Branch.begin(), Branch.end());
       Iter += Branch.size();
-      Changed |= true;
       continue;
     }
     // Case-4: for-stmt.
@@ -72,10 +69,8 @@ bool DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
       StmtList.insert(next(Iter), Body.begin(), Body.end());
       Iter += Body.size();
       *Iter++ = static_cast<StmtAST *>(Step.release());
-      Changed |= true;
       continue;
     }
     ++Iter;
   }
-  return Changed;
 }

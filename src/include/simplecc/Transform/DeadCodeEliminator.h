@@ -19,7 +19,7 @@ class DeadCodeEliminator : ChildrenVisitor<DeadCodeEliminator> {
   using StmtListType = std::vector<StmtAST *>;
   /// Run the DCE algorithm once on the stmt list, return if
   /// the list was mutated.
-  bool TransformStmtList(StmtListType &StmtList);
+  void TransformStmtList(StmtListType &StmtList);
   void visitStmtList(StmtListType &StmtList);
   void visitFor(ForStmt *F);
   void visitWhile(WhileStmt *W);
