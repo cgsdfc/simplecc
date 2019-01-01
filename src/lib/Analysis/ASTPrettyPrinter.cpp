@@ -1,4 +1,4 @@
-#include <simplecc/Analysis/AstPrettyPrinter.h>
+#include <simplecc/Analysis/ASTPrettyPrinter.h>
 
 using namespace simplecc;
 
@@ -14,7 +14,7 @@ using namespace simplecc;
 ///     ),
 ///   ),
 /// ])
-void AstPrettyPrinter::visitProgram(Program *P) {
+void ASTPrettyPrinter::visitProgram(Program *P) {
   OS << P->getClassName() << "(";
   OS << "Filename='" << P->getFilename() << "', [\n";
   increaseIndentLevel();
@@ -28,7 +28,7 @@ void AstPrettyPrinter::visitProgram(Program *P) {
   OS << "])";
 }
 
-void AstPrettyPrinter::visitConstDecl(ConstDecl *CD) {
+void ASTPrettyPrinter::visitConstDecl(ConstDecl *CD) {
   OS << CD->getClassName() << "(" << CD->getType() << ", " <<
      CD->getName() << ", ";
   visitExpr(CD->getValue());
@@ -36,7 +36,7 @@ void AstPrettyPrinter::visitConstDecl(ConstDecl *CD) {
 }
 
 /// VarDecl(Int, Name, true, 10)
-void AstPrettyPrinter::visitVarDecl(VarDecl *VD) {
+void ASTPrettyPrinter::visitVarDecl(VarDecl *VD) {
   OS << VD->getClassName() << "(" << VD->getType() << ", " <<
      VD->getName() << ", " <<
      std::boolalpha << bool(VD->isArray()) << ", " <<
@@ -44,22 +44,22 @@ void AstPrettyPrinter::visitVarDecl(VarDecl *VD) {
 }
 
 /// NameExpr(Name, Load)
-void AstPrettyPrinter::visitName(NameExpr *N) {
+void ASTPrettyPrinter::visitName(NameExpr *N) {
   OS << N->getClassName() << "(" << N->getId() << ", " << N->getContext() << ")";
 }
 
 /// StrExpr("string")
-void AstPrettyPrinter::visitStr(StrExpr *S) {
+void ASTPrettyPrinter::visitStr(StrExpr *S) {
   OS << S->getClassName() << "(" << S->getS() << ")";
 }
 
 /// NumExpr(1)
-void AstPrettyPrinter::visitNum(NumExpr *N) {
+void ASTPrettyPrinter::visitNum(NumExpr *N) {
   OS << N->getClassName() << "(" << N->getN() << ")";
 }
 
 /// CharExpr('a')
-void AstPrettyPrinter::visitChar(CharExpr *C) {
+void ASTPrettyPrinter::visitChar(CharExpr *C) {
   OS << C->getClassName() << "('" << char(C->getC()) << "')";
 }
 
@@ -67,7 +67,7 @@ void AstPrettyPrinter::visitChar(CharExpr *C) {
 ///   LHS=CharExpr('a'),
 ///   RHS=NumExpr(1),
 /// )
-void AstPrettyPrinter::visitBinOp(BinOpExpr *B) {
+void ASTPrettyPrinter::visitBinOp(BinOpExpr *B) {
   OS << B->getClassName() << "(" << B->getOp() << ",\n";
 
   increaseIndentLevel();
@@ -86,7 +86,7 @@ void AstPrettyPrinter::visitBinOp(BinOpExpr *B) {
   OS << ")";
 }
 
-void AstPrettyPrinter::printIndent() {
+void ASTPrettyPrinter::printIndent() {
   for (unsigned I = 0, E = getIndentLevel(); I < E; I++) {
     OS << "  ";
   }
@@ -99,7 +99,7 @@ void AstPrettyPrinter::printIndent() {
 ///     NumExpr(1)
 ///   )
 /// )
-void AstPrettyPrinter::visitUnaryOp(UnaryOpExpr *U) {
+void ASTPrettyPrinter::visitUnaryOp(UnaryOpExpr *U) {
   OS << U->getClassName() << "(" << U->getOp();
   if (isAtomicExpr(U->getOperand())) {
     OS << ", ";
@@ -125,7 +125,7 @@ void AstPrettyPrinter::visitUnaryOp(UnaryOpExpr *U) {
 ///     NumExpr(1)
 ///   )
 /// )
-void AstPrettyPrinter::visitParenExpr(ParenExpr *P) {
+void ASTPrettyPrinter::visitParenExpr(ParenExpr *P) {
   OS << P->getClassName() << "(";
   if (isAtomicExpr(P->getValue())) {
     visitExpr(P->getValue());
@@ -148,7 +148,7 @@ void AstPrettyPrinter::visitParenExpr(ParenExpr *P) {
 ///  ...
 ///  )
 /// )
-void AstPrettyPrinter::visitBoolOp(BoolOpExpr *B) {
+void ASTPrettyPrinter::visitBoolOp(BoolOpExpr *B) {
   OS << B->getClassName() << "(" << std::boolalpha << bool(B->hasCompareOp());
   if (isAtomicExpr(B->getValue())) {
     OS << ", ";
@@ -172,7 +172,7 @@ void AstPrettyPrinter::visitBoolOp(BoolOpExpr *B) {
 ///   NameExpr(Name, Load),
 ///   CharExpr('a'),
 /// ])
-void AstPrettyPrinter::visitCall(CallExpr *C) {
+void ASTPrettyPrinter::visitCall(CallExpr *C) {
   OS << C->getClassName() << "(" << C->getFunc() << ", Args=";
   // Case-1: no args.
   if (hasNoArgument(C)) {
@@ -205,7 +205,7 @@ void AstPrettyPrinter::visitCall(CallExpr *C) {
 ///     CharExpr('a'),
 ///   ])
 /// )
-void AstPrettyPrinter::visitExprStmt(ExprStmt *E) {
+void ASTPrettyPrinter::visitExprStmt(ExprStmt *E) {
   auto Call = static_cast<CallExpr *>(E->getValue());
   OS << E->getClassName() << "(";
   if (hasNoArgument(Call)) {
@@ -232,7 +232,7 @@ void AstPrettyPrinter::visitExprStmt(ExprStmt *E) {
 ///     WriteStmt(NumExpr(2)),
 ///  ]
 /// )
-void AstPrettyPrinter::visitIf(IfStmt *I) {
+void ASTPrettyPrinter::visitIf(IfStmt *I) {
   OS << I->getClassName() << "(\n";
   increaseIndentLevel();
 
@@ -261,7 +261,7 @@ void AstPrettyPrinter::visitIf(IfStmt *I) {
 ///   WriteStmt(),
 ///   ReadStmt(),
 /// ]
-void AstPrettyPrinter::printStmtList(const std::vector<StmtAST *> &StmtList) {
+void ASTPrettyPrinter::printStmtList(const std::vector<StmtAST *> &StmtList) {
   if (StmtList.empty()) {
     OS << "[]";
     return;
@@ -283,7 +283,7 @@ void AstPrettyPrinter::printStmtList(const std::vector<StmtAST *> &StmtList) {
 ///  NameExpr(Name, Store),
 ///  NameExpr(Name, Store),
 /// ])
-void AstPrettyPrinter::visitRead(ReadStmt *RD) {
+void ASTPrettyPrinter::visitRead(ReadStmt *RD) {
   OS << RD->getClassName() << "([";
   if (RD->getNames().size() == 1) {
     visitExpr(RD->getNames()[0]);
@@ -308,7 +308,7 @@ void AstPrettyPrinter::visitRead(ReadStmt *RD) {
 ///   StrExpr("a"),
 ///   NumExpr(1),
 /// )
-void AstPrettyPrinter::visitWrite(WriteStmt *WR) {
+void ASTPrettyPrinter::visitWrite(WriteStmt *WR) {
   OS << WR->getClassName() << "(";
   if (!WR->getValue()) {
     // No value.
@@ -345,7 +345,7 @@ void AstPrettyPrinter::visitWrite(WriteStmt *WR) {
 /// ReturnStmt(
 ///  BinOpExpr(...)
 /// )
-void AstPrettyPrinter::visitReturn(ReturnStmt *R) {
+void ASTPrettyPrinter::visitReturn(ReturnStmt *R) {
   OS << R->getClassName();
   if (!R->getValue()) {
     return;
@@ -370,7 +370,7 @@ void AstPrettyPrinter::visitReturn(ReturnStmt *R) {
 ///   LHS=NameExpr(...),
 ///   RHS=NumExpr(...),
 /// )
-void AstPrettyPrinter::visitAssign(AssignStmt *A) {
+void ASTPrettyPrinter::visitAssign(AssignStmt *A) {
   OS << A->getClassName() << "(\n";
   increaseIndentLevel();
 
@@ -394,7 +394,7 @@ void AstPrettyPrinter::visitAssign(AssignStmt *A) {
 ///   step=AssignStmt(...),
 ///   body=[...],
 /// )
-void AstPrettyPrinter::visitFor(ForStmt *F) {
+void ASTPrettyPrinter::visitFor(ForStmt *F) {
   OS << F->getClassName() << "(\n";
   increaseIndentLevel();
 
@@ -427,7 +427,7 @@ void AstPrettyPrinter::visitFor(ForStmt *F) {
 ///   condition=BoolOpExpr(...),
 ///   body=[...],
 /// )
-void AstPrettyPrinter::visitWhile(WhileStmt *W) {
+void ASTPrettyPrinter::visitWhile(WhileStmt *W) {
   OS << W->getClassName() << "(\n";
   increaseIndentLevel();
 
@@ -450,7 +450,7 @@ void AstPrettyPrinter::visitWhile(WhileStmt *W) {
 ///   array=Name,
 ///   index=NumExpr(...),
 /// )
-void AstPrettyPrinter::visitSubscript(SubscriptExpr *SB) {
+void ASTPrettyPrinter::visitSubscript(SubscriptExpr *SB) {
   OS << SB->getClassName() << "(" << SB->getContext() << "\n";
   increaseIndentLevel();
 
@@ -479,7 +479,7 @@ void AstPrettyPrinter::visitSubscript(SubscriptExpr *SB) {
 /// ])
 /// FuncDef(Void, Fun, Args(), [])
 /// FuncDef(Void, Fun, Args(), [ReturnStmt])
-void AstPrettyPrinter::visitFuncDef(FuncDef *FD) {
+void ASTPrettyPrinter::visitFuncDef(FuncDef *FD) {
   OS << FD->getClassName() << "(" << FD->getReturnType() << ", " << FD->getName() << ", ";
   printArgs(FD->getArgs());
   OS << ", [";
@@ -505,13 +505,13 @@ void AstPrettyPrinter::visitFuncDef(FuncDef *FD) {
   OS << "])";
 }
 
-void AstPrettyPrinter::visitArgDecl(ArgDecl *AD) {
+void ASTPrettyPrinter::visitArgDecl(ArgDecl *AD) {
   OS << AD->getType() << " " << AD->getName();
 }
 
 /// Args()
 /// Args(Int A)
-void AstPrettyPrinter::printArgs(const std::vector<DeclAST *> &Args) {
+void ASTPrettyPrinter::printArgs(const std::vector<DeclAST *> &Args) {
   OS << "Args";
   if (Args.empty()) {
     OS << "()";
@@ -526,13 +526,13 @@ void AstPrettyPrinter::printArgs(const std::vector<DeclAST *> &Args) {
   OS << ")";
 }
 
-void AstPrettyPrinter::PrettyPrint(const AST *A) {
+void ASTPrettyPrinter::PrettyPrint(const AST *A) {
   visitAST(const_cast<AST *>(A));
 }
 
 namespace simplecc {
 void PrettyPrintAST(const AST &A, std::ostream &O) {
-  AstPrettyPrinter(O).PrettyPrint(&A);
+  ASTPrettyPrinter(O).PrettyPrint(&A);
   O << "\n";
 }
 }

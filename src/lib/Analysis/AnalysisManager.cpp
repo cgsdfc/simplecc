@@ -1,6 +1,6 @@
 #include "simplecc/Analysis/AnalysisManager.h"
 #include "simplecc/Analysis/ArrayBoundChecker.h"
-#include "simplecc/Analysis/AstVerifier.h"
+#include "simplecc/Analysis/ASTVerifier.h"
 #include "simplecc/Analysis/ImplicitCallTransformer.h"
 #include "simplecc/Analysis/SymbolTableBuilder.h"
 #include "simplecc/Analysis/SyntaxChecker.h"
@@ -29,7 +29,7 @@ bool AnalysisManager::runAllAnalyses(Program *P) {
     return true;
   }
 
-  if (AstVerifier().Verify(P)) {
+  if (ASTVerifier().Verify(P)) {
     PrintErrs("Program should be well-formed after all analyses run!");
     return true;
   }

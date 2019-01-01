@@ -9,7 +9,7 @@ namespace simplecc {
 class Node;
 
 /// This class builds the AST from the CST according to the Grammar rules.
-class AstBuilder {
+class ASTBuilder {
   ExprAST *makeChar(Node *N);
   ExprAST *makeNum(Node *N);
 

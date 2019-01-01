@@ -4,7 +4,7 @@
 #include <iostream>
 
 namespace simplecc {
-class AstPrettyPrinter : VisitorBase<AstPrettyPrinter> {
+class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter> {
   void visitProgram(Program *P);
   void visitFuncDef(FuncDef *FD);
   void visitConstDecl(ConstDecl *CD);
@@ -54,7 +54,7 @@ class AstPrettyPrinter : VisitorBase<AstPrettyPrinter> {
   }
 
 public:
-  AstPrettyPrinter(std::ostream &O) : OS(O) {}
+  ASTPrettyPrinter(std::ostream &O) : OS(O) {}
   void PrettyPrint(const AST *A);
 private:
   friend VisitorBase;

@@ -1,53 +1,53 @@
-#include "simplecc/Analysis/AstVerifier.h"
+#include "simplecc/Analysis/ASTVerifier.h"
 
 using namespace simplecc;
 
-void AstVerifier::visitWrite(simplecc::WriteStmt *WR) {
+void ASTVerifier::visitWrite(simplecc::WriteStmt *WR) {
   AssertThat(WR->getStr() || WR->getValue(),
              "Both StrExpr and Value of WriteStmt are empty");
 }
 
-void AstVerifier::visitWhile(WhileStmt *W) {
+void ASTVerifier::visitWhile(WhileStmt *W) {
   AssertThat(IsInstance<BoolOpExpr>(W->getCondition()),
              "Condition of WhileStmt must be a BoolOpExpr");
 }
 
-void AstVerifier::visitConstDecl(ConstDecl *CD) {
+void ASTVerifier::visitConstDecl(ConstDecl *CD) {
   auto Val = CD->getValue();
   AssertThat(IsInstance<CharExpr>(Val) || IsInstance<NumExpr>(Val),
              "Value of ConstDecl must be NumExpr or CharExpr");
 }
 
-void AstVerifier::visitExprStmt(ExprStmt *ES) {
+void ASTVerifier::visitExprStmt(ExprStmt *ES) {
   AssertThat(IsInstance<CallExpr>(ES->getValue()),
              "ExprStmt must have a CallExpr");
 }
 
-void AstVerifier::visitIf(IfStmt *I) {
+void ASTVerifier::visitIf(IfStmt *I) {
   AssertThat(IsInstance<BoolOpExpr>(I->getTest()),
              "Test of IfStmt must be a BoolOpExpr");
 }
 
-void AstVerifier::visitBoolOp(simplecc::BoolOpExpr *B) {
+void ASTVerifier::visitBoolOp(simplecc::BoolOpExpr *B) {
   if (B->hasCompareOp()) {
     AssertThat(IsInstance<BinOpExpr>(B->getValue()),
                "HasCmpOp implies BinOpExpr");
   }
 }
 
-void AstVerifier::visitRead(ReadStmt *RD) {
+void ASTVerifier::visitRead(ReadStmt *RD) {
   for (ExprAST *E : RD->getNames()) {
     AssertThat(IsInstance<NameExpr>(E), "Names in ReadStmt must be NameExpr");
   }
 }
 
-void AstVerifier::visitAssign(simplecc::AssignStmt *A) {
+void ASTVerifier::visitAssign(simplecc::AssignStmt *A) {
   AssertThat(IsInstance<NameExpr>(A->getTarget()) ||
                  IsInstance<SubscriptExpr>(A->getTarget()),
              "Target of AssignStmt must be NameExpr or SubscriptExpr");
 }
 
-void AstVerifier::visitFor(ForStmt *F) {
+void ASTVerifier::visitFor(ForStmt *F) {
   AssertThat(IsInstance<AssignStmt>(F->getInitial()),
              "Initial of ForStmt must be an AssignStmt");
 
@@ -58,7 +58,7 @@ void AstVerifier::visitFor(ForStmt *F) {
              "Step of ForStmt must be an AssignStmt");
 }
 
-void AstVerifier::visitFuncDef(FuncDef *FD) {
+void ASTVerifier::visitFuncDef(FuncDef *FD) {
   for (DeclAST *D : FD->getArgs()) {
     AssertThat(IsInstance<ArgDecl>(D), "Args of FuncDef must be ArgDecl's");
   }
@@ -71,7 +71,7 @@ void AstVerifier::visitFuncDef(FuncDef *FD) {
   }
 }
 
-void AstVerifier::visitProgram(simplecc::Program *P) {
+void ASTVerifier::visitProgram(simplecc::Program *P) {
   for (DeclAST *D : P->getDecls()) {
     AssertThat(!IsInstance<ArgDecl>(D),
                "ArgDecl cannot appear in Decls of Program");
@@ -79,13 +79,13 @@ void AstVerifier::visitProgram(simplecc::Program *P) {
   }
 }
 
-bool AstVerifier::Verify(Program *P) {
+bool ASTVerifier::Verify(Program *P) {
   EM.setErrorType("InternalError");
   visitProgram(P);
   return !EM.IsOk();
 }
 
-void AstVerifier::AssertThat(bool Predicate, const char *ErrMsg) {
+void ASTVerifier::AssertThat(bool Predicate, const char *ErrMsg) {
   if (Predicate)
     return;
   EM.Error(ErrMsg);

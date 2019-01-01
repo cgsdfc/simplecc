@@ -1,6 +1,7 @@
 #include "simplecc/Parse/AST.h"
 #include <cassert>
 #include <simplecc/Support/Casting.h>
+#include <simplecc/Parse/AST.h>
 
 using namespace simplecc;
 
@@ -190,31 +191,31 @@ void AST::deleteAST() {
 void AST::Format(std::ostream &os) const {
   PrettyPrintAST(*this, os);
 }
+void AST::dump() const {
+  return Format(std::cerr);
+}
 
 bool DeclAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
-#define HANDLE_DECL(CLASS) case AST::CLASS##Kind:
+#define HANDLE_DECL(CLASS) case AST::CLASS##Kind: return true;
 #include "simplecc/Parse/AST.def"
-    return true;
   }
 }
 
 bool StmtAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
-#define HANDLE_STMT(CLASS) case AST::CLASS##Kind:
+#define HANDLE_STMT(CLASS) case AST::CLASS##Kind: return true;
 #include "simplecc/Parse/AST.def"
-    return true;
   }
 }
 
 bool ExprAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
   default:return false;
-#define HANDLE_EXPR(CLASS) case AST::CLASS##Kind:
+#define HANDLE_EXPR(CLASS) case AST::CLASS##Kind: return true;
 #include "simplecc/Parse/AST.def"
-    return true;
   }
 }
 
@@ -226,5 +227,3 @@ int ExprAST::getConstantValue() const {
   default:assert(false && "Unhandled Constant ExprAST");
   }
 }
-
-

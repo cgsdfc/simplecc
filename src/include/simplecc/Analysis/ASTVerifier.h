@@ -5,8 +5,8 @@
 
 namespace simplecc {
 /// This ensure that the AST is well-formed.
-/// In terms of well-formness:
-class AstVerifier : ChildrenVisitor<AstVerifier> {
+/// In terms of well-form-ness:
+class ASTVerifier : ChildrenVisitor<ASTVerifier> {
   /// Helper to check each condition in one single statement.
   void AssertThat(bool Predicate, const char *ErrMsg);
 
@@ -33,8 +33,8 @@ class AstVerifier : ChildrenVisitor<AstVerifier> {
   void visitProgram(Program *P);
 
 public:
-  AstVerifier() = default;
-  ~AstVerifier() = default;
+  ASTVerifier() = default;
+  ~ASTVerifier() = default;
 
   bool Verify(Program *P);
 

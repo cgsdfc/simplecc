@@ -10,13 +10,13 @@ namespace simplecc {
 /// It has two forms:
 /// 1. ExprStmt: foo;
 /// 2. Name in Expr if that Name is a function.
-/// Form-1 has been handled by AstBuilder well since this form is recognizable
+/// Form-1 has been handled by ASTBuilder well since this form is recognizable
 /// on the grammar level. Form-2 is more tricky as it requires **type
 /// information** to be recognized.
 ///
 /// Q2: Why we need to transform them?
 /// A2: Because to fully recognize form-2 we need to build a SymbolTable first
-/// so this can't be done in AstBuilder. On the other hand, to correctly perform
+/// so this can't be done in ASTBuilder. On the other hand, to correctly perform
 /// type check on the program, these implicit calls **must** be properly
 /// described by the AST. Therefore the AST needs a transformation pass right
 /// after the SymbolTable pass and right before the TypeChecker pass.

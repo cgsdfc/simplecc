@@ -7,7 +7,7 @@ set(SOURCE_FILES
         # Turn tokens into CST, then into AST.
         Parse/AST.cpp
         Parse/Grammar.cpp
-        Parse/AstBuilder.cpp
+        Parse/ASTBuilder.cpp
         Parse/Parser.cpp
         Parse/GramDef.cpp
         Parse/Node.cpp
@@ -20,11 +20,11 @@ set(SOURCE_FILES
         Analysis/SyntaxChecker.cpp
         Analysis/Types.cpp
         Analysis/ImplicitCallTransformer.cpp
-        Analysis/AstVerifier.cpp
+        Analysis/ASTVerifier.cpp
         Analysis/SymbolTableBuilder.cpp
         Analysis/AnalysisManager.cpp
         Analysis/ArrayBoundChecker.cpp
-        Analysis/AstPrettyPrinter.cpp
+        Analysis/ASTPrettyPrinter.cpp
 
 
         # Generate ByteCode from the AST.

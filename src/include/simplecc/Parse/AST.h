@@ -30,6 +30,7 @@ public:
   Location getLocation() const { return Loc; }
   void deleteAST();
   void Format(std::ostream &os) const;
+  void dump() const;
 };
 
 inline std::ostream &operator<<(std::ostream &O, const AST &A) {

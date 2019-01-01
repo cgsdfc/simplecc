@@ -6,7 +6,7 @@
 namespace simplecc {
 class ASTNode;
 
-/// Collect children of an AstRef into a vector for later use.
+/// Collect children of an ASTNode into a vector for later use.
 class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
   /// Add a child.
   void AddChild(AST *Ptr) {
@@ -20,7 +20,7 @@ class ChildrenCollector : ChildrenVisitor<ChildrenCollector> {
   void visitStmt(StmtAST *S) { AddChild(S); }
 
 public:
-  ChildrenCollector(std::vector<ASTNode *> &Vec, AstGraph *G)
+  ChildrenCollector(std::vector<ASTNode *> &Vec, ASTGraph *G)
       : Children(Vec), Parent(G) {}
 
   /// Call this to do the collecting. Otherwise, nothing will happen.
@@ -35,8 +35,8 @@ private:
 
   /// Keep a reference to the output vector.
   std::vector<ASTNode *> &Children;
-  /// Used to construct an AstRef.
-  AstGraph *Parent;
+  /// Used to construct an ASTNode.
+  ASTGraph *Parent;
 };
 } // namespace simplecc
 

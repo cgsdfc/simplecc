@@ -1,5 +1,5 @@
 #include "simplecc/Parse/Parse.h"
-#include "simplecc/Parse/AstBuilder.h"
+#include "simplecc/Parse/ASTBuilder.h"
 #include "simplecc/Parse/Parser.h"
 
 namespace simplecc {
@@ -13,7 +13,7 @@ ProgramRef BuildAST(const std::string &Filename, const std::vector<TokenInfo> &T
   auto CST = BuildCST(TheTokens);
   if (!CST)
     return nullptr;
-  return ProgramRef(AstBuilder().Build(Filename, CST.get()));
+  return ProgramRef(ASTBuilder().Build(Filename, CST.get()));
 }
 
 } // namespace simplecc

@@ -11,34 +11,34 @@
 
 namespace simplecc {
 /// A class that keeps all the edges of an ASTNode.
-class AstGraph {
+class ASTGraph {
 public:
-  explicit AstGraph(Program *P) : TheProgram(P), Edges(), Nodes() {}
+  explicit ASTGraph(Program *P) : TheProgram(P), Edges(), Nodes() {}
 
   using EdgeType = std::vector<ASTNode *>;
   using ChildIteratorType = EdgeType::const_iterator;
 
   /// Iterator to all nodes of a graph.
-  class AstIterator :
-      public TreeLikeIterator<AstIterator, ASTNode *, ChildIteratorType> {
+  class ASTIterator :
+      public TreeLikeIterator<ASTIterator, ASTNode *, ChildIteratorType> {
   public:
-    AstIterator(Program *P, AstGraph *G) : TreeLikeIterator(), Parent(G) {
+    ASTIterator(Program *P, ASTGraph *G) : TreeLikeIterator(), Parent(G) {
       Initialize(Parent->getNodeOrCreate(P));
     }
-    AstIterator() = default;
+    ASTIterator() = default;
 
     EdgeRange getEdges(value_type N) {
       const auto &LazyEdges = Parent->getEdgeOrCreate(*N);
       return llvm::make_range(LazyEdges.begin(), LazyEdges.end());
     }
   private:
-    AstGraph *Parent = nullptr;
+    ASTGraph *Parent = nullptr;
   };
-  using NodeIterator = AstIterator;
+  using NodeIterator = ASTIterator;
 
   /// Iterate over all nodes.
   NodeIterator nodes_begin() const {
-    return NodeIterator(TheProgram, const_cast<AstGraph *>(this));
+    return NodeIterator(TheProgram, const_cast<ASTGraph *>(this));
   }
   NodeIterator nodes_end() const { return NodeIterator(); }
 
@@ -57,7 +57,7 @@ public:
   /// Lazily create edges for a Node.
   const std::vector<ASTNode *> &getEdgeOrCreate(const ASTNode &R);
 
-  /// Lazily create a node, namely an AstRef.
+  /// Lazily create an ASTNode.
   ASTNode *getNodeOrCreate(AST *Ptr);
 
   const Program *getProgram() const { return TheProgram; }

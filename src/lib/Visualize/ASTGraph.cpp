@@ -9,7 +9,7 @@
 
 using namespace simplecc;
 
-ASTNode *AstGraph::getNodeOrCreate(AST *Ptr) {
+ASTNode *ASTGraph::getNodeOrCreate(AST *Ptr) {
   auto iter = Nodes.find(Ptr);
   if (iter != Nodes.end())
     return iter->second.get();
@@ -18,7 +18,7 @@ ASTNode *AstGraph::getNodeOrCreate(AST *Ptr) {
   return Result.first->second.get();
 }
 
-const std::vector<ASTNode *> &AstGraph::getEdgeOrCreate(const ASTNode &R) {
+const std::vector<ASTNode *> &ASTGraph::getEdgeOrCreate(const ASTNode &R) {
   auto iter = Edges.find(R.get());
   if (iter != Edges.end())
     return iter->second;
@@ -33,20 +33,20 @@ const std::vector<ASTNode *> &AstGraph::getEdgeOrCreate(const ASTNode &R) {
 }
 
 namespace llvm {
-using simplecc::AstGraph;
+using simplecc::ASTGraph;
 using simplecc::ASTNode;
 
-/// Specialized GraphTraits for AstGraph
-template<> struct GraphTraits<AstGraph> {
+/// Specialized GraphTraits for ASTGraph
+template<> struct GraphTraits<ASTGraph> {
   using NodeRef = ASTNode *;
-  using nodes_iterator = AstGraph::NodeIterator;
-  using ChildIteratorType = AstGraph::ChildIteratorType;
+  using nodes_iterator = ASTGraph::NodeIterator;
+  using ChildIteratorType = ASTGraph::ChildIteratorType;
 
-  static nodes_iterator nodes_begin(const AstGraph &G) {
+  static nodes_iterator nodes_begin(const ASTGraph &G) {
     return G.nodes_begin();
   }
 
-  static nodes_iterator nodes_end(const AstGraph &G) { return G.nodes_end(); }
+  static nodes_iterator nodes_end(const ASTGraph &G) { return G.nodes_end(); }
 
   static ChildIteratorType child_begin(NodeRef N) {
     return (*N).getParent()->child_begin(*N);
@@ -57,21 +57,21 @@ template<> struct GraphTraits<AstGraph> {
   }
 };
 
-/// Specialized DOTGraphTraits for AstGraph.
-template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
+/// Specialized DOTGraphTraits for ASTGraph.
+template<> struct DOTGraphTraits<ASTGraph> : DefaultDOTGraphTraits {
   explicit DOTGraphTraits(bool simple = false)
       : DefaultDOTGraphTraits(simple) {}
 
-  static std::string getGraphName(const AstGraph &G) {
+  static std::string getGraphName(const ASTGraph &G) {
     return G.getProgram()->getFilename();
   }
 
-  std::string getNodeLabel(const void *NodeRef, const AstGraph &) {
+  std::string getNodeLabel(const void *NodeRef, const ASTGraph &) {
     auto N = static_cast<ASTNode *>(const_cast<void *>(NodeRef));
     return N->getClassName();
   }
 
-  static std::string getNodeDescription(const void *NodeRef, const AstGraph &) {
+  static std::string getNodeDescription(const void *NodeRef, const ASTGraph &) {
     auto N = static_cast<ASTNode *>(const_cast<void *>(NodeRef));
     simplecc::DescriptionVisitor DV;
     return DV.makeDescription(*N);
@@ -80,15 +80,15 @@ template<> struct DOTGraphTraits<AstGraph> : DefaultDOTGraphTraits {
 } // namespace llvm
 
 namespace simplecc {
-/// Write an AstGraph to dot format.
+/// Write an ASTGraph to dot format.
 void WriteASTGraph(Program *P, llvm::raw_ostream &O) {
-  AstGraph Graph(P);
+  ASTGraph Graph(P);
   llvm::WriteGraph(O, Graph);
 }
 
 /// Print all ast nodes from a root.
-void PrintAllAstNodes(Program *P, std::ostream &O) {
-  AstGraph Graph(P);
+void PrintAllASTNodes(Program *P, std::ostream &O) {
+  ASTGraph Graph(P);
   for (auto AR : Graph.nodes()) {
     Print(O, AR->getClassName(), AR->getLocation());
   }
