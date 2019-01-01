@@ -9,6 +9,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <cassert>
 
 namespace simplecc {
 class AST {
@@ -84,11 +85,12 @@ public:
 class ExprAST : public AST {
 protected:
   ExprAST(unsigned Kind, Location loc) : AST(Kind, loc) {}
-
-public:
-  bool isConstant() const {
-    return getKind() == CharExprKind || getKind() == NumExprKind;
+  bool isConstantImpl() const { return false; }
+  int getConstantValueImpl() const {
+    assert(false && "subclass should implement this!");
   }
+public:
+  bool isConstant() const;
   int getConstantValue() const;
   bool isZeroVal() const { return isConstant() && 0 == getConstantValue(); }
   bool isOneVal() const { return isConstant() && 1 == getConstantValue(); }
@@ -467,7 +469,10 @@ class ParenExpr : public ExprAST {
   ExprAST *value;
   ~ParenExpr();
   friend class AST;
+  friend class ExprAST;
 
+  bool isConstantImpl() const { value->isConstant(); }
+  int getConstantValueImpl() const { return value->getConstantValue(); }
 public:
   ParenExpr(ExprAST *value, const Location &loc)
       : ExprAST(ExprAST::ParenExprKind, loc), value(value) {}
@@ -494,6 +499,13 @@ class BoolOpExpr : public ExprAST {
   void setHasCompareOp(bool B) { has_cmpop = B; }
   ~BoolOpExpr();
 
+  friend class ExprAST;
+  bool isConstantImpl() const {
+    return value->isConstant();
+  }
+  int getConstantValueImpl() const {
+    return value->getConstantValue();
+  }
 public:
   BoolOpExpr(ExprAST *value, bool has_cmpop, const Location &loc)
       : ExprAST(BoolOpExprKind, loc), value(value), has_cmpop(has_cmpop) {}
@@ -521,6 +533,12 @@ class UnaryOpExpr : public ExprAST {
   friend class AST;
   ~UnaryOpExpr();
 
+  friend class ExprAST;
+  bool isConstantImpl() const { return operand->isConstant(); }
+  int getConstantValueImpl() const {
+    auto OpVal = operand->getConstantValue();
+    return op == UnaryopKind::USub ? -OpVal : OpVal;
+  }
 public:
   UnaryOpExpr(UnaryopKind op, ExprAST *operand, const Location &loc)
       : ExprAST(UnaryOpExprKind, loc), op(op), operand(operand) {}
@@ -575,6 +593,9 @@ class NumExpr : public ExprAST {
   friend class AST;
   ~NumExpr() = default;
 
+  friend class ExprAST;
+  bool isConstantImpl() const { return true; }
+  int getConstantValueImpl() const { return getN(); }
 public:
   NumExpr(int n, const Location &loc) : ExprAST(ExprAST::NumExprKind, loc), n(n) {}
 
@@ -618,6 +639,9 @@ class CharExpr : public ExprAST {
   friend class AST;
   ~CharExpr() = default;
 
+  friend class ExprAST;
+  bool isConstantImpl() const { return true; }
+  int getConstantValueImpl() const { return getC(); }
 public:
   CharExpr(int c, const Location &loc) : ExprAST(ExprAST::CharExprKind, loc), c(c) {}
 

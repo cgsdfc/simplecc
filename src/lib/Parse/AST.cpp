@@ -220,10 +220,21 @@ bool ExprAST::InstanceCheck(const AST *A) {
 }
 
 int ExprAST::getConstantValue() const {
-  assert(isConstant());
+  assert(isConstant() && "getConstantValue() on non-constant!");
   switch (getKind()) {
-  case CharExprKind:return static_cast<const CharExpr *>(this)->getC();
-  case NumExprKind:return static_cast<const NumExpr *>(this)->getN();
-  default:assert(false && "Unhandled Constant ExprAST");
+#define HANDLE_EXPR(CLASS) \
+  case ExprAST::CLASS##Kind: return static_cast<const CLASS *>(this)->getConstantValueImpl();
+#include "simplecc/Parse/AST.def"
+  default:assert(false && "Unhandled Enum Value");
   }
 }
+
+bool ExprAST::isConstant() const {
+  switch (getKind()) {
+#define HANDLE_EXPR(CLASS) \
+  case ExprAST::CLASS##Kind: return static_cast<const CLASS *>(this)->isConstantImpl();
+#include "simplecc/Parse/AST.def"
+  default:assert(false && "Unhandled Enum Value");
+  }
+}
+
