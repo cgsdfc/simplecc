@@ -7,7 +7,7 @@ namespace simplecc {
 void TransformProgram(Program *P, SymbolTable &S) {
   InlineConstDeclTransformer().Transform(P, S);
   TrivialConstantFolder().Transform(P, S);
- // DeadCodeEliminator().Transform(P);
+  DeadCodeEliminator().Transform(P);
 }
 
 } // namespace simplecc

@@ -31,7 +31,7 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
   for (auto Iter = StmtList.begin(); Iter != StmtList.end();) {
     // Case-1: find the first return-stmt and delete everything after it.
     if (IsInstance<ReturnStmt>(*Iter)) {
-      std::next(Iter);
+      std::advance(Iter, 1);
       DeleteAST::apply(Iter, StmtList.end());
       StmtList.erase(Iter, StmtList.end());
       break;

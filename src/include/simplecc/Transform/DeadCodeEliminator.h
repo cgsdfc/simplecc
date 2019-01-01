@@ -25,6 +25,7 @@ class DeadCodeEliminator : ChildrenVisitor<DeadCodeEliminator> {
   void visitWhile(WhileStmt *W);
   void visitIf(IfStmt *I);
   void visitFuncDef(FuncDef *FD);
+
 public:
   DeadCodeEliminator() = default;
   void Transform(Program *P) {
