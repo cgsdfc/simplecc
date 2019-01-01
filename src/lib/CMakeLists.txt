@@ -60,7 +60,6 @@ set(SOURCE_FILES
         IR/Constant.cpp
         IR/IRContext.cpp
 
-        Transform/InlineConstDeclTransformer.cpp
         Transform/TrivialConstantFolder.cpp
         Transform/DeadCodeEliminator.cpp
         Transform/Transform.cpp
