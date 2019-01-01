@@ -1,0 +1,11 @@
+/// Definition of all ExprAST subclasses that can be const-folded.
+#ifndef HANDLE_CONST_FOLD
+#define HANDLE_CONST_FOLD(Class)
+#endif
+
+HANDLE_CONST_FOLD(BinOpExpr)
+HANDLE_CONST_FOLD(UnaryOpExpr)
+HANDLE_CONST_FOLD(ParenExpr)
+HANDLE_CONST_FOLD(NameExpr)
+
+#undef HANDLE_CONST_FOLD

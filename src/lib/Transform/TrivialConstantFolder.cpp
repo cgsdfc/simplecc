@@ -120,11 +120,24 @@ ExprAST *TrivialConstantFolder::FoldParenExpr(ParenExpr *P) {
   return static_cast<ExprAST *>(std::move(*P).getValue().release());
 }
 
+ExprAST *TrivialConstantFolder::FoldNameExpr(NameExpr *N) {
+  auto Entry = getSymbolEntry(N->getId());
+  if (!Entry.IsConstant()) {
+    return N;
+  }
+  auto CT = Entry.AsConstant();
+  switch (CT.getType()) {
+  case BasicTypeKind::Int:return new NumExpr(CT.getValue(), N->getLocation());
+  case BasicTypeKind::Character:return new CharExpr(CT.getValue(), N->getLocation());
+  default:assert(false && "Invalid Enum Value");
+  }
+}
+
 ExprAST *TrivialConstantFolder::FoldExprAST(ExprAST *E) {
   switch (E->getKind()) {
-  case ExprAST::BinOpExprKind:return FoldBinOpExpr(static_cast<BinOpExpr *>(E));
-  case ExprAST::ParenExprKind:return FoldParenExpr(static_cast<ParenExpr *>(E));
-  case ExprAST::UnaryOpExprKind:return FoldUnaryOpExpr(static_cast<UnaryOpExpr *>(E));
+#define HANDLE_CONST_FOLD(Class) \
+  case ExprAST::Class##Kind: return Fold##Class(static_cast<Class *>(E));
+#include "simplecc/Transform/TrivialConstantFolder.def"
   default:return E;
   }
 }

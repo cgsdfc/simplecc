@@ -7,9 +7,8 @@ namespace simplecc {
 /// This class performs trivial constant folding on Expr nodes.
 class TrivialConstantFolder : ExpressionTransformer<TrivialConstantFolder> {
   friend ExpressionTransformer;
-  ExprAST *FoldBinOpExpr(BinOpExpr *B);
-  ExprAST *FoldUnaryOpExpr(UnaryOpExpr *U);
-  ExprAST *FoldParenExpr(ParenExpr *P);
+#define HANDLE_CONST_FOLD(Class) ExprAST *Fold##Class(Class *E);
+#include "simplecc/Transform/TrivialConstantFolder.def"
   ExprAST *FoldExprAST(ExprAST *E);
   ExprAST *TransformExpr(ExprAST *E, AST *Parent);
 public:
