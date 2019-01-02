@@ -3,6 +3,9 @@
 
 #include <algorithm>
 #include <iomanip>
+#ifdef _MSC_VER
+#include <cctype>
+#endif
 
 using namespace simplecc;
 

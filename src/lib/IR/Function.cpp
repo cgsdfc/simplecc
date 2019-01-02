@@ -9,7 +9,7 @@ using namespace simplecc;
 
 unsigned Function::getInstructionCount() const {
   return std::accumulate(
-      begin(), end(), unsigned(0),
+      begin(), end(), 0U,
       [](unsigned Count, const BasicBlock *BB) { return Count + BB->size(); });
 }
 
