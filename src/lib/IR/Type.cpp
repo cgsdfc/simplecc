@@ -9,12 +9,10 @@ using namespace simplecc;
     static Type The##Class(Class##Kind);                                       \
     return &The##Class;                                                        \
   }
-#include "simplecc/IR/Type.def"
 
 const char *Type::getName() const {
   switch (getTypeID()) {
-  default:
-    assert(false && "Invalid Enum Value");
+  default:assert(false && "Invalid Enum Value");
 #define HANDLE_TYPE(Class, Str)                                                \
   case Class##Kind:                                                            \
     return Str;

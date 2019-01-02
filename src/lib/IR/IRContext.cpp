@@ -1,6 +1,3 @@
-
-#include <simplecc/IR/IRContext.h>
-
 #include "simplecc/IR/IRContext.h"
 #include "simplecc/IR/Constant.h"
 

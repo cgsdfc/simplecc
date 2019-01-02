@@ -14,8 +14,8 @@ class ConstantInt : public Value {
 public:
   static ConstantInt *get(IRContext &Context, int Val);
 
-  bool isOneVal() const { return IntVal == 1; }
-  bool isZeroVal() const { return IntVal == 0; }
+  bool isTrue() const { return !isFalse(); }
+  bool isFalse() const { return IntVal == 0; }
   int getIntVal() const { return IntVal; }
 
   static bool InstanceCheck(const Value *V) {

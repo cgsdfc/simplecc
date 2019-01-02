@@ -1,9 +1,9 @@
+#include "simplecc/IR/Argument.h"
+#include "simplecc/IR/BasicBlock.h"
+#include "simplecc/IR/Function.h"
+#include "simplecc/IR/Module.h"
 #include <algorithm>
 #include <numeric>
-#include <simplecc/IR/Argument.h>
-#include <simplecc/IR/BasicBlock.h>
-#include <simplecc/IR/Function.h>
-#include <simplecc/IR/Module.h>
 
 using namespace simplecc;
 

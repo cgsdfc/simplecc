@@ -1,6 +1,6 @@
+#include "simplecc/IR/Module.h"
+#include "simplecc/IR/Function.h"
 #include <numeric>
-#include <simplecc/IR/Function.h>
-#include <simplecc/IR/Module.h>
 
 using namespace simplecc;
 

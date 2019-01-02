@@ -1,5 +1,5 @@
-#include <simplecc/IR/Use.h>
-#include <simplecc/IR/User.h>
+#include "simplecc/IR/Use.h"
+#include "simplecc/IR/User.h"
 
 using namespace simplecc;
 

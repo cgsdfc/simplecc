@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_IR_INSTRUCTION_H
 #define SIMPLECC_IR_INSTRUCTION_H
 #include "simplecc/IR/User.h"
-#include "BasicBlock.h"
+#include "simplecc/IR/BasicBlock.h"
 
 namespace simplecc {
 class BasicBlock;
@@ -9,8 +9,8 @@ class Module;
 class Function;
 
 class Instruction : public User {
+  friend class Value;
   BasicBlock *Parent;
-
 public:
   const BasicBlock *getParent() const { return Parent; }
   BasicBlock *getParent() { return Parent; }

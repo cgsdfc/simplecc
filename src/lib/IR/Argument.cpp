@@ -1,4 +1,4 @@
-#include <simplecc/IR/Argument.h>
+#include "simplecc/IR/Argument.h"
 
 using namespace simplecc;
 

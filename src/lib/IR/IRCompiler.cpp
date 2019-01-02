@@ -1,5 +1,4 @@
-
-#include <simplecc/IR/IRCompiler.h>
+#include "simplecc/IR/IRCompiler.h"
 
 using namespace simplecc;
 

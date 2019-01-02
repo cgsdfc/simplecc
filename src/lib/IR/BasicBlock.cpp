@@ -1,6 +1,7 @@
 #include "simplecc/IR/BasicBlock.h"
+#include "simplecc/IR/Function.h"
+#include "simplecc/IR/Instruction.h"
 #include <algorithm>
-#include <simplecc/IR/Function.h>
 
 using namespace simplecc;
 
@@ -16,4 +17,8 @@ BasicBlock::BasicBlock(Function *F)
   if (Parent) {
     Parent->getBasicBlockList().push_back(this);
   }
+}
+
+BasicBlock::~BasicBlock() {
+  std::for_each(begin(), end(), ValueDeleter());
 }

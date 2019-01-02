@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_IR_GLOBALVARIABLE_H
 #define SIMPLECC_IR_GLOBALVARIABLE_H
-#include <simplecc/IR/Value.h>
+#include "simplecc/IR/Value.h"
 
 namespace simplecc {
 class Module;

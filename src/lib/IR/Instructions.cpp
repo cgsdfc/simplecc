@@ -1,6 +1,5 @@
-#include "simplecc/IR/BasicBlock.h"
+#include "simplecc/IR/Instructions.h"
 #include "simplecc/IR/Function.h"
-#include <simplecc/IR/Instructions.h>
 
 using namespace simplecc;
 
