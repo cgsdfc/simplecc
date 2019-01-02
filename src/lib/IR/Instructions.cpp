@@ -53,7 +53,7 @@ LoadInst::LoadInst(Value *Ptr, BasicBlock *IAE)
 }
 
 AllocaInst::AllocaInst(unsigned int NumAlloc, BasicBlock *IAE)
-    : Instruction(Type::getIntType(), Alloca, 1, IAE), NumAlloc(NumAlloc) {}
+    : Instruction(Type::getPointerType(), Alloca, 1, IAE), NumAlloc(NumAlloc) {}
 
 GetElementPtrInst::GetElementPtrInst(Value *BasePtr, Value *Offset, BasicBlock *IAE)
     : Instruction(Type::getPointerType(), GEP, 2, IAE) {

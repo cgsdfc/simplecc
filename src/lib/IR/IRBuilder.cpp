@@ -1,5 +1,3 @@
-//
-// Created by cgsdfc on 18-12-29.
-//
+#include "simplecc/IR/IRBuilder.h"
 
-#include "../../include/simplecc/IR/IRBuilder.h"
+using namespace simplecc;

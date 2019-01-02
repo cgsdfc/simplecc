@@ -1,9 +1,8 @@
-#include "simplecc/Parse/Parse.h"
+#include <simplecc/Parse/Parse.h>
 #include "simplecc/Parse/ASTBuilder.h"
 #include "simplecc/Parse/Parser.h"
 
 namespace simplecc {
-
 std::unique_ptr<Node> BuildCST(const std::vector<TokenInfo> &TheTokens) {
   Parser P(&CompilerGrammar);
   return std::unique_ptr<Node>(P.ParseTokens(TheTokens));

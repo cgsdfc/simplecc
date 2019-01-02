@@ -64,7 +64,7 @@ set(SOURCE_FILES
         Transform/DeadCodeEliminator.cpp
         Transform/Transform.cpp
 
-        Driver/Driver.cpp)
+        Driver/Driver.cpp Parse/ParseTreePrinter.cpp ../include/simplecc/Parse/ParseTreePrinter.h)
 
 set(EXTRA_LIBRARIES "")
 

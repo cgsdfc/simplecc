@@ -86,12 +86,6 @@ void ASTPrettyPrinter::visitBinOp(BinOpExpr *B) {
   OS << ")";
 }
 
-void ASTPrettyPrinter::printIndent() {
-  for (unsigned I = 0, E = getIndentLevel(); I < E; I++) {
-    OS << "  ";
-  }
-}
-
 /// UnaryOpExpr(UAdd, CharExpr('a'))
 /// UnaryOpExpr(USub,
 ///   BinOpExpr(

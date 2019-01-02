@@ -1,5 +1,3 @@
-# version 0.1.0
-# top nonterminal
 program: const_decl* declaration* ENDMARKER
 
 # statement

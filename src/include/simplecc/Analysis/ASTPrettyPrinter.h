@@ -1,10 +1,11 @@
 #ifndef SIMPLECC_VISUALIZE_ASTPRETTYPRINTER_H
 #define SIMPLECC_VISUALIZE_ASTPRETTYPRINTER_H
 #include "simplecc/Analysis/Visitor.h"
-#include <iostream>
+#include <simplecc/Support/IndentAwarePrinter.h>
 
 namespace simplecc {
-class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter> {
+class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
+                         IndentAwarePrinter<ASTPrettyPrinter> {
   void visitProgram(Program *P);
   void visitFuncDef(FuncDef *FD);
   void visitConstDecl(ConstDecl *CD);
@@ -32,10 +33,6 @@ class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter> {
   void visitFor(ForStmt *F);
   void visitWhile(WhileStmt *W);
 
-  void increaseIndentLevel() { ++IndentLevel; }
-  void decreaseIndentLevel() { --IndentLevel; }
-  unsigned getIndentLevel() const { return IndentLevel; }
-  void printIndent();
   void printStmtList(const std::vector<StmtAST *> &StmtList);
   void printArgs(const std::vector<DeclAST *> &Args);
 
@@ -57,9 +54,10 @@ public:
   ASTPrettyPrinter(std::ostream &O) : OS(O) {}
   void PrettyPrint(const AST *A);
 private:
+  friend IndentAwarePrinter;
   friend VisitorBase;
-  unsigned IndentLevel = 0;
   std::ostream &OS;
+  std::ostream &getOS() { return OS; }
 };
 }
 

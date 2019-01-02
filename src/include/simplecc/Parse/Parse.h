@@ -5,6 +5,7 @@
 #include "simplecc/Lex/TokenInfo.h"
 #include <memory> // for unique_ptr
 #include <string>
+#include <iostream>
 
 namespace simplecc {
 using ProgramRef = std::unique_ptr<Program, DeleteAST>;

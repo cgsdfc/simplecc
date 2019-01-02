@@ -11,8 +11,6 @@
 
 namespace simplecc {
 class Node {
-  std::string FormatValue() const;
-
 public:
   using ChildrenListT = std::vector<Node *>;
 
@@ -36,11 +34,9 @@ public:
 
   void AddChild(Node *child) { Children.push_back(child); }
 
-  Node *FirstChild() { return getChild(0); }
+  Node *FirstChild() const { return getChild(0); }
 
-  Node *LastChild() { return getChild(getNumChildren() - 1); }
-
-  void Format(std::ostream &O) const;
+  Node *LastChild() const { return getChild(getNumChildren() - 1); }
 
   Node *getChild(unsigned Idx) const {
     assert(getNumChildren() >= 0 && Idx < getNumChildren());
@@ -50,9 +46,11 @@ public:
   unsigned getNumChildren() const { return Children.size(); }
 
   Symbol getType() const { return Type; }
+
   const char *getTypeName() const;
   const Location &getLocation() const { return Loc; }
   const std::string &getValue() const { return Value; }
+  void Format(std::ostream &O) const;
 
 private:
   Symbol Type;
