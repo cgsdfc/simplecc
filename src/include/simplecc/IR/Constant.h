@@ -3,15 +3,16 @@
 #include "simplecc/IR/Value.h"
 
 namespace simplecc {
+class IRContext;
 /// This class represents a constant signed integer literal.
 /// The underlying integer should fit into an C++ int.
 class ConstantInt : public Value {
   friend class Value;
+  friend class IRContext;
   explicit ConstantInt(int Val);
   ~ConstantInt() = default;
-
 public:
-  static ConstantInt *Create(int Val) { return new ConstantInt(Val); }
+  static ConstantInt *get(IRContext &Context, int Val);
 
   bool isOneVal() const { return IntVal == 1; }
   bool isZeroVal() const { return IntVal == 0; }
@@ -29,14 +30,12 @@ private:
 /// a StringLiteral is to be printed. Its type is PointerType.
 class StringLiteral : public Value {
   friend class Value;
+  friend class IRContext;
   explicit StringLiteral(const std::string &Str);
   ~StringLiteral() = default;
 
 public:
-  static StringLiteral *Create(const std::string &Str) {
-    return new StringLiteral(Str);
-  }
-
+  static StringLiteral *get(IRContext &Context, const std::string &Str);
   const std::string &getStrVal() const { return StrVal; }
   static bool InstanceCheck(const Value *V) {
     return V->getValueID() == StringLiteralVal;

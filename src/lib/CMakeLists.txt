@@ -13,6 +13,7 @@ set(SOURCE_FILES
         Parse/Node.cpp
         Parse/Parse.cpp
         Parse/Enums.cpp
+        Parse/ParseTreePrinter.cpp
 
         # Perform various analyses (or checks) on the AST.
         Analysis/TypeChecker.cpp
@@ -59,12 +60,14 @@ set(SOURCE_FILES
         IR/User.cpp
         IR/Constant.cpp
         IR/IRContext.cpp
+        IR/IRCompiler.cpp
 
         Transform/TrivialConstantFolder.cpp
         Transform/DeadCodeEliminator.cpp
         Transform/Transform.cpp
 
-        Driver/Driver.cpp Parse/ParseTreePrinter.cpp ../include/simplecc/Parse/ParseTreePrinter.h)
+        Driver/Driver.cpp
+        )
 
 set(EXTRA_LIBRARIES "")
 

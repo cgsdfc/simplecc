@@ -16,7 +16,6 @@ class IRBuilder {
   }
 
 public:
-
   ReturnInst *CreateRetVoid() {
     return Insert(ReturnInst::Create());
   }
@@ -90,19 +89,17 @@ BinaryOperator *Create##Opcode(Value *LHS, Value *RHS) {       \
   Type *getCurrentFunctionReturnType() const;
 
   StringLiteral *CreateStringLiteral(const std::string &Str) {
-    return StringLiteral::Create(Str);
+    return StringLiteral::get(Context, Str);
   }
 
   ConstantInt *getTrue() {
-    return ConstantInt::Create(1);
+    return getInt32(1);
   }
-
   ConstantInt *getFalse() {
-    return ConstantInt::Create(0);
+    return getInt32(0);
   }
-
   ConstantInt *getInt32(int C) {
-    return ConstantInt::Create(C);
+    return ConstantInt::get(Context, C);
   }
 
   Type *getIntType() const {
@@ -115,17 +112,12 @@ BinaryOperator *Create##Opcode(Value *LHS, Value *RHS) {       \
     return Type::getPointerType();
   }
 
-  IRBuilder(BasicBlock *TheBB) {
+  IRBuilder(IRContext &C, BasicBlock *TheBB) : Context(C) {
     SetInsertPoint(TheBB);
-  }
-  IRBuilder(Instruction *IP) {
-    SetInsertPoint(IP);
-  }
-  IRBuilder(BasicBlock *TheBB, BasicBlock::iterator IP) {
-    SetInsertPoint(TheBB, IP);
   }
   ~IRBuilder() = default;
 private:
+  IRContext &Context;
   BasicBlock *BB;
   BasicBlock::iterator InsertPt;
 };
