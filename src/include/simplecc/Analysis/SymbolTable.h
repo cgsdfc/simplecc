@@ -4,8 +4,8 @@
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/Parse/AST.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 #include <unordered_map>
 
 namespace simplecc {

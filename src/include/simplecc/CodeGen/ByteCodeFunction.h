@@ -2,8 +2,8 @@
 #define SIMPLECC_CODEGEN_BYTECODEFUNCTION_H
 #include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/CodeGen/ByteCode.h"
-#include <string>
 #include <iostream>
+#include <string>
 #include <utility> // move()
 #include <vector>
 

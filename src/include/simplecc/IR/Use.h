@@ -27,7 +27,7 @@ public:
   }
 
   /// Change the Value to V
-  void set(Value *V) ;
+  void set(Value *V);
 
 private:
   /// The Value being used.
@@ -35,6 +35,6 @@ private:
   /// The User that use the Value.
   User *TheUser;
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_IR_USE_H
+#endif // SIMPLECC_IR_USE_H

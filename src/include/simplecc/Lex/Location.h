@@ -25,6 +25,6 @@ inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
   loc.Format(os);
   return os;
 }
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_LEX_LOCATION_H
+#endif // SIMPLECC_LEX_LOCATION_H

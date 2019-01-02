@@ -1,6 +1,6 @@
 #include "simplecc/Transform/Transform.h"
-#include "simplecc/Transform/TrivialConstantFolder.h"
 #include "simplecc/Transform/DeadCodeEliminator.h"
+#include "simplecc/Transform/TrivialConstantFolder.h"
 
 namespace simplecc {
 void TransformProgram(Program *P, SymbolTable &S) {

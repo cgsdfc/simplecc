@@ -82,7 +82,7 @@ std::vector<ExprAST *> ASTBuilder::visit_arglist(Node *N) {
 }
 
 ExprAST *ASTBuilder::visit_atom_trailer(Node *N, const std::string &Name,
-                                     ExprContextKind Context) {
+                                        ExprContextKind Context) {
   auto first = N->FirstChild();
   if (first->getType() == Symbol::arglist) {
     // no empty arglist
@@ -243,7 +243,7 @@ ExprAST *ASTBuilder::visit_binop(Node *N, ExprContextKind Context) {
 }
 
 DeclAST *ASTBuilder::visit_funcdef(BasicTypeKind RetTy, std::string Name,
-                                Node *decl_trailer, const Location &L) {
+                                   Node *decl_trailer, const Location &L) {
   std::vector<DeclAST *> ParamList;
   std::vector<DeclAST *> FnDecls;
   std::vector<StmtAST *> FnStmts;
@@ -328,7 +328,8 @@ StmtAST *ASTBuilder::visit_stmt_trailer(Node *N, Node *Name) {
   auto first = N->FirstChild();
   if (first->getType() == Symbol::arglist) {
     std::vector<ExprAST *> Args = visit_arglist(first);
-    auto C = new CallExpr(Name->getValue(), std::move(Args), Name->getLocation());
+    auto C =
+        new CallExpr(Name->getValue(), std::move(Args), Name->getLocation());
     return new ExprStmt(C, Name->getLocation());
 
   } else if (first->getValue() == "[") {
@@ -351,14 +352,18 @@ void ASTBuilder::visit_compound_stmt(Node *N, std::vector<DeclAST *> &FnDecls,
                                      std::vector<StmtAST *> &FnStmts) {
   for (auto C : N->getChildren()) {
     switch (C->getType()) {
-    case Symbol::const_decl:visit_const_decl(C, FnDecls);
+    case Symbol::const_decl:
+      visit_const_decl(C, FnDecls);
       break;
-    case Symbol::var_decl:visit_var_decl(C, FnDecls);
+    case Symbol::var_decl:
+      visit_var_decl(C, FnDecls);
       break;
-    case Symbol::stmt:visit_stmt(C, FnStmts);
+    case Symbol::stmt:
+      visit_stmt(C, FnStmts);
       break;
       // discard left brace & right brace.
-    default:continue;
+    default:
+      continue;
     }
   }
 }
@@ -402,9 +407,9 @@ DeclAST *ASTBuilder::visit_var_item(Node *N, BasicTypeKind Ty) {
   bool IsArray = N->getNumChildren() > 1;
   int Size = IsArray ? visit_subscript2(N->getChild(1)) : 0;
   return new VarDecl(Ty,
-      /* is_array */ IsArray,
-      /* size */ Size,
-      /* name */ name->getValue(), name->getLocation());
+                     /* is_array */ IsArray,
+                     /* size */ Size,
+                     /* name */ name->getValue(), name->getLocation());
 }
 
 StmtAST *ASTBuilder::visit_while_stmt(Node *N) {

@@ -76,7 +76,9 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
   /// This helper evaluates an Expr, optional emits a char-to-int cast
   /// to ensure the result is int.
-  Value *visitExprPromoteToInt(ExprAST *E) { return PromoteToInt(visitExpr(E)); }
+  Value *visitExprPromoteToInt(ExprAST *E) {
+    return PromoteToInt(visitExpr(E));
+  }
 
   /// The tricky part of BoolOp:
   /// BoolOp has two forms, indicated by getHasCmpop() and should be handled

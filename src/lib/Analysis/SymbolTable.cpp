@@ -29,7 +29,8 @@ void SymbolTable::clear() {
 LocalSymbolTable SymbolTable::getLocalTable(FuncDef *FD) const {
   assert(LocalTables.count(FD));
   // TODO: Fix this const_cast.
-  return LocalSymbolTable(const_cast<SymbolTable *>(this)->LocalTables.find(FD)->second);
+  return LocalSymbolTable(
+      const_cast<SymbolTable *>(this)->LocalTables.find(FD)->second);
 }
 
 // Return a SymbolEntry for a global name.

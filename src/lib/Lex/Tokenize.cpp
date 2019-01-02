@@ -2,9 +2,7 @@
 #include "simplecc/Support/ErrorManager.h"
 
 #include <algorithm>
-#include <cctype>
 #include <iomanip>
-#include <string> // getline()
 
 using namespace simplecc;
 
@@ -118,7 +116,8 @@ void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
       } else {
         ++Pos; // ERRORTOKEN
       }
-      std::string Str(TheLine.begin() + Start.getColOffset(), TheLine.begin() + Pos);
+      std::string Str(TheLine.begin() + Start.getColOffset(),
+                      TheLine.begin() + Pos);
       if (Type == Symbol::NAME) {
         ToLowerInplace(Str);
       }

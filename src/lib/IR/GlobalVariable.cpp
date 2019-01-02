@@ -1,5 +1,5 @@
-#include <simplecc/IR/GlobalVariable.h>
 #include "simplecc/IR/Module.h"
+#include <simplecc/IR/GlobalVariable.h>
 
 using namespace simplecc;
 

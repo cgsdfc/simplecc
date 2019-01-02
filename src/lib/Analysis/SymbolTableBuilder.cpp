@@ -5,8 +5,8 @@ using namespace simplecc;
 void SymbolTableBuilder::DefineLocalDecl(DeclAST *D) {
   assert(TheLocal && "TheLocal must be set!");
   if (TheLocal->count(D->getName())) {
-    EM.Error(D->getLocation(), "redefinition of identifier", D->getName(),
-             "in", TheFuncDef->getName());
+    EM.Error(D->getLocation(), "redefinition of identifier", D->getName(), "in",
+             TheFuncDef->getName());
     return;
   }
   if (TheGlobal->count(D->getName()) &&
@@ -56,7 +56,8 @@ void SymbolTableBuilder::visitSubscript(SubscriptExpr *SB) {
 
 void SymbolTableBuilder::visitDecl(DeclAST *D) {
   switch (D->getKind()) {
-  case DeclAST::FuncDefKind:setFuncDef(static_cast<FuncDef *>(D));
+  case DeclAST::FuncDefKind:
+    setFuncDef(static_cast<FuncDef *>(D));
     setLocal(&TheTable->getLocal(TheFuncDef));
     /// Define this function globally.
     DefineGlobalDecl(D);
@@ -67,7 +68,8 @@ void SymbolTableBuilder::visitDecl(DeclAST *D) {
   case DeclAST::ArgDeclKind:
     /* Fall through */
     return TheLocal ? DefineLocalDecl(D) : DefineGlobalDecl(D);
-  default:assert(false && "Unhandled DeclAST subclass!");
+  default:
+    assert(false && "Unhandled DeclAST subclass!");
   }
 }
 

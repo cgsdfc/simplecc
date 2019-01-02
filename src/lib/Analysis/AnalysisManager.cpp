@@ -1,6 +1,6 @@
 #include "simplecc/Analysis/AnalysisManager.h"
-#include "simplecc/Analysis/ArrayBoundChecker.h"
 #include "simplecc/Analysis/ASTVerifier.h"
+#include "simplecc/Analysis/ArrayBoundChecker.h"
 #include "simplecc/Analysis/ImplicitCallTransformer.h"
 #include "simplecc/Analysis/SymbolTableBuilder.h"
 #include "simplecc/Analysis/SyntaxChecker.h"

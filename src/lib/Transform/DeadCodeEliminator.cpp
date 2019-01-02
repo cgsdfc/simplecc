@@ -2,9 +2,7 @@
 
 using namespace simplecc;
 
-void DeadCodeEliminator::visitFor(ForStmt *F) {
-  visitStmtList(F->getBody());
-}
+void DeadCodeEliminator::visitFor(ForStmt *F) { visitStmtList(F->getBody()); }
 
 void DeadCodeEliminator::visitWhile(WhileStmt *W) {
   visitStmtList(W->getBody());
@@ -21,9 +19,8 @@ void DeadCodeEliminator::visitFuncDef(FuncDef *FD) {
 
 void DeadCodeEliminator::visitStmtList(StmtListType &StmtList) {
   // Transform each child first.
-  std::for_each(StmtList.begin(), StmtList.end(), [this](StmtAST *Stmt) {
-    visitStmt(Stmt);
-  });
+  std::for_each(StmtList.begin(), StmtList.end(),
+                [this](StmtAST *Stmt) { visitStmt(Stmt); });
   TransformStmtList(StmtList);
 }
 
@@ -45,14 +42,16 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
       Iter = StmtList.erase(Iter);
       continue;
     }
-    // Case-3: if-stmt. replace it with its either branch if the condition is constant.
+    // Case-3: if-stmt. replace it with its either branch if the condition is
+    // constant.
     /// if (false) then; else; becomes
     /// else;
     if (IsInstance<IfStmt>(*Iter) &&
         static_cast<IfStmt *>(*Iter)->getTest()->isConstant()) {
       auto If = static_cast<IfStmt *>(*Iter);
-      std::vector<StmtAST *> Branch = If->getTest()->isZeroVal() ?
-                                      std::move(*If).getOrelse() : std::move(*If).getBody();
+      std::vector<StmtAST *> Branch = If->getTest()->isZeroVal()
+                                          ? std::move(*If).getOrelse()
+                                          : std::move(*If).getBody();
       // Delete and erase the if-stmt.
       DeleteAST::apply(If);
       Iter = StmtList.erase(Iter);
@@ -72,13 +71,14 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
       std::vector<StmtAST *> Body = std::move(*For).getBody();
       DeleteAST::apply(For);
       // Note: Be careful with *Iter++ = thing!
-      // The container won't resize as you write to it via iterator, So when Iter went
-      // out of range (end()), the container was compromised.
+      // The container won't resize as you write to it via iterator, So when
+      // Iter went out of range (end()), the container was compromised.
 
       // Note: This is replacing the old ForStmt at Iter with its Initial and
       // advance Iter by one. Since Iter originally pointed to valid element,
-      // Iter+1 is always valid (even it is end()). Thus it can be passed to insert().
-      // Here, *Iter is valid storage and Iter+1 is valid iterator so it is a valid construct.
+      // Iter+1 is always valid (even it is end()). Thus it can be passed to
+      // insert(). Here, *Iter is valid storage and Iter+1 is valid iterator so
+      // it is a valid construct.
       *Iter++ = static_cast<StmtAST *>(Initial.release());
       Iter = StmtList.insert(Iter, Body.begin(), Body.end());
       // Advance to the end of the Body stmt list.

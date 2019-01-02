@@ -138,8 +138,8 @@ BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
 }
 
 static void CheckNoLoadFunction(SymbolEntry Entry, NameExpr *N) {
-  assert(!(Entry.IsFunction() && N->getContext() == ExprContextKind::Load)
-             && "There should be no NameExpr being a Function!");
+  assert(!(Entry.IsFunction() && N->getContext() == ExprContextKind::Load) &&
+         "There should be no NameExpr being a Function!");
 }
 
 BasicTypeKind TypeChecker::visitName(NameExpr *N) {

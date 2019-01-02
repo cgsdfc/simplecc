@@ -3,8 +3,8 @@
 #include "simplecc/Parse/AST.h"
 #include "simplecc/Visualize/ASTNode.h"
 #include "simplecc/Visualize/TreeLikeIterator.h"
-#include <llvm/ADT/STLExtras.h>
 #include <cassert>
+#include <llvm/ADT/STLExtras.h>
 #include <map>
 #include <memory>
 #include <vector>
@@ -19,8 +19,8 @@ public:
   using ChildIteratorType = EdgeType::const_iterator;
 
   /// Iterator to all nodes of a graph.
-  class ASTIterator :
-      public TreeLikeIterator<ASTIterator, ASTNode *, ChildIteratorType> {
+  class ASTIterator
+      : public TreeLikeIterator<ASTIterator, ASTNode *, ChildIteratorType> {
   public:
     ASTIterator(Program *P, ASTGraph *G) : TreeLikeIterator(), Parent(G) {
       Initialize(Parent->getNodeOrCreate(P));
@@ -31,6 +31,7 @@ public:
       const auto &LazyEdges = Parent->getEdgeOrCreate(*N);
       return llvm::make_range(LazyEdges.begin(), LazyEdges.end());
     }
+
   private:
     ASTGraph *Parent = nullptr;
   };
@@ -61,6 +62,7 @@ public:
   ASTNode *getNodeOrCreate(AST *Ptr);
 
   const Program *getProgram() const { return TheProgram; }
+
 private:
   /// Root of AST.
   Program *TheProgram;

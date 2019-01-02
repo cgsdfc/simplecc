@@ -8,7 +8,8 @@ namespace simplecc {
 class Function;
 class GlobalVariable;
 
-/// The Module class is a containers of a list of GlobalValues and a list of Functions.
+/// The Module class is a containers of a list of GlobalValues and a list of
+/// Functions.
 class Module final {
 public:
   using FunctionListType = std::vector<Function *>;
@@ -30,9 +31,7 @@ public:
   const_reverse_iterator rbegin() const { return FunctionList.rbegin(); }
   const_reverse_iterator rend() const { return FunctionList.rend(); }
 
-  iterator_range<iterator> functions() {
-    return make_range(begin(), end());
-  }
+  iterator_range<iterator> functions() { return make_range(begin(), end()); }
   iterator_range<const_iterator> functions() const {
     return make_range(begin(), end());
   }

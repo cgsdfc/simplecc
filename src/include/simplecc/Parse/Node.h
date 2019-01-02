@@ -3,11 +3,11 @@
 #include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Grammar.h"
 
-#include <string>
 #include <cassert>
 #include <iostream>
-#include <vector>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace simplecc {
 class Node {

@@ -33,9 +33,11 @@ class TypeChecker : AnalysisVisitor<TypeChecker> {
 
   // not actually used, for instantiation only.
   BasicTypeKind visitStr(StrExpr *);
+
 public:
   TypeChecker() : AnalysisVisitor("TypeError") {}
   using AnalysisVisitor::Check;
+
 private:
   friend AnalysisVisitor;
   friend ChildrenVisitor;

@@ -8,19 +8,19 @@ class Module;
 /// GlobalVariable is a list of int. Its type is PointerTy.
 class GlobalVariable : public Value {
   GlobalVariable(unsigned Size, Module *M);
+
 public:
   GlobalVariable *Create(unsigned Size, Module *M = nullptr) {
     return new GlobalVariable(Size, M);
   }
-  unsigned getSize() const {
-    return Size;
-  }
+  unsigned getSize() const { return Size; }
   static bool InstanceCheck(const Value *V) {
     return GlobalVariableVal == V->getValueID();
   }
+
 private:
   unsigned Size;
 };
 
-}
-#endif //SIMPLECC_IR_GLOBALVARIABLE_H
+} // namespace simplecc
+#endif // SIMPLECC_IR_GLOBALVARIABLE_H

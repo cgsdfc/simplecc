@@ -7,8 +7,7 @@ namespace simplecc {
 /// This is a CRTP Mixin that provides means to control
 /// the indent level in each line to be printed. Subclass
 /// should provide a getOS() method for this to work.
-template<typename Derive>
-class IndentAwarePrinter {
+template <typename Derive> class IndentAwarePrinter {
 public:
   void increaseIndentLevel() { ++IndentLevel; }
   void decreaseIndentLevel() { --IndentLevel; }
@@ -18,10 +17,11 @@ public:
       static_cast<Derive *>(this)->getOS() << "  ";
     }
   }
+
 private:
   unsigned IndentLevel = 0;
 };
 
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_SUPPORT_INDENTAWAREPRINTER_H
+#endif // SIMPLECC_SUPPORT_INDENTAWAREPRINTER_H

@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_IR_FUNCTION_H
 #define SIMPLECC_IR_FUNCTION_H
-#include <simplecc/Support/iterator_range.h>
 #include "simplecc/IR/Value.h"
+#include <simplecc/Support/iterator_range.h>
 
 namespace simplecc {
 class Argument;
@@ -13,6 +13,7 @@ class Function final : public Value {
   friend class Value;
   Function(Type *ReturnType, unsigned NumArgs, Module *M);
   ~Function();
+
 public:
   using BasicBlockListType = std::vector<BasicBlock *>;
   using iterator = BasicBlockListType::iterator;
@@ -60,7 +61,8 @@ public:
   Function(const Function &) = delete;
   Function &operator=(const Function &) = delete;
 
-  static Function *Create(Type *RetTy, unsigned NumArgs, const std::string &Name, Module &M) {
+  static Function *Create(Type *RetTy, unsigned NumArgs,
+                          const std::string &Name, Module &M) {
     return new Function(RetTy, NumArgs, &M);
   }
 
@@ -69,6 +71,7 @@ public:
     return V->getValueID() == FunctionVal;
   }
   void eraseFromParent();
+
 private:
   Module *Parent;
   Type *ReturnType;

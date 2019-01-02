@@ -1,10 +1,10 @@
-#include <simplecc/Transform/TrivialConstantFolder.h>
 #include <functional>
+#include <simplecc/Transform/TrivialConstantFolder.h>
 
 using namespace simplecc;
 
 // TODO: don't use such a template.
-template<typename BinaryFunc>
+template <typename BinaryFunc>
 static inline int Compute(BinaryFunc Op, int L, int R) {
   return Op(L, R);
 }
@@ -17,21 +17,28 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
   if (!L->isConstant() && !R->isConstant()) {
     // If both side are the same name, there may be opportunity.
     if (IsInstance<NameExpr>(L) && IsInstance<NameExpr>(R) &&
-        static_cast<NameExpr *>(L)->getId() == static_cast<NameExpr *>(R)->getId()) {
+        static_cast<NameExpr *>(L)->getId() ==
+            static_cast<NameExpr *>(R)->getId()) {
       switch (B->getOp()) {
         // Case-1-1: X - X == 0
-      case OperatorKind::Sub: return new NumExpr(0, B->getLocation());
-        // Case-1-2: Since X might be zero, which will cause a ZeroDivisor, we lose an opportunity.
-      case OperatorKind::Div: return B;
+      case OperatorKind::Sub:
+        return new NumExpr(0, B->getLocation());
+        // Case-1-2: Since X might be zero, which will cause a ZeroDivisor, we
+        // lose an opportunity.
+      case OperatorKind::Div:
+        return B;
         // Case-1-3: X == X == 1, X >= X == 1, X <= X == 1
       case OperatorKind::GtE:
       case OperatorKind::LtE: // Fall through
-      case OperatorKind::Eq: return new NumExpr(1, B->getLocation());
+      case OperatorKind::Eq:
+        return new NumExpr(1, B->getLocation());
         // Case-1-4: X != X == 0, X < X == 0, X > X == 0
       case OperatorKind::Lt:
       case OperatorKind::Gt: // Fall through
-      case OperatorKind::NotEq: return new NumExpr(0, B->getLocation());
-      default:return B;
+      case OperatorKind::NotEq:
+        return new NumExpr(0, B->getLocation());
+      default:
+        return B;
       }
     }
     // No opportunity.
@@ -47,7 +54,8 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
   // Case-2: both side is constant, evaluate it directly.
   if (L->isConstant() && R->isConstant()) {
     switch (B->getOp()) {
-    default:assert(false && "Unhandled Enum Value");
+    default:
+      assert(false && "Unhandled Enum Value");
 #define HANDLE_OPERATOR(VAL, OP, FUNC)                                         \
   case OperatorKind::VAL:                                                      \
     return new NumExpr(Compute(std::FUNC<int>(), L->getConstantValue(),        \
@@ -85,12 +93,13 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
       return static_cast<ExprAST *>(std::move(*B).getLeft().release());
     return B;
   case OperatorKind::Div:
-    // 0 / X == 0, but X may be zero, which will cause a ZeroDivisor. Lose opportunity.
-    // X / 1 == X
+    // 0 / X == 0, but X may be zero, which will cause a ZeroDivisor. Lose
+    // opportunity. X / 1 == X
     if (R->isOneVal())
       return static_cast<ExprAST *>(std::move(*B).getLeft().release());
     return B;
-  default:return B;
+  default:
+    return B;
   }
 }
 
@@ -127,18 +136,23 @@ ExprAST *TrivialConstantFolder::FoldNameExpr(NameExpr *N) {
   }
   auto CT = Entry.AsConstant();
   switch (CT.getType()) {
-  case BasicTypeKind::Int:return new NumExpr(CT.getValue(), N->getLocation());
-  case BasicTypeKind::Character:return new CharExpr(CT.getValue(), N->getLocation());
-  default:assert(false && "Invalid Enum Value");
+  case BasicTypeKind::Int:
+    return new NumExpr(CT.getValue(), N->getLocation());
+  case BasicTypeKind::Character:
+    return new CharExpr(CT.getValue(), N->getLocation());
+  default:
+    assert(false && "Invalid Enum Value");
   }
 }
 
 ExprAST *TrivialConstantFolder::FoldExprAST(ExprAST *E) {
   switch (E->getKind()) {
-#define HANDLE_CONST_FOLD(Class) \
-  case ExprAST::Class##Kind: return Fold##Class(static_cast<Class *>(E));
+#define HANDLE_CONST_FOLD(Class)                                               \
+  case ExprAST::Class##Kind:                                                   \
+    return Fold##Class(static_cast<Class *>(E));
 #include "simplecc/Transform/TrivialConstantFolder.def"
-  default:return E;
+  default:
+    return E;
   }
 }
 

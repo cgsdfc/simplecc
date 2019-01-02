@@ -1,6 +1,6 @@
-#include <simplecc/IR/Instructions.h>
 #include "simplecc/IR/BasicBlock.h"
 #include "simplecc/IR/Function.h"
+#include <simplecc/IR/Instructions.h>
 
 using namespace simplecc;
 
@@ -14,9 +14,7 @@ ReturnInstr::ReturnInstr(Value *Val, BasicBlock *BB)
 BranchInst::BranchInst(unsigned NumOps, BasicBlock *BB)
     : Instruction(Type::getVoidType(), Br, NumOps, BB) {}
 
-BranchInst::BranchInst(BasicBlock *IfTrue,
-                       BasicBlock *IfFalse,
-                       Value *Cond,
+BranchInst::BranchInst(BasicBlock *IfTrue, BasicBlock *IfFalse, Value *Cond,
                        BasicBlock *BB)
     : BranchInst(3, BB) {
   setOperand(0, Cond);
@@ -55,7 +53,8 @@ LoadInst::LoadInst(Value *Ptr, BasicBlock *IAE)
 AllocaInst::AllocaInst(unsigned int NumAlloc, BasicBlock *IAE)
     : Instruction(Type::getPointerType(), Alloca, 1, IAE), NumAlloc(NumAlloc) {}
 
-GetElementPtrInst::GetElementPtrInst(Value *BasePtr, Value *Offset, BasicBlock *IAE)
+GetElementPtrInst::GetElementPtrInst(Value *BasePtr, Value *Offset,
+                                     BasicBlock *IAE)
     : Instruction(Type::getPointerType(), GEP, 2, IAE) {
   assert(BasePtr->getType()->isPointerType());
   assert(Offset->getType()->isIntType());
@@ -71,7 +70,8 @@ StoreInst::StoreInst(Value *Ptr, Value *Val, BasicBlock *IAE)
   setOperand(1, Val);
 }
 
-BinaryOperator::BinaryOperator(unsigned Op, Value *LHS, Value *RHS, BasicBlock *IAE)
+BinaryOperator::BinaryOperator(unsigned Op, Value *LHS, Value *RHS,
+                               BasicBlock *IAE)
     : Instruction(Type::getIntType(), Op, 2, IAE) {
   assert(isBinaryOp(Op) && "Not a BinaryOp");
   assert(LHS->getType()->isIntType() && RHS->getType()->isIntType());
@@ -79,7 +79,8 @@ BinaryOperator::BinaryOperator(unsigned Op, Value *LHS, Value *RHS, BasicBlock *
   setOperand(1, RHS);
 }
 
-CallInst::CallInst(Function *Callee, const std::vector<Value *> &Args, BasicBlock *IAE)
+CallInst::CallInst(Function *Callee, const std::vector<Value *> &Args,
+                   BasicBlock *IAE)
     : Instruction(Callee->getReturnType(), Call, Args.size() + 1, IAE) {
   unsigned I = 0;
   for (unsigned E = Args.size(); I < E; ++I) {

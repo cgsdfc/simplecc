@@ -37,7 +37,7 @@ using simplecc::ASTGraph;
 using simplecc::ASTNode;
 
 /// Specialized GraphTraits for ASTGraph
-template<> struct GraphTraits<ASTGraph> {
+template <> struct GraphTraits<ASTGraph> {
   using NodeRef = ASTNode *;
   using nodes_iterator = ASTGraph::NodeIterator;
   using ChildIteratorType = ASTGraph::ChildIteratorType;
@@ -58,7 +58,7 @@ template<> struct GraphTraits<ASTGraph> {
 };
 
 /// Specialized DOTGraphTraits for ASTGraph.
-template<> struct DOTGraphTraits<ASTGraph> : DefaultDOTGraphTraits {
+template <> struct DOTGraphTraits<ASTGraph> : DefaultDOTGraphTraits {
   explicit DOTGraphTraits(bool simple = false)
       : DefaultDOTGraphTraits(simple) {}
 

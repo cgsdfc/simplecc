@@ -29,23 +29,23 @@ void ASTPrettyPrinter::visitProgram(Program *P) {
 }
 
 void ASTPrettyPrinter::visitConstDecl(ConstDecl *CD) {
-  OS << CD->getClassName() << "(" << CD->getType() << ", " <<
-     CD->getName() << ", ";
+  OS << CD->getClassName() << "(" << CD->getType() << ", " << CD->getName()
+     << ", ";
   visitExpr(CD->getValue());
   OS << ")";
 }
 
 /// VarDecl(Int, Name, true, 10)
 void ASTPrettyPrinter::visitVarDecl(VarDecl *VD) {
-  OS << VD->getClassName() << "(" << VD->getType() << ", " <<
-     VD->getName() << ", " <<
-     std::boolalpha << bool(VD->isArray()) << ", " <<
-     VD->getSize() << ")";
+  OS << VD->getClassName() << "(" << VD->getType() << ", " << VD->getName()
+     << ", " << std::boolalpha << bool(VD->isArray()) << ", " << VD->getSize()
+     << ")";
 }
 
 /// NameExpr(Name, Load)
 void ASTPrettyPrinter::visitName(NameExpr *N) {
-  OS << N->getClassName() << "(" << N->getId() << ", " << N->getContext() << ")";
+  OS << N->getClassName() << "(" << N->getId() << ", " << N->getContext()
+     << ")";
 }
 
 /// StrExpr("string")
@@ -474,7 +474,8 @@ void ASTPrettyPrinter::visitSubscript(SubscriptExpr *SB) {
 /// FuncDef(Void, Fun, Args(), [])
 /// FuncDef(Void, Fun, Args(), [ReturnStmt])
 void ASTPrettyPrinter::visitFuncDef(FuncDef *FD) {
-  OS << FD->getClassName() << "(" << FD->getReturnType() << ", " << FD->getName() << ", ";
+  OS << FD->getClassName() << "(" << FD->getReturnType() << ", "
+     << FD->getName() << ", ";
   printArgs(FD->getArgs());
   OS << ", [";
   // Special case when the body is empty.
@@ -529,4 +530,4 @@ void PrettyPrintAST(const AST &A, std::ostream &O) {
   ASTPrettyPrinter(O).PrettyPrint(&A);
   O << "\n";
 }
-}
+} // namespace simplecc

@@ -10,13 +10,12 @@ class BasicBlock final : public Value {
   friend class Value;
   explicit BasicBlock(Function *F);
   ~BasicBlock();
+
 public:
   BasicBlock(const BasicBlock &) = delete;
   BasicBlock &operator=(const BasicBlock &) = delete;
 
-  static BasicBlock *Create(Function &F) {
-    return new BasicBlock(&F);
-  }
+  static BasicBlock *Create(Function &F) { return new BasicBlock(&F); }
 
   Function *getParent() const { return Parent; }
 
@@ -59,6 +58,7 @@ public:
   }
 
   void removeInst(const Instruction *I);
+
 private:
   Function *Parent;
   InstListType InstList;

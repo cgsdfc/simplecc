@@ -9,6 +9,7 @@ class Function;
 
 class Instruction : public User {
   BasicBlock *Parent;
+
 public:
   const BasicBlock *getParent() const { return Parent; }
   BasicBlock *getParent() { return Parent; }
@@ -38,7 +39,8 @@ public:
   };
 
 protected:
-  Instruction(Type *Ty, unsigned Opcode, unsigned NumOps, BasicBlock *InsertAtEnd);
+  Instruction(Type *Ty, unsigned Opcode, unsigned NumOps,
+              BasicBlock *InsertAtEnd);
   ~Instruction();
 
 public:
@@ -63,8 +65,10 @@ public:
   static bool isCommutative(unsigned Opcode) {
     switch (Opcode) {
     case Add:
-    case Mul:return true;
-    default:return false;
+    case Mul:
+      return true;
+    default:
+      return false;
     }
   }
 
@@ -74,9 +78,7 @@ public:
     return mayReadFromMemory() || mayWriteToMemory();
   }
 
-  bool mayHaveSideEffects() const {
-    return mayWriteToMemory();
-  }
+  bool mayHaveSideEffects() const { return mayWriteToMemory(); }
 
   bool isSafeToRemove() const;
 

@@ -1,5 +1,5 @@
-#include <simplecc/Parse/ParseTreePrinter.h>
 #include <simplecc/Lex/TokenInfo.h>
+#include <simplecc/Parse/ParseTreePrinter.h>
 
 using namespace simplecc;
 

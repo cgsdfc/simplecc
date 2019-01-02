@@ -2,8 +2,8 @@
 #define SIMPLECC_CODEGEN_BYTECODEMODULE_H
 #include "simplecc/Analysis/Types.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 #include <unordered_map>
 #include <vector>
 

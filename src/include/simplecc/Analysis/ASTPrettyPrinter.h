@@ -41,24 +41,25 @@ class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
     case ExprAST::NameExprKind:
     case ExprAST::StrExprKind:
     case ExprAST::NumExprKind:
-    case ExprAST::CharExprKind:return true;
-    default:return false;
+    case ExprAST::CharExprKind:
+      return true;
+    default:
+      return false;
     }
   }
 
-  bool hasNoArgument(CallExpr *C) const {
-    return !C->getNumArgs();
-  }
+  bool hasNoArgument(CallExpr *C) const { return !C->getNumArgs(); }
 
 public:
   ASTPrettyPrinter(std::ostream &O) : OS(O) {}
   void PrettyPrint(const AST *A);
+
 private:
   friend IndentAwarePrinter;
   friend VisitorBase;
   std::ostream &OS;
   std::ostream &getOS() { return OS; }
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_VISUALIZE_ASTPRETTYPRINTER_H
+#endif // SIMPLECC_VISUALIZE_ASTPRETTYPRINTER_H

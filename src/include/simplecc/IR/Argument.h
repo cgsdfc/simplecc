@@ -10,6 +10,7 @@ class Function;
 /// Argument Type is always int.
 class Argument : public Value {
   Argument(Function *F, unsigned ArgNo);
+
 public:
   static Argument *Create(Function &F, unsigned ArgNo) {
     return new Argument(&F, ArgNo);
@@ -25,10 +26,11 @@ public:
   static bool InstanceCheck(const Value *V) {
     return V->getValueID() == ArgumentVal;
   }
+
 private:
   Function *Parent;
   unsigned ArgNo;
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_IR_ARGUMENT_H
+#endif // SIMPLECC_IR_ARGUMENT_H

@@ -74,7 +74,7 @@ ConstType SymbolEntry::AsConstant() const {
 
 bool SymbolEntry::IsArray() const {
   return TheDecl && IsInstance<VarDecl>(TheDecl) &&
-      static_cast<VarDecl *>(TheDecl)->isArray();
+         static_cast<VarDecl *>(TheDecl)->isArray();
 }
 
 bool SymbolEntry::IsVariable() const {
@@ -100,7 +100,7 @@ Location SymbolEntry::getLocation() const {
   return TheDecl->getLocation();
 }
 
-const std::string & SymbolEntry::getName() const {
+const std::string &SymbolEntry::getName() const {
   assert(TheDecl);
   return TheDecl->getName();
 }

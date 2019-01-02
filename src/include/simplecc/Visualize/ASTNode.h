@@ -11,6 +11,7 @@ class ASTNode {
   /// Pointer to enclosing ASTGraph. This is required since
   /// GraphTraits::child_XXX() takes **only** a NodeRef.
   ASTGraph *Parent;
+
 public:
   ASTNode(AST *Ptr, ASTGraph *P) : Ref(Ptr), Parent(P) {}
 

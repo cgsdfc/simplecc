@@ -10,12 +10,14 @@ namespace simplecc {
 /// 1. To change a certain node, one must call the setter of the parent node.
 /// 2. Thus one must cover all the nodes that have Expr children.
 /// Derived should implement a TransformExpr() method.
-template<typename Derived>
-class ExpressionTransformer : public ContextualVisitor<ExpressionTransformer<Derived>> {
+template <typename Derived>
+class ExpressionTransformer
+    : public ContextualVisitor<ExpressionTransformer<Derived>> {
   using BaseT = ContextualVisitor<ExpressionTransformer<Derived>>;
+
 public:
-  using BaseT::visitStmt;
   using BaseT::visitExpr;
+  using BaseT::visitStmt;
 
   /// Default implementation.
   ExprAST *TransformExpr(ExprAST *E, AST *Parent) {
@@ -39,118 +41,93 @@ public:
   void visitParenExpr(ParenExpr *PE);
   void visitUnaryOp(UnaryOpExpr *U);
   void visitSubscript(SubscriptExpr *SB);
+
 public:
   ExpressionTransformer() = default;
-  void Transform(Program *P, SymbolTable &S) {
-    BaseT::visitProgram(P, S);
-  }
+  void Transform(Program *P, SymbolTable &S) { BaseT::visitProgram(P, S); }
 };
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitWhile(WhileStmt *W) {
   W->setCondition(
-      static_cast<Derived *>(this)->TransformExpr(W->getCondition(), W)
-  );
+      static_cast<Derived *>(this)->TransformExpr(W->getCondition(), W));
   for (StmtAST *S : W->getBody())
     visitStmt(S);
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitWrite(WriteStmt *W) {
   if (!W->getValue())
     return;
-  W->setValue(
-      static_cast<Derived *>(this)->TransformExpr(W->getValue(), W)
-  );
+  W->setValue(static_cast<Derived *>(this)->TransformExpr(W->getValue(), W));
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitAssign(AssignStmt *A) {
-  A->setValue(
-      static_cast<Derived *>(this)->TransformExpr(A->getValue(), A)
-  );
-  A->setTarget(
-      static_cast<Derived *>(this)->TransformExpr(A->getTarget(), A)
-  );
+  A->setValue(static_cast<Derived *>(this)->TransformExpr(A->getValue(), A));
+  A->setTarget(static_cast<Derived *>(this)->TransformExpr(A->getTarget(), A));
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitFor(ForStmt *F) {
   visitStmt(F->getInitial());
   F->setCondition(
-      static_cast<Derived *>(this)->TransformExpr(F->getCondition(), F)
-  );
+      static_cast<Derived *>(this)->TransformExpr(F->getCondition(), F));
   visitStmt(F->getStep());
   for (StmtAST *S : F->getBody())
     visitStmt(S);
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitReturn(ReturnStmt *R) {
   if (!R->getValue())
     return;
-  R->setValue(
-      static_cast<Derived *>(this)->TransformExpr(R->getValue(), R)
-  );
+  R->setValue(static_cast<Derived *>(this)->TransformExpr(R->getValue(), R));
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitIf(IfStmt *I) {
-  I->setTest(
-      static_cast<Derived *>(this)->TransformExpr(I->getTest(), I)
-  );
+  I->setTest(static_cast<Derived *>(this)->TransformExpr(I->getTest(), I));
   for (auto S : I->getBody())
     visitStmt(S);
   for (auto S : I->getOrelse())
     visitStmt(S);
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitCall(CallExpr *C) {
   for (unsigned I = 0, E = C->getNumArgs(); I < E; I++) {
-    C->setArgAt(
-        I, static_cast<Derived *>(this)->TransformExpr(C->getArgAt(I), C)
-    );
+    C->setArgAt(I,
+                static_cast<Derived *>(this)->TransformExpr(C->getArgAt(I), C));
   }
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitBinOp(BinOpExpr *B) {
-  B->setLeft(
-      static_cast<Derived *>(this)->TransformExpr(B->getLeft(), B)
-  );
-  B->setRight(
-      static_cast<Derived *>(this)->TransformExpr(B->getRight(), B)
-  );
+  B->setLeft(static_cast<Derived *>(this)->TransformExpr(B->getLeft(), B));
+  B->setRight(static_cast<Derived *>(this)->TransformExpr(B->getRight(), B));
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitBoolOp(BoolOpExpr *B) {
-  B->setValue(
-      static_cast<Derived *>(this)->TransformExpr(B->getValue(), B)
-  );
+  B->setValue(static_cast<Derived *>(this)->TransformExpr(B->getValue(), B));
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitParenExpr(ParenExpr *PE) {
-  PE->setValue(
-      static_cast<Derived *>(this)->TransformExpr(PE->getValue(), PE)
-  );
+  PE->setValue(static_cast<Derived *>(this)->TransformExpr(PE->getValue(), PE));
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitUnaryOp(UnaryOpExpr *U) {
   U->setOperand(
-      static_cast<Derived *>(this)->TransformExpr(U->getOperand(), U)
-  );
+      static_cast<Derived *>(this)->TransformExpr(U->getOperand(), U));
 }
 
-template<typename Derived>
+template <typename Derived>
 void ExpressionTransformer<Derived>::visitSubscript(SubscriptExpr *SB) {
-  SB->setIndex(
-      static_cast<Derived *>(this)->TransformExpr(SB->getIndex(), SB)
-  );
+  SB->setIndex(static_cast<Derived *>(this)->TransformExpr(SB->getIndex(), SB));
 }
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_TRANSFORM_EXPRESSIONTRANSFORMER_H
+#endif // SIMPLECC_TRANSFORM_EXPRESSIONTRANSFORMER_H

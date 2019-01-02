@@ -6,8 +6,8 @@ namespace simplecc {
 /// This class implements a trivial dead code elimination (DCE) transformation
 /// on the AST. It basically performs these operations:
 /// 1. Delete stmts in a stmt list that appear after a return-stmt.
-/// 2. For an if-stmt, if its condition is a constant, then replace it with either branch
-/// that will actually execute.
+/// 2. For an if-stmt, if its condition is a constant, then replace it with
+/// either branch that will actually execute.
 /// 3. For a while-stmt, if its condition is false, delete it.
 /// 4. For a for-stmt, if its condition is false, do the following:
 /// for (initial; condition; step) { body } becomes:
@@ -28,9 +28,7 @@ class DeadCodeEliminator : ChildrenVisitor<DeadCodeEliminator> {
 
 public:
   DeadCodeEliminator() = default;
-  void Transform(Program *P) {
-    return ChildrenVisitor::visitProgram(P);
-  }
+  void Transform(Program *P) { return ChildrenVisitor::visitProgram(P); }
 };
-}
-#endif //SIMPLECC_TRANSFORM_TRIVIALDCETRANSFORMER_H
+} // namespace simplecc
+#endif // SIMPLECC_TRANSFORM_TRIVIALDCETRANSFORMER_H

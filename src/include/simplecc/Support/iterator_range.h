@@ -10,12 +10,11 @@ namespace simplecc {
 ///
 /// This just wraps two iterators into a range-compatible interface. Nothing
 /// fancy at all.
-template<typename IteratorT>
-class iterator_range {
+template <typename IteratorT> class iterator_range {
   IteratorT begin_iterator, end_iterator;
 
 public:
-  template<typename Container>
+  template <typename Container>
   iterator_range(Container &&c)
       : begin_iterator(c.begin()), end_iterator(c.end()) {}
   iterator_range(IteratorT begin_iterator, IteratorT end_iterator)
@@ -30,13 +29,13 @@ public:
 ///
 /// This provides a bit of syntactic sugar to make using sub-ranges
 /// in for loops a bit easier. Analogous to std::make_pair().
-template<class T> iterator_range<T> make_range(T x, T y) {
+template <class T> iterator_range<T> make_range(T x, T y) {
   return iterator_range<T>(std::move(x), std::move(y));
 }
 
-template<typename T> iterator_range<T> make_range(std::pair<T, T> p) {
+template <typename T> iterator_range<T> make_range(std::pair<T, T> p) {
   return iterator_range<T>(std::move(p.first), std::move(p.second));
 }
-}
+} // namespace simplecc
 
 #endif

@@ -1,5 +1,4 @@
 #include <simplecc/IR/Use.h>
-#include <simplecc/IR/Value.h>
 #include <simplecc/IR/User.h>
 
 using namespace simplecc;

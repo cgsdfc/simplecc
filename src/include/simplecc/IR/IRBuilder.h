@@ -2,9 +2,7 @@
 #define SIMPLECC_IR_IRBUILDER_H
 
 namespace simplecc {
-class IRBuilder {
+class IRBuilder {};
+} // namespace simplecc
 
-};
-}
-
-#endif //SIMPLECC_IR_IRBUILDER_H
+#endif // SIMPLECC_IR_IRBUILDER_H

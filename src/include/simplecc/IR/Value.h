@@ -1,17 +1,18 @@
 #ifndef SIMPLECC_IR_VALUE_H
 #define SIMPLECC_IR_VALUE_H
-#include "simplecc/IR/Use.h"
 #include "simplecc/IR/Type.h"
+#include "simplecc/IR/Use.h"
 
+#include <simplecc/Support/iterator_range.h>
 #include <string>
 #include <vector>
-#include <simplecc/Support/iterator_range.h>
 
 namespace simplecc {
 /// This class represents a value in the SSA form.
 /// It maintains a list of Use, which holds all the users of this value.
 class Value {
   friend class Use;
+
 public:
   using UseListType = std::vector<Use>;
   using use_iterator = UseListType::iterator;
@@ -45,6 +46,7 @@ public:
   Type *getType() const { return Ty; }
 
   void deleteValue();
+
 protected:
   Value(Type *Ty, unsigned K) : Kind(K), Ty(Ty) {}
   /// Add a User identified by U.
@@ -61,11 +63,9 @@ private:
 };
 
 struct ValueDeleter {
-  void operator()(Value *Val) {
-    Val->deleteValue();
-  }
+  void operator()(Value *Val) { Val->deleteValue(); }
 };
 
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_IR_VALUE_H
+#endif // SIMPLECC_IR_VALUE_H

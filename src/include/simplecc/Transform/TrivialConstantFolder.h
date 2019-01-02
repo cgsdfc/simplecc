@@ -11,10 +11,11 @@ class TrivialConstantFolder : ExpressionTransformer<TrivialConstantFolder> {
 #include "simplecc/Transform/TrivialConstantFolder.def"
   ExprAST *FoldExprAST(ExprAST *E);
   ExprAST *TransformExpr(ExprAST *E, AST *Parent);
+
 public:
   TrivialConstantFolder() = default;
   using ExpressionTransformer::Transform;
 };
 
-}
-#endif //SIMPLECC_TRANSFORM_TRIVIALCONSTANTFOLDER_H
+} // namespace simplecc
+#endif // SIMPLECC_TRANSFORM_TRIVIALCONSTANTFOLDER_H

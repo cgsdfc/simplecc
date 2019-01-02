@@ -11,7 +11,7 @@ using simplecc::NodeIterator;
 using CSTGraphTy = NodeIterator::value_type;
 
 /// Specialized GraphTraits
-template<> struct GraphTraits<CSTGraphTy> {
+template <> struct GraphTraits<CSTGraphTy> {
   using NodeRef = CSTGraphTy;
   using nodes_iterator = NodeIterator;
   using ChildIteratorType = NodeIterator::ChildIteratorType;
@@ -28,7 +28,7 @@ template<> struct GraphTraits<CSTGraphTy> {
   static ChildIteratorType child_end(NodeRef N) { return N->end(); }
 };
 
-template<> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
+template <> struct DOTGraphTraits<CSTGraphTy> : DefaultDOTGraphTraits {
   explicit DOTGraphTraits(bool simple = false)
       : DefaultDOTGraphTraits(simple) {}
 

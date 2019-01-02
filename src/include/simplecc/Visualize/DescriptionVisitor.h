@@ -12,9 +12,15 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   std::string visitProgram(Program *) { return ""; }
 
   /// VisitorBase boilerplate code.
-  std::string visitDecl(DeclAST *D) { return VisitorBase::visitDecl<std::string>(D); }
-  std::string visitExpr(ExprAST *E) { return VisitorBase::visitExpr<std::string>(E); }
-  std::string visitStmt(StmtAST *S) { return VisitorBase::visitStmt<std::string>(S); }
+  std::string visitDecl(DeclAST *D) {
+    return VisitorBase::visitDecl<std::string>(D);
+  }
+  std::string visitExpr(ExprAST *E) {
+    return VisitorBase::visitExpr<std::string>(E);
+  }
+  std::string visitStmt(StmtAST *S) {
+    return VisitorBase::visitStmt<std::string>(S);
+  }
 
   std::string visitConstDecl(ConstDecl *CD);
   std::string visitVarDecl(VarDecl *VD);
@@ -29,7 +35,9 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   std::string visitChar(CharExpr *C);
   std::string visitStr(StrExpr *S);
 
-  std::string visitBinOp(BinOpExpr *BO) { return CStringFromOperatorKind(BO->getOp()); }
+  std::string visitBinOp(BinOpExpr *BO) {
+    return CStringFromOperatorKind(BO->getOp());
+  }
   std::string visitUnaryOp(UnaryOpExpr *UO) {
     return CStringFromUnaryopKind(UO->getOp());
   }

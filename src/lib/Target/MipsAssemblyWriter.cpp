@@ -25,8 +25,8 @@ void MipsAssemblyWriter::WriteData(Printer &W, const ByteCodeModule &Module) {
   W.WriteLine("# String literals");
 
   for (const auto &Item : Module.getStringLiteralTable()) {
-    W.WriteLine(AsciizLabel(Item.second, /* NeedColon */ true),
-                ".asciiz", EscapedString(Item.first));
+    W.WriteLine(AsciizLabel(Item.second, /* NeedColon */ true), ".asciiz",
+                EscapedString(Item.first));
   }
 
   W.WriteLine("# End of data segment");

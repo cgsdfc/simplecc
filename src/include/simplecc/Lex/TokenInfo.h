@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_LEX_TOKENINFO_H
 #define SIMPLECC_LEX_TOKENINFO_H
-#include "simplecc/Parse/Grammar.h"
 #include "simplecc/Lex/Location.h"
+#include "simplecc/Parse/Grammar.h"
 
 #include <iostream>
 #include <string>

@@ -8,7 +8,9 @@
 #include <utility>
 
 namespace simplecc {
-inline std::string Quote(const std::string &string) { return '\'' + string + '\''; }
+inline std::string Quote(const std::string &string) {
+  return '\'' + string + '\'';
+}
 
 class ErrorManager : private Printer {
   int ErrorCount = 0;
@@ -29,7 +31,7 @@ public:
   }
 
   /// TODO: these 2 overloads are too easy to be ambiguous.
-  template<typename... Args> void Error(Location loc, Args &&... args) {
+  template <typename... Args> void Error(Location loc, Args &&... args) {
     getOuts() << getErrorType() << " at ";
     loc.FormatCompact(getOuts());
     getOuts() << " ";

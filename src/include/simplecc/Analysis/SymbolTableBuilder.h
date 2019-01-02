@@ -35,6 +35,7 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
 
   /// Clear the state of this SymbolTableBuilder
   void clear();
+
 public:
   /// Default construct and destruct.
   SymbolTableBuilder() { clear(); }
@@ -43,6 +44,7 @@ public:
   /// Return true if errors happened.
   /// Note: the table will be cleared first.
   bool Build(Program *P, SymbolTable &S);
+
 private:
   friend VisitorBase;
   friend ChildrenVisitor;

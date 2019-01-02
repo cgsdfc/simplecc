@@ -9,10 +9,9 @@ class ConstantInt : public Value {
   friend class Value;
   explicit ConstantInt(int Val);
   ~ConstantInt() = default;
+
 public:
-  static ConstantInt *Create(int Val) {
-    return new ConstantInt(Val);
-  }
+  static ConstantInt *Create(int Val) { return new ConstantInt(Val); }
 
   bool isOneVal() const { return IntVal == 1; }
   bool isZeroVal() const { return IntVal == 0; }
@@ -21,6 +20,7 @@ public:
   static bool InstanceCheck(const Value *V) {
     return V->getValueID() == ConstantIntVal;
   }
+
 private:
   int IntVal;
 };
@@ -31,6 +31,7 @@ class StringLiteral : public Value {
   friend class Value;
   explicit StringLiteral(const std::string &Str);
   ~StringLiteral() = default;
+
 public:
   StringLiteral *Create(const std::string &Str) {
     return new StringLiteral(Str);
@@ -40,10 +41,11 @@ public:
   static bool InstanceCheck(const Value *V) {
     return V->getValueID() == StringLiteralVal;
   }
+
 private:
   std::string StrVal;
 };
 
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_IR_CONSTANT_H
+#endif // SIMPLECC_IR_CONSTANT_H

@@ -1,32 +1,29 @@
 #ifndef SIMPLECC_VISUALIZE_TREELIKEITERATOR_H
 #define SIMPLECC_VISUALIZE_TREELIKEITERATOR_H
 
-#include <llvm/ADT/iterator_range.h>
-#include <llvm/ADT/iterator.h>
-#include <stack>
 #include <cassert>
+#include <llvm/ADT/iterator.h>
+#include <llvm/ADT/iterator_range.h>
+#include <stack>
 
 namespace simplecc {
 
 /// This is a CRTP base class can be used as an iterator to any
 /// tree-like object, provided that the Derived implement a getEdges()
 /// method, which fetches edges for a given node.
-template<typename Derived, typename ValueTy, typename ChildIter>
-class TreeLikeIterator : public llvm::iterator_facade_base<TreeLikeIterator<Derived, ValueTy, ChildIter>,
-                                                           std::forward_iterator_tag, ValueTy> {
+template <typename Derived, typename ValueTy, typename ChildIter>
+class TreeLikeIterator : public llvm::iterator_facade_base<
+                             TreeLikeIterator<Derived, ValueTy, ChildIter>,
+                             std::forward_iterator_tag, ValueTy> {
 public:
   using value_type = ValueTy;
   using ChildIteratorType = ChildIter;
 
   /// This ctor is the first-phrase initialization.
-  TreeLikeIterator(value_type Root) {
-    Initialize(Root);
-  }
+  TreeLikeIterator(value_type Root) { Initialize(Root); }
   TreeLikeIterator() : TheStack(), Val() {}
 
-  bool operator==(const TreeLikeIterator &RHS) const {
-    return Val == RHS.Val;
-  }
+  bool operator==(const TreeLikeIterator &RHS) const { return Val == RHS.Val; }
   value_type operator*() const { return Val; }
   TreeLikeIterator &operator++() {
     Val = getNext();
@@ -63,6 +60,6 @@ private:
     return Tos;
   }
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_VISUALIZE_TREELIKEITERATOR_H
+#endif // SIMPLECC_VISUALIZE_TREELIKEITERATOR_H

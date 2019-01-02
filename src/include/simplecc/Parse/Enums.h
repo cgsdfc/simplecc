@@ -24,7 +24,6 @@ enum class BasicTypeKind {
 #include "simplecc/Parse/Enums.def"
 };
 
-
 std::ostream &operator<<(std::ostream &os, OperatorKind val);
 std::ostream &operator<<(std::ostream &os, UnaryopKind val);
 std::ostream &operator<<(std::ostream &os, ExprContextKind val);
@@ -39,4 +38,4 @@ const char *CStringFromUnaryopKind(UnaryopKind val);
 BasicTypeKind BasicTypeKindFromString(const std::string &s);
 const char *CStringFromBasicTypeKind(BasicTypeKind val);
 } // namespace simplecc
-#endif //SIMPLECC_PARSE_ENUMS_H
+#endif // SIMPLECC_PARSE_ENUMS_H

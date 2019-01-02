@@ -1,8 +1,8 @@
 #ifndef SIMPLECC_IR_USER_H
 #define SIMPLECC_IR_USER_H
 #include "simplecc/IR/Value.h"
-#include <vector>
 #include <cassert>
+#include <vector>
 
 namespace simplecc {
 /// User represents a Value that can use other Values as operands.
@@ -30,9 +30,7 @@ public:
 
   const OperandListType &getOperandList() const { return Operands; }
 
-  Value *getOperand(unsigned I) const {
-    return getOperandUse(I);
-  }
+  Value *getOperand(unsigned I) const { return getOperandUse(I); }
 
   void setOperand(unsigned I, Value *Val) {
     assert(I < getNumOperands() && "# operand out of range");
@@ -46,8 +44,7 @@ public:
   }
 
   Use &getOperandUse(unsigned I) {
-    return const_cast<Use &>(
-        const_cast<const User *>(this)->getOperandUse(I));
+    return const_cast<Use &>(const_cast<const User *>(this)->getOperandUse(I));
   }
 
   User(const User &) = delete;
@@ -58,9 +55,10 @@ protected:
     Operands.resize(NumOps);
   }
   ~User() = default;
+
 private:
   OperandListType Operands;
 };
-}
+} // namespace simplecc
 
-#endif //SIMPLECC_IR_USER_H
+#endif // SIMPLECC_IR_USER_H

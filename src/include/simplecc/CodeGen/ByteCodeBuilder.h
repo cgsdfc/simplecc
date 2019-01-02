@@ -37,7 +37,8 @@ class ByteCodeBuilder {
   /// Create a ByteCode and insert it into the InsertPoint.
   /// This essentially forwards arguments to ByteCode::Create().
   //
-  template<typename... Args> unsigned Create(unsigned Op, Args &&... ExtraArgs) {
+  template <typename... Args>
+  unsigned Create(unsigned Op, Args &&... ExtraArgs) {
     return Insert(ByteCode::Create(static_cast<ByteCode::Opcode>(Op),
                                    std::forward<Args>(ExtraArgs)...));
   }
