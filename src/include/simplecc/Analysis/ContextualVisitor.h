@@ -7,13 +7,12 @@ namespace simplecc {
 /// This class is a CRTP base for Visitors that knows the LocalSymbolTable of
 /// the FuncDef it is visiting. It sets up the corresponding LocalSymbolTable
 /// for each FuncDef to be visited.
-template <typename Derived>
+template<typename Derived>
 class ContextualVisitor : public ChildrenVisitor<Derived> {
   void setTable(SymbolTable &S) { TheTable = &S; }
   void setLocalTable(FuncDef *FD) {
     TheLocalTable = getSymbolTable().getLocalTable(FD);
   }
-
 protected:
   ContextualVisitor() = default;
 

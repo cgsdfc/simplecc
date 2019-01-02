@@ -51,7 +51,7 @@ class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
   bool hasNoArgument(CallExpr *C) const { return !C->getNumArgs(); }
 
 public:
-  ASTPrettyPrinter(std::ostream &O) : OS(O) {}
+  explicit ASTPrettyPrinter(std::ostream &O) : OS(O) {}
   void PrettyPrint(const AST *A);
 
 private:

@@ -12,7 +12,7 @@ class ParseTreePrinter : IndentAwarePrinter<ParseTreePrinter> {
   void printNode(const Node &N);
 
 public:
-  ParseTreePrinter(std::ostream &OS) : OS(OS) {}
+  explicit ParseTreePrinter(std::ostream &OS) : OS(OS) {}
   void Print(const Node &N) { printNode(N); }
 
 private:

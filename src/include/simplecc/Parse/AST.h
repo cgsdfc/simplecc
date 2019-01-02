@@ -476,7 +476,7 @@ class ParenExpr : public ExprAST {
   friend class AST;
   friend class ExprAST;
 
-  bool isConstantImpl() const { value->isConstant(); }
+  bool isConstantImpl() const { return value->isConstant(); }
   int getConstantValueImpl() const { return value->getConstantValue(); }
 
 public:
@@ -585,7 +585,7 @@ public:
   std::vector<ExprAST *> &getArgs() { return args; }
   ExprAST *getArgAt(unsigned I) const { return args[I]; }
   void setArgAt(unsigned I, ExprAST *Val);
-  unsigned getNumArgs() const { return args.size(); }
+  size_t getNumArgs() const { return args.size(); }
 
   static bool InstanceCheck(const ExprAST *x) {
     return x->getKind() == ExprAST::CallExprKind;

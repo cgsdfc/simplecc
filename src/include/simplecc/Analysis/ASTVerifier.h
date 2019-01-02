@@ -4,40 +4,26 @@
 #include "simplecc/Support/ErrorManager.h"
 
 namespace simplecc {
-/// This ensure that the AST is well-formed.
-/// In terms of well-form-ness:
+/// This class verifies that a Program is well formed.
 class ASTVerifier : ChildrenVisitor<ASTVerifier> {
-  /// Helper to check each condition in one single statement.
+  /// Helper to check a condition.
   void AssertThat(bool Predicate, const char *ErrMsg);
 
   void visitRead(ReadStmt *RD);
-
   void visitWrite(WriteStmt *WR);
-
   void visitAssign(AssignStmt *A);
-
   void visitBoolOp(BoolOpExpr *B);
-
   void visitExprStmt(ExprStmt *ES);
-
   void visitConstDecl(ConstDecl *CD);
-
   void visitFor(ForStmt *F);
-
   void visitWhile(WhileStmt *W);
-
   void visitIf(IfStmt *I);
-
   void visitFuncDef(FuncDef *FD);
-
   void visitProgram(Program *P);
-
 public:
   ASTVerifier() = default;
   ~ASTVerifier() = default;
-
   bool Verify(Program *P);
-
 private:
   friend ChildrenVisitor;
   friend VisitorBase;

@@ -2,7 +2,7 @@
 
 using namespace simplecc;
 
-void ASTVerifier::visitWrite(simplecc::WriteStmt *WR) {
+void ASTVerifier::visitWrite(WriteStmt *WR) {
   AssertThat(WR->getStr() || WR->getValue(),
              "Both StrExpr and Value of WriteStmt are empty");
 }
@@ -28,7 +28,7 @@ void ASTVerifier::visitIf(IfStmt *I) {
              "Test of IfStmt must be a BoolOpExpr");
 }
 
-void ASTVerifier::visitBoolOp(simplecc::BoolOpExpr *B) {
+void ASTVerifier::visitBoolOp(BoolOpExpr *B) {
   if (B->hasCompareOp()) {
     AssertThat(IsInstance<BinOpExpr>(B->getValue()),
                "HasCmpOp implies BinOpExpr");
@@ -41,7 +41,7 @@ void ASTVerifier::visitRead(ReadStmt *RD) {
   }
 }
 
-void ASTVerifier::visitAssign(simplecc::AssignStmt *A) {
+void ASTVerifier::visitAssign(AssignStmt *A) {
   AssertThat(IsInstance<NameExpr>(A->getTarget()) ||
                  IsInstance<SubscriptExpr>(A->getTarget()),
              "Target of AssignStmt must be NameExpr or SubscriptExpr");
@@ -71,7 +71,7 @@ void ASTVerifier::visitFuncDef(FuncDef *FD) {
   }
 }
 
-void ASTVerifier::visitProgram(simplecc::Program *P) {
+void ASTVerifier::visitProgram(Program *P) {
   for (DeclAST *D : P->getDecls()) {
     AssertThat(!IsInstance<ArgDecl>(D),
                "ArgDecl cannot appear in Decls of Program");

@@ -1,5 +1,6 @@
 #include "simplecc/Parse/AST.h"
 #include <simplecc/Support/Casting.h>
+#include <simplecc/Parse/AST.h>
 
 using namespace simplecc;
 
@@ -84,6 +85,9 @@ void IfStmt::setTest(ExprAST *E) { SetterImpl(test, E); }
 
 ExprStmt::~ExprStmt() { DeleteAST::apply(value); }
 UniquePtrToAST ExprStmt::getValue() && { return RvalueGetterImpl(value); }
+void ExprStmt::setValue(ExprAST *E) {
+  SetterImpl(value, E);
+}
 
 BinOpExpr::~BinOpExpr() {
   DeleteAST::apply(left);
