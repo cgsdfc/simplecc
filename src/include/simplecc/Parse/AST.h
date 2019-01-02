@@ -88,6 +88,7 @@ protected:
   bool isConstantImpl() const { return false; }
   int getConstantValueImpl() const {
     assert(false && "subclass should implement this!");
+    return 0; // for MSVC to be happy.
   }
 
 public:
