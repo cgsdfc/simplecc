@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iomanip>
+#include <sstream>
 #ifdef _MSC_VER
 #include <cctype>
 #endif

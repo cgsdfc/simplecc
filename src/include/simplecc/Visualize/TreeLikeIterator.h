@@ -1,10 +1,9 @@
 #ifndef SIMPLECC_VISUALIZE_TREELIKEITERATOR_H
 #define SIMPLECC_VISUALIZE_TREELIKEITERATOR_H
-
-#include <cassert>
 #include <llvm/ADT/iterator.h>
 #include <llvm/ADT/iterator_range.h>
 #include <stack>
+#include <cassert>
 
 namespace simplecc {
 

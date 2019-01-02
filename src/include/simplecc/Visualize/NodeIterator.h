@@ -2,7 +2,6 @@
 #define SIMPLECC_VISUALIZE_NODEITERATOR_H
 #include "simplecc/Parse/Node.h"
 #include "simplecc/Visualize/TreeLikeIterator.h"
-
 #include <cassert>
 #include <stack>
 

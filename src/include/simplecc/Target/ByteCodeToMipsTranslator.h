@@ -3,7 +3,6 @@
 #include "simplecc/CodeGen/ByteCodeVisitor.h"
 #include "simplecc/Support/Print.h"
 #include "simplecc/Target/MipsSupport.h"
-
 #include <iostream>
 #include <utility>
 

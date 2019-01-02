@@ -2,7 +2,6 @@
 #define SIMPLECC_TARGET_MIPSASSEMBLYWRITER_H
 #include "simplecc/Support/Print.h"
 #include "simplecc/Target/LocalContext.h"
-
 #include <iostream>
 
 namespace simplecc {
@@ -16,7 +15,6 @@ class MipsAssemblyWriter {
 
   void WriteData(Printer &W, const ByteCodeModule &Module);
   void WriteText(Printer &W, const ByteCodeModule &Module);
-
   void WritePrologue(Printer &W, const ByteCodeFunction &TheFunction);
   void WriteEpilogue(Printer &W, const ByteCodeFunction &TheFunction);
   void WriteFunction(Printer &W, const ByteCodeFunction &TheFunction);

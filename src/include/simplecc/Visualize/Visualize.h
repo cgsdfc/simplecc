@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_VISUALIZE_VISUALIZE_H
 #define SIMPLECC_VISUALIZE_VISUALIZE_H
-#include <iostream>
 #include <llvm/Support/raw_ostream.h>
+#include <iostream>
 
 namespace simplecc {
 class Program;

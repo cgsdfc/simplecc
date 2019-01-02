@@ -14,10 +14,8 @@ class ASTNode {
 
 public:
   ASTNode(AST *Ptr, ASTGraph *P) : Ref(Ptr), Parent(P) {}
-
   AST *get() const { return Ref; }
   ASTGraph *getParent() const { return Parent; }
-
   const char *getClassName() const { return Ref->getClassName(); };
   Location getLocation() const { return Ref->getLocation(); }
 };

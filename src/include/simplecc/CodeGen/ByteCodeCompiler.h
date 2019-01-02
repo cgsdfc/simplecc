@@ -15,16 +15,12 @@ class Program;
 class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
 
   void visitStmt(StmtAST *S);
-
   void visitArgDecl(ArgDecl *A);
-
   void visitVarDecl(VarDecl *VD);
 
   /// Explicitly do nothing.
   void visitConstDecl(ConstDecl *) {}
-
   void visitRead(ReadStmt *RD);
-
   void visitWrite(WriteStmt *WR);
 
   /// Visit value first and then target. The order of
@@ -37,11 +33,8 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   unsigned CompileBoolOp(BoolOpExpr *B);
 
   void visitFor(ForStmt *node);
-
   void visitWhile(WhileStmt *W);
-
   void visitIf(IfStmt *I);
-
   void visitReturn(ReturnStmt *R);
 
   void visitExprStmt(ExprStmt *ES) {
@@ -70,11 +63,8 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitStr(StrExpr *S);
 
   void visitSubscript(SubscriptExpr *SB);
-
   void visitName(NameExpr *N);
-
   void visitFuncDef(FuncDef *FD);
-
   void visitProgram(Program *P);
 
   void setModule(ByteCodeModule *M) { TheModule = M; }

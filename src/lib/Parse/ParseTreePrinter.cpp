@@ -30,7 +30,7 @@ void ParseTreePrinter::printNonTerminalNode(const Node &N) {
   assert(N.getNumChildren() && "NonTerminal Node must have a least one child");
   OS << ": ";
   if (N.getNumChildren() == 1) {
-    printNode(*(N.FirstChild()));
+    printNode(*(N.getFirstChild()));
     return;
   }
   OS << "\n";
@@ -40,7 +40,7 @@ void ParseTreePrinter::printNonTerminalNode(const Node &N) {
 }
 
 /// Print a list of Nodes, each on its own line with indent.
-void ParseTreePrinter::printNodeList(const Node::ChildrenListT &NodeList) {
+void ParseTreePrinter::printNodeList(const Node::ChildrenListType &NodeList) {
   for (auto I = NodeList.begin(), E = NodeList.end(); I != E; ++I) {
     printIndent();
     printNode(*(*I));

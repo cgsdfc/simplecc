@@ -7,8 +7,8 @@
 using namespace simplecc;
 
 /// Return a descriptive string for AR.
-std::string DescriptionVisitor::makeDescription(const ASTNode &AR) {
-  return VisitorBase::visitAST<std::string>(AR.get());
+std::string DescriptionVisitor::makeDescription(const ASTNode &AN) {
+  return VisitorBase::visitAST<std::string>(AN.get());
 }
 
 std::string DescriptionVisitor::visitConstDecl(ConstDecl *CD) {

@@ -7,10 +7,7 @@ class ASTNode;
 
 /// This class generates a description for each AST node.
 class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
-  friend class VisitorBase<DescriptionVisitor>;
-
-  std::string visitProgram(Program *) { return ""; }
-
+  friend VisitorBase;
   /// VisitorBase boilerplate code.
   std::string visitDecl(DeclAST *D) {
     return VisitorBase::visitDecl<std::string>(D);
@@ -22,6 +19,7 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
     return VisitorBase::visitStmt<std::string>(S);
   }
 
+  std::string visitProgram(Program *) { return ""; }
   std::string visitConstDecl(ConstDecl *CD);
   std::string visitVarDecl(VarDecl *VD);
   std::string visitFuncDef(FuncDef *FD);
@@ -29,11 +27,12 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
 
   std::string visitBoolOp(BoolOpExpr *BO) { return ""; }
   std::string visitParenExpr(ParenExpr *PE) { return "()"; }
-
   std::string visitNum(NumExpr *N);
-
   std::string visitChar(CharExpr *C);
   std::string visitStr(StrExpr *S);
+  std::string visitCall(CallExpr *C) { return C->getFunc(); }
+  std::string visitName(NameExpr *N) { return N->getId(); }
+  std::string visitSubscript(SubscriptExpr *SB) { return SB->getName(); }
 
   std::string visitBinOp(BinOpExpr *BO) {
     return CStringFromOperatorKind(BO->getOp());
@@ -41,23 +40,20 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   std::string visitUnaryOp(UnaryOpExpr *UO) {
     return CStringFromUnaryopKind(UO->getOp());
   }
-  std::string visitCall(CallExpr *C) { return C->getFunc(); }
-  std::string visitName(NameExpr *N) { return N->getId(); }
-  std::string visitRead(ReadStmt *) { return "scanf"; }
-  std::string visitWrite(WriteStmt *) { return "printf"; }
-  std::string visitAssign(AssignStmt *) { return "="; }
-  std::string visitSubscript(SubscriptExpr *SB) { return SB->getName(); }
+
   std::string visitExprStmt(ExprStmt *ES) { return ""; }
   std::string visitFor(ForStmt *) { return ""; }
   std::string visitIf(IfStmt *) { return ""; }
   std::string visitWhile(WhileStmt *) { return ""; }
   std::string visitReturn(ReturnStmt *) { return ""; }
+  std::string visitRead(ReadStmt *) { return "scanf"; }
+  std::string visitWrite(WriteStmt *) { return "printf"; }
+  std::string visitAssign(AssignStmt *) { return "="; }
 
 public:
   DescriptionVisitor() = default;
-
   /// Return a descriptive string for AR.
-  std::string makeDescription(const ASTNode &AR);
+  std::string makeDescription(const ASTNode &AN);
 };
 
 } // namespace simplecc

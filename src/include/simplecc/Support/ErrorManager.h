@@ -2,10 +2,9 @@
 #define SIMPLECC_SUPPORT_ERRORMANAGER_H
 #include "simplecc/Lex/Location.h"
 #include "simplecc/Support/Print.h"
-#include <cassert>
 #include <iostream>
-#include <sstream>
 #include <utility>
+#include <cassert>
 
 namespace simplecc {
 inline std::string Quote(const std::string &string) {

@@ -3,30 +3,20 @@
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/CodeGen/ByteCode.h"
 #include "simplecc/Parse/AST.h"
-
 #include <cassert>
 
 namespace simplecc {
 class ByteCodeFunction;
 
 class ByteCodeBuilder {
-
   static unsigned MakeSubScr(ExprContextKind ctx);
-
   static unsigned MakeLoad(Scope scope);
-
   static unsigned MakeStore(Scope scope);
-
   static unsigned MakeRead(BasicTypeKind type);
-
   static unsigned MakePrint(BasicTypeKind type);
-
   static unsigned MakeBinary(OperatorKind Op);
-
   static unsigned MakeUnary(UnaryopKind Op);
-
   static unsigned MakeJumpNegative(OperatorKind Op);
-
   static unsigned MakeJump(OperatorKind Op);
 
   /// Insert a ByteCode into the back of InsertPoint.
@@ -42,7 +32,6 @@ class ByteCodeBuilder {
     return Insert(ByteCode::Create(static_cast<ByteCode::Opcode>(Op),
                                    std::forward<Args>(ExtraArgs)...));
   }
-
 public:
   ByteCodeBuilder() = default;
   ~ByteCodeBuilder() = default;
@@ -69,23 +58,18 @@ public:
   unsigned CreateCallFunction(const std::string &Name, unsigned Argc) {
     return Create(ByteCode::CALL_FUNCTION, Name.data(), Argc);
   }
-
   unsigned CreateLoad(Scope S, const std::string &Name) {
     return Create(MakeLoad(S), Name.data());
   }
-
   unsigned CreateStore(Scope S, const std::string &Name) {
     return Create(MakeStore(S), Name.data());
   }
-
   unsigned CreateLoadConst(int ConstValue) {
     return Create(ByteCode::LOAD_CONST, ConstValue);
   }
-
   unsigned CreateLoadString(unsigned StringID) {
     return Create(ByteCode::LOAD_STRING, StringID);
   }
-
   unsigned CreateSubscr(ExprContextKind Context) {
     return Create(MakeSubScr(Context));
   }
@@ -103,7 +87,6 @@ public:
 
   /// Return the size of the current ByteCodeFunction.
   unsigned getSize() const;
-
 private:
   ByteCodeFunction *InsertPoint = nullptr;
   unsigned CurrentLineno = 1;

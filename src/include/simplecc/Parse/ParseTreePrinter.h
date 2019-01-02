@@ -8,7 +8,7 @@ namespace simplecc {
 class ParseTreePrinter : IndentAwarePrinter<ParseTreePrinter> {
   void printTerminalNode(const Node &N);
   void printNonTerminalNode(const Node &N);
-  void printNodeList(const Node::ChildrenListT &NodeList);
+  void printNodeList(const Node::ChildrenListType &NodeList);
   void printNode(const Node &N);
 
 public:

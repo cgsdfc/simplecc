@@ -22,7 +22,6 @@ public:
 #define HANDLE_OPCODE(opcode, camelName) opcode,
 #include "simplecc/CodeGen/Opcode.def"
   };
-
 private:
   /// Core IR information.
   Opcode Op;
@@ -44,11 +43,8 @@ public:
 
   /// Factories to create ByteCode instance correctly.
   static ByteCode Create(Opcode Op) { return ByteCode(Op); }
-
   static ByteCode Create(Opcode Op, int Val);
-
   static ByteCode Create(Opcode Op, const char *Val);
-
   static ByteCode Create(Opcode Op, const char *Str, int Int);
 
   /// ByteCode operand inspection.

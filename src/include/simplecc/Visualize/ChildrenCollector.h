@@ -30,9 +30,8 @@ public:
   }
 
 private:
-  friend class ChildrenVisitor<ChildrenCollector>;
-  friend class VisitorBase<ChildrenCollector>;
-
+  friend ChildrenVisitor;
+  friend VisitorBase;
   /// Keep a reference to the output vector.
   std::vector<ASTNode *> &Children;
   /// Used to construct an ASTNode.

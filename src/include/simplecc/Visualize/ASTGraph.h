@@ -3,11 +3,11 @@
 #include "simplecc/Parse/AST.h"
 #include "simplecc/Visualize/ASTNode.h"
 #include "simplecc/Visualize/TreeLikeIterator.h"
-#include <cassert>
 #include <llvm/ADT/STLExtras.h>
 #include <map>
 #include <memory>
 #include <vector>
+#include <cassert>
 
 namespace simplecc {
 /// A class that keeps all the edges of an ASTNode.
