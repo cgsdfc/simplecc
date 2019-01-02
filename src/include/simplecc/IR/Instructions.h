@@ -11,9 +11,9 @@ namespace simplecc {
 /// accepts a Value returned to the caller. If the return Value is void, it is
 /// treated as no return Value. Otherwise the type of it must be int. ret int %1
 /// ret void
-class ReturnInstr : public Instruction {
+class ReturnInst : public Instruction {
 private:
-  explicit ReturnInstr(Value *Val, BasicBlock *BB);
+  explicit ReturnInst(Value *Val, BasicBlock *BB);
   friend class Instruction;
 
 public:
@@ -24,8 +24,8 @@ public:
 
   unsigned getNumSuccessors() const { return 0; }
 
-  static ReturnInstr *Create(Value *Val, BasicBlock *BB) {
-    return new ReturnInstr(Val, BB);
+  static ReturnInst *Create(Value *Val = nullptr, BasicBlock *BB = nullptr) {
+    return new ReturnInst(Val, BB);
   }
   static bool InstanceCheck(const Instruction *I) {
     return I->getOpcode() == Instruction::Ret;
@@ -59,7 +59,7 @@ public:
     return new BranchInst(IfTrue, IAE);
   }
   static BranchInst *Create(BasicBlock *IfTrue, BasicBlock *IfFalse,
-                            Value *Cond, BasicBlock *IAE) {
+                            Value *Cond, BasicBlock *IAE = nullptr) {
     return new BranchInst(IfTrue, IfFalse, Cond, IAE);
   }
   static bool InstanceCheck(const Instruction *I) {
@@ -71,13 +71,13 @@ public:
 
   Value *getCondition() const {
     assert(isConditional() &&
-           "Cannot get condition of an unconditional branch!");
+        "Cannot get condition of an unconditional branch!");
     return getOperand(0);
   }
 
   void setCondition(Value *V) {
     assert(isConditional() &&
-           "Cannot set condition of an unconditional branch!");
+        "Cannot set condition of an unconditional branch!");
     setOperand(0, V);
   }
 
@@ -94,7 +94,7 @@ class LoadInst : public Instruction {
   LoadInst(Value *Ptr, BasicBlock *IAE);
 
 public:
-  LoadInst *Create(Value *Ptr, BasicBlock *IAE) {
+  static LoadInst *Create(Value *Ptr, BasicBlock *IAE = nullptr) {
     return new LoadInst(Ptr, IAE);
   }
   /// Return the ptr being loaded.
@@ -111,7 +111,7 @@ class AllocaInst : public Instruction {
   explicit AllocaInst(unsigned int NumAlloc, BasicBlock *IAE);
 
 public:
-  static AllocaInst *Create(unsigned int NumAlloc, BasicBlock *IAE) {
+  static AllocaInst *Create(unsigned int NumAlloc, BasicBlock *IAE = nullptr) {
     return new AllocaInst(NumAlloc, IAE);
   }
 
@@ -132,7 +132,7 @@ class GetElementPtrInst : public Instruction {
 
 public:
   static GetElementPtrInst *Create(Value *BasePtr, Value *Offset,
-                                   BasicBlock *IAE) {
+                                   BasicBlock *IAE = nullptr) {
     new GetElementPtrInst(BasePtr, Offset, IAE);
   }
   Value *getBasePtr() const { return getOperand(0); }
@@ -148,7 +148,7 @@ class StoreInst : public Instruction {
   StoreInst(Value *Ptr, Value *Val, BasicBlock *IAE);
 
 public:
-  static StoreInst *Create(Value *Ptr, Value *Val, BasicBlock *IAE) {
+  static StoreInst *Create(Value *Ptr, Value *Val, BasicBlock *IAE = nullptr) {
     return new StoreInst(Ptr, Val, IAE);
   }
   Value *getPtr() const { return getOperand(0); }
@@ -171,7 +171,7 @@ public:
 /// Creator of all kinds of BinaryOperators.
 #define HANDLE_BINARY_OPERATOR(Class, Opcode, Name)                            \
   static BinaryOperator *Create##Opcode(Value *LHS, Value *RHS,                \
-                                        BasicBlock *IAE) {                     \
+                                        BasicBlock *IAE=nullptr) {                     \
     return Create((Opcode), LHS, RHS, IAE);                                    \
   }
 #include "simplecc/IR/Instruction.def"
@@ -188,7 +188,7 @@ class PHINode : public Instruction {
   explicit PHINode(BasicBlock *IAE);
 
 public:
-  static PHINode *Create(BasicBlock *IAE) { return new PHINode(IAE); }
+  static PHINode *Create(BasicBlock *IAE = nullptr) { return new PHINode(IAE); }
   static bool InstanceCheck(const Instruction *I) {
     return I->getOpcode() == PHI;
   }
@@ -203,7 +203,7 @@ class CallInst : public Instruction {
 
 public:
   static CallInst *Create(Function *Callee, const std::vector<Value *> &Args,
-                          BasicBlock *IAE) {
+                          BasicBlock *IAE = nullptr) {
     return new CallInst(Callee, Args, IAE);
   }
 
@@ -246,7 +246,7 @@ public:
   };
 
 #define HANDLE_ICMP_PREDICATE(Class, Opcode, Name)                             \
-  static ICmpInst *Create##Opcode(Value *LHS, Value *RHS, BasicBlock *IAE) {   \
+  static ICmpInst *Create##Opcode(Value *LHS, Value *RHS, BasicBlock *IAE = nullptr) {   \
     return new ICmpInst(Opcode, LHS, RHS, IAE);                                \
   }
 #include "simplecc/IR/Instruction.def"

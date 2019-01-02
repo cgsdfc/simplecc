@@ -1,6 +1,7 @@
+#include "simplecc/IR/Instruction.h"
 #include "simplecc/IR/BasicBlock.h"
 #include "simplecc/IR/Function.h"
-#include <simplecc/IR/Instruction.h>
+#include <algorithm>
 
 using namespace simplecc;
 
@@ -60,3 +61,7 @@ const Module *Instruction::getModule() const {
 }
 
 Instruction::~Instruction() {}
+
+BasicBlock::iterator Instruction::getIterator() const {
+  return std::find(Parent->begin(), Parent->end(), this);
+}

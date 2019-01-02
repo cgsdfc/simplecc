@@ -4,7 +4,7 @@
 
 using namespace simplecc;
 
-ReturnInstr::ReturnInstr(Value *Val, BasicBlock *BB)
+ReturnInst::ReturnInst(Value *Val, BasicBlock *BB)
     : Instruction(Type::getVoidType(), Ret, Val ? 1 : 0, BB) {
   if (Val && !Val->getType()->isVoidType()) {
     setOperand(0, Val);

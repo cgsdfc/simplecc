@@ -33,7 +33,7 @@ class StringLiteral : public Value {
   ~StringLiteral() = default;
 
 public:
-  StringLiteral *Create(const std::string &Str) {
+  static StringLiteral *Create(const std::string &Str) {
     return new StringLiteral(Str);
   }
 

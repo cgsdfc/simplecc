@@ -1,6 +1,7 @@
 #ifndef SIMPLECC_IR_INSTRUCTION_H
 #define SIMPLECC_IR_INSTRUCTION_H
 #include "simplecc/IR/User.h"
+#include "BasicBlock.h"
 
 namespace simplecc {
 class BasicBlock;
@@ -32,6 +33,8 @@ public:
   void moveBefore(Instruction *MovePos);
   void moveAfter(Instruction *MovePos);
 
+  /// Get an iterator in parent pointing to this.
+  BasicBlock::iterator getIterator() const;
 public:
   enum OpcodeKind : unsigned {
 #define HANDLE_INSTRUCTION(Class, Opcode, Name) Opcode,
