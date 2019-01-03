@@ -7,7 +7,12 @@ namespace simplecc {
 class Module;
 class IRCompiler : ContextualVisitor<IRCompiler> {
 
+  void visitProgram(Program *P);
   void visitFuncDef(FuncDef *FD);
+  void visitArgDecl(ArgDecl *AD);
+  void visitVarDecl(VarDecl *VD);
+  void visitConstDecl(ConstDecl *CD);
+
 
 public:
   IRCompiler() = default;

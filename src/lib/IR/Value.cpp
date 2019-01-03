@@ -19,6 +19,7 @@ void Value::removeUse(const Use &U) {
   UseList.erase(std::remove(UseList.begin(), UseList.end(), U), UseList.end());
 }
 
+// TODO: this fails to delete all Instruction class.
 void Value::deleteValue() {
   switch (getValueID()) {
 #define HANDLE_VALUE(CLASS) \

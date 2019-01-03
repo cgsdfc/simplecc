@@ -112,9 +112,9 @@ Value *LLVMIRCompiler::visitName(NameExpr *Nn) {
 /// BoolOp has two forms, indicated by getHasCmpop() and should be handled
 /// separately: The mission of visitBoolOp() is to evaluate the condition
 /// expression and produce a bool value that indicates whether the condition
-/// is true. We have those in grammar: Form-1: <Expr> <RichCompareOp> <Expr>
-/// => bool -- already a bool. Form-2: <Expr> => int -- not a bool yet,
-/// compare it to int(0).
+/// is true. We have these in grammar:
+/// Form-1: <Expr> <RichCompareOp> <Expr> => bool -- already a bool.
+/// Form-2: <Expr> => int -- not a bool yet, compare it to int(0).
 Value *LLVMIRCompiler::visitBoolOp(BoolOpExpr *B) {
   Value *Val = visitExpr(B->getValue());
 
@@ -380,6 +380,7 @@ void LLVMIRCompiler::visitWrite(WriteStmt *WR) {
   Builder.CreateCall(Printf, Args);
 }
 
+// TODO: clean this up.
 /// Generate body for a Function.
 void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   /// Clear the Mapping.
