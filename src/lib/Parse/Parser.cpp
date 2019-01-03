@@ -1,13 +1,10 @@
 #include "simplecc/Parse/Parser.h"
 #include "simplecc/Parse/Node.h"
-
 #include <algorithm>
-
-#define ERROR_TYPE "SyntaxError"
 
 using namespace simplecc;
 
-Parser::Parser(Grammar *G) : TheStack(), TheGrammar(G), EM(ERROR_TYPE) {
+Parser::Parser(const Grammar *G) : TheStack(), TheGrammar(G), EM("SyntaxError") {
   auto Start = G->start;
   Node *Root = new Node(static_cast<Symbol>(Start), "", Location(0, 0));
   TheStack.push(StackEntry(G->dfas[Start - NT_OFFSET], 0, Root));
@@ -36,7 +33,7 @@ int Parser::Classify(const TokenInfo &T) {
       return I;
     }
   }
-  EM.Error(T.getLocation(), "unexpected", Quote(T.getString()));
+  EM.Error(T.getLocation(), "unexpected", T.getString());
   return -1;
 }
 
@@ -115,7 +112,7 @@ int Parser::AddToken(const TokenInfo &T) {
           return -1;
         }
       } else {
-        EM.Error(T.getLocation(), "unexpected", Quote(T.getLine()));
+        EM.Error(T.getLocation(), "unexpected", T.getLine());
         return -1;
       }
     }
@@ -125,7 +122,7 @@ int Parser::AddToken(const TokenInfo &T) {
 Node *Parser::ParseTokens(const std::vector<TokenInfo> &Tokens) {
   for (const auto &T : Tokens) {
     if (T.getType() == Symbol::ERRORTOKEN) {
-      EM.Error(T.getLocation(), "error token", Quote(T.getString()));
+      EM.Error(T.getLocation(), "error token", T.getString());
       return nullptr;
     }
     int RC = AddToken(T);

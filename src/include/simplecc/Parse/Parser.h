@@ -45,12 +45,12 @@ class Parser {
   static bool IsAcceptOnlyState(DFAState *State);
 
 public:
-  explicit Parser(Grammar *G);
+  explicit Parser(const Grammar *G);
   Node *ParseTokens(const std::vector<TokenInfo> &Tokens);
 
 private:
   std::stack<StackEntry> TheStack;
-  Grammar *TheGrammar;
+  const Grammar *TheGrammar;
   Node *RootNode = nullptr;
   ErrorManager EM;
 };

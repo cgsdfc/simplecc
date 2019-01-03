@@ -47,10 +47,8 @@ bool LLVMIRCompiler::visitStmtList(
 Value *LLVMIRCompiler::visitUnaryOp(UnaryOpExpr *U) {
   Value *Operand = visitExprPromoteToInt(U->getOperand());
   switch (U->getOp()) {
-  case UnaryopKind::USub:
-    return Builder.CreateNeg(Operand, "neg");
-  case UnaryopKind::UAdd:
-    return Operand;
+  case UnaryopKind::USub:return Builder.CreateNeg(Operand, "neg");
+  case UnaryopKind::UAdd:return Operand;
   }
 }
 
@@ -146,26 +144,16 @@ Value *LLVMIRCompiler::visitBinOp(BinOpExpr *B) {
   Value *L = visitExprPromoteToInt(B->getLeft());
   Value *R = visitExprPromoteToInt(B->getRight());
   switch (B->getOp()) {
-  case OperatorKind::Add:
-    return Builder.CreateAdd(L, R, "add");
-  case OperatorKind::Sub:
-    return Builder.CreateSub(L, R, "sub");
-  case OperatorKind::Mult:
-    return Builder.CreateMul(L, R, "mul");
-  case OperatorKind::Div:
-    return Builder.CreateSDiv(L, R, "div");
-  case OperatorKind::Eq:
-    return Builder.CreateICmpEQ(L, R, "eq");
-  case OperatorKind::NotEq:
-    return Builder.CreateICmpNE(L, R, "ne");
-  case OperatorKind::Lt:
-    return Builder.CreateICmpSLT(L, R, "lt");
-  case OperatorKind::LtE:
-    return Builder.CreateICmpSLE(L, R, "le");
-  case OperatorKind::Gt:
-    return Builder.CreateICmpSGT(L, R, "gt");
-  case OperatorKind::GtE:
-    return Builder.CreateICmpSGE(L, R, "ge");
+  case OperatorKind::Add:return Builder.CreateAdd(L, R, "add");
+  case OperatorKind::Sub:return Builder.CreateSub(L, R, "sub");
+  case OperatorKind::Mult:return Builder.CreateMul(L, R, "mul");
+  case OperatorKind::Div:return Builder.CreateSDiv(L, R, "div");
+  case OperatorKind::Eq:return Builder.CreateICmpEQ(L, R, "eq");
+  case OperatorKind::NotEq:return Builder.CreateICmpNE(L, R, "ne");
+  case OperatorKind::Lt:return Builder.CreateICmpSLT(L, R, "lt");
+  case OperatorKind::LtE:return Builder.CreateICmpSLE(L, R, "le");
+  case OperatorKind::Gt:return Builder.CreateICmpSGT(L, R, "gt");
+  case OperatorKind::GtE:return Builder.CreateICmpSGE(L, R, "ge");
   }
 }
 
@@ -325,13 +313,11 @@ void LLVMIRCompiler::visitRead(ReadStmt *RD) {
   auto SelectFmtSpc = [this](ExprAST *Name) {
     auto T = TheTable.getExprType(Name);
     switch (T) {
-    case BasicTypeKind::Int:
-      return "%d";
+    case BasicTypeKind::Int:return "%d";
     case BasicTypeKind::Character:
       /// Skip one extra space.
       return " %c";
-    default:
-      llvm_unreachable("Void cannot be!");
+    default:llvm_unreachable("Void cannot be!");
     }
   };
 
@@ -385,6 +371,9 @@ void LLVMIRCompiler::visitWrite(WriteStmt *WR) {
 void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   /// Clear the Mapping.
   LocalValues.clear();
+
+  // TODO: only fixing return type is not enough. Fix any return;
+  // within main() to return 0;
 
   /// Create function, fixing return type of main() to int.
   /// We choose to alter the AST since otherwise the AST will
@@ -451,7 +440,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
     const SymbolEntry &E = Pair.second;
     if (E.IsLocal()) {
       assert(LocalValues.count(E.getName()) &&
-             "Local DeclAST must have been handled");
+          "Local DeclAST must have been handled");
       continue;
     }
     auto GV = GlobalValues[E.getName()];
@@ -482,11 +471,9 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
       /// Make implicit return of void Function explicit.
       Builder.CreateRetVoid();
       break;
-    case BasicTypeKind::Int:
-      Builder.CreateRet(VM.getInt(0));
+    case BasicTypeKind::Int:Builder.CreateRet(VM.getInt(0));
       break;
-    case BasicTypeKind::Character:
-      Builder.CreateRet(VM.getChar(0));
+    case BasicTypeKind::Character:Builder.CreateRet(VM.getChar(0));
       break;
     }
   }

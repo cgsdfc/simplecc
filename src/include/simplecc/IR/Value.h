@@ -44,7 +44,7 @@ public:
 
   unsigned getValueID() const { return Kind; }
   Type *getType() const { return Ty; }
-
+  const std::string &getName() const { return Name; }
   void deleteValue();
 
 protected:

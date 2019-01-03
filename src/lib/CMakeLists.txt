@@ -27,7 +27,6 @@ set(SOURCE_FILES
         Analysis/ArrayBoundChecker.cpp
         Analysis/ASTPrettyPrinter.cpp
 
-
         # Generate ByteCode from the AST.
         CodeGen/ByteCodePrinter.cpp
         CodeGen/ByteCode.cpp
@@ -44,8 +43,7 @@ set(SOURCE_FILES
         Target/MipsSupport.cpp
         Target/MipsAssemblyWriter.cpp
 
-        # Optimization is not implemented currently.
-        # That's why they come last.
+        # TODO: descript IR.
         IR/Module.cpp
         IR/Function.cpp
         IR/Instruction.cpp
@@ -61,6 +59,7 @@ set(SOURCE_FILES
         IR/Constant.cpp
         IR/IRContext.cpp
         IR/IRCompiler.cpp
+        IR/IRPrinter.cpp
 
         Transform/TrivialConstantFolder.cpp
         Transform/DeadCodeEliminator.cpp
@@ -84,7 +83,6 @@ if (USE_LLVM)
             LLVM/LLVMValueMap.cpp
             LLVM/LLVMIRCompiler.cpp
             LLVM/EmitLLVM.cpp
-
             )
     list(APPEND EXTRA_LIBRARIES ${llvm_libs})
     add_definitions(-DSIMPLE_COMPILER_USE_LLVM)
