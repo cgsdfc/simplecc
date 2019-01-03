@@ -13,6 +13,9 @@ class ConstantInt : public Value {
   ~ConstantInt() = default;
 public:
   static ConstantInt *get(IRContext &Context, int Val);
+  static ConstantInt *getZeroVal(IRContext &C) {
+    return get(C, 0);
+  }
 
   bool isTrue() const { return !isFalse(); }
   bool isFalse() const { return IntVal == 0; }

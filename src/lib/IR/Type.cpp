@@ -1,5 +1,5 @@
-#include <cassert>
 #include <simplecc/IR/Type.h>
+#include <cassert>
 
 using namespace simplecc;
 
@@ -9,6 +9,7 @@ using namespace simplecc;
     static Type The##Class(Class##Kind);                                       \
     return &The##Class;                                                        \
   }
+#include "simplecc/IR/Type.def"
 
 const char *Type::getName() const {
   switch (getTypeID()) {

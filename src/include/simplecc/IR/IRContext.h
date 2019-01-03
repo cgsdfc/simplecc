@@ -12,6 +12,7 @@ class ConstantInt;
 class IRContext {
 public:
   IRContext() = default;
+  ~IRContext();
   StringLiteral *getStringLiteral(const std::string &Str);
   ConstantInt *getConstantInt(int Int);
 private:

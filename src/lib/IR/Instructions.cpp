@@ -1,5 +1,6 @@
 #include "simplecc/IR/Instructions.h"
 #include "simplecc/IR/Function.h"
+#include "simplecc/IR/Constant.h"
 
 using namespace simplecc;
 
@@ -76,6 +77,10 @@ BinaryOperator::BinaryOperator(unsigned Op, Value *LHS, Value *RHS,
   assert(LHS->getType()->isIntType() && RHS->getType()->isIntType());
   setOperand(0, LHS);
   setOperand(1, RHS);
+}
+
+BinaryOperator *BinaryOperator::CreateNeg(IRContext &C, Value *S, BasicBlock *IAE) {
+  return BinaryOperator::CreateSub(ConstantInt::getZeroVal(C), S, IAE);
 }
 
 CallInst::CallInst(Function *Callee, const std::vector<Value *> &Args,

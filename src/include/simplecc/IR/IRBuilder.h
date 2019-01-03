@@ -59,6 +59,10 @@ BinaryOperator *Create##Opcode(Value *LHS, Value *RHS) {       \
   }
 #include "simplecc/IR/Instruction.def"
 
+  BinaryOperator *CreateNeg(Value *S) {
+    return BinaryOperator::CreateNeg(Context, S);
+  }
+
   PHINode *CreatePHI() {
     Insert(PHINode::Create());
   }

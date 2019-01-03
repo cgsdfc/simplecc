@@ -1,5 +1,6 @@
 #include "simplecc/IR/IRContext.h"
 #include "simplecc/IR/Constant.h"
+#include <algorithm>
 
 using namespace simplecc;
 
@@ -17,4 +18,11 @@ ConstantInt *IRContext::getConstantInt(int Int) {
     return Iter->second;
   auto Pos = IntPool.emplace(Int, new ConstantInt(Int));
   return Pos.first->second;
+}
+
+IRContext::~IRContext() {
+  for (auto &I : IntPool)
+    I.second->deleteValue();
+  for (auto &I : StringPool)
+    I.second->deleteValue();
 }

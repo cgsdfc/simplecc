@@ -171,10 +171,12 @@ public:
 /// Creator of all kinds of BinaryOperators.
 #define HANDLE_BINARY_OPERATOR(Class, Opcode, Name)                            \
   static BinaryOperator *Create##Opcode(Value *LHS, Value *RHS,                \
-                                        BasicBlock *IAE=nullptr) {                     \
+                                        BasicBlock *IAE = nullptr) {                     \
     return Create((Opcode), LHS, RHS, IAE);                                    \
   }
 #include "simplecc/IR/Instruction.def"
+
+  static BinaryOperator *CreateNeg(IRContext &Context, Value *S, BasicBlock *IAE = nullptr);
   Value *getLeft() const { return getOperand(0); }
   Value *getRight() const { return getOperand(1); }
   static bool InstanceCheck(const Instruction *I) { return I->isBinaryOp(); }
