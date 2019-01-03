@@ -55,7 +55,6 @@ public:
   }
   /// Make this Module empty.
   void clear();
-
   void Format(std::ostream &O) const;
 
 private:

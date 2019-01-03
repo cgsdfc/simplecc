@@ -66,7 +66,7 @@ set(SOURCE_FILES
         Transform/Transform.cpp
 
         Driver/Driver.cpp
-        )
+        Driver/WindowsDriver.cpp Driver/DriverBase.cpp)
 
 set(EXTRA_LIBRARIES "")
 

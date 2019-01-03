@@ -1,6 +1,4 @@
-
 #include <simplecc/Driver/Driver.h>
-
 #include "simplecc/CodeGen/Compile.h"
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Target/Assemble.h"
