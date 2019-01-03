@@ -4,7 +4,7 @@
 #include "simplecc/CodeGen/ByteCodeModule.h"
 #include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Support/ErrorManager.h"
-#include <simplecc/Parse/Parse.h>
+#include "simplecc/Parse/Parse.h"
 
 #include <fstream>
 #include <iostream>
@@ -43,6 +43,7 @@ protected:
   Program *getProgram() { return TheProgram.get(); }
   const ByteCodeModule &getByteCodeModule() const { return TheModule; }
   ByteCodeModule &getByteCodeModule() { return TheModule; }
+  ErrorManager &getEM() { return EM; }
 public:
   void setInputFile(std::string Filename) { InputFile = std::move(Filename); }
   void setOutputFile(std::string Filename) { OutputFile = std::move(Filename); }
@@ -55,7 +56,6 @@ public:
 private:
   std::string InputFile;
   std::string OutputFile;
-
   std::ifstream StdIFStream;
   std::ofstream StdOFStream;
 

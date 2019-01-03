@@ -1,6 +1,3 @@
-
-#include <simplecc/Driver/DriverBase.h>
-
 #include "simplecc/Driver/DriverBase.h"
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/CodeGen/Compile.h"
@@ -15,7 +12,7 @@ std::ostream *DriverBase::getStdOstream() {
   StdOFStream.open(OutputFile);
   if (StdOFStream.fail()) {
     EM.setErrorType("FileWriteError");
-    EM.Error(Quote(OutputFile));
+    EM.Error(OutputFile);
     return nullptr;
   }
   return &StdOFStream;
