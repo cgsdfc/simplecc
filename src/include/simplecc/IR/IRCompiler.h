@@ -23,7 +23,7 @@ class IRCompiler : ContextualVisitor<IRCompiler> {
   void visitFor(ForStmt *F);
   void visitWhile(WhileStmt *W);
   void visitIf(IfStmt *I);
-  bool visitStmtList(const StmtAST::StmtListType &StmtList);
+  void visitStmtList(const StmtAST::StmtListType &StmtList);
 
   Value *visitExpr(ExprAST *E) { return VisitorBase::visitExpr<Value *>(E); }
   Value *visitBinOp(BinOpExpr *B);

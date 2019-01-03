@@ -9,13 +9,14 @@ namespace simplecc {
 /// for each FuncDef to be visited.
 template<typename Derived>
 class ContextualVisitor : public ChildrenVisitor<Derived> {
+
+protected:
+  ContextualVisitor() = default;
+
   void setTable(SymbolTable &S) { TheTable = &S; }
   void setLocalTable(FuncDef *FD) {
     TheLocalTable = getSymbolTable().getLocalTable(FD);
   }
-protected:
-  ContextualVisitor() = default;
-
   const SymbolTable &getSymbolTable() const {
     assert(TheTable);
     return *TheTable;

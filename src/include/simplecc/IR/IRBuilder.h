@@ -8,12 +8,7 @@
 namespace simplecc {
 class IRBuilder {
   template<typename InstTy>
-  InstTy *Insert(InstTy *I) const {
-    if (BB) {
-      BB->getInstList().insert(InsertPt, I);
-    }
-    return I;
-  }
+  InstTy *Insert(InstTy *I) const;
 
 public:
   ReturnInst *CreateRetVoid() {
@@ -74,28 +69,19 @@ BinaryOperator *Create##Opcode(Value *LHS, Value *RHS) {       \
 
   BasicBlock *GetInsertBlock() const { return BB; }
   BasicBlock::iterator GetInsertPoint() const { return InsertPt; }
-
-  void SetInsertPoint(BasicBlock *TheBB) {
-    BB = TheBB;
-    InsertPt = BB->end();
+  Function *GetCurrentFunction() const {
+    assert(BB && "No BB associated");
+    return BB->getParent();
   }
 
-  void SetInsertPoint(Instruction *I) {
-    BB = I->getParent();
-    InsertPt = I->getIterator();
-  }
-
-  void SetInsertPoint(BasicBlock *TheBB, BasicBlock::iterator IP) {
-    BB = TheBB;
-    InsertPt = IP;
-  }
-
+  void SetInsertPoint(BasicBlock *TheBB);
+  void SetInsertPoint(Instruction *I);
+  void SetInsertPoint(BasicBlock *TheBB, BasicBlock::iterator IP);
   Type *getCurrentFunctionReturnType() const;
 
   StringLiteral *getStringLiteral(const std::string &Str) {
     return StringLiteral::get(Context, Str);
   }
-
   ConstantInt *getTrue() {
     return getInt(1);
   }
@@ -125,6 +111,15 @@ private:
   BasicBlock *BB;
   BasicBlock::iterator InsertPt;
 };
+
+template<typename InstTy>
+InstTy *IRBuilder::Insert(InstTy *I) const {
+  if (BB) {
+    BB->getInstList().insert(InsertPt, I);
+  }
+  return I;
+}
+
 } // namespace simplecc
 
 #endif // SIMPLECC_IR_IRBUILDER_H

@@ -214,8 +214,8 @@ void LLVMIRCompiler::visitWhile(WhileStmt *W) {
   Value *CondV = visitExpr(W->getCondition());
 
   /// Create the targets of a conditional branch that ends loop BB.
-  BasicBlock *End = BasicBlock::Create(TheContext, "end", TheFunction);
   BasicBlock *Body = BasicBlock::Create(TheContext, "body", TheFunction);
+  BasicBlock *End = BasicBlock::Create(TheContext, "end", TheFunction);
   /// If true, goto the BodyBB, else goto the EndBB.
   Builder.CreateCondBr(CondV, Body, End);
 

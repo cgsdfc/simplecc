@@ -1,12 +1,11 @@
 #include "simplecc/IR/IRCompiler.h"
 #include "simplecc/IR/Function.h"
-#include "simplecc/IR/Argument.h"
 #include "simplecc/IR/Module.h"
-#include "simplecc/IR/GlobalVariable.h"
 
 using namespace simplecc;
 
 void IRCompiler::visitFuncDef(FuncDef *FD) {
+  ContextualVisitor::setLocalTable(FD);
   LocalValueMap.clear();
   auto TheFunction = Function::Create(
       /* ReturnType */ get(FD->getReturnType()),
@@ -22,7 +21,7 @@ void IRCompiler::visitFuncDef(FuncDef *FD) {
   for (DeclAST *Decl : FD->getDecls()) {
     if (!IsInstance<VarDecl>(Decl))
       continue;
-    // ConstDecl should be folded.
+    // ConstDecl should have been folded.
     visitVarDecl(static_cast<VarDecl *>(Decl), /* isLocal */ true);
   }
   visitStmtList(FD->getStmts());
@@ -112,19 +111,78 @@ void IRCompiler::visitReturn(ReturnStmt *R) {
 }
 
 void IRCompiler::visitFor(ForStmt *F) {
-  ChildrenVisitor::visitFor(F);
+  Function *TheFunction = Builder.GetInsertBlock()->getParent();
+  auto Body = BasicBlock::Create(TheFunction);
+  auto Loop = BasicBlock::Create(TheFunction);
+  auto End = BasicBlock::Create(TheFunction);
+
+  visitStmt(F->getInitial());
+  Builder.CreateBr(Body);
+
+  Builder.SetInsertPoint(Loop);
+  visitStmt(F->getStep());
+  auto Cond = visitExpr(F->getCondition());
+  Builder.CreateCondBr(Cond, Body, End);
+
+  Builder.SetInsertPoint(Body);
+  visitStmtList(F->getBody());
+  if (!Body->getTerminator()) {
+    Builder.CreateBr(Loop);
+  }
+
+  Builder.SetInsertPoint(End);
 }
 
 void IRCompiler::visitWhile(WhileStmt *W) {
-  ChildrenVisitor::visitWhile(W);
+  Function *TheFunction = Builder.GetInsertBlock()->getParent();
+  auto Loop = BasicBlock::Create(TheFunction);
+  Builder.CreateBr(Loop);
+
+  Builder.SetInsertPoint(Loop);
+  auto Cond = visitExpr(W->getCondition());
+  auto Body = BasicBlock::Create(TheFunction);
+  auto End = BasicBlock::Create(TheFunction);
+  Builder.CreateCondBr(Cond, Body, End);
+
+  Builder.SetInsertPoint(Body);
+  visitStmtList(W->getBody());
+  if (!Body->getTerminator()) {
+    Builder.CreateBr(Loop);
+  }
+
+  Builder.SetInsertPoint(End);
 }
 
 void IRCompiler::visitIf(IfStmt *I) {
-  ChildrenVisitor::visitIf(I);
+  Function *TheFunction = Builder.GetInsertBlock()->getParent();
+  auto Cond = visitExpr(I->getTest());
+  auto Then = BasicBlock::Create(TheFunction);
+  auto Else = BasicBlock::Create(TheFunction);
+  Builder.CreateCondBr(Cond, Then, Else);
+
+  Builder.SetInsertPoint(Then);
+  visitStmtList(I->getBody());
+  Builder.SetInsertPoint(Else);
+  visitStmtList(I->getOrelse());
+  if (Then->getTerminator() && Else->getTerminator()) {
+    // Both Then and Else terminates.
+    return;
+  }
+  auto End = BasicBlock::Create(TheFunction);
+  if (!Then->getTerminator()) {
+    BranchInst::Create(End, Then);
+  }
+  if (!Else->getTerminator()) {
+    BranchInst::Create(End, Else);
+  }
+
+  Builder.SetInsertPoint(End);
 }
 
-bool IRCompiler::visitStmtList(const StmtAST::StmtListType &StmtList) {
-
+void IRCompiler::visitStmtList(const StmtAST::StmtListType &StmtList) {
+  for (auto Stmt : StmtList) {
+    visitStmt(Stmt);
+  }
 }
 
 // TODO: make it shorter.
@@ -206,5 +264,8 @@ Value *IRCompiler::visitStr(StrExpr *S) {
 }
 
 bool IRCompiler::Compile(Program *P, const SymbolTable &S, Module &M) {
+  ContextualVisitor::setTable(const_cast<SymbolTable &>(S));
+  TheModule = &M;
+  visitProgram(P);
   return false;
 }
