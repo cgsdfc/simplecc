@@ -1,6 +1,7 @@
 #include "simplecc/IR/Instructions.h"
 #include "simplecc/IR/Function.h"
 #include "simplecc/IR/Constant.h"
+#include "simplecc/Support/Casting.h"
 
 using namespace simplecc;
 
@@ -91,6 +92,11 @@ CallInst::CallInst(Function *Callee, const std::vector<Value *> &Args,
     setOperand(I, Args[I]);
   }
   setOperand(I, Callee);
+}
+
+CallInst *CallInst::Create(Value *Callee, const std::vector<Value *> &Args, BasicBlock *IAE) {
+  assert(IsInstance<Function>(Callee));
+  return new CallInst(static_cast<Function *>(Callee), Args, IAE);
 }
 
 ICmpInst::ICmpInst(unsigned Predicate, Value *LHS, Value *RHS, BasicBlock *IAE)

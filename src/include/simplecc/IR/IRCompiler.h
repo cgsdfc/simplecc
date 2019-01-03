@@ -14,12 +14,12 @@ class IRCompiler : ContextualVisitor<IRCompiler> {
   void visitFuncDef(FuncDef *FD);
   void visitArgDecl(ArgDecl *AD, Argument *Val);
   void visitVarDecl(VarDecl *VD, bool isLocal);
-  void visitConstDecl(ConstDecl *CD);
+  void visitConstDecl(ConstDecl *CD) {}
 
   void visitWrite(WriteStmt *WR);
   void visitRead(ReadStmt *RD);
   void visitAssign(AssignStmt *A);
-  void visitReturn(ReturnStmt *Ret);
+  void visitReturn(ReturnStmt *R);
   void visitFor(ForStmt *F);
   void visitWhile(WhileStmt *W);
   void visitIf(IfStmt *I);
@@ -39,6 +39,7 @@ class IRCompiler : ContextualVisitor<IRCompiler> {
 
   unsigned int getSize(VarDecl *VD);
   void EnsureProperReturn(Function *F);
+  Value *maybeLoad(Value *Ptr, ExprContextKind ExprContext);
   Type *get(BasicTypeKind Ty) const;
   Value *get(SymbolEntry Entry);
   Value *get(const std::string &Name) {

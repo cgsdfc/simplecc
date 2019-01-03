@@ -10,7 +10,7 @@ class GlobalVariable : public Value {
   GlobalVariable(unsigned Size, Module *M);
 
 public:
-  GlobalVariable *Create(unsigned Size, Module *M = nullptr) {
+  static GlobalVariable *Create(unsigned Size, Module *M = nullptr) {
     return new GlobalVariable(Size, M);
   }
   unsigned getSize() const { return Size; }

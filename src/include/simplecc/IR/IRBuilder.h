@@ -30,7 +30,7 @@ public:
     return Insert(BranchInst::Create(Dest));
   }
 
-  CallInst *CreateCall(Function *Callee, const std::vector<Value *> &Args) {
+  CallInst *CreateCall(Value *Callee, const std::vector<Value *> &Args) {
     return CallInst::Create(Callee, Args);
   }
 
@@ -92,17 +92,17 @@ BinaryOperator *Create##Opcode(Value *LHS, Value *RHS) {       \
 
   Type *getCurrentFunctionReturnType() const;
 
-  StringLiteral *CreateStringLiteral(const std::string &Str) {
+  StringLiteral *getStringLiteral(const std::string &Str) {
     return StringLiteral::get(Context, Str);
   }
 
   ConstantInt *getTrue() {
-    return getInt32(1);
+    return getInt(1);
   }
   ConstantInt *getFalse() {
-    return getInt32(0);
+    return getInt(0);
   }
-  ConstantInt *getInt32(int C) {
+  ConstantInt *getInt(int C) {
     return ConstantInt::get(Context, C);
   }
 

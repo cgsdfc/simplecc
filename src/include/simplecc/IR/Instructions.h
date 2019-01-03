@@ -204,10 +204,8 @@ class CallInst : public Instruction {
   CallInst(Function *Callee, const std::vector<Value *> &Args, BasicBlock *IAE);
 
 public:
-  static CallInst *Create(Function *Callee, const std::vector<Value *> &Args,
-                          BasicBlock *IAE = nullptr) {
-    return new CallInst(Callee, Args, IAE);
-  }
+  static CallInst *Create(Value *Callee, const std::vector<Value *> &Args,
+                          BasicBlock *IAE = nullptr);
 
   using arg_iterator = User::op_iterator;
   using const_arg_iterator = User::const_op_iterator;
