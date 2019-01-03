@@ -115,7 +115,7 @@ public:
     return new AllocaInst(NumAlloc, IAE);
   }
 
-  /// Return the numeber of int allocated.
+  /// Return the number of int allocated.
   unsigned int getNumAlloc() const { return NumAlloc; }
   static bool InstanceCheck(const Instruction *I) {
     return I->getOpcode() == Alloca;
@@ -133,7 +133,7 @@ class GetElementPtrInst : public Instruction {
 public:
   static GetElementPtrInst *Create(Value *BasePtr, Value *Offset,
                                    BasicBlock *IAE = nullptr) {
-    new GetElementPtrInst(BasePtr, Offset, IAE);
+    return new GetElementPtrInst(BasePtr, Offset, IAE);
   }
   Value *getBasePtr() const { return getOperand(0); }
   Value *getOffset() const { return getOperand(1); }
