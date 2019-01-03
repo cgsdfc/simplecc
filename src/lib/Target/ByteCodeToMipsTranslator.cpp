@@ -10,14 +10,14 @@ void ByteCodeToMipsTranslator::PUSH(const char *R) {
   assert(R);
   assert(R[0] == '$');
   WriteLine("sw", R, ", 0($sp)");
-  WriteLine("addi $sp, $sp, -4");
+  WriteLine("addiu $sp, $sp, -4");
   ++StackDepth;
 }
 
 // Pop the stack, optionally taking the tos value
 void ByteCodeToMipsTranslator::POP(const char *R) {
   assert(StackDepth > 0 && "POP an empty stack!");
-  WriteLine("addi $sp, $sp, 4");
+  WriteLine("addiu $sp, $sp, 4");
   if (R) {
     assert(R[0] == '$');
     WriteLine("lw", R, ", 0($sp)");
@@ -31,7 +31,7 @@ void ByteCodeToMipsTranslator::visitBinarySubscr(const ByteCode &C) {
   POP("$t0");                     // index
   POP("$t1");                     // base
   WriteLine("sll $t0, $t0, 2");   // offset = index * 4
-  WriteLine("add $t2, $t1, $t0"); // address = base + offset
+  WriteLine("addu $t2, $t1, $t0"); // address = base + offset
   WriteLine("lw $t3, 0($t2)");    // t3 = array[index]
   PUSH("$t3");
 }
@@ -41,7 +41,7 @@ void ByteCodeToMipsTranslator::visitLoadLocal(const ByteCode &C) {
   if (TheContext.IsVariable(C.getStrOperand())) {
     WriteLine("lw $t0,", offset, "($fp)");
   } else {
-    WriteLine("addi $t0, $fp,", offset);
+    WriteLine("addiu $t0, $fp,", offset);
   }
   PUSH("$t0");
 }
@@ -86,10 +86,10 @@ void ByteCodeToMipsTranslator::visitBinary(const char *op) {
 }
 
 void ByteCodeToMipsTranslator::visitBinaryAdd(const ByteCode &C) {
-  visitBinary("add");
+  visitBinary("addu");
 }
 void ByteCodeToMipsTranslator::visitBinarySub(const ByteCode &C) {
-  visitBinary("sub");
+  visitBinary("subu");
 }
 void ByteCodeToMipsTranslator::visitBinaryMultiply(const ByteCode &C) {
   visitBinary("mul");
@@ -102,7 +102,7 @@ void ByteCodeToMipsTranslator::visitUnaryNegative(const ByteCode &C) {
   // $sp points to **the next vacant byte** of the stack, so
   // TOS is 4 + $sp
   WriteLine("lw $t0, 4($sp)");
-  WriteLine("sub $t0, $zero, $t0");
+  WriteLine("subu $t0, $zero, $t0");
   WriteLine("sw, $t0, 4($sp)");
 }
 
@@ -111,7 +111,7 @@ void ByteCodeToMipsTranslator::visitCallFunction(const ByteCode &C) {
   WriteLine("jal", Fn);
   auto bytes = BytesFromEntries(C.getIntOperand());
   if (bytes) {
-    WriteLine("addi $sp, $sp", bytes);
+    WriteLine("addiu $sp, $sp", bytes);
   }
   PUSH("$v0");
 }
@@ -183,7 +183,7 @@ void ByteCodeToMipsTranslator::visitStoreSubscr(const ByteCode &C) {
   POP("$t1");
   POP("$t3");
   WriteLine("sll $t0, $t0, 2");
-  WriteLine("add $t2, $t1, $t0");
+  WriteLine("addu $t2, $t1, $t0");
   WriteLine("sw $t3, 0($t2)");
 }
 

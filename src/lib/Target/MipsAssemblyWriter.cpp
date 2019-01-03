@@ -80,7 +80,7 @@ void MipsAssemblyWriter::WritePrologue(Printer &W,
   W.WriteLine("sw $ra, 0($sp)");
   W.WriteLine("sw $fp, -4($sp)");
   W.WriteLine("move $fp, $sp");
-  W.WriteLine("addi $sp, $sp,", -BytesFromEntries(2));
+  W.WriteLine("addiu $sp, $sp,", -BytesFromEntries(2));
   W.WriteLine();
 
   auto NumArgs = TheFunction.getFormalArgumentCount();
@@ -101,7 +101,7 @@ void MipsAssemblyWriter::WritePrologue(Printer &W,
   signed Off = getLocalObjectsInBytes(TheFunction);
   if (Off != 0) {
     W.WriteLine("# Make room for local objects");
-    W.WriteLine("addi $sp, $sp,", -Off);
+    W.WriteLine("addiu $sp, $sp,", -Off);
     W.WriteLine();
   }
   // now $fp points to the bottom of stack,
