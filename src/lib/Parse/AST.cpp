@@ -4,7 +4,7 @@
 
 using namespace simplecc;
 
-template <typename AstT>
+template<typename AstT>
 static inline void SetterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
   assert((Optional || RHS) && "Only optional field can be null");
   if (LHS == RHS)
@@ -14,7 +14,7 @@ static inline void SetterImpl(AstT *&LHS, AstT *RHS, bool Optional = false) {
 }
 
 /// Implement the rvalue getter
-template <typename AstT>
+template<typename AstT>
 static inline UniquePtrToAST RvalueGetterImpl(AstT *&Ref) {
   AstT *tmp = nullptr;
   std::swap(tmp, Ref);
@@ -27,6 +27,13 @@ FuncDef::~FuncDef() {
   DeleteAST::apply(args);
   DeleteAST::apply(decls);
   DeleteAST::apply(stmts);
+}
+
+ArgDecl *FuncDef::getArgAt(unsigned Pos) const {
+  assert(Pos < args.size() && "Pos out of range");
+  auto Arg = args[Pos];
+  assert(IsInstance<ArgDecl>(Arg) && "Not a ArgDecl!");
+  return static_cast<ArgDecl *>(Arg);
 }
 
 ReadStmt::~ReadStmt() { DeleteAST::apply(names); }
@@ -56,11 +63,11 @@ ForStmt::~ForStmt() {
 }
 
 void ForStmt::setCondition(ExprAST *E) { SetterImpl(condition, E); }
-UniquePtrToAST ForStmt::getInitial() && { return RvalueGetterImpl(initial); }
-UniquePtrToAST ForStmt::getCondition() && {
+UniquePtrToAST ForStmt::getInitial() &&{ return RvalueGetterImpl(initial); }
+UniquePtrToAST ForStmt::getCondition() &&{
   return RvalueGetterImpl(condition);
 }
-UniquePtrToAST ForStmt::getStep() && { return RvalueGetterImpl(step); }
+UniquePtrToAST ForStmt::getStep() &&{ return RvalueGetterImpl(step); }
 
 WhileStmt::~WhileStmt() {
   DeleteAST::apply(condition);
@@ -84,7 +91,7 @@ IfStmt::~IfStmt() {
 void IfStmt::setTest(ExprAST *E) { SetterImpl(test, E); }
 
 ExprStmt::~ExprStmt() { DeleteAST::apply(value); }
-UniquePtrToAST ExprStmt::getValue() && { return RvalueGetterImpl(value); }
+UniquePtrToAST ExprStmt::getValue() &&{ return RvalueGetterImpl(value); }
 void ExprStmt::setValue(ExprAST *E) {
   SetterImpl(value, E);
 }
@@ -97,26 +104,25 @@ BinOpExpr::~BinOpExpr() {
 void BinOpExpr::setLeft(ExprAST *E) { SetterImpl(left, E); }
 
 void BinOpExpr::setRight(ExprAST *E) { SetterImpl(right, E); }
-UniquePtrToAST BinOpExpr::getLeft() && { return RvalueGetterImpl(left); }
-UniquePtrToAST BinOpExpr::getRight() && { return RvalueGetterImpl(right); }
+UniquePtrToAST BinOpExpr::getLeft() &&{ return RvalueGetterImpl(left); }
+UniquePtrToAST BinOpExpr::getRight() &&{ return RvalueGetterImpl(right); }
 
 ParenExpr::~ParenExpr() { DeleteAST::apply(value); }
 
 void ParenExpr::setValue(ExprAST *E) { SetterImpl(value, E); }
-UniquePtrToAST ParenExpr::getValue() && { return RvalueGetterImpl(value); }
+UniquePtrToAST ParenExpr::getValue() &&{ return RvalueGetterImpl(value); }
 
 BoolOpExpr::~BoolOpExpr() { DeleteAST::apply(value); }
 
 void BoolOpExpr::setValue(ExprAST *E) {
   SetterImpl(value, E);
   setHasCompareOp(IsInstance<BinOpExpr>(E) &&
-                  isCompareOp(static_cast<BinOpExpr *>(E)->getOp()));
+      isCompareOp(static_cast<BinOpExpr *>(E)->getOp()));
 }
 
 bool BoolOpExpr::isCompareOp(OperatorKind Op) {
   switch (Op) {
-  default:
-    return false;
+  default:return false;
 #define HANDLE_COMPARE_OPERATOR(VAL, OP, FUNC)                                 \
   case OperatorKind::VAL:                                                      \
     return true;
@@ -124,13 +130,13 @@ bool BoolOpExpr::isCompareOp(OperatorKind Op) {
   }
 }
 
-UniquePtrToAST BoolOpExpr::getValue() && { return RvalueGetterImpl(value); }
+UniquePtrToAST BoolOpExpr::getValue() &&{ return RvalueGetterImpl(value); }
 
 UnaryOpExpr::~UnaryOpExpr() { DeleteAST::apply(operand); }
 
 void UnaryOpExpr::setOperand(ExprAST *E) { SetterImpl(operand, E); }
 
-UniquePtrToAST UnaryOpExpr::getOperand() && {
+UniquePtrToAST UnaryOpExpr::getOperand() &&{
   return RvalueGetterImpl(operand);
 }
 
@@ -142,12 +148,11 @@ SubscriptExpr::~SubscriptExpr() { DeleteAST::apply(index); }
 
 void SubscriptExpr::setIndex(ExprAST *E) { SetterImpl(index, E); }
 
-UniquePtrToAST SubscriptExpr::getIndex() && { return RvalueGetterImpl(index); }
+UniquePtrToAST SubscriptExpr::getIndex() &&{ return RvalueGetterImpl(index); }
 
 const char *AST::getClassName(unsigned Kind) {
   switch (Kind) {
-  default:
-    assert(false && "Unhandled AST Kind");
+  default:assert(false && "Unhandled AST Kind");
 #define HANDLE_AST(CLASS)                                                      \
   case CLASS##Kind:                                                            \
     return #CLASS;
@@ -157,8 +162,7 @@ const char *AST::getClassName(unsigned Kind) {
 
 void AST::deleteAST() {
   switch (getKind()) {
-  default:
-    assert(false && "Unhandled AST Kind");
+  default:assert(false && "Unhandled AST Kind");
 #define HANDLE_AST(CLASS)                                                      \
   case CLASS##Kind:                                                            \
     delete static_cast<CLASS *>(this);                                         \
@@ -172,8 +176,7 @@ void AST::dump() const { return Format(std::cerr); }
 
 bool DeclAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
-  default:
-    return false;
+  default:return false;
 #define HANDLE_DECL(CLASS)                                                     \
   case AST::CLASS##Kind:                                                       \
     return true;
@@ -183,8 +186,7 @@ bool DeclAST::InstanceCheck(const AST *A) {
 
 bool StmtAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
-  default:
-    return false;
+  default:return false;
 #define HANDLE_STMT(CLASS)                                                     \
   case AST::CLASS##Kind:                                                       \
     return true;
@@ -194,8 +196,7 @@ bool StmtAST::InstanceCheck(const AST *A) {
 
 bool ExprAST::InstanceCheck(const AST *A) {
   switch (A->getKind()) {
-  default:
-    return false;
+  default:return false;
 #define HANDLE_EXPR(CLASS)                                                     \
   case AST::CLASS##Kind:                                                       \
     return true;
@@ -210,8 +211,7 @@ int ExprAST::getConstantValue() const {
   case ExprAST::CLASS##Kind:                                                   \
     return static_cast<const CLASS *>(this)->getConstantValueImpl();
 #include "simplecc/Parse/AST.def"
-  default:
-    assert(false && "Unhandled Enum Value");
+  default:assert(false && "Unhandled Enum Value");
   }
 }
 
@@ -221,7 +221,6 @@ bool ExprAST::isConstant() const {
   case ExprAST::CLASS##Kind:                                                   \
     return static_cast<const CLASS *>(this)->isConstantImpl();
 #include "simplecc/Parse/AST.def"
-  default:
-    assert(false && "Unhandled Enum Value");
+  default:assert(false && "Unhandled Enum Value");
   }
 }

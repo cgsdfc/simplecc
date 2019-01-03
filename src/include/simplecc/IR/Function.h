@@ -62,8 +62,8 @@ public:
   Function &operator=(const Function &) = delete;
 
   static Function *Create(Type *RetTy, unsigned NumArgs,
-                          const std::string &Name, Module &M) {
-    return new Function(RetTy, NumArgs, &M);
+                          const std::string &Name, Module *M) {
+    return new Function(RetTy, NumArgs, M);
   }
 
   Module *getParent() const { return Parent; }

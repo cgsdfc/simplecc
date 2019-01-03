@@ -2,6 +2,7 @@
 #include "simplecc/IR/Function.h"
 #include "simplecc/IR/Instruction.h"
 #include <algorithm>
+#include <simplecc/IR/BasicBlock.h>
 
 using namespace simplecc;
 
@@ -21,4 +22,11 @@ BasicBlock::BasicBlock(Function *F)
 
 BasicBlock::~BasicBlock() {
   std::for_each(begin(), end(), ValueDeleter());
+}
+
+Instruction *BasicBlock::getTerminator() {
+  if (empty())
+    return nullptr;
+  Instruction *I = &back();
+  return I->isTerminator() ? I : nullptr;
 }

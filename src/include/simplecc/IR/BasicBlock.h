@@ -15,7 +15,7 @@ public:
   BasicBlock(const BasicBlock &) = delete;
   BasicBlock &operator=(const BasicBlock &) = delete;
 
-  static BasicBlock *Create(Function &F) { return new BasicBlock(&F); }
+  static BasicBlock *Create(Function *F) { return new BasicBlock(F); }
 
   Function *getParent() const { return Parent; }
 

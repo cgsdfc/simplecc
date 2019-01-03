@@ -42,12 +42,12 @@ inline std::ostream &operator<<(std::ostream &O, const AST &A) {
 /// This struct knows how to delete an AST or a list of AST.
 struct DeleteAST {
   /// Delete a range of AST.
-  template <typename Iterator>
+  template<typename Iterator>
   static void apply(Iterator first, Iterator last) {
     std::for_each(first, last, DeleteAST());
   }
   /// Delete a vector of AST, assuming the vector own them.
-  template <typename AstT> static void apply(const std::vector<AstT *> &List) {
+  template<typename AstT> static void apply(const std::vector<AstT *> &List) {
     apply(List.begin(), List.end());
   }
   /// Delete a single AST.
@@ -70,7 +70,7 @@ protected:
       : AST(Kind, loc), name(std::move(name)) {}
 
 public:
-  const std::string &getName() const & { return name; }
+  const std::string &getName() const &{ return name; }
   static bool InstanceCheck(const AST *A);
 };
 
@@ -79,6 +79,7 @@ protected:
   StmtAST(unsigned int Kind, Location loc) : AST(Kind, loc) {}
 
 public:
+  using StmtListType = std::vector<StmtAST *>;
   static bool InstanceCheck(const AST *A);
 };
 
@@ -154,17 +155,13 @@ public:
   }
 };
 
+class ArgDecl;
 class FuncDef : public DeclAST {
-  friend class AST;
-  BasicTypeKind return_type;
-  std::vector<DeclAST *> args;
-  std::vector<DeclAST *> decls;
-  std::vector<StmtAST *> stmts;
-  ~FuncDef();
-
 public:
+  using StmtListType = StmtAST::StmtListType;
+
   FuncDef(BasicTypeKind return_type, std::vector<DeclAST *> args,
-          std::vector<DeclAST *> decls, std::vector<StmtAST *> stmts,
+          std::vector<DeclAST *> decls, StmtListType stmts,
           std::string name, const Location &loc)
       : DeclAST(DeclAST::FuncDefKind, std::move(name), loc),
         return_type(return_type), args(std::move(args)),
@@ -181,16 +178,25 @@ public:
 
   const std::vector<DeclAST *> &getArgs() const { return args; }
   std::vector<DeclAST *> &getArgs() { return args; }
+  ArgDecl *getArgAt(unsigned Pos) const;
+  size_t getNumArgs() const { return args.size(); }
 
   const std::vector<DeclAST *> &getDecls() const { return decls; }
   std::vector<DeclAST *> &getDecls() { return decls; }
 
-  const std::vector<StmtAST *> &getStmts() const { return stmts; }
-  std::vector<StmtAST *> &getStmts() { return stmts; }
+  const StmtListType &getStmts() const { return stmts; }
+  StmtListType &getStmts() { return stmts; }
 
   static bool InstanceCheck(const DeclAST *x) {
     return x->getKind() == DeclAST::FuncDefKind;
   }
+private:
+  friend class AST;
+  BasicTypeKind return_type;
+  std::vector<DeclAST *> args;
+  std::vector<DeclAST *> decls;
+  StmtListType stmts;
+  ~FuncDef();
 };
 
 class ArgDecl : public DeclAST {
@@ -294,12 +300,12 @@ class ForStmt : public StmtAST {
   StmtAST *initial;
   ExprAST *condition;
   StmtAST *step;
-  std::vector<StmtAST *> body;
+  StmtListType body;
   ~ForStmt();
 
 public:
   ForStmt(StmtAST *initial, ExprAST *condition, StmtAST *step,
-          std::vector<StmtAST *> body, const Location &loc)
+          StmtListType body, const Location &loc)
       : StmtAST(StmtAST::ForStmtKind, loc), initial(initial),
         condition(condition), step(step), body(std::move(body)) {}
 
@@ -309,19 +315,19 @@ public:
   ForStmt &operator=(const ForStmt &) = delete;
   ForStmt &operator=(ForStmt &&) = delete;
 
-  StmtAST *getInitial() const & { return initial; }
+  StmtAST *getInitial() const &{ return initial; }
   UniquePtrToAST getInitial() &&;
 
-  ExprAST *getCondition() const & { return condition; }
+  ExprAST *getCondition() const &{ return condition; }
   void setCondition(ExprAST *E);
   UniquePtrToAST getCondition() &&;
 
-  StmtAST *getStep() const & { return step; }
+  StmtAST *getStep() const &{ return step; }
   UniquePtrToAST getStep() &&;
 
-  const std::vector<StmtAST *> &getBody() const & { return body; }
-  std::vector<StmtAST *> &getBody() & { return body; }
-  std::vector<StmtAST *> getBody() && { return std::move(body); }
+  const StmtListType &getBody() const &{ return body; }
+  StmtListType &getBody() &{ return body; }
+  StmtListType getBody() &&{ return std::move(body); }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == StmtAST::ForStmtKind;
@@ -331,11 +337,11 @@ public:
 class WhileStmt : public StmtAST {
   friend class AST;
   ExprAST *condition;
-  std::vector<StmtAST *> body;
+  StmtListType body;
   ~WhileStmt();
 
 public:
-  WhileStmt(ExprAST *condition, std::vector<StmtAST *> body,
+  WhileStmt(ExprAST *condition, StmtListType body,
             const Location &loc)
       : StmtAST(WhileStmtKind, loc), condition(condition),
         body(std::move(body)) {}
@@ -348,8 +354,8 @@ public:
 
   ExprAST *getCondition() const { return condition; }
   void setCondition(ExprAST *E);
-  const std::vector<StmtAST *> &getBody() const { return body; }
-  std::vector<StmtAST *> &getBody() { return body; }
+  const StmtListType &getBody() const { return body; }
+  StmtListType &getBody() { return body; }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == WhileStmtKind;
@@ -381,14 +387,14 @@ public:
 
 class IfStmt : public StmtAST {
   ExprAST *test;
-  std::vector<StmtAST *> body;
-  std::vector<StmtAST *> orelse;
+  StmtListType body;
+  StmtListType orelse;
   friend class AST;
   ~IfStmt();
 
 public:
-  IfStmt(ExprAST *test, std::vector<StmtAST *> body,
-         std::vector<StmtAST *> orelse, const Location &loc)
+  IfStmt(ExprAST *test, StmtListType body,
+         StmtListType orelse, const Location &loc)
       : StmtAST(StmtAST::IfStmtKind, loc), test(test), body(std::move(body)),
         orelse(std::move(orelse)) {}
 
@@ -400,13 +406,13 @@ public:
 
   ExprAST *getTest() const { return test; }
   void setTest(ExprAST *E);
-  const std::vector<StmtAST *> &getBody() const & { return body; }
-  std::vector<StmtAST *> &getBody() & { return body; }
-  std::vector<StmtAST *> getBody() && { return std::move(body); }
+  const StmtListType &getBody() const &{ return body; }
+  StmtListType &getBody() &{ return body; }
+  StmtListType getBody() &&{ return std::move(body); }
 
-  const std::vector<StmtAST *> &getOrelse() const & { return orelse; }
-  std::vector<StmtAST *> &getOrelse() & { return orelse; }
-  std::vector<StmtAST *> getOrelse() && { return std::move(orelse); }
+  const StmtListType &getOrelse() const &{ return orelse; }
+  StmtListType &getOrelse() &{ return orelse; }
+  StmtListType getOrelse() &&{ return std::move(orelse); }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == StmtAST::IfStmtKind;
@@ -428,7 +434,7 @@ public:
   ExprStmt &operator=(const ExprStmt &) = delete;
   ExprStmt &operator=(ExprStmt &&) = delete;
 
-  ExprAST *getValue() const & { return value; }
+  ExprAST *getValue() const &{ return value; }
   UniquePtrToAST getValue() &&;
   void setValue(ExprAST *E);
 
@@ -457,11 +463,11 @@ public:
 
   OperatorKind getOp() const { return op; }
 
-  ExprAST *getLeft() const & { return left; }
+  ExprAST *getLeft() const &{ return left; }
   UniquePtrToAST getLeft() &&;
   void setLeft(ExprAST *E);
 
-  ExprAST *getRight() const & { return right; }
+  ExprAST *getRight() const &{ return right; }
   UniquePtrToAST getRight() &&;
   void setRight(ExprAST *E);
 
@@ -489,7 +495,7 @@ public:
   ParenExpr &operator=(const ParenExpr &) = delete;
   ParenExpr &operator=(ParenExpr &&) = delete;
 
-  ExprAST *getValue() const & { return value; }
+  ExprAST *getValue() const &{ return value; }
   UniquePtrToAST getValue() &&;
   void setValue(ExprAST *E);
 
@@ -519,7 +525,7 @@ public:
   BoolOpExpr &operator=(const BoolOpExpr &) = delete;
   BoolOpExpr &operator=(BoolOpExpr &&) = delete;
 
-  ExprAST *getValue() const & { return value; }
+  ExprAST *getValue() const &{ return value; }
   UniquePtrToAST getValue() &&;
   void setValue(ExprAST *E);
   bool hasCompareOp() const { return has_cmpop; }
@@ -555,7 +561,7 @@ public:
 
   UnaryopKind getOp() const { return op; }
   UniquePtrToAST getOperand() &&;
-  ExprAST *getOperand() const & { return operand; }
+  ExprAST *getOperand() const &{ return operand; }
   void setOperand(ExprAST *E);
 
   static bool InstanceCheck(const ExprAST *x) {
@@ -687,7 +693,7 @@ public:
 
   const std::string &getName() const { return name; }
   ExprContextKind getContext() const { return context; }
-  ExprAST *getIndex() const & { return index; }
+  ExprAST *getIndex() const &{ return index; }
   UniquePtrToAST getIndex() &&;
   void setIndex(ExprAST *E);
 
