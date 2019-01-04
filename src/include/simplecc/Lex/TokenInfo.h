@@ -2,16 +2,13 @@
 #define SIMPLECC_LEX_TOKENINFO_H
 #include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Grammar.h"
-
 #include <iostream>
 #include <string>
 #include <utility>
 
 namespace simplecc {
 bool IsTerminal(Symbol S);
-
 inline bool IsNonTerminal(Symbol S) { return !IsTerminal(S); }
-
 const char *getSymbolName(Symbol S);
 
 class TokenInfo {
@@ -23,13 +20,9 @@ public:
   TokenInfo(TokenInfo &&) = default;
 
   const char *getTypeName() const;
-
   const Location &getLocation() const { return Loc; }
-
   const std::string &getString() const { return Str; }
-
   const std::string &getLine() const { return Line; }
-
   Symbol getType() const { return Type; }
 
   void Format(std::ostream &O) const;

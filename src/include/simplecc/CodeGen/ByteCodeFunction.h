@@ -23,10 +23,10 @@ public:
   void setName(std::string Str) { Name = std::move(Str); }
 
   void setLocalTable(LocalSymbolTable L) { Symbols = L; }
-  LocalSymbolTable GetLocal() const { return Symbols; }
+  LocalSymbolTable getLocalTable() const { return Symbols; }
 
-  ByteCodeListTy &GetByteCodeList() { return ByteCodeList; }
-  const ByteCodeListTy &GetByteCodeList() const { return ByteCodeList; }
+  ByteCodeListTy &getByteCodeList() { return ByteCodeList; }
+  const ByteCodeListTy &getByteCodeList() const { return ByteCodeList; }
 
   ByteCode &getByteCodeAt(unsigned Idx) { return ByteCodeList[Idx]; }
   const ByteCode &getByteCodeAt(unsigned Idx) const {

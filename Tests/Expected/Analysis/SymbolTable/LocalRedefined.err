@@ -1,0 +1,4 @@
+NameError at 3:12: redefinition of identifier iconst in constconstredefined
+NameError at 6:30: redefinition of identifier arg in argargredefined
+NameError at 9:6: redefinition of identifier arg in arglocalvarredefined
+NameError at 13:13: redefinition of identifier arg in arglocalconstredefined

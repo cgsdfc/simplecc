@@ -1,13 +1,13 @@
-void vfun {}
+void GlobalFunction {}
 
-void vfun_i(int vfun) {}
+void ArgShallow(int GlobalFunction) {}
 
-void vfun_c(int arg) {
-  int vfun;
+void LocalVarShallow(int arg) {
+  int GlobalFunction;
 }
 
-void vfun_ii(int a1, int a2) {
-  const int vfun = 1;
+void LocalConstShallow(int a1, int a2) {
+  const int GlobalFunction = 1;
 }
 
 void main() {}

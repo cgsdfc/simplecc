@@ -1,14 +1,17 @@
-void vfun {
-  arg = 1;
-  vfun_i(1);
+void UseUndefinedName{
+    arg = 1;
 }
 
-void vfun_i(int arg) {
-  vfun;
+void DefineEarlier{
+    DefineLater(1);
 }
 
-void vfun_c(char arg) {
-  vfun_c('a');
+void DefineLater(int arg) {
+  DefineEarlier;
+}
+
+void CallItself(char arg) {
+  CallItself('a');
 }
 
 void main() {}

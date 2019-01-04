@@ -4,7 +4,7 @@
 #include <iostream>
 
 namespace simplecc {
-/// This class is a simplified byte code implementatoin.
+/// This class is a simplified byte code implementation.
 /// A ByteCode instance consists of an Opcode, an optional integer
 /// operand and an optional string operand. It also has information
 /// that connects compiled form to source code -- a kind of debugging

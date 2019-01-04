@@ -1,12 +1,12 @@
-const int ConstantInt = 1;
-const char ConstantChar = 'a';
+const int IntVal = 1;
+const char CharVal = 'a';
 
 int IntArray[2], IntVar;
 char CharArray[2], CharVar;
 
 void Test1 {
-  const int ConstantInt = 2;
-  const char ConstantChar = 'b';
+  const int IntVal = 2;
+  const char CharVal = 'b';
 }
 
 void Test2 {

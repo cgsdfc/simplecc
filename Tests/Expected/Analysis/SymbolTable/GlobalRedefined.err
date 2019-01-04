@@ -1,0 +1,4 @@
+NameError at 2:11: redefinition of identifier intval in <module>
+NameError at 4:12: redefinition of identifier intvar in <module>
+NameError at 5:16: redefinition of identifier chararray in <module>
+NameError at 8:0: redefinition of identifier voidfun in <module>

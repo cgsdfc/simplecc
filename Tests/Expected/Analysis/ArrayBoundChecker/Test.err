@@ -1,0 +1,5 @@
+Error at 7:17: array index out of bound: -1
+Error at 8:17: array index out of bound: 3
+Error at 12:17: array index out of bound: -1
+Error at 13:17: array index out of bound: 3
+Error at 17:17: array index out of bound: 999

@@ -1,15 +1,15 @@
-void vfun {
+void ConstConstRedefined {
   const int iconst = 1;
   const int iconst = 2;
 }
 
-void vfun_ii(int arg, int arg) {}
+void ArgArgRedefined(int arg, int arg) {}
 
-void vfun_i(int arg) {
+void ArgLocalVarRedefined(int arg) {
   int arg;
 }
 
-void vfun_c(char arg) {
+void ArgLocalConstRedefined(char arg) {
   const char arg = 'c';
 }
 

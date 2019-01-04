@@ -2,25 +2,32 @@ void Func(int i) {}
 char CharFunc {}
 int IntFunc {}
 
+void AssignToConst(int a) {
+  const int IntVal = 1;
+  const char CharVal = 'a';
+  IntVal = 2;
+  CharVal = 'b';
+}
+
 void main() {
-  const int IntConst = 1;
-  const char CharConst = 'a';
+  const int IntVal = 1;
+  const char CharVal = 'a';
   int IntVar;
   char CharVar;
   int IntArray[10];
   char CharArray[10];
 
-  IntConst = 1;
+  IntVal = 1;
   IntArray = 1;
   Func = 1;
 
   IntVar = IntArray;
   CharVar = IntArray;
 
-  IntVar = CharConst;
-  CharVar = IntConst;
-  IntArray[0] = CharConst;
-  CharArray[0] = IntConst;
+  IntVar = CharVal;
+  CharVar = IntVal;
+  IntArray[0] = CharVal;
+  CharArray[0] = IntVal;
   CharVar = IntFunc;
   IntVar = CharFunc;
 

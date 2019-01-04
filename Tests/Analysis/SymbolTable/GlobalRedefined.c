@@ -1,13 +1,10 @@
-const int iconst = 1;
-const char iconst = 'a';
+const int IntVal = 1;
+const char IntVal = 'a';
 
-int ivar, ivar;
-char carr, carr[10];
+int IntVar, IntVar;
+char CharArray, CharArray[10];
 
-void vfun {}
-void vfun(int arg) {}
-
-int ifun {}
-int ifun_i(int arg) {}
+void VoidFun {}
+void VoidFun(int arg) {}
 
 void main() {}

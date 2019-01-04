@@ -1,0 +1,3 @@
+NameError at 3:16: local identifier globalfunction in argshallow shallows a global function
+NameError at 6:6: local identifier globalfunction in localvarshallow shallows a global function
+NameError at 10:12: local identifier globalfunction in localconstshallow shallows a global function

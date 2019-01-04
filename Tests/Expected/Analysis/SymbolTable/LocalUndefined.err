@@ -1,0 +1,2 @@
+NameError at 2:4: undefined identifier arg in useundefinedname
+NameError at 6:4: undefined identifier definelater in defineearlier

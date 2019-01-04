@@ -52,12 +52,12 @@ signed int LocalContext::getLocalOffset(const char *Name) const {
 
 // Return whether a name is a variable
 bool LocalContext::IsVariable(const char *Name) const {
-  return TheFunction->GetLocal()[Name].IsVariable();
+  return TheFunction->getLocalTable()[Name].IsVariable();
 }
 
 // Return whether a name is an array
 bool LocalContext::IsArray(const char *Name) const {
-  return TheFunction->GetLocal()[Name].IsArray();
+  return TheFunction->getLocalTable()[Name].IsArray();
 }
 
 const std::string &LocalContext::getName() const {
