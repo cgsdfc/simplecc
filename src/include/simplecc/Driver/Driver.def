@@ -13,8 +13,8 @@ HANDLE_COMMAND(CheckOnly, "check-only", "merely perform checks on the input")
 HANDLE_COMMAND(Transform, "transform", "run transformation on the AST and print it")
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
-HANDLE_COMMAND(WriteASTGraph, "ast-graph", "print the dot file for the AST");
-HANDLE_COMMAND(WriteCSTGraph, "cst-graph", "print the dot file for the CST");
+HANDLE_COMMAND(WriteASTGraph, "ast-graph", "print the dot file for the AST")
+HANDLE_COMMAND(WriteCSTGraph, "cst-graph", "print the dot file for the CST")
 HANDLE_COMMAND(EmitLLVMIR, "emit-llvm", "emit LLVM IR")
 #endif
 

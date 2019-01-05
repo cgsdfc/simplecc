@@ -1,8 +1,9 @@
 #include "simplecc/Driver/Driver.h"
 #include "simplecc/CodeGen/Compile.h"
+#include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Target/Assemble.h"
 #include "simplecc/Transform/Transform.h"
-#include "simplecc/Lex/Tokenize.h"
+#include <tclap/CmdLine.h>
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
 #include "simplecc/LLVM/EmitLLVM.h"
@@ -10,6 +11,51 @@
 #endif
 
 using namespace simplecc;
+
+#ifdef SIMPLE_COMPILER_USE_LLVM
+void Driver::runEmitLLVMIR() {
+  if (runAnalyses())
+    return;
+  auto OS = getLLVMRawOstream();
+  if (!OS)
+    return;
+  if (CompileToLLVMIR(getProgram(), getSymbolTable(), *OS)) {
+    getEM().increaseErrorCount();
+  }
+}
+
+void Driver::runWriteASTGraph() {
+  if (runAnalyses())
+    return;
+  auto OS = getLLVMRawOstream();
+  if (!OS)
+    return;
+  WriteASTGraph(getProgram(), *OS);
+}
+
+void Driver::runWriteCSTGraph() {
+  auto TheCST = runBuildCST();
+  if (!TheCST)
+    return;
+  auto OS = getLLVMRawOstream();
+  if (!OS)
+    return;
+  WriteCSTGraph(TheCST.get(), *OS);
+}
+
+std::unique_ptr<llvm::raw_ostream> Driver::getLLVMRawOstream() {
+  std::error_code EC;
+  auto OS = llvm::make_unique<llvm::raw_fd_ostream>(getOutputFile(), EC);
+  if (EC) {
+    // Destroy the raw_fd_ostream as told by their doc.
+    OS.release();
+    getEM().setErrorType("FileWriteError");
+    getEM().Error(getOutputFile());
+    return nullptr;
+  }
+  return std::move(OS);
+}
+#endif // SIMPLE_COMPILER_USE_LLVM
 
 std::unique_ptr<Node> Driver::runBuildCST() {
   if (runTokenize())
@@ -31,9 +77,7 @@ void Driver::runPrintTokens() {
   PrintTokens(getTokens(), *OS);
 }
 
-void Driver::runAssembleMips() {
-  runAssemble();
-}
+void Driver::runAssembleMips() { runAssemble(); }
 
 void Driver::runPrintByteCode() {
   if (runAnalyses())
@@ -94,48 +138,35 @@ void Driver::runTransform() {
   PrettyPrintAST(*getProgram(), *OS);
 }
 
-#ifdef SIMPLE_COMPILER_USE_LLVM
-void Driver::runEmitLLVMIR() {
-  if (runAnalyses())
-    return;
-  auto OS = getLLVMRawOstream();
-  if (!OS)
-    return;
-  if (CompileToLLVMIR(getProgram(), getSymbolTable(), *OS)) {
-    getEM().increaseErrorCount();
+int Driver::run(int argc, char **argv) {
+  namespace tclap = TCLAP;
+  tclap::CmdLine Parser("Simple Compiler", ' ', "2.0");
+  std::vector<tclap::Arg *> Switches;
+  tclap::UnlabeledValueArg<std::string> InputArg(
+      "input", "input file (default to stdin)", false, "", "input-file");
+  tclap::ValueArg<std::string> OutputArg("o", "output",
+                                         "output file (default to stdout)",
+                                         false, "", "output-file");
+
+#define HANDLE_COMMAND(Name, Arg, Description)                                 \
+  tclap::SwitchArg Name##Switch("", Arg, Description, false);                  \
+  Switches.push_back(&Name##Switch);
+#include "simplecc/Driver/Driver.def"
+  Parser.xorAdd(Switches);
+
+  try {
+    Parser.parse(argc, argv);
+  } catch (tclap::ArgException &Exc) {
+    PrintErrs(Exc.error(), "at argument", Exc.argId());
+    return 1;
   }
-}
-
-void Driver::runWriteASTGraph() {
-  if (runAnalyses())
-    return;
-  auto OS = getLLVMRawOstream();
-  if (!OS)
-    return;
-  WriteASTGraph(getProgram(), *OS);
-}
-
-void Driver::runWriteCSTGraph() {
-  auto TheCST = runBuildCST();
-  if (!TheCST)
-    return;
-  auto OS = getLLVMRawOstream();
-  if (!OS)
-    return;
-  WriteCSTGraph(TheCST.get(), *OS);
-}
-
-std::unique_ptr<llvm::raw_ostream> Driver::getLLVMRawOstream() {
-  std::error_code EC;
-  auto OS = llvm::make_unique<llvm::raw_fd_ostream>(getOutputFile(), EC);
-  if (EC) {
-    // Destroy the raw_fd_ostream as told by their doc.
-    OS.release();
-    getEM().setErrorType("FileWriteError");
-    getEM().Error(getOutputFile());
-    return nullptr;
+  setInputFile(InputArg.isSet() ? InputArg.getValue() : "-");
+  setOutputFile(OutputArg.isSet() ? OutputArg.getValue() : "-");
+#define HANDLE_COMMAND(Name, Arg, Description)                                 \
+  if (Name##Switch.isSet()) {                                                  \
+    run##Name();                                                               \
+    return status();                                                           \
   }
-  return std::move(OS);
+#include "simplecc/Driver/Driver.def"
+  assert(false && "Unhandled command line switch!");
 }
-
-#endif
