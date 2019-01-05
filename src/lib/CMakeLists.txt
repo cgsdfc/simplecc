@@ -65,10 +65,14 @@ set(SOURCE_FILES
         Transform/DeadCodeEliminator.cpp
         Transform/Transform.cpp
 
-        Driver/Driver.cpp
-        Driver/WindowsDriver.cpp
         Driver/DriverBase.cpp
         Driver/main.cpp)
+
+if (MSVC)
+    list(APPEND SOURCE_FILES Driver/WindowsDriver.cpp)
+else ()
+    list(APPEND SOURCE_FILES Driver/Driver.cpp)
+endif ()
 
 set(EXTRA_LIBRARIES "")
 
