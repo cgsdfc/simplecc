@@ -93,7 +93,6 @@ endif (USE_LLVM)
 if (MSVC)
     list(APPEND SOURCE_FILES Driver/windows_main.cpp)
 else ()
-    list(APPEND SOURCE_FILES Driver/CommandLine.cpp)
     list(APPEND SOURCE_FILES Driver/main.cpp)
 endif ()
 

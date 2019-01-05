@@ -140,13 +140,13 @@ void Driver::runTransform() {
 
 int Driver::run(int argc, char **argv) {
   namespace tclap = TCLAP;
-  tclap::CmdLine Parser("Simple Compiler", ' ', "2.0");
+  tclap::CmdLine Parser("Simple Compiler", ' ', "3.0");
   std::vector<tclap::Arg *> Switches;
   tclap::UnlabeledValueArg<std::string> InputArg(
-      "input", "input file (default to stdin)", false, "", "input-file");
+      "input", "input file (default to stdin)", false, "", "input-file", Parser);
   tclap::ValueArg<std::string> OutputArg("o", "output",
                                          "output file (default to stdout)",
-                                         false, "", "output-file");
+                                         false, "", "output-file", Parser);
 
 #define HANDLE_COMMAND(Name, Arg, Description)                                 \
   tclap::SwitchArg Name##Switch("", Arg, Description, false);                  \
@@ -162,6 +162,7 @@ int Driver::run(int argc, char **argv) {
   }
   setInputFile(InputArg.isSet() ? InputArg.getValue() : "-");
   setOutputFile(OutputArg.isSet() ? OutputArg.getValue() : "-");
+
 #define HANDLE_COMMAND(Name, Arg, Description)                                 \
   if (Name##Switch.isSet()) {                                                  \
     run##Name();                                                               \
