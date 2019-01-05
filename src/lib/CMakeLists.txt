@@ -66,7 +66,9 @@ set(SOURCE_FILES
         Transform/Transform.cpp
 
         Driver/Driver.cpp
-        Driver/WindowsDriver.cpp Driver/DriverBase.cpp)
+        Driver/WindowsDriver.cpp
+        Driver/DriverBase.cpp
+        Driver/main.cpp)
 
 set(EXTRA_LIBRARIES "")
 
@@ -89,12 +91,6 @@ if (USE_LLVM)
     include_directories(${LLVM_INCLUDE_DIRS})
     add_definitions(${LLVM_DEFINITIONS})
 endif (USE_LLVM)
-
-if (MSVC)
-    list(APPEND SOURCE_FILES Driver/windows_main.cpp)
-else ()
-    list(APPEND SOURCE_FILES Driver/main.cpp)
-endif ()
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
 target_link_libraries(${EXEC_NAME} ${EXTRA_LIBRARIES})
