@@ -1,13 +1,14 @@
 #include "simplecc/CodeGen/ByteCodeFunction.h"
 #include "simplecc/CodeGen/ByteCodeModule.h"
-
 #include <iomanip>
 
 using namespace simplecc;
 
 ByteCodeFunction::ByteCodeFunction(ByteCodeModule *M) : Parent(M) {
   /// Owned by Module
-  M->getFunctionList().push_back(this);
+  if (M) {
+    M->getFunctionList().push_back(this);
+  }
 }
 
 void ByteCodeFunction::Format(std::ostream &O) const {

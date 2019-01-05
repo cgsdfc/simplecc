@@ -1,12 +1,15 @@
 #include "simplecc/CodeGen/ByteCodeModule.h"
 #include "simplecc/CodeGen/ByteCodeCompiler.h"
 #include "simplecc/CodeGen/ByteCodeFunction.h"
-#include <algorithm>
-#include <iomanip>
+#include <algorithm> // for_each
+#include <iomanip> // setw
+#include <memory> // default_delete
 
 using namespace simplecc;
 
 void ByteCodeModule::clear() {
+  // Delete the function first.
+  std::for_each(begin(), end(), std::default_delete<ByteCodeFunction>());
   FunctionList.clear();
   StringLiterals.clear();
   GlobalVariables.clear();
@@ -14,7 +17,7 @@ void ByteCodeModule::clear() {
 
 ByteCodeModule::~ByteCodeModule() {
   /// Delete all owned functions.
-  std::for_each(begin(), end(), [](ByteCodeFunction *F) { delete F; });
+  std::for_each(begin(), end(), std::default_delete<ByteCodeFunction>());
 }
 
 unsigned ByteCodeModule::getStringLiteralID(const std::string &Str) {

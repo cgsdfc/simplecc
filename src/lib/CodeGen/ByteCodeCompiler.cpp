@@ -111,7 +111,6 @@ unsigned ByteCodeCompiler::CompileBoolOp(BoolOpExpr *B) {
     visitExpr(BO->getRight());
     return Builder.CreateJump(BO->getOp());
   }
-
   ChildrenVisitor::visitBoolOp(B);
   return Builder.CreateJumpIfFalse();
 }

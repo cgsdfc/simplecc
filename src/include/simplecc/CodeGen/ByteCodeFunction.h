@@ -15,6 +15,7 @@ public:
   using LocalVariableListTy = std::vector<SymbolEntry>;
   using ByteCodeListTy = std::vector<ByteCode>;
 
+  ~ByteCodeFunction() = default;
   static ByteCodeFunction *Create(ByteCodeModule *M) {
     return new ByteCodeFunction(M);
   }
@@ -33,7 +34,7 @@ public:
     return ByteCodeList[Idx];
   }
 
-  unsigned size() const { return ByteCodeList.size(); }
+  size_t size() const { return ByteCodeList.size(); }
   bool empty() const { return ByteCodeList.empty(); }
 
   /// Iterator Interface.
@@ -47,7 +48,7 @@ public:
 
   const LocalVariableListTy &getFormalArguments() const { return Arguments; }
   LocalVariableListTy &getFormalArguments() { return Arguments; }
-  unsigned getFormalArgumentCount() const { return Arguments.size(); }
+  size_t getFormalArgumentCount() const { return Arguments.size(); }
 
   /// Iterator of local variables.
   using local_iterator = LocalVariableListTy::iterator;
@@ -74,7 +75,7 @@ private:
   LocalVariableListTy LocalVariables;
   std::string Name;
 
-  ByteCodeFunction(ByteCodeModule *M);
+  explicit ByteCodeFunction(ByteCodeModule *M);
 };
 
 inline std::ostream &operator<<(std::ostream &O, const ByteCodeFunction &c) {

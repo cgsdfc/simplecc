@@ -36,7 +36,7 @@ void MipsAssemblyWriter::WriteData(Printer &W, const ByteCodeModule &Module) {
 // variables, arrays and formal arguments.
 int MipsAssemblyWriter::getLocalObjectsInBytes(
     const ByteCodeFunction &TheFunction) const {
-  unsigned Entries = std::accumulate(
+  int Entries = std::accumulate(
       TheFunction.local_begin(), TheFunction.local_end(),
       TheFunction.getFormalArgumentCount(),
       [](unsigned Entries, const SymbolEntry &E) {

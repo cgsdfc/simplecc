@@ -1,7 +1,6 @@
 #ifndef SIMPLECC_CODEGEN_BYTECODEMODULE_H
 #define SIMPLECC_CODEGEN_BYTECODEMODULE_H
 #include "simplecc/Analysis/Types.h"
-
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -12,13 +11,19 @@ class Program;
 class SymbolTable;
 class ByteCodeFunction;
 
+/// This class is a container for ByteCodeFunction.
 class ByteCodeModule {
 public:
+  /// A list of global variables.
   using GlobalVariableListTy = std::vector<SymbolEntry>;
+  /// A list of global functions.
   using FunctionListTy = std::vector<ByteCodeFunction *>;
+  /// The string literal unique pool.
   using StringLiteralTable = std::unordered_map<std::string, unsigned>;
 
+  /// Construct an empty module.
   ByteCodeModule() = default;
+  /// Destruct all owned ByteCodeFunction.
   ~ByteCodeModule();
 
   /// String literal interface.
@@ -37,7 +42,7 @@ public:
   }
   GlobalVariableListTy &getGlobalVariables() { return GlobalVariables; }
 
-  /// Iterator Interface
+  /// Iterator to the function list.
   using iterator = FunctionListTy::iterator;
   using const_iterator = FunctionListTy::const_iterator;
   iterator begin() { return FunctionList.begin(); }
@@ -47,12 +52,8 @@ public:
 
   /// FunctionList Forwarding Interface
   bool empty() const { return FunctionList.empty(); }
-  unsigned size() const { return FunctionList.size(); }
-  ByteCodeFunction *front() const { return FunctionList.front(); }
-  ByteCodeFunction *back() const { return FunctionList.back(); }
-  ByteCodeFunction *getFunctionAt(unsigned Idx) const {
-    return FunctionList[Idx];
-  }
+  size_t size() const { return FunctionList.size(); }
+
   /// Make this Module empty.
   void clear();
   void Format(std::ostream &O) const;

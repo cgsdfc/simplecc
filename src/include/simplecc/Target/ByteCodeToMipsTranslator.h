@@ -9,13 +9,13 @@
 namespace simplecc {
 class LocalContext;
 
-// Serve as a template translating one ByteCode to MIPS instructions
+/// Serve as a template translating one ByteCode to MIPS instructions
 class ByteCodeToMipsTranslator : ByteCodeVisitor<ByteCodeToMipsTranslator> {
 
-  // Push a register onto the stack
+  /// Push a register onto the stack
   void PUSH(const char *R);
 
-  // Pop the stack, optionally taking the tos value
+  /// Pop the stack, optionally taking the tos value
   void POP(const char *R = nullptr);
 
   /// Load Operator
@@ -85,12 +85,13 @@ public:
   ByteCodeToMipsTranslator(std::ostream &O, const LocalContext &C)
       : ThePrinter(O), ByteCodeVisitor(), TheContext(C) {}
 
+  /// Write one ByteCode translating to MIPS.
   /// Wrap OpcodeDispatcher::dispatch() to provide label
   /// generation.
   void Write(const ByteCode &C);
 
 private:
-  friend class ByteCodeVisitor<ByteCodeToMipsTranslator>;
+  friend ByteCodeVisitor;
   Printer ThePrinter;
   const LocalContext &TheContext;
   /// Keep track of the depth of stack.

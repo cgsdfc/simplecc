@@ -13,16 +13,22 @@ class MipsAssemblyWriter {
   // variables, arrays and formal arguments.
   int getLocalObjectsInBytes(const ByteCodeFunction &TheFunction) const;
 
+  /// Write data segment -- strings, arrays and variables.
   void WriteData(Printer &W, const ByteCodeModule &Module);
+  /// Write text segment -- the bundle of functions.
   void WriteText(Printer &W, const ByteCodeModule &Module);
+  /// Write prologue for TheFunction.
   void WritePrologue(Printer &W, const ByteCodeFunction &TheFunction);
+  /// Write epilogue for TheFunction.
   void WriteEpilogue(Printer &W, const ByteCodeFunction &TheFunction);
+  /// Write one ByteCodeFunction to MIPS assembly.
   void WriteFunction(Printer &W, const ByteCodeFunction &TheFunction);
 
 public:
   MipsAssemblyWriter() = default;
   ~MipsAssemblyWriter() = default;
 
+  /// Write one ByteCodeModule to output translating to MIPS.
   void Write(const ByteCodeModule &M, std::ostream &O);
 
 private:
