@@ -66,11 +66,11 @@ set(SOURCE_FILES
         Transform/Transform.cpp
 
         Driver/DriverBase.cpp
+        # WindowsDriver is always built for the sake of IDE.
+        Driver/WindowsDriver.cpp
         Driver/main.cpp)
 
-if (MSVC)
-    list(APPEND SOURCE_FILES Driver/WindowsDriver.cpp)
-else ()
+if (NOT MSVC)
     list(APPEND SOURCE_FILES Driver/Driver.cpp)
 endif ()
 
