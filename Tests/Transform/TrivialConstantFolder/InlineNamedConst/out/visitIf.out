@@ -1,0 +1,18 @@
+Program(Filename='./visitIf.c', [
+  ConstDecl(Int, ic1, NumExpr(1)),
+  ConstDecl(Int, ic2, NumExpr(2)),
+  VarDecl(Int, intvar, false, 0),
+  FuncDef(Void, test1, Args(), [
+    AssignStmt(
+      LHS=NameExpr(intvar, Store),
+      RHS=NumExpr(2),
+    ),
+  ]),
+  FuncDef(Void, test2, Args(), [
+    AssignStmt(
+      LHS=NameExpr(intvar, Store),
+      RHS=NumExpr(1),
+    ),
+  ]),
+  FuncDef(Void, main, Args(), []),
+])

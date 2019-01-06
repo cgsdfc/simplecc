@@ -1,0 +1,61 @@
+Program(Filename='Tests/Transform/DeadCodeEliminator/visitReturn.c', [
+  VarDecl(Int, x, false, 0),
+  FuncDef(Void, insidefuncdef, Args(Int a), [
+    AssignStmt(
+      LHS=NameExpr(x, Store),
+      RHS=NumExpr(1),
+    ),
+    AssignStmt(
+      LHS=NameExpr(x, Store),
+      RHS=NumExpr(2),
+    ),
+    ReturnStmt,
+  ]),
+  FuncDef(Void, insideifstmt, Args(Int a), [
+    IfStmt(
+      Test=BoolOpExpr(false, NameExpr(x, Load)),
+      Then=[
+        ReturnStmt,
+      ],
+      Else=[
+        ReturnStmt,
+      ],
+    ),
+  ]),
+  FuncDef(Void, insideforstmt, Args(Int a), [
+    ForStmt(
+      initial=AssignStmt(
+        LHS=NameExpr(x, Store),
+        RHS=NumExpr(1),
+      ),
+      condition=BoolOpExpr(true,
+        BinOpExpr(Lt,
+          LHS=NameExpr(x, Load),
+          RHS=NumExpr(1),
+        )
+      ),
+      step=AssignStmt(
+        LHS=NameExpr(x, Store),
+        RHS=BinOpExpr(Add,
+          LHS=NameExpr(x, Load),
+          RHS=NumExpr(1),
+        ),
+      ),
+      body=[
+        ReturnStmt,
+      ],
+    ),
+  ]),
+  FuncDef(Void, insidewhilestmt, Args(Int a), [
+    WhileStmt(
+      condition=BoolOpExpr(false, NameExpr(x, Load)),
+      body=[
+        ReturnStmt,
+      ],
+    ),
+  ]),
+  FuncDef(Int, insidestmtlist, Args(Int a), [
+    ReturnStmt(NumExpr(1)),
+  ]),
+  FuncDef(Void, main, Args(), []),
+])

@@ -1,0 +1,28 @@
+Program(Filename='./visitFor.c', [
+  ConstDecl(Int, ic, NumExpr(1)),
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, i, false, 0),
+    ForStmt(
+      initial=AssignStmt(
+        LHS=NameExpr(i, Store),
+        RHS=NumExpr(1),
+      ),
+      condition=BoolOpExpr(true,
+        BinOpExpr(Lt,
+          LHS=NameExpr(i, Load),
+          RHS=NumExpr(1),
+        )
+      ),
+      step=AssignStmt(
+        LHS=NameExpr(i, Store),
+        RHS=NumExpr(2),
+      ),
+      body=[
+        AssignStmt(
+          LHS=NameExpr(i, Store),
+          RHS=NumExpr(1),
+        ),
+      ],
+    ),
+  ]),
+])

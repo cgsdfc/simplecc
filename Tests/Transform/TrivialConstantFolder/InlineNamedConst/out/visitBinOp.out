@@ -1,0 +1,10 @@
+Program(Filename='./visitBinOp.c', [
+  ConstDecl(Int, ic, NumExpr(1)),
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, ivar, false, 0),
+    AssignStmt(
+      LHS=NameExpr(ivar, Store),
+      RHS=NumExpr(1),
+    ),
+  ]),
+])

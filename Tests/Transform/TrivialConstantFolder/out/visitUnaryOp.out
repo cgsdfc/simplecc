@@ -1,0 +1,54 @@
+Program(Filename='./visitUnaryOp.c', [
+  VarDecl(Int, x, false, 0),
+  FuncDef(Void, stripuadd, Args(Int _), [
+    WriteStmt(NumExpr(1)),
+    WriteStmt(NameExpr(x, Load)),
+    WriteStmt(NameExpr(x, Load)),
+    WriteStmt(NumExpr(1)),
+  ]),
+  FuncDef(Void, constusub, Args(Int _), [
+    WriteStmt(NumExpr(-1)),
+    WriteStmt(NumExpr(-2)),
+    WriteStmt(NumExpr(1)),
+    WriteStmt(NumExpr(2)),
+  ]),
+  FuncDef(Void, uusub, Args(Int _), [
+    WriteStmt(NameExpr(x, Load)),
+    WriteStmt(
+      UnaryOpExpr(USub, NameExpr(x, Load)),
+    ),
+    WriteStmt(NameExpr(x, Load)),
+  ]),
+  FuncDef(Void, mixuaddandusub, Args(Int _), [
+    WriteStmt(NameExpr(x, Load)),
+    WriteStmt(
+      UnaryOpExpr(USub, NameExpr(x, Load)),
+    ),
+    WriteStmt(NameExpr(x, Load)),
+    WriteStmt(
+      UnaryOpExpr(USub, NameExpr(x, Load)),
+    ),
+  ]),
+  FuncDef(Void, noopportunity, Args(Int _), [
+    WriteStmt(
+      UnaryOpExpr(USub, NameExpr(x, Load)),
+    ),
+  ]),
+  FuncDef(Void, main, Args(), [
+    ExprStmt(
+      CallExpr(stripuadd, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(constusub, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(uusub, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(mixuaddandusub, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(noopportunity, Args=[NumExpr(0)])
+    ),
+  ]),
+])

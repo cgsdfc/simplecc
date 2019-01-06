@@ -1,0 +1,38 @@
+Program(Filename='./visitSubscript.c', [
+  ConstDecl(Int, ic, NumExpr(0)),
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, intarray, true, 2),
+    VarDecl(Int, intvar, false, 0),
+    AssignStmt(
+      LHS=SubscriptExpr(Store
+        array=intarray,
+        index=NumExpr(0),
+      ),
+      RHS=NumExpr(1),
+    ),
+    AssignStmt(
+      LHS=SubscriptExpr(Store
+        array=intarray,
+        index=NumExpr(1),
+      ),
+      RHS=NumExpr(0),
+    ),
+    AssignStmt(
+      LHS=NameExpr(intvar, Store),
+      RHS=SubscriptExpr(Load
+        array=intarray,
+        index=NumExpr(0),
+      ),
+    ),
+    AssignStmt(
+      LHS=SubscriptExpr(Store
+        array=intarray,
+        index=NumExpr(0),
+      ),
+      RHS=SubscriptExpr(Load
+        array=intarray,
+        index=NumExpr(1),
+      ),
+    ),
+  ]),
+])

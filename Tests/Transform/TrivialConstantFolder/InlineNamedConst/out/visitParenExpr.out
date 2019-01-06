@@ -1,0 +1,15 @@
+Program(Filename='./visitParenExpr.c', [
+  ConstDecl(Character, cc, CharExpr('a')),
+  ConstDecl(Int, ic, NumExpr(1)),
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, intvar, false, 0),
+    AssignStmt(
+      LHS=NameExpr(intvar, Store),
+      RHS=NumExpr(1),
+    ),
+    AssignStmt(
+      LHS=NameExpr(intvar, Store),
+      RHS=CharExpr('a'),
+    ),
+  ]),
+])

@@ -1,0 +1,34 @@
+Program(Filename='Tests/Transform/DeadCodeEliminator/visitFor.c', [
+  VarDecl(Int, x, false, 0),
+  FuncDef(Void, testoptimize, Args(Int a), [
+    WriteStmt(NumExpr(2)),
+    AssignStmt(
+      LHS=NameExpr(x, Store),
+      RHS=NumExpr(1),
+    ),
+    WriteStmt(NameExpr(x, Load)),
+    AssignStmt(
+      LHS=NameExpr(x, Store),
+      RHS=BinOpExpr(Add,
+        LHS=NameExpr(x, Load),
+        RHS=NumExpr(1),
+      ),
+    ),
+    WriteStmt(NumExpr(1)),
+  ]),
+  FuncDef(Void, testneedfold, Args(Int a), [
+    AssignStmt(
+      LHS=NameExpr(x, Store),
+      RHS=NumExpr(1),
+    ),
+    WriteStmt(NameExpr(x, Load)),
+    AssignStmt(
+      LHS=NameExpr(x, Store),
+      RHS=BinOpExpr(Add,
+        LHS=NameExpr(x, Load),
+        RHS=NumExpr(1),
+      ),
+    ),
+  ]),
+  FuncDef(Void, main, Args(), []),
+])

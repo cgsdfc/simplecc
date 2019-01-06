@@ -1,0 +1,13 @@
+Program(Filename='./visitWhile.c', [
+  FuncDef(Void, main, Args(), [
+    ConstDecl(Int, intval, NumExpr(12)),
+    ConstDecl(Character, charval, CharExpr('b')),
+    WhileStmt(
+      condition=BoolOpExpr(false, NumExpr(1)),
+      body=[
+        WriteStmt(NumExpr(12)),
+        WriteStmt(CharExpr('b')),
+      ],
+    ),
+  ]),
+])

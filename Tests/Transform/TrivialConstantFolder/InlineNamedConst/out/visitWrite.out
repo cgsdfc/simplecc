@@ -1,0 +1,16 @@
+Program(Filename='./visitWrite.c', [
+  FuncDef(Void, main, Args(), [
+    ConstDecl(Int, intval, NumExpr(12)),
+    ConstDecl(Character, charval, CharExpr('b')),
+    WriteStmt(NumExpr(12)),
+    WriteStmt(CharExpr('b')),
+    WriteStmt(
+      StrExpr("s"),
+      NumExpr(12),
+    ),
+    WriteStmt(
+      StrExpr("s"),
+      CharExpr('b'),
+    ),
+  ]),
+])

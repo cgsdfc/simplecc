@@ -1,0 +1,150 @@
+Program(Filename='Tests/Transform/TrivialConstantFolder/visitBinOp.c', [
+  VarDecl(Int, intvar, false, 0),
+  FuncDef(Void, noneconstants, Args(Int _), [
+    WriteStmt(
+      BinOpExpr(Add,
+        LHS=NameExpr(intvar, Load),
+        RHS=NameExpr(intvar, Load),
+      ),
+    ),
+    WriteStmt(
+      BinOpExpr(Div,
+        LHS=NameExpr(intvar, Load),
+        RHS=NameExpr(intvar, Load),
+      ),
+    ),
+    WriteStmt(
+      BinOpExpr(Mult,
+        LHS=NameExpr(intvar, Load),
+        RHS=NameExpr(intvar, Load),
+      ),
+    ),
+  ]),
+  FuncDef(Void, zerodivisor, Args(Int _), [
+    WriteStmt(
+      BinOpExpr(Div,
+        LHS=NameExpr(intvar, Load),
+        RHS=NumExpr(0),
+      ),
+    ),
+    WriteStmt(
+      BinOpExpr(Div,
+        LHS=NumExpr(1),
+        RHS=NumExpr(0),
+      ),
+    ),
+    WriteStmt(
+      BinOpExpr(Div,
+        LHS=NumExpr(0),
+        RHS=NameExpr(intvar, Load),
+      ),
+    ),
+  ]),
+  FuncDef(Void, onesidenoopportunity, Args(Int _), [
+    WriteStmt(
+      BinOpExpr(Add,
+        LHS=NumExpr(1),
+        RHS=NameExpr(intvar, Load),
+      ),
+    ),
+    WriteStmt(
+      BinOpExpr(Add,
+        LHS=BinOpExpr(Add,
+          LHS=NameExpr(intvar, Load),
+          RHS=NumExpr(1),
+        ),
+        RHS=NumExpr(1),
+      ),
+    ),
+    WriteStmt(
+      BinOpExpr(Div,
+        LHS=NumExpr(1),
+        RHS=NameExpr(intvar, Load),
+      ),
+    ),
+  ]),
+  FuncDef(Void, noopportunity, Args(Int _), [
+    ExprStmt(
+      CallExpr(noneconstants, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(zerodivisor, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(onesidenoopportunity, Args=[NumExpr(0)])
+    ),
+  ]),
+  FuncDef(Void, bothconstants, Args(Int _), [
+    WriteStmt(NumExpr(2)),
+    WriteStmt(NumExpr(0)),
+    WriteStmt(NumExpr(1)),
+    WriteStmt(NumExpr(1)),
+  ]),
+  FuncDef(Void, onesideconstant_add, Args(Int _), [
+    WriteStmt(NameExpr(intvar, Load)),
+    WriteStmt(NameExpr(intvar, Load)),
+  ]),
+  FuncDef(Void, onesideconstant_sub, Args(Int _), [
+    WriteStmt(
+      UnaryOpExpr(USub, NameExpr(intvar, Load)),
+    ),
+  ]),
+  FuncDef(Void, onesideconstant_mult, Args(Int _), [
+    WriteStmt(NumExpr(0)),
+    WriteStmt(NameExpr(intvar, Load)),
+    WriteStmt(NumExpr(0)),
+    WriteStmt(NameExpr(intvar, Load)),
+  ]),
+  FuncDef(Void, onesideconstant_div, Args(Int _), [
+    WriteStmt(NameExpr(intvar, Load)),
+    WriteStmt(
+      BinOpExpr(Div,
+        LHS=NumExpr(0),
+        RHS=NameExpr(intvar, Load),
+      ),
+    ),
+  ]),
+  FuncDef(Void, onesideconstant, Args(Int _), [
+    ExprStmt(
+      CallExpr(onesideconstant_add, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(onesideconstant_sub, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(onesideconstant_mult, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(onesideconstant_div, Args=[NumExpr(0)])
+    ),
+  ]),
+  FuncDef(Void, bothnoneconstantopt, Args(Int _), [
+    WriteStmt(NumExpr(0)),
+  ]),
+  FuncDef(Void, binopexprchain, Args(Int _), [
+    WriteStmt(NumExpr(15)),
+    WriteStmt(NumExpr(16)),
+  ]),
+  FuncDef(Void, opt, Args(Int _), [
+    ExprStmt(
+      CallExpr(bothconstants, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(onesideconstant, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(bothnoneconstantopt, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(binopexprchain, Args=[NumExpr(0)])
+    ),
+  ]),
+  FuncDef(Void, main, Args(), [
+    ExprStmt(
+      CallExpr(opt, Args=[NumExpr(0)])
+    ),
+    ExprStmt(
+      CallExpr(noopportunity, Args=[NumExpr(0)])
+    ),
+  ]),
+])

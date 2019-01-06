@@ -1,0 +1,21 @@
+Program(Filename='Tests/Transform/DeadCodeEliminator/visitWhile.c', [
+  VarDecl(Int, x, false, 0),
+  FuncDef(Void, deleteifconditionisfalse, Args(Int a), []),
+  FuncDef(Void, withinstmtlist, Args(Int a), [
+    WriteStmt(NumExpr(1)),
+    WriteStmt(NumExpr(2)),
+  ]),
+  FuncDef(Void, needconstfold, Args(Int a), []),
+  FuncDef(Void, nooptimize, Args(Int a), [
+    WhileStmt(
+      condition=BoolOpExpr(false, NameExpr(x, Load)),
+      body=[
+        AssignStmt(
+          LHS=NameExpr(x, Store),
+          RHS=NumExpr(1),
+        ),
+      ],
+    ),
+  ]),
+  FuncDef(Void, main, Args(), []),
+])

@@ -1,0 +1,16 @@
+Program(Filename='./visitReturn.c', [
+  ConstDecl(Character, cc, CharExpr('a')),
+  ConstDecl(Int, ic, NumExpr(1)),
+  FuncDef(Character, test1, Args(), [
+    ReturnStmt(CharExpr('a')),
+  ]),
+  FuncDef(Character, test2, Args(Int a1), [
+    ReturnStmt(CharExpr('a')),
+  ]),
+  FuncDef(Void, main, Args(), [
+    ExprStmt(CallExpr(test1, Args=[])),
+    ExprStmt(
+      CallExpr(test2, Args=[NumExpr(1)])
+    ),
+  ]),
+])

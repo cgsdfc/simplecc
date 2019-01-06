@@ -1,0 +1,9 @@
+Program(Filename='./visitUnaryOp.c', [
+  ConstDecl(Int, intval, NumExpr(1)),
+  FuncDef(Void, main, Args(), [
+    WriteStmt(NumExpr(-1)),
+    WriteStmt(NumExpr(1)),
+    WriteStmt(NumExpr(1)),
+    WriteStmt(NumExpr(1)),
+  ]),
+])

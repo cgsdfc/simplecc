@@ -1,0 +1,30 @@
+Program(Filename='./visitExprStmt.c', [
+  ConstDecl(Character, c1, CharExpr('a')),
+  ConstDecl(Character, c2, CharExpr('b')),
+  ConstDecl(Character, c3, CharExpr('c')),
+  ConstDecl(Character, c4, CharExpr('d')),
+  ConstDecl(Int, i1, NumExpr(1)),
+  ConstDecl(Int, i2, NumExpr(2)),
+  ConstDecl(Int, i3, NumExpr(3)),
+  ConstDecl(Int, i4, NumExpr(4)),
+  FuncDef(Void, test1, Args(Character a1, Character a2, Character a3, Character a4), []),
+  FuncDef(Void, test2, Args(Int a1, Int a2, Int a3, Int a4), []),
+  FuncDef(Void, main, Args(), [
+    ExprStmt(
+      CallExpr(test1, Args=[
+        CharExpr('a'),
+        CharExpr('b'),
+        CharExpr('c'),
+        CharExpr('d'),
+      ])
+    ),
+    ExprStmt(
+      CallExpr(test2, Args=[
+        NumExpr(1),
+        NumExpr(2),
+        NumExpr(3),
+        NumExpr(4),
+      ])
+    ),
+  ]),
+])

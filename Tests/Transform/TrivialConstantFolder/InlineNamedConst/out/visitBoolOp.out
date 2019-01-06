@@ -1,0 +1,4 @@
+Program(Filename='./visitBoolOp.c', [
+  ConstDecl(Int, ic, NumExpr(1)),
+  FuncDef(Void, main, Args(), []),
+])

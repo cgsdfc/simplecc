@@ -1,0 +1,8 @@
+Program(Filename='./visitParenExpr.c', [
+  VarDecl(Int, x, false, 0),
+  FuncDef(Void, main, Args(), [
+    WriteStmt(NameExpr(x, Load)),
+    WriteStmt(NumExpr(1)),
+    WriteStmt(CharExpr('a')),
+  ]),
+])

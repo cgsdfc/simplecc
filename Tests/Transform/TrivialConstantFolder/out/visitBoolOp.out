@@ -1,0 +1,54 @@
+Program(Filename='./visitBoolOp.c', [
+  VarDecl(Int, x, false, 0),
+  VarDecl(Int, y, false, 0),
+  FuncDef(Void, bothsizeconstoptimize, Args(Int a), []),
+  FuncDef(Void, noncompareopoptimize, Args(Int a), []),
+  FuncDef(Void, noncompareopnooptimize, Args(Int a), [
+    IfStmt(
+      Test=BoolOpExpr(false, NameExpr(x, Load)),
+      Then=[],
+      Else=[],
+    ),
+    IfStmt(
+      Test=BoolOpExpr(false,
+        BinOpExpr(Add,
+          LHS=NameExpr(x, Load),
+          RHS=NameExpr(y, Load),
+        )
+      ),
+      Then=[],
+      Else=[],
+    ),
+    IfStmt(
+      Test=BoolOpExpr(false,
+        UnaryOpExpr(USub, NameExpr(x, Load))
+      ),
+      Then=[],
+      Else=[],
+    ),
+  ]),
+  FuncDef(Void, bothsidethesameoptimize, Args(Int a), []),
+  FuncDef(Void, compareopnooptimize, Args(Int a), [
+    IfStmt(
+      Test=BoolOpExpr(true,
+        BinOpExpr(Gt,
+          LHS=NameExpr(x, Load),
+          RHS=NumExpr(1),
+        )
+      ),
+      Then=[],
+      Else=[],
+    ),
+    IfStmt(
+      Test=BoolOpExpr(true,
+        BinOpExpr(Gt,
+          LHS=NameExpr(x, Load),
+          RHS=NameExpr(y, Load),
+        )
+      ),
+      Then=[],
+      Else=[],
+    ),
+  ]),
+  FuncDef(Void, main, Args(), []),
+])
