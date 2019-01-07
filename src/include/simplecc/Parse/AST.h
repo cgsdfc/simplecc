@@ -1,5 +1,6 @@
 #ifndef SIMPLECC_PARSE_AST_H
 #define SIMPLECC_PARSE_AST_H
+#include "simplecc/Support/Macros.h"
 #include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Enums.h"
 
@@ -34,10 +35,7 @@ public:
   void dump() const;
 };
 
-inline std::ostream &operator<<(std::ostream &O, const AST &A) {
-  A.Format(O);
-  return O;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(AST)
 
 /// This struct knows how to delete an AST or a list of AST.
 struct DeleteAST {

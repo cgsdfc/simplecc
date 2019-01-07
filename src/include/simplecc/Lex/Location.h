@@ -1,5 +1,6 @@
 #ifndef SIMPLECC_LEX_LOCATION_H
 #define SIMPLECC_LEX_LOCATION_H
+#include "simplecc/Support/Macros.h"
 #include <iostream>
 
 namespace simplecc {
@@ -21,10 +22,7 @@ public:
   void FormatCompact(std::ostream &O) const;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const Location &loc) {
-  loc.Format(os);
-  return os;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(Location)
 } // namespace simplecc
 
 #endif // SIMPLECC_LEX_LOCATION_H

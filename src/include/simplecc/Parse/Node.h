@@ -2,6 +2,7 @@
 #define SIMPLECC_PARSE_NODE_H
 #include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Grammar.h"
+#include "simplecc/Support/Macros.h"
 #include <iostream>
 #include <string>
 #include <utility>
@@ -50,10 +51,8 @@ private:
   Location Loc;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const Node &N) {
-  N.Format(os);
-  return os;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(Node)
+
 } // namespace simplecc
 
 #endif

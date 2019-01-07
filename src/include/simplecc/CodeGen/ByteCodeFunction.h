@@ -78,10 +78,8 @@ private:
   explicit ByteCodeFunction(ByteCodeModule *M);
 };
 
-inline std::ostream &operator<<(std::ostream &O, const ByteCodeFunction &c) {
-  c.Format(O);
-  return O;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(ByteCodeFunction)
+
 } // namespace simplecc
 
 #endif

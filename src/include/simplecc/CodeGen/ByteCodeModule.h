@@ -64,9 +64,7 @@ private:
   GlobalVariableListTy GlobalVariables;
 };
 
-inline std::ostream &operator<<(std::ostream &O, const ByteCodeModule &c) {
-  c.Format(O);
-  return O;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(ByteCodeModule)
+
 } // namespace simplecc
 #endif
