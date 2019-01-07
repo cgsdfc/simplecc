@@ -3,7 +3,7 @@
 #include "simplecc/Transform/TrivialConstantFolder.h"
 
 namespace simplecc {
-void TransformProgram(Program *P, SymbolTable &S) {
+void TransformProgram(ProgramAST *P, SymbolTable &S) {
   TrivialConstantFolder().Transform(P, S);
   DeadCodeEliminator().Transform(P);
 }

@@ -162,7 +162,7 @@ void ByteCodeCompiler::visitFuncDef(FuncDef *FD) {
   Builder.CreateReturnNone();
 }
 
-void ByteCodeCompiler::visitProgram(Program *P) {
+void ByteCodeCompiler::visitProgram(ProgramAST *P) {
   for (DeclAST *D : P->getDecls()) {
     switch (D->getKind()) {
     case DeclAST::FuncDefKind:
@@ -180,7 +180,7 @@ void ByteCodeCompiler::visitProgram(Program *P) {
 }
 
 // public interface
-void ByteCodeCompiler::Compile(Program *P, const SymbolTable &S,
+void ByteCodeCompiler::Compile(ProgramAST *P, const SymbolTable &S,
                                ByteCodeModule &M) {
   EM.clear();
   M.clear();

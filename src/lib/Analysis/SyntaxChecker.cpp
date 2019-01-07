@@ -3,7 +3,7 @@
 
 using namespace simplecc;
 
-void SyntaxChecker::visitProgram(Program *P) {
+void SyntaxChecker::visitProgram(ProgramAST *P) {
   if (P->getDecls().empty()) {
     EM.Error("empty input is invalid. A main function is required at minimum");
     return;
@@ -80,7 +80,7 @@ void SyntaxChecker::visitArgDecl(ArgDecl *AD) {
   }
 }
 
-bool SyntaxChecker::Check(Program *P) {
+bool SyntaxChecker::Check(ProgramAST *P) {
   visitProgram(P);
   return !EM.IsOk();
 }

@@ -13,7 +13,7 @@ namespace simplecc {
 /// A class that keeps all the edges of an ASTNode.
 class ASTGraph {
 public:
-  explicit ASTGraph(Program *P) : TheProgram(P), Edges(), Nodes() {}
+  explicit ASTGraph(ProgramAST *P) : TheProgram(P), Edges(), Nodes() {}
 
   using EdgeType = std::vector<ASTNode *>;
   using ChildIteratorType = EdgeType::const_iterator;
@@ -22,7 +22,7 @@ public:
   class ASTIterator
       : public TreeLikeIterator<ASTIterator, ASTNode *, ChildIteratorType> {
   public:
-    ASTIterator(Program *P, ASTGraph *G) : TreeLikeIterator(), Parent(G) {
+    ASTIterator(ProgramAST *P, ASTGraph *G) : TreeLikeIterator(), Parent(G) {
       Initialize(Parent->getNodeOrCreate(P));
     }
     ASTIterator() = default;
@@ -61,11 +61,11 @@ public:
   /// Lazily create an ASTNode.
   ASTNode *getNodeOrCreate(AST *Ptr);
 
-  const Program *getProgram() const { return TheProgram; }
+  const ProgramAST *getProgram() const { return TheProgram; }
 
 private:
   /// Root of AST.
-  Program *TheProgram;
+  ProgramAST *TheProgram;
   /// Lazily created edges for each node.
   std::map<AST *, EdgeType> Edges;
   /// Lazily created nodes.

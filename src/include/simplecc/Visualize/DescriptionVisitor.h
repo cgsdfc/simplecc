@@ -19,7 +19,7 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
     return VisitorBase::visitStmt<std::string>(S);
   }
 
-  std::string visitProgram(Program *) { return ""; }
+  std::string visitProgram(ProgramAST *) { return ""; }
   std::string visitConstDecl(ConstDecl *CD);
   std::string visitVarDecl(VarDecl *VD);
   std::string visitFuncDef(FuncDef *FD);

@@ -5,7 +5,7 @@
 
 namespace simplecc {
 class SyntaxChecker : private VisitorBase<SyntaxChecker> {
-  void visitProgram(Program *P);
+  void visitProgram(ProgramAST *P);
   void visitConstDecl(ConstDecl *CD);
   void visitVarDecl(VarDecl *VD);
   void visitArgDecl(ArgDecl *AD);
@@ -13,7 +13,7 @@ class SyntaxChecker : private VisitorBase<SyntaxChecker> {
 
 public:
   SyntaxChecker() : VisitorBase(), EM("SyntaxError") {}
-  bool Check(Program *P);
+  bool Check(ProgramAST *P);
 
 private:
   friend VisitorBase;

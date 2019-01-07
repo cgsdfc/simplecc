@@ -28,7 +28,7 @@ class DeadCodeEliminator : ChildrenVisitor<DeadCodeEliminator> {
 
 public:
   DeadCodeEliminator() = default;
-  void Transform(Program *P) { return ChildrenVisitor::visitProgram(P); }
+  void Transform(ProgramAST *P) { return ChildrenVisitor::visitProgram(P); }
 };
 } // namespace simplecc
 #endif // SIMPLECC_TRANSFORM_TRIVIALDCETRANSFORMER_H

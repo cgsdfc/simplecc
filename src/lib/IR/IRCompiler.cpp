@@ -79,7 +79,7 @@ void IRCompiler::EnsureProperReturn(Function *F) {
   }
 }
 
-void IRCompiler::visitProgram(Program *P) {
+void IRCompiler::visitProgram(ProgramAST *P) {
   for (auto Decl : P->getDecls()) {
     switch (Decl->getKind()) {
     case DeclAST::FuncDefKind:visitFuncDef(static_cast<FuncDef *>(Decl));
@@ -263,7 +263,7 @@ Value *IRCompiler::visitStr(StrExpr *S) {
   return Builder.getStringLiteral(S->getS());
 }
 
-bool IRCompiler::Compile(Program *P, const SymbolTable &S, Module &M) {
+bool IRCompiler::Compile(ProgramAST *P, const SymbolTable &S, Module &M) {
   ContextualVisitor::setTable(const_cast<SymbolTable &>(S));
   TheModule = &M;
   visitProgram(P);

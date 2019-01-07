@@ -4,10 +4,10 @@
 #include <string>
 
 namespace simplecc {
-class Program;
+class ProgramAST;
 class SymbolTable;
 
-bool CompileToLLVMIR(Program *P, const SymbolTable &S, llvm::raw_ostream &OS);
+bool CompileToLLVMIR(ProgramAST *P, const SymbolTable &S, llvm::raw_ostream &OS);
 } // namespace simplecc
 
 #endif

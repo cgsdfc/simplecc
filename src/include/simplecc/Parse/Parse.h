@@ -8,7 +8,7 @@
 #include <string>
 
 namespace simplecc {
-using ProgramRef = std::unique_ptr<Program, DeleteAST>;
+using ProgramRef = std::unique_ptr<ProgramAST, DeleteAST>;
 
 std::unique_ptr<Node> BuildCST(const std::vector<TokenInfo> &TheTokens);
 ProgramRef BuildAST(const std::string &Filename,

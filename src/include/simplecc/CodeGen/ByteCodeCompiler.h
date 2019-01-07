@@ -10,7 +10,7 @@
 
 namespace simplecc {
 class ByteCodeModule;
-class Program;
+class ProgramAST;
 
 class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
 
@@ -65,7 +65,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitSubscript(SubscriptExpr *SB);
   void visitName(NameExpr *N);
   void visitFuncDef(FuncDef *FD);
-  void visitProgram(Program *P);
+  void visitProgram(ProgramAST *P);
 
   void setModule(ByteCodeModule *M) { TheModule = M; }
   void setTable(const SymbolTable *S) { TheTable = S; }
@@ -75,7 +75,7 @@ public:
   ByteCodeCompiler() = default;
 
   // public interface
-  void Compile(Program *P, const SymbolTable &S, ByteCodeModule &M);
+  void Compile(ProgramAST *P, const SymbolTable &S, ByteCodeModule &M);
 
 private:
   friend class ChildrenVisitor<ByteCodeCompiler>;

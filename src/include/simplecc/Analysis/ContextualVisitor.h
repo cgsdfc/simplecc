@@ -41,7 +41,7 @@ public:
     ChildrenVisitor<Derived>::visitFuncDef(FD);
   }
 
-  void visitProgram(Program *P, SymbolTable &S) {
+  void visitProgram(ProgramAST *P, SymbolTable &S) {
     setTable(S);
     ChildrenVisitor<Derived>::visitProgram(P);
   }

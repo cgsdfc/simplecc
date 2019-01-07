@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace simplecc {
-class Program;
+class ProgramAST;
 class SymbolTable;
 class ByteCodeFunction;
 

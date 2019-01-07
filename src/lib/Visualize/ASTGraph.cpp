@@ -81,13 +81,13 @@ template <> struct DOTGraphTraits<ASTGraph> : DefaultDOTGraphTraits {
 
 namespace simplecc {
 /// Write an ASTGraph to dot format.
-void WriteASTGraph(Program *P, llvm::raw_ostream &O) {
+void WriteASTGraph(ProgramAST *P, llvm::raw_ostream &O) {
   ASTGraph Graph(P);
   llvm::WriteGraph(O, Graph);
 }
 
 /// Print all ast nodes from a root.
-void PrintAllASTNodes(Program *P, std::ostream &O) {
+void PrintAllASTNodes(ProgramAST *P, std::ostream &O) {
   ASTGraph Graph(P);
   for (auto AR : Graph.nodes()) {
     Print(O, AR->getClassName(), AR->getLocation());

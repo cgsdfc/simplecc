@@ -43,7 +43,7 @@ public:
   /// Build a SymbolTable from a program.
   /// Return true if errors happened.
   /// Note: the table will be cleared first.
-  bool Build(Program *P, SymbolTable &S);
+  bool Build(ProgramAST *P, SymbolTable &S);
 
 private:
   friend VisitorBase;

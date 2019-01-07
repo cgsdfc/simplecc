@@ -5,7 +5,7 @@
 
 using namespace simplecc;
 
-Program *ASTBuilder::visit_program(std::string Filename, Node *N) {
+ProgramAST *ASTBuilder::visit_program(std::string Filename, Node *N) {
   assert(N->getType() == Symbol::program);
   std::vector<DeclAST *> Decls;
 
@@ -19,7 +19,7 @@ Program *ASTBuilder::visit_program(std::string Filename, Node *N) {
       break;
     }
   }
-  return new Program(std::move(Filename), std::move(Decls));
+  return new ProgramAST(std::move(Filename), std::move(Decls));
 }
 
 void ASTBuilder::visit_const_decl(Node *N, std::vector<DeclAST *> &Decls) {

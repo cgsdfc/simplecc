@@ -19,7 +19,7 @@ public:
 template <class Derived> class ChildrenVisitor : public VisitorBase<Derived> {
 public:
   /// Decl subclasses.
-  void visitProgram(Program *P);
+  void visitProgram(ProgramAST *P);
   void visitConstDecl(ConstDecl *CD);
   void visitVarDecl(VarDecl *VD) {}
   void visitFuncDef(FuncDef *FD);
@@ -142,7 +142,7 @@ RetTy VisitorBase<Derived>::visitExpr(ExprAST *E) {
 template <typename Derived>
 template <typename RetTy>
 RetTy VisitorBase<Derived>::visitAST(AST *A) {
-  if (auto x = subclass_cast<Program>(A))
+  if (auto x = subclass_cast<ProgramAST>(A))
     return static_cast<Derived *>(this)->visitProgram(x);
   if (auto x = subclass_cast<DeclAST>(A))
     return visitDecl<RetTy>(x);
@@ -155,7 +155,7 @@ RetTy VisitorBase<Derived>::visitAST(AST *A) {
 
 // Methods of ChildrenVisitor
 template <class Derived>
-void ChildrenVisitor<Derived>::visitProgram(Program *P) {
+void ChildrenVisitor<Derived>::visitProgram(ProgramAST *P) {
   for (auto s : P->getDecls()) {
     static_cast<Derived *>(this)->visitDecl(s);
   }

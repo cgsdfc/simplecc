@@ -10,7 +10,7 @@ using namespace simplecc;
 
 AnalysisManager::~AnalysisManager() = default;
 
-bool AnalysisManager::runAllAnalyses(Program *P) {
+bool AnalysisManager::runAllAnalyses(ProgramAST *P) {
   if (SyntaxChecker().Check(P)) {
     return true;
   }
@@ -30,7 +30,7 @@ bool AnalysisManager::runAllAnalyses(Program *P) {
   }
 
   if (ASTVerifier().Verify(P)) {
-    PrintErrs("Program should be well-formed after all analyses run!");
+    PrintErrs("ProgramAST should be well-formed after all analyses run!");
     return true;
   }
 

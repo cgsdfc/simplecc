@@ -10,7 +10,7 @@ using llvm::StringRef;
 
 using namespace simplecc;
 
-LLVMIRCompiler::LLVMIRCompiler(Program *P, const SymbolTable &S)
+LLVMIRCompiler::LLVMIRCompiler(ProgramAST *P, const SymbolTable &S)
     : TheTable(S), TheProgram(P), TheContext(),
       TheModule(P->getFilename(), TheContext), Builder(TheContext),
       VM(TheModule, TheContext), LocalValues(), GlobalValues(),
@@ -504,7 +504,7 @@ void LLVMIRCompiler::visitVarDecl(VarDecl *VD) {
   GlobalValues.emplace(VD->getName(), GV);
 }
 
-void LLVMIRCompiler::visitProgram(Program *P) {
+void LLVMIRCompiler::visitProgram(ProgramAST *P) {
   for (DeclAST *D : P->getDecls()) {
     visitDecl(D);
   }

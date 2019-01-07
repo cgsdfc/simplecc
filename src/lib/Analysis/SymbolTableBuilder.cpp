@@ -73,7 +73,7 @@ void SymbolTableBuilder::visitDecl(DeclAST *D) {
   }
 }
 
-bool SymbolTableBuilder::Build(Program *P, SymbolTable &S) {
+bool SymbolTableBuilder::Build(ProgramAST *P, SymbolTable &S) {
   clear();
   S.clear();
   setTable(&S);

@@ -726,29 +726,29 @@ public:
   }
 };
 
-class Program : public AST {
+class ProgramAST : public AST {
   std::string Filename;
   std::vector<DeclAST *> decls;
   friend class AST;
-  ~Program();
+  ~ProgramAST();
 
 public:
-  Program(std::string Filename, std::vector<DeclAST *> decls)
-      : AST(ProgramKind, Location()), Filename(std::move(Filename)),
+  ProgramAST(std::string Filename, std::vector<DeclAST *> decls)
+      : AST(ProgramASTKind, Location()), Filename(std::move(Filename)),
         decls(std::move(decls)) {}
 
   // Disable copy and move.
-  Program(const Program &) = delete;
-  Program(Program &&) = delete;
-  Program &operator=(const Program &) = delete;
-  Program &operator=(Program &&) = delete;
+  ProgramAST(const ProgramAST &) = delete;
+  ProgramAST(ProgramAST &&) = delete;
+  ProgramAST &operator=(const ProgramAST &) = delete;
+  ProgramAST &operator=(ProgramAST &&) = delete;
 
   const std::vector<DeclAST *> &getDecls() const { return decls; }
   std::vector<DeclAST *> &getDecls() { return decls; }
   std::string getFilename() const { return Filename; }
 
   static bool InstanceCheck(const AST *A) {
-    return A->getKind() == ProgramKind;
+    return A->getKind() == ProgramASTKind;
   }
 };
 

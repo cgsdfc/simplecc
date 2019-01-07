@@ -4,12 +4,12 @@
 #include <iostream>
 
 namespace simplecc {
-class Program;
+class ProgramAST;
 class Node;
 class AST;
 
-void PrintAllASTNodes(Program *P, std::ostream &O);
-void WriteASTGraph(Program *P, llvm::raw_ostream &O);
+void PrintAllASTNodes(ProgramAST *P, std::ostream &O);
+void WriteASTGraph(ProgramAST *P, llvm::raw_ostream &O);
 
 void PrintAllNodes(Node *Root);
 void WriteCSTGraph(Node *Root, llvm::raw_ostream &O);

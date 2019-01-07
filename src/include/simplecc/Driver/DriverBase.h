@@ -39,8 +39,8 @@ protected:
 
   const std::vector<TokenInfo> &getTokens() const { return TheTokens; }
   const SymbolTable &getSymbolTable() const { return AM.getSymbolTable(); }
-  const Program *getProgram() const { return TheProgram.get(); }
-  Program *getProgram() { return TheProgram.get(); }
+  const ProgramAST *getProgram() const { return TheProgram.get(); }
+  ProgramAST *getProgram() { return TheProgram.get(); }
   const ByteCodeModule &getByteCodeModule() const { return TheModule; }
   ByteCodeModule &getByteCodeModule() { return TheModule; }
   ErrorManager &getEM() { return EM; }

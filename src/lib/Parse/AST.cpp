@@ -21,7 +21,7 @@ static inline UniquePtrToAST RvalueGetterImpl(AstT *&Ref) {
   return UniquePtrToAST(tmp);
 }
 
-Program::~Program() { DeleteAST::apply(decls); }
+ProgramAST::~ProgramAST() { DeleteAST::apply(decls); }
 
 FuncDef::~FuncDef() {
   DeleteAST::apply(args);

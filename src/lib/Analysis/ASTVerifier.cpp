@@ -71,15 +71,15 @@ void ASTVerifier::visitFuncDef(FuncDef *FD) {
   }
 }
 
-void ASTVerifier::visitProgram(Program *P) {
+void ASTVerifier::visitProgram(ProgramAST *P) {
   for (DeclAST *D : P->getDecls()) {
     AssertThat(!IsInstance<ArgDecl>(D),
-               "ArgDecl cannot appear in Decls of Program");
+               "ArgDecl cannot appear in Decls of ProgramAST");
     visitDecl(D);
   }
 }
 
-bool ASTVerifier::Verify(Program *P) {
+bool ASTVerifier::Verify(ProgramAST *P) {
   EM.setErrorType("InternalError");
   visitProgram(P);
   return !EM.IsOk();

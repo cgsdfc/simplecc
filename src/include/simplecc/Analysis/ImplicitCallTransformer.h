@@ -46,7 +46,7 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
 
 public:
   ImplicitCallTransformer() = default;
-  void Transform(Program *P, const SymbolTable &S);
+  void Transform(ProgramAST *P, const SymbolTable &S);
 
 private:
   friend VisitorBase;

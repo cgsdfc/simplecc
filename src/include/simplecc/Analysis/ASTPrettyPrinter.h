@@ -6,7 +6,7 @@
 namespace simplecc {
 class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
                          IndentAwarePrinter<ASTPrettyPrinter> {
-  void visitProgram(Program *P);
+  void visitProgram(ProgramAST *P);
   void visitFuncDef(FuncDef *FD);
   void visitConstDecl(ConstDecl *CD);
   void visitVarDecl(VarDecl *VD);

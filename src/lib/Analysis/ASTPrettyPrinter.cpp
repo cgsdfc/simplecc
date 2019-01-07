@@ -14,7 +14,7 @@ using namespace simplecc;
 ///     ),
 ///   ),
 /// ])
-void ASTPrettyPrinter::visitProgram(Program *P) {
+void ASTPrettyPrinter::visitProgram(ProgramAST *P) {
   OS << P->getClassName() << "(";
   OS << "Filename='" << P->getFilename() << "', [\n";
   increaseIndentLevel();

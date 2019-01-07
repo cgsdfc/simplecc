@@ -19,11 +19,11 @@ class ASTVerifier : ChildrenVisitor<ASTVerifier> {
   void visitWhile(WhileStmt *W);
   void visitIf(IfStmt *I);
   void visitFuncDef(FuncDef *FD);
-  void visitProgram(Program *P);
+  void visitProgram(ProgramAST *P);
 public:
   ASTVerifier() = default;
   ~ASTVerifier() = default;
-  bool Verify(Program *P);
+  bool Verify(ProgramAST *P);
 private:
   friend ChildrenVisitor;
   friend VisitorBase;

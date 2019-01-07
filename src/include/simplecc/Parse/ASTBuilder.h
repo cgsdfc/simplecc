@@ -14,7 +14,7 @@ class ASTBuilder {
   ExprAST *makeNum(Node *N);
 
   /// program: const_decl* declaration* ENDMARKER
-  Program *visit_program(std::string Filename, Node *N);
+  ProgramAST *visit_program(std::string Filename, Node *N);
 
   /// const_decl: 'const' type_name const_item (',' const_item)* ';'
   void visit_const_decl(Node *N, std::vector<DeclAST *> &Decls);
@@ -107,7 +107,7 @@ class ASTBuilder {
   int visit_subscript2(Node *N);
 
 public:
-  Program *Build(const std::string &Filename, const Node *N) {
+  ProgramAST *Build(const std::string &Filename, const Node *N) {
     return visit_program(Filename, const_cast<Node *>(N));
   }
 };

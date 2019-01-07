@@ -4,8 +4,8 @@
 /// operations on the AST. Since it makes changes to the AST, it is called Transform
 /// rather than Analysis.
 namespace simplecc {
-class Program;
+class ProgramAST;
 class SymbolTable;
-void TransformProgram(Program *P, SymbolTable &S);
+void TransformProgram(ProgramAST *P, SymbolTable &S);
 } // namespace simplecc
 #endif // SIMPLECC_TRANSFORM_TRANSFORM_H

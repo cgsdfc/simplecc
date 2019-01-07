@@ -26,7 +26,7 @@ using llvm::Value;
 /// 2. Be well-formed in terms of LLVM IR.
 /// 3. Avoid useless stuffs.
 class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
-  void visitProgram(Program *P);
+  void visitProgram(ProgramAST *P);
   void visitArgDecl(ArgDecl *) {}
   void visitVarDecl(VarDecl *VD);
   void visitConstDecl(ConstDecl *CD);
@@ -73,7 +73,7 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
 
 public:
   /// Don't put instance on the stack. It is about 1K.
-  LLVMIRCompiler(Program *P, const SymbolTable &S);
+  LLVMIRCompiler(ProgramAST *P, const SymbolTable &S);
 
   /// No copy no move.
   LLVMIRCompiler(const LLVMIRCompiler &) = delete;
@@ -95,8 +95,8 @@ public:
   const llvm::LLVMContext &getContext() const { return TheContext; }
 
   /// Access the Program being compiled.
-  const Program *getProgram() const { return TheProgram; }
-  Program *getProgram() { return TheProgram; }
+  const ProgramAST *getProgram() const { return TheProgram; }
+  ProgramAST *getProgram() { return TheProgram; }
 
 private:
   /// Data members:
@@ -105,7 +105,7 @@ private:
   /// Used for getting types of an Expr.
   const SymbolTable &TheTable;
   /// AST tree node to be visited.
-  Program *TheProgram;
+  ProgramAST *TheProgram;
 
   /// LLVM core data structures.
   LLVMContext TheContext;

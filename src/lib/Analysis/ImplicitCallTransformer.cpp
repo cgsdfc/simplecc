@@ -82,7 +82,7 @@ ExprAST *ImplicitCallTransformer::TransformExpr(ExprAST *E) {
 }
 
 /// Perform implicit call transform on the program using a SymbolTable.
-void ImplicitCallTransformer::Transform(Program *P, const SymbolTable &S) {
+void ImplicitCallTransformer::Transform(ProgramAST *P, const SymbolTable &S) {
   assert(P);
   setTable(&S);
   visitProgram(P);

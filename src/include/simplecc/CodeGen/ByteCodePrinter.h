@@ -102,7 +102,7 @@ public:
   explicit ByteCodePrinter(std::ostream &O) : w(O) {}
   ~ByteCodePrinter() = default;
 
-  void PrintByteCode(Program *P) { visitProgram(P); }
+  void PrintByteCode(ProgramAST *P) { visitProgram(P); }
 
 private:
   friend class ChildrenVisitor<ByteCodePrinter>;

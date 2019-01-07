@@ -5,7 +5,7 @@
 #include "Types.h"
 
 namespace simplecc {
-class Program;
+class ProgramAST;
 
 class AnalysisManager {
   SymbolTable TheTable;
@@ -16,7 +16,7 @@ public:
 
   /// Run **all** the analyses on the Program.
   /// Return true if errors happened.
-  bool runAllAnalyses(Program *P);
+  bool runAllAnalyses(ProgramAST *P);
 
   const SymbolTable &getSymbolTable() const { return TheTable; }
 

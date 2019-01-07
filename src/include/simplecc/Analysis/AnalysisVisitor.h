@@ -20,7 +20,7 @@ public:
       : ErrorManager(ErrorType) {}
 
   /// Public interface. Subclass should mark it as public.
-  bool Check(Program *P, SymbolTable &S) {
+  bool Check(ProgramAST *P, SymbolTable &S) {
     ContextualVisitor<Derived>::visitProgram(P, S);
     return !IsOk();
   }

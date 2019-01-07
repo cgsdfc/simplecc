@@ -44,7 +44,7 @@ public:
 
 public:
   ExpressionTransformer() = default;
-  void Transform(Program *P, SymbolTable &S) { BaseT::visitProgram(P, S); }
+  void Transform(ProgramAST *P, SymbolTable &S) { BaseT::visitProgram(P, S); }
 };
 
 template <typename Derived>

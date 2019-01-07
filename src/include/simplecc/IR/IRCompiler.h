@@ -8,7 +8,7 @@
 namespace simplecc {
 class Module;
 class IRCompiler : ContextualVisitor<IRCompiler> {
-  void visitProgram(Program *P);
+  void visitProgram(ProgramAST *P);
 
   void visitDecl(DeclAST *) {}
   void visitFuncDef(FuncDef *FD);
@@ -48,7 +48,7 @@ class IRCompiler : ContextualVisitor<IRCompiler> {
 
 public:
   IRCompiler() = default;
-  bool Compile(Program *P, const SymbolTable &S, Module &M);
+  bool Compile(ProgramAST *P, const SymbolTable &S, Module &M);
 private:
   friend VisitorBase;
   friend ChildrenVisitor;
