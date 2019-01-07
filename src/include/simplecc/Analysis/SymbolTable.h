@@ -1,9 +1,7 @@
 #ifndef SIMPLECC_ANALYSIS_SYMBOLTABLE_H
 #define SIMPLECC_ANALYSIS_SYMBOLTABLE_H
-
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/Parse/AST.h"
-
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -68,9 +66,6 @@ private:
   TableType &getLocal(FuncDef *FD) { return LocalTables[FD]; }
 };
 
-inline std::ostream &operator<<(std::ostream &os, const SymbolTable &t) {
-  t.Format(os);
-  return os;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(SymbolTable)
 } // namespace simplecc
 #endif

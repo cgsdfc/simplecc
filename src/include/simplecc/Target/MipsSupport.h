@@ -1,5 +1,6 @@
 #ifndef SIMPLECC_TARGET_MIPSSUPPORT_H
 #define SIMPLECC_TARGET_MIPSSUPPORT_H
+#include "simplecc/Support/Macros.h"
 #include <iostream>
 #include <string>
 
@@ -93,10 +94,7 @@ public:
   void Format(std::ostream &O) const;
 };
 
-inline std::ostream &operator<<(std::ostream &O, const EscapedString &E) {
-  E.Format(O);
-  return O;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(EscapedString)
 
 } // namespace simplecc
 #endif

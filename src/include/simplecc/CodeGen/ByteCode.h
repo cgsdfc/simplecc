@@ -1,5 +1,6 @@
 #ifndef SIMPLECC_CODEGEN_BYTECODE_H
 #define SIMPLECC_CODEGEN_BYTECODE_H
+#include "simplecc/Support/Macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -103,10 +104,7 @@ public:
   void Format(std::ostream &os) const;
 };
 
-inline std::ostream &operator<<(std::ostream &O, const ByteCode &c) {
-  c.Format(O);
-  return O;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(ByteCode)
 
 } // namespace simplecc
 #endif

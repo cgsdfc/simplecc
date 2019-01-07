@@ -1,6 +1,7 @@
 #ifndef SIMPLECC_ANALYSIS_TYPES_H
 #define SIMPLECC_ANALYSIS_TYPES_H
 #include "simplecc/Parse/AST.h"
+#include "simplecc/Support/Macros.h"
 #include <cassert>
 #include <string>
 
@@ -87,10 +88,8 @@ public:
   void Format(std::ostream &os) const;
 };
 
-inline std::ostream &operator<<(std::ostream &os, const SymbolEntry &e) {
-  e.Format(os);
-  return os;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(SymbolEntry)
+
 
 } // namespace simplecc
 #endif

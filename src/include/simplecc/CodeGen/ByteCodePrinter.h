@@ -2,7 +2,6 @@
 #define SIMPLECC_CODEGEN_BYTECODEPRINTER_H
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/Print.h"
-
 #include <cassert>
 #include <iostream>
 
@@ -27,10 +26,7 @@ public:
   void Format(std::ostream &O) const;
 };
 
-inline std::ostream &operator<<(std::ostream &O, const ExprValue &Val) {
-  Val.Format(O);
-  return O;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(ExprValue)
 
 /// This class handles the formatting of a label of two form:
 /// inline form like GOTO Label_1 and non-inline form like:
@@ -55,10 +51,7 @@ public:
   void Format(std::ostream &O) const;
 };
 
-inline std::ostream &operator<<(std::ostream &O, const LineLabel &L) {
-  L.Format(O);
-  return O;
-}
+DEFINE_INLINE_OUTPUT_OPERATOR(LineLabel)
 
 /// This class prints a program in the form required by the school.
 class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
