@@ -188,3 +188,29 @@ void ByteCodeCompiler::Compile(ProgramAST *P, const SymbolTable &S,
   setModule(&M);
   visitProgram(P);
 }
+
+void ByteCodeCompiler::visitExprStmt(ExprStmt *ES) {
+  ChildrenVisitor::visitExprStmt(ES);
+  // discard return value
+  Builder.CreatePopTop();
+}
+
+void ByteCodeCompiler::visitUnaryOp(UnaryOpExpr *U) {
+  ChildrenVisitor::visitUnaryOp(U);
+  Builder.CreateUnary(U->getOp());
+}
+
+void ByteCodeCompiler::visitBinOp(BinOpExpr *B) {
+  ChildrenVisitor::visitBinOp(B);
+  Builder.CreateBinary(B->getOp());
+}
+
+void ByteCodeCompiler::visitNum(NumExpr *N) { Builder.CreateLoadConst(N->getN()); }
+void ByteCodeCompiler::visitChar(CharExpr *C) { Builder.CreateLoadConst(C->getC()); }
+
+/// Visit value first and then target. The order of
+/// ChildrenVisitor::visitAssign is unfortunately wrong.
+void ByteCodeCompiler::visitAssign(AssignStmt *A) {
+  visitExpr(A->getValue());
+  visitExpr(A->getTarget());
+}

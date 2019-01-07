@@ -4,7 +4,6 @@
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/CodeGen/ByteCodeBuilder.h"
 #include "simplecc/Support/ErrorManager.h"
-
 #include <cassert>
 #include <utility>
 
@@ -13,59 +12,36 @@ class ByteCodeModule;
 class ProgramAST;
 
 class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
-
-  void visitStmt(StmtAST *S);
+  void visitProgram(ProgramAST *P);
+  void visitFuncDef(FuncDef *FD);
+  /// Explicitly do nothing.
+  void visitConstDecl(ConstDecl *) {}
   void visitArgDecl(ArgDecl *A);
   void visitVarDecl(VarDecl *VD);
 
-  /// Explicitly do nothing.
-  void visitConstDecl(ConstDecl *) {}
+  void visitStmt(StmtAST *S);
   void visitRead(ReadStmt *RD);
   void visitWrite(WriteStmt *WR);
-
-  /// Visit value first and then target. The order of
-  /// ChildrenVisitor::visitAssign is unfortunately wrong.
-  void visitAssign(AssignStmt *A) {
-    visitExpr(A->getValue());
-    visitExpr(A->getTarget());
-  }
-
-  unsigned CompileBoolOp(BoolOpExpr *B);
-
+  void visitAssign(AssignStmt *A);
   void visitFor(ForStmt *node);
   void visitWhile(WhileStmt *W);
   void visitIf(IfStmt *I);
   void visitReturn(ReturnStmt *R);
+  void visitExprStmt(ExprStmt *ES);
 
-  void visitExprStmt(ExprStmt *ES) {
-    ChildrenVisitor::visitExprStmt(ES);
-    // discard return value
-    Builder.CreatePopTop();
-  }
-
+  unsigned CompileBoolOp(BoolOpExpr *B);
   void visitBoolOp(BoolOpExpr *) {
     assert(false && "BoolOpExpr should be handled by CompileBoolOp()");
   }
 
-  void visitUnaryOp(UnaryOpExpr *U) {
-    ChildrenVisitor::visitUnaryOp(U);
-    Builder.CreateUnary(U->getOp());
-  }
-
-  void visitBinOp(BinOpExpr *B) {
-    ChildrenVisitor::visitBinOp(B);
-    Builder.CreateBinary(B->getOp());
-  }
-
+  void visitUnaryOp(UnaryOpExpr *U);
+  void visitBinOp(BinOpExpr *B);
   void visitCall(CallExpr *C);
-  void visitNum(NumExpr *N) { Builder.CreateLoadConst(N->getN()); }
-  void visitChar(CharExpr *C) { Builder.CreateLoadConst(C->getC()); }
+  void visitNum(NumExpr *N);
+  void visitChar(CharExpr *C);
   void visitStr(StrExpr *S);
-
   void visitSubscript(SubscriptExpr *SB);
   void visitName(NameExpr *N);
-  void visitFuncDef(FuncDef *FD);
-  void visitProgram(ProgramAST *P);
 
   void setModule(ByteCodeModule *M) { TheModule = M; }
   void setTable(const SymbolTable *S) { TheTable = S; }
@@ -73,13 +49,11 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
 
 public:
   ByteCodeCompiler() = default;
-
-  // public interface
   void Compile(ProgramAST *P, const SymbolTable &S, ByteCodeModule &M);
 
 private:
-  friend class ChildrenVisitor<ByteCodeCompiler>;
-  friend class VisitorBase<ByteCodeCompiler>;
+  friend ChildrenVisitor;
+  friend VisitorBase;
 
   ByteCodeBuilder Builder;
   LocalSymbolTable TheLocalTable;

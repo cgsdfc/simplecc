@@ -59,20 +59,19 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   void visitVarDecl(VarDecl *VD);
   void visitArgDecl(ArgDecl *AD);
   void visitFuncDef(FuncDef *FD);
-  void visitRead(ReadStmt *RD);
 
+  void visitRead(ReadStmt *RD);
   void visitWrite(WriteStmt *WR);
   void visitAssign(AssignStmt *A);
   void visitReturn(ReturnStmt *R);
-  ExprValue visitCall(CallExpr *C);
-  LineLabel CompileBoolOp(BoolOpExpr *B);
   void visitFor(ForStmt *F);
   void visitIf(IfStmt *I);
   void visitWhile(WhileStmt *W);
+
+  ExprValue visitCall(CallExpr *C);
   ExprValue visitBinOp(BinOpExpr *B);
   ExprValue visitUnaryOp(UnaryOpExpr *U);
   ExprValue visitSubscript(SubscriptExpr *SB);
-
   ExprValue visitExpr(ExprAST *E) {
     return ChildrenVisitor::visitExpr<ExprValue>(E);
   }
@@ -81,6 +80,7 @@ class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   ExprValue visitChar(CharExpr *C) { return ExprValue(C); }
   ExprValue visitNum(NumExpr *N) { return ExprValue(N); }
   ExprValue visitStr(StrExpr *S) { return ExprValue(S); }
+  LineLabel CompileBoolOp(BoolOpExpr *B);
 
   ExprValue visitBoolOp(BoolOpExpr *) {
     assert(false && "BoolOpExpr should be handled by CompileBoolOp()");
@@ -98,8 +98,8 @@ public:
   void PrintByteCode(ProgramAST *P) { visitProgram(P); }
 
 private:
-  friend class ChildrenVisitor<ByteCodePrinter>;
-  friend class VisitorBase<ByteCodePrinter>;
+  friend ChildrenVisitor;
+  friend VisitorBase;
 
   Printer w;
   unsigned TempCounter = 0;
