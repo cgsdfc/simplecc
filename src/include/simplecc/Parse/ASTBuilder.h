@@ -34,7 +34,7 @@ class ASTBuilder {
                           std::vector<DeclAST *> &Decls);
 
   DeclAST *visit_funcdef(BasicTypeKind RetTy, std::string Name,
-                         Node *decl_trailer, const Location &L);
+                         Node *decl_trailer, Location L);
 
   /// paralist: '(' type_name NAME (',' type_name NAME)* ')'
   void visit_paralist(Node *N, std::vector<DeclAST *> &ParamList);

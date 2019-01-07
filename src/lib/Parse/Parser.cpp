@@ -44,7 +44,7 @@ void Parser::Shift(const TokenInfo &T, int NewState) {
   Top.setState(NewState);
 }
 
-void Parser::Push(Symbol Ty, DFA *NewDFA, int NewState, const Location &Loc) {
+void Parser::Push(Symbol Ty, DFA *NewDFA, int NewState, Location Loc) {
   StackEntry &Top = TheStack.top();
   Top.setState(NewState);
   Node *NewNode = new Node(Ty, "", Loc);

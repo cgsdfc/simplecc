@@ -13,14 +13,14 @@ const char *getSymbolName(Symbol S);
 
 class TokenInfo {
 public:
-  TokenInfo(Symbol Ty, std::string S, const Location &Loc, std::string Line)
+  TokenInfo(Symbol Ty, std::string S, Location Loc, std::string Line)
       : Type(Ty), Str(std::move(S)), Loc(Loc), Line(std::move(Line)) {}
 
   TokenInfo(const TokenInfo &) = default;
   TokenInfo(TokenInfo &&) = default;
 
   const char *getTypeName() const;
-  const Location &getLocation() const { return Loc; }
+  Location getLocation() const { return Loc; }
   const std::string &getString() const { return Str; }
   const std::string &getLine() const { return Line; }
   Symbol getType() const { return Type; }

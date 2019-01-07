@@ -244,7 +244,7 @@ ExprAST *ASTBuilder::visit_binop(Node *N, ExprContextKind Context) {
 }
 
 DeclAST *ASTBuilder::visit_funcdef(BasicTypeKind RetTy, std::string Name,
-                                   Node *decl_trailer, const Location &L) {
+                                   Node *decl_trailer, Location L) {
   std::vector<DeclAST *> ParamList;
   std::vector<DeclAST *> FnDecls;
   std::vector<StmtAST *> FnStmts;

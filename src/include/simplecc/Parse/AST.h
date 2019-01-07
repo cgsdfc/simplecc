@@ -109,7 +109,7 @@ class ConstDecl : public DeclAST {
 
 public:
   ConstDecl(BasicTypeKind type, ExprAST *value, std::string name,
-            const Location &loc)
+            Location loc)
       : DeclAST(DeclAST::ConstDeclKind, std::move(name), loc), type(type),
         value(value) {}
 
@@ -136,7 +136,7 @@ class VarDecl : public DeclAST {
 
 public:
   VarDecl(BasicTypeKind type, bool is_array, int size, std::string name,
-          const Location &loc)
+          Location loc)
       : DeclAST(DeclAST::VarDeclKind, std::move(name), loc), type(type),
         is_array(is_array), size(size) {}
 
@@ -162,7 +162,7 @@ public:
 
   FuncDef(BasicTypeKind return_type, std::vector<DeclAST *> args,
           std::vector<DeclAST *> decls, StmtListType stmts,
-          std::string name, const Location &loc)
+          std::string name, Location loc)
       : DeclAST(DeclAST::FuncDefKind, std::move(name), loc),
         return_type(return_type), args(std::move(args)),
         decls(std::move(decls)), stmts(std::move(stmts)) {}
@@ -205,7 +205,7 @@ class ArgDecl : public DeclAST {
   ~ArgDecl() = default;
 
 public:
-  ArgDecl(BasicTypeKind type, std::string name, const Location &loc)
+  ArgDecl(BasicTypeKind type, std::string name, Location loc)
       : DeclAST(DeclAST::ArgDeclKind, std::move(name), loc), type(type) {}
 
   // Disable copy and move.
@@ -227,7 +227,7 @@ class ReadStmt : public StmtAST {
   ~ReadStmt();
 
 public:
-  ReadStmt(std::vector<ExprAST *> names, const Location &loc)
+  ReadStmt(std::vector<ExprAST *> names, Location loc)
       : StmtAST(StmtAST::ReadStmtKind, loc), names(std::move(names)) {}
 
   // Disable copy and move.
@@ -251,7 +251,7 @@ class WriteStmt : public StmtAST {
   ~WriteStmt();
 
 public:
-  WriteStmt(ExprAST *str, ExprAST *value, const Location &loc)
+  WriteStmt(ExprAST *str, ExprAST *value, Location loc)
       : StmtAST(StmtAST::WriteStmtKind, loc), str(str), value(value) {}
 
   // Disable copy and move.
@@ -276,7 +276,7 @@ class AssignStmt : public StmtAST {
   ~AssignStmt();
 
 public:
-  AssignStmt(ExprAST *target, ExprAST *value, const Location &loc)
+  AssignStmt(ExprAST *target, ExprAST *value, Location loc)
       : StmtAST(StmtAST::AssignStmtKind, loc), target(target), value(value) {}
 
   // Disable copy and move.
@@ -305,7 +305,7 @@ class ForStmt : public StmtAST {
 
 public:
   ForStmt(StmtAST *initial, ExprAST *condition, StmtAST *step,
-          StmtListType body, const Location &loc)
+          StmtListType body, Location loc)
       : StmtAST(StmtAST::ForStmtKind, loc), initial(initial),
         condition(condition), step(step), body(std::move(body)) {}
 
@@ -342,7 +342,7 @@ class WhileStmt : public StmtAST {
 
 public:
   WhileStmt(ExprAST *condition, StmtListType body,
-            const Location &loc)
+            Location loc)
       : StmtAST(WhileStmtKind, loc), condition(condition),
         body(std::move(body)) {}
 
@@ -368,7 +368,7 @@ class ReturnStmt : public StmtAST {
   ~ReturnStmt();
 
 public:
-  ReturnStmt(ExprAST *value, const Location &loc)
+  ReturnStmt(ExprAST *value, Location loc)
       : StmtAST(StmtAST::ReturnStmtKind, loc), value(value) {}
 
   // Disable copy and move.
@@ -394,7 +394,7 @@ class IfStmt : public StmtAST {
 
 public:
   IfStmt(ExprAST *test, StmtListType body,
-         StmtListType orelse, const Location &loc)
+         StmtListType orelse, Location loc)
       : StmtAST(StmtAST::IfStmtKind, loc), test(test), body(std::move(body)),
         orelse(std::move(orelse)) {}
 
@@ -425,7 +425,7 @@ class ExprStmt : public StmtAST {
   ~ExprStmt();
 
 public:
-  ExprStmt(ExprAST *value, const Location &loc)
+  ExprStmt(ExprAST *value, Location loc)
       : StmtAST(StmtAST::ExprStmtKind, loc), value(value) {}
 
   // Disable copy and move.
@@ -451,7 +451,7 @@ class BinOpExpr : public ExprAST {
   ~BinOpExpr();
 
 public:
-  BinOpExpr(ExprAST *left, OperatorKind op, ExprAST *right, const Location &loc)
+  BinOpExpr(ExprAST *left, OperatorKind op, ExprAST *right, Location loc)
       : ExprAST(ExprAST::BinOpExprKind, loc), left(left), op(op), right(right) {
   }
 
@@ -486,7 +486,7 @@ class ParenExpr : public ExprAST {
   int getConstantValueImpl() const { return value->getConstantValue(); }
 
 public:
-  ParenExpr(ExprAST *value, const Location &loc)
+  ParenExpr(ExprAST *value, Location loc)
       : ExprAST(ExprAST::ParenExprKind, loc), value(value) {}
 
   // Disable copy and move.
@@ -516,7 +516,7 @@ class BoolOpExpr : public ExprAST {
   int getConstantValueImpl() const { return value->getConstantValue(); }
 
 public:
-  BoolOpExpr(ExprAST *value, bool has_cmpop, const Location &loc)
+  BoolOpExpr(ExprAST *value, bool has_cmpop, Location loc)
       : ExprAST(BoolOpExprKind, loc), value(value), has_cmpop(has_cmpop) {}
 
   // Disable copy and move.
@@ -550,7 +550,7 @@ class UnaryOpExpr : public ExprAST {
   }
 
 public:
-  UnaryOpExpr(UnaryopKind op, ExprAST *operand, const Location &loc)
+  UnaryOpExpr(UnaryopKind op, ExprAST *operand, Location loc)
       : ExprAST(UnaryOpExprKind, loc), op(op), operand(operand) {}
 
   // Disable copy and move.
@@ -576,7 +576,7 @@ class CallExpr : public ExprAST {
   ~CallExpr();
 
 public:
-  CallExpr(std::string func, std::vector<ExprAST *> args, const Location &loc)
+  CallExpr(std::string func, std::vector<ExprAST *> args, Location loc)
       : ExprAST(ExprAST::CallExprKind, loc), func(std::move(func)),
         args(std::move(args)) {}
 
@@ -608,7 +608,7 @@ class NumExpr : public ExprAST {
   int getConstantValueImpl() const { return getN(); }
 
 public:
-  NumExpr(int n, const Location &loc)
+  NumExpr(int n, Location loc)
       : ExprAST(ExprAST::NumExprKind, loc), n(n) {}
 
   // Disable copy and move.
@@ -630,7 +630,7 @@ class StrExpr : public ExprAST {
   ~StrExpr() = default;
 
 public:
-  StrExpr(std::string s, const Location &loc)
+  StrExpr(std::string s, Location loc)
       : ExprAST(ExprAST::StrExprKind, loc), s(std::move(s)) {}
 
   // Disable copy and move.
@@ -656,7 +656,7 @@ class CharExpr : public ExprAST {
   int getConstantValueImpl() const { return getC(); }
 
 public:
-  CharExpr(int c, const Location &loc)
+  CharExpr(int c, Location loc)
       : ExprAST(ExprAST::CharExprKind, loc), c(c) {}
 
   // Disable copy and move.
@@ -681,7 +681,7 @@ class SubscriptExpr : public ExprAST {
 
 public:
   SubscriptExpr(std::string name, ExprAST *index, ExprContextKind ctx,
-                const Location &loc)
+                Location loc)
       : ExprAST(SubscriptExprKind, loc), name(std::move(name)), index(index),
         context(ctx) {}
 
@@ -709,7 +709,7 @@ class NameExpr : public ExprAST {
   friend class AST;
 
 public:
-  NameExpr(std::string id, ExprContextKind ctx, const Location &loc)
+  NameExpr(std::string id, ExprContextKind ctx, Location loc)
       : ExprAST(NameExprKind, loc), id(std::move(id)), context(ctx) {}
 
   // Disable copy and move.
@@ -745,7 +745,7 @@ public:
 
   const std::vector<DeclAST *> &getDecls() const { return decls; }
   std::vector<DeclAST *> &getDecls() { return decls; }
-  std::string getFilename() const { return Filename; }
+  const std::string &getFilename() const { return Filename; }
 
   static bool InstanceCheck(const AST *A) {
     return A->getKind() == ProgramASTKind;

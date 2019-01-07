@@ -37,7 +37,7 @@ class Parser {
 
   int Classify(const TokenInfo &T);
   void Shift(const TokenInfo &T, int NewState);
-  void Push(Symbol Ty, DFA *NewDFA, int NewState, const Location &Loc);
+  void Push(Symbol Ty, DFA *NewDFA, int NewState, Location Loc);
   void Pop();
   int AddToken(const TokenInfo &T);
 
