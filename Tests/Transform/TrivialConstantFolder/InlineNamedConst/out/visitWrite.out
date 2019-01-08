@@ -1,4 +1,4 @@
-Program(Filename='./visitWrite.c', [
+ProgramAST(Filename='./visitWrite.c', [
   FuncDef(Void, main, Args(), [
     ConstDecl(Int, intval, NumExpr(12)),
     ConstDecl(Character, charval, CharExpr('b')),

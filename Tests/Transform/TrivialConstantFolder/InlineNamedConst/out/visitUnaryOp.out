@@ -1,4 +1,4 @@
-Program(Filename='./visitUnaryOp.c', [
+ProgramAST(Filename='./visitUnaryOp.c', [
   ConstDecl(Int, intval, NumExpr(1)),
   FuncDef(Void, main, Args(), [
     WriteStmt(NumExpr(-1)),

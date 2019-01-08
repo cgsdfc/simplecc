@@ -1,4 +1,4 @@
-Program(Filename='Tests/Transform/DeadCodeEliminator/visitIf.c', [
+ProgramAST(Filename='Tests/Transform/DeadCodeEliminator/visitIf.c', [
   VarDecl(Int, x, false, 0),
   FuncDef(Void, deletethenbranch, Args(Int a), [
     WriteStmt(StrExpr("Else")),

@@ -1,4 +1,4 @@
-Program(Filename='./visitIf.c', [
+ProgramAST(Filename='./visitIf.c', [
   ConstDecl(Int, ic1, NumExpr(1)),
   ConstDecl(Int, ic2, NumExpr(2)),
   VarDecl(Int, intvar, false, 0),

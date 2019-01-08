@@ -1,4 +1,4 @@
-Program(Filename='./visitFor.c', [
+ProgramAST(Filename='./visitFor.c', [
   ConstDecl(Int, ic, NumExpr(1)),
   FuncDef(Void, main, Args(), [
     VarDecl(Int, i, false, 0),

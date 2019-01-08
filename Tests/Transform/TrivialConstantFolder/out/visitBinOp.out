@@ -1,4 +1,4 @@
-Program(Filename='Tests/Transform/TrivialConstantFolder/visitBinOp.c', [
+ProgramAST(Filename='Tests/Transform/TrivialConstantFolder/visitBinOp.c', [
   VarDecl(Int, intvar, false, 0),
   FuncDef(Void, noneconstants, Args(Int _), [
     WriteStmt(

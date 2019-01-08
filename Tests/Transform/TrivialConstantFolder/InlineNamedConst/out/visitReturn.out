@@ -1,4 +1,4 @@
-Program(Filename='./visitReturn.c', [
+ProgramAST(Filename='./visitReturn.c', [
   ConstDecl(Character, cc, CharExpr('a')),
   ConstDecl(Int, ic, NumExpr(1)),
   FuncDef(Character, test1, Args(), [

@@ -1,4 +1,4 @@
-Program(Filename='./visitBoolOp.c', [
+ProgramAST(Filename='./visitBoolOp.c', [
   VarDecl(Int, x, false, 0),
   VarDecl(Int, y, false, 0),
   FuncDef(Void, bothsizeconstoptimize, Args(Int a), []),

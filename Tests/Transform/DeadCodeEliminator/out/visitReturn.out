@@ -1,4 +1,4 @@
-Program(Filename='Tests/Transform/DeadCodeEliminator/visitReturn.c', [
+ProgramAST(Filename='Tests/Transform/DeadCodeEliminator/visitReturn.c', [
   VarDecl(Int, x, false, 0),
   FuncDef(Void, insidefuncdef, Args(Int a), [
     AssignStmt(

@@ -1,4 +1,4 @@
-Program(Filename='Tests/Transform/DeadCodeEliminator/visitWhile.c', [
+ProgramAST(Filename='Tests/Transform/DeadCodeEliminator/visitWhile.c', [
   VarDecl(Int, x, false, 0),
   FuncDef(Void, deleteifconditionisfalse, Args(Int a), []),
   FuncDef(Void, withinstmtlist, Args(Int a), [

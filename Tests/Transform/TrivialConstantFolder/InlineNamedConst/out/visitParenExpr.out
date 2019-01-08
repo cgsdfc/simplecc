@@ -1,4 +1,4 @@
-Program(Filename='./visitParenExpr.c', [
+ProgramAST(Filename='./visitParenExpr.c', [
   ConstDecl(Character, cc, CharExpr('a')),
   ConstDecl(Int, ic, NumExpr(1)),
   FuncDef(Void, main, Args(), [

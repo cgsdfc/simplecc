@@ -1,4 +1,4 @@
-Program(Filename='./visitSubscript.c', [
+ProgramAST(Filename='./visitSubscript.c', [
   ConstDecl(Int, ic, NumExpr(0)),
   FuncDef(Void, main, Args(), [
     VarDecl(Int, intarray, true, 2),

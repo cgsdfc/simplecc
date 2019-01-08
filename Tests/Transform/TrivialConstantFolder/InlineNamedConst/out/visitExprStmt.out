@@ -1,4 +1,4 @@
-Program(Filename='./visitExprStmt.c', [
+ProgramAST(Filename='./visitExprStmt.c', [
   ConstDecl(Character, c1, CharExpr('a')),
   ConstDecl(Character, c2, CharExpr('b')),
   ConstDecl(Character, c3, CharExpr('c')),
