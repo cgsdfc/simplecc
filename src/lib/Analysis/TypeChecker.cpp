@@ -94,7 +94,7 @@ BasicTypeKind TypeChecker::visitParenExpr(ParenExpr *PE) {
 }
 
 BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
-  const auto &Entry = getSymbolEntry(C->getFunc());
+  const auto &Entry = getSymbolEntry(C->getCallee());
   if (!Entry.IsFunction()) {
     Error(C->getLocation(), Entry.getName(), "is not a function");
     return BasicTypeKind::Void;
@@ -104,7 +104,7 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
   auto NumFormal = Ty.getArgCount();
   auto NumActual = C->getArgs().size();
   if (NumFormal != NumActual) {
-    Error(C->getLocation(), C->getFunc(), "expects", NumFormal,
+    Error(C->getLocation(), C->getCallee(), "expects", NumFormal,
           "arguments, got", NumActual);
   }
 
@@ -115,14 +115,14 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
     auto FormalTy = Ty.getArgTypeAt(I);
     if (ActualTy != FormalTy) {
       Error(C->getArgs()[I]->getLocation(), "argument", I + 1, "of",
-            C->getFunc(), "must be", CStringFromBasicTypeKind(FormalTy));
+            C->getCallee(), "must be", CStringFromBasicTypeKind(FormalTy));
     }
   }
   return Ty.getReturnType();
 }
 
 BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
-  const auto &Entry = getSymbolEntry(SB->getName());
+  const auto &Entry = getSymbolEntry(SB->getArrayName());
   if (!Entry.IsArray()) {
     Error(SB->getLocation(), Entry.getName(), "is not an array");
     return BasicTypeKind::Void;

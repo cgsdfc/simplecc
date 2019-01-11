@@ -118,17 +118,17 @@ unsigned ByteCodeCompiler::CompileBoolOp(BoolOpExpr *B) {
 void ByteCodeCompiler::visitCall(CallExpr *C) {
   /// Visit all the args first.
   ChildrenVisitor::visitCall(C);
-  Builder.CreateCallFunction(C->getFunc(), C->getArgs().size());
+  Builder.CreateCallFunction(C->getCallee(), C->getArgs().size());
 }
 
 void ByteCodeCompiler::visitStr(simplecc::StrExpr *S) {
-  Builder.CreateLoadString(TheModule->getStringLiteralID(S->getS()));
+  Builder.CreateLoadString(TheModule->getStringLiteralID(S->getStr()));
 }
 
 void ByteCodeCompiler::visitSubscript(SubscriptExpr *SB) {
-  const auto &Entry = TheLocalTable[SB->getName()];
+  const auto &Entry = TheLocalTable[SB->getArrayName()];
   // load array
-  Builder.CreateLoad(Entry.getScope(), SB->getName());
+  Builder.CreateLoad(Entry.getScope(), SB->getArrayName());
   // calculate index
   visitExpr(SB->getIndex());
   // do subscript
@@ -205,8 +205,8 @@ void ByteCodeCompiler::visitBinOp(BinOpExpr *B) {
   Builder.CreateBinary(B->getOp());
 }
 
-void ByteCodeCompiler::visitNum(NumExpr *N) { Builder.CreateLoadConst(N->getN()); }
-void ByteCodeCompiler::visitChar(CharExpr *C) { Builder.CreateLoadConst(C->getC()); }
+void ByteCodeCompiler::visitNum(NumExpr *N) { Builder.CreateLoadConst(N->getNum()); }
+void ByteCodeCompiler::visitChar(CharExpr *C) { Builder.CreateLoadConst(C->getChar()); }
 
 /// Visit value first and then target. The order of
 /// ChildrenVisitor::visitAssign is unfortunately wrong.

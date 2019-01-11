@@ -83,7 +83,7 @@ Value *LLVMIRCompiler::getString(StringRef Str) {
 
 Value *LLVMIRCompiler::visitStr(StrExpr *S) {
   /// Strip quotes first.
-  auto &&Str = S->getS();
+  auto &&Str = S->getStr();
   assert(Str.size() >= 2 && "StrExpr must have quotes");
   std::string Stripped(Str.begin() + 1, Str.end() - 1);
   return getString(Stripped);
@@ -252,7 +252,7 @@ void LLVMIRCompiler::visitFor(ForStmt *F) {
 }
 
 Value *LLVMIRCompiler::visitCall(CallExpr *C) {
-  Value *Callee = LocalValues[C->getFunc()];
+  Value *Callee = LocalValues[C->getCallee()];
   assert(Callee && "Callee must be created");
   std::vector<Value *> ArgsV;
   ArgsV.reserve(C->getArgs().size());
@@ -280,7 +280,7 @@ void LLVMIRCompiler::visitAssign(AssignStmt *A) {
 
 /// The logic varies depending on whether it is a load/store
 Value *LLVMIRCompiler::visitSubscript(SubscriptExpr *SB) {
-  Value *Array = LocalValues[SB->getName()];
+  Value *Array = LocalValues[SB->getArrayName()];
 
   assert(Array && "Array Value must exist");
   Value *Index = visitExpr(SB->getIndex());

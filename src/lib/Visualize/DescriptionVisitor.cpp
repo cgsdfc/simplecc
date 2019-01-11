@@ -16,9 +16,9 @@ std::string DescriptionVisitor::visitConstDecl(ConstDecl *CD) {
   /// lambda to extract the numeric value of a Num or Char.
   auto MakeCV = [](ExprAST *E) {
     if (auto x = subclass_cast<CharExpr>(E))
-      return x->getC();
+      return x->getChar();
     if (auto x = subclass_cast<NumExpr>(E))
-      return x->getN();
+      return x->getNum();
     assert(false && "Unknown ExprAST class");
   };
 
@@ -50,18 +50,18 @@ std::string DescriptionVisitor::visitArgDecl(ArgDecl *A) {
 
 std::string DescriptionVisitor::visitNum(NumExpr *N) {
   std::ostringstream O;
-  O << N->getN();
+  O << N->getNum();
   return O.str();
 }
 
 std::string DescriptionVisitor::visitChar(CharExpr *C) {
   std::ostringstream O;
-  O << "'" << static_cast<char>(C->getC()) << "'";
+  O << "'" << static_cast<char>(C->getChar()) << "'";
   return O.str();
 }
 
 std::string DescriptionVisitor::visitStr(StrExpr *S) {
   std::ostringstream O;
-  O << S->getS();
+  O << S->getStr();
   return O.str();
 }

@@ -12,10 +12,10 @@ ConstType::ConstType(ConstDecl *CD) : Type(CD->getType()) {
   auto Val = CD->getValue();
   switch (Val->getKind()) {
   case ExprAST::CharExprKind:
-    Value = static_cast<CharExpr *>(Val)->getC();
+    Value = static_cast<CharExpr *>(Val)->getChar();
     break;
   case ExprAST::NumExprKind:
-    Value = static_cast<NumExpr *>(Val)->getN();
+    Value = static_cast<NumExpr *>(Val)->getNum();
     break;
   default:
     assert(false && "Value of ConstDecl must be a Constant!");

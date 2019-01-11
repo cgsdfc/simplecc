@@ -212,14 +212,14 @@ Value *IRCompiler::visitUnaryOp(UnaryOpExpr *U) {
 }
 
 Value *IRCompiler::visitSubscript(SubscriptExpr *S) {
-  Value *Array = get(S->getName());
+  Value *Array = get(S->getArrayName());
   Value *Index = visitExpr(S->getIndex());
   Value *GEP = Builder.CreateGEP(Array, Index);
   return maybeLoad(GEP, S->getContext());
 }
 
 Value *IRCompiler::visitCall(CallExpr *C) {
-  Value *Callee = get(C->getFunc());
+  Value *Callee = get(C->getCallee());
   std::vector<Value *> Args(C->getNumArgs());
   for (unsigned I = 0, E = C->getNumArgs(); I != E; ++I) {
     Args[I] = visitExpr(C->getArgAt(I));
@@ -239,11 +239,11 @@ Value *IRCompiler::visitParenExpr(ParenExpr *P) {
 }
 
 Value *IRCompiler::visitNum(NumExpr *N) {
-  return Builder.getInt(N->getN());
+  return Builder.getInt(N->getNum());
 }
 
 Value *IRCompiler::visitChar(CharExpr *C) {
-  return Builder.getInt(C->getC());
+  return Builder.getInt(C->getChar());
 }
 
 Value *IRCompiler::visitName(NameExpr *N) {
@@ -260,7 +260,7 @@ Value *IRCompiler::maybeLoad(Value *Ptr, ExprContextKind ExprContext) {
 }
 
 Value *IRCompiler::visitStr(StrExpr *S) {
-  return Builder.getStringLiteral(S->getS());
+  return Builder.getStringLiteral(S->getStr());
 }
 
 bool IRCompiler::Compile(ProgramAST *P, const SymbolTable &S, Module &M) {

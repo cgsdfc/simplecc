@@ -43,13 +43,13 @@ void SymbolTableBuilder::ResolveName(const std::string &Name, Location L) {
 }
 
 void SymbolTableBuilder::visitCall(CallExpr *C) {
-  ResolveName(C->getFunc(), C->getLocation());
+  ResolveName(C->getCallee(), C->getLocation());
   /// Recurse into children.
   ChildrenVisitor::visitCall(C);
 }
 
 void SymbolTableBuilder::visitSubscript(SubscriptExpr *SB) {
-  ResolveName(SB->getName(), SB->getLocation());
+  ResolveName(SB->getArrayName(), SB->getLocation());
   /// Recurse into children.
   ChildrenVisitor::visitSubscript(SB);
 }

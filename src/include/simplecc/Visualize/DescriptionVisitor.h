@@ -30,9 +30,9 @@ class DescriptionVisitor : public VisitorBase<DescriptionVisitor> {
   std::string visitNum(NumExpr *N);
   std::string visitChar(CharExpr *C);
   std::string visitStr(StrExpr *S);
-  std::string visitCall(CallExpr *C) { return C->getFunc(); }
+  std::string visitCall(CallExpr *C) { return C->getCallee(); }
   std::string visitName(NameExpr *N) { return N->getId(); }
-  std::string visitSubscript(SubscriptExpr *SB) { return SB->getName(); }
+  std::string visitSubscript(SubscriptExpr *SB) { return SB->getArrayName(); }
 
   std::string visitBinOp(BinOpExpr *BO) {
     return CStringFromOperatorKind(BO->getOp());

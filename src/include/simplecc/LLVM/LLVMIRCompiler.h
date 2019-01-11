@@ -52,8 +52,8 @@ class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
   }
 
   /// Simple atom nodes.
-  Value *visitNum(NumExpr *N) { return VM.getInt(N->getN()); }
-  Value *visitChar(CharExpr *C) { return VM.getChar(C->getC()); }
+  Value *visitNum(NumExpr *N) { return VM.getInt(N->getNum()); }
+  Value *visitChar(CharExpr *C) { return VM.getChar(C->getChar()); }
   Value *visitName(NameExpr *Nn);
   Value *visitStr(StrExpr *S);
 

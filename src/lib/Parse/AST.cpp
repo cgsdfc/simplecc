@@ -21,17 +21,17 @@ static inline UniquePtrToAST RvalueGetterImpl(AstT *&Ref) {
   return UniquePtrToAST(tmp);
 }
 
-ProgramAST::~ProgramAST() { DeleteAST::apply(decls); }
+ProgramAST::~ProgramAST() { DeleteAST::apply(Decls); }
 
 FuncDef::~FuncDef() {
-  DeleteAST::apply(args);
-  DeleteAST::apply(decls);
-  DeleteAST::apply(stmts);
+  DeleteAST::apply(Args);
+  DeleteAST::apply(Decls);
+  DeleteAST::apply(Stmts);
 }
 
 ArgDecl *FuncDef::getArgAt(unsigned Pos) const {
-  assert(Pos < args.size() && "Pos out of range");
-  auto Arg = args[Pos];
+  assert(Pos < Args.size() && "Pos out of range");
+  auto Arg = Args[Pos];
   assert(IsInstance<ArgDecl>(Arg) && "Not a ArgDecl!");
   return static_cast<ArgDecl *>(Arg);
 }
@@ -140,9 +140,9 @@ UniquePtrToAST UnaryOpExpr::getOperand() &&{
   return RvalueGetterImpl(operand);
 }
 
-CallExpr::~CallExpr() { DeleteAST::apply(args); }
+CallExpr::~CallExpr() { DeleteAST::apply(Args); }
 
-void CallExpr::setArgAt(unsigned I, ExprAST *Val) { SetterImpl(args[I], Val); }
+void CallExpr::setArgAt(unsigned I, ExprAST *Val) { SetterImpl(Args[I], Val); }
 
 SubscriptExpr::~SubscriptExpr() { DeleteAST::apply(index); }
 

@@ -50,17 +50,17 @@ void ASTPrettyPrinter::visitName(NameExpr *N) {
 
 /// StrExpr("string")
 void ASTPrettyPrinter::visitStr(StrExpr *S) {
-  OS << S->getClassName() << "(" << S->getS() << ")";
+  OS << S->getClassName() << "(" << S->getStr() << ")";
 }
 
 /// NumExpr(1)
 void ASTPrettyPrinter::visitNum(NumExpr *N) {
-  OS << N->getClassName() << "(" << N->getN() << ")";
+  OS << N->getClassName() << "(" << N->getNum() << ")";
 }
 
 /// CharExpr('a')
 void ASTPrettyPrinter::visitChar(CharExpr *C) {
-  OS << C->getClassName() << "('" << char(C->getC()) << "')";
+  OS << C->getClassName() << "('" << char(C->getChar()) << "')";
 }
 
 /// BinOpExpr(Add,
@@ -167,7 +167,7 @@ void ASTPrettyPrinter::visitBoolOp(BoolOpExpr *B) {
 ///   CharExpr('a'),
 /// ])
 void ASTPrettyPrinter::visitCall(CallExpr *C) {
-  OS << C->getClassName() << "(" << C->getFunc() << ", Args=";
+  OS << C->getClassName() << "(" << C->getCallee() << ", Args=";
   // Case-1: no args.
   if (hasNoArgument(C)) {
     OS << "[])";
@@ -449,7 +449,7 @@ void ASTPrettyPrinter::visitSubscript(SubscriptExpr *SB) {
   increaseIndentLevel();
 
   printIndent();
-  OS << "array=" << SB->getName() << ",\n";
+  OS << "array=" << SB->getArrayName() << ",\n";
 
   printIndent();
   OS << "index=";

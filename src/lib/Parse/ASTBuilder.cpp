@@ -43,7 +43,7 @@ DeclAST *ASTBuilder::visit_const_item(Node *N, BasicTypeKind Ty) {
     assert(constant->getType() == Symbol::integer);
     Val = new NumExpr(visit_integer(constant), constant->getLocation());
   }
-  return new ConstDecl(Ty, Val, name->getValue(), name->getLocation());
+  return new ConstDecl(Ty, name->getValue(), Val, name->getLocation());
 }
 
 int ASTBuilder::visit_integer(Node *N) {
@@ -143,7 +143,7 @@ void ASTBuilder::visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
 
   if (first->getValue() == ";") {
     Decls.push_back(
-        new VarDecl(Ty, false, 0, Name->getValue(), TypeName->getLocation()));
+        new VarDecl(Ty, Name->getValue(), false, 0, TypeName->getLocation()));
     return;
   }
 
@@ -157,7 +157,7 @@ void ASTBuilder::visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
   bool IsArray = first->getType() == Symbol::subscript2;
   int ArraySize = IsArray ? visit_subscript2(first) : 0;
   Decls.push_back(
-      new VarDecl(Ty, IsArray, ArraySize, Name->getValue(), N->getLocation()));
+      new VarDecl(Ty, Name->getValue(), IsArray, ArraySize, N->getLocation()));
 
   for (auto C : N->getChildren()) {
     if (C->getType() != Symbol::var_item)
@@ -408,9 +408,9 @@ DeclAST *ASTBuilder::visit_var_item(Node *N, BasicTypeKind Ty) {
   bool IsArray = N->getNumChildren() > 1;
   int Size = IsArray ? visit_subscript2(N->getChild(1)) : 0;
   return new VarDecl(Ty,
-                     /* is_array */ IsArray,
-                     /* size */ Size,
-                     /* name */ name->getValue(), name->getLocation());
+      /* name */ name->getValue(),
+      /* IsArray */ IsArray,
+      /* size */ Size, name->getLocation());
 }
 
 StmtAST *ASTBuilder::visit_while_stmt(Node *N) {

@@ -56,7 +56,7 @@ void ByteCodePrinter::visitAssign(AssignStmt *A) {
   auto SB = subclass_cast<SubscriptExpr>(A->getTarget());
   assert(SB);
   ExprValue Idx = visitExpr(SB->getIndex());
-  w.getOuts() << SB->getName() << "[" << Idx << "] = " << RHS << "\n";
+  w.getOuts() << SB->getArrayName() << "[" << Idx << "] = " << RHS << "\n";
 }
 
 void ByteCodePrinter::visitReturn(ReturnStmt *R) {
@@ -71,7 +71,7 @@ ExprValue ByteCodePrinter::visitCall(CallExpr *C) {
   for (auto A : C->getArgs()) {
     w.WriteLine("push", visitExpr(A));
   }
-  w.WriteLine("call", C->getFunc());
+  w.WriteLine("call", C->getCallee());
   /// return a value even if void function
   ExprValue Ret = MakeTemporary();
   w.WriteLine(Ret, "= RET");
@@ -167,7 +167,7 @@ ExprValue ByteCodePrinter::visitSubscript(SubscriptExpr *SB) {
          "Store must be handle by visitAssign()");
   ExprValue Idx = visitExpr(SB->getIndex());
   ExprValue Result = MakeTemporary();
-  w.getOuts() << Result << " = " << SB->getName() << "[" << Idx << "]\n";
+  w.getOuts() << Result << " = " << SB->getArrayName() << "[" << Idx << "]\n";
   return Result;
 }
 
@@ -188,16 +188,16 @@ void ExprValue::Format(std::ostream &O) const {
   }
   switch (Factor->getKind()) {
   case ExprAST::CharExprKind:
-    O << "'" << char(static_cast<CharExpr *>(Factor)->getC()) << "'";
+    O << "'" << char(static_cast<CharExpr *>(Factor)->getChar()) << "'";
     break;
   case ExprAST::NumExprKind:
-    O << static_cast<NumExpr *>(Factor)->getN();
+    O << static_cast<NumExpr *>(Factor)->getNum();
     break;
   case ExprAST::NameExprKind:
     O << static_cast<NameExpr *>(Factor)->getId();
     break;
   case ExprAST::StrExprKind:
-    O << static_cast<StrExpr *>(Factor)->getS();
+    O << static_cast<StrExpr *>(Factor)->getStr();
     break;
   default:
     assert(false && "Unhandled Factor ExprAST");
