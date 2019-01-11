@@ -67,7 +67,7 @@ void SyntaxChecker::visitVarDecl(VarDecl *VD) {
 
 void SyntaxChecker::visitFuncDef(FuncDef *FD) {
   for (auto A : FD->getArgs()) {
-    VisitorBase::visitDecl(A);
+    visitArgDecl(A);
   }
   for (auto D : FD->getDecls()) {
     VisitorBase::visitDecl(D);

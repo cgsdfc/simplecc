@@ -37,7 +37,7 @@ class ASTBuilder {
                          Node *decl_trailer, Location L);
 
   /// paralist: '(' type_name NAME (',' type_name NAME)* ')'
-  void visit_paralist(Node *N, std::vector<DeclAST *> &ParamList);
+  void visit_paralist(Node *N, std::vector<ArgDecl *> &ParamList);
 
   /// type_name: 'int' | 'char' | 'void'
   BasicTypeKind visit_type_name(Node *N);

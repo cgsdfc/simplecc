@@ -34,7 +34,7 @@ class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
   void visitWhile(WhileStmt *W);
 
   void printStmtList(const std::vector<StmtAST *> &StmtList);
-  void printArgs(const std::vector<DeclAST *> &Args);
+  void printArgs(const std::vector<ArgDecl *> &Args);
 
   bool isAtomicExpr(ExprAST *E) const {
     switch (E->getKind()) {

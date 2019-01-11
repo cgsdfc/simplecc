@@ -245,7 +245,7 @@ ExprAST *ASTBuilder::visit_binop(Node *N, ExprContextKind Context) {
 
 DeclAST *ASTBuilder::visit_funcdef(BasicTypeKind RetTy, std::string Name,
                                    Node *decl_trailer, Location L) {
-  std::vector<DeclAST *> ParamList;
+  std::vector<ArgDecl *> ParamList;
   std::vector<DeclAST *> FnDecls;
   std::vector<StmtAST *> FnStmts;
 
@@ -300,7 +300,7 @@ StmtAST *ASTBuilder::visit_for_stmt(Node *N) {
   return new ForStmt(Initial, Cond, Step, std::move(Body), N->getLocation());
 }
 
-void ASTBuilder::visit_paralist(Node *N, std::vector<DeclAST *> &ParamList) {
+void ASTBuilder::visit_paralist(Node *N, std::vector<ArgDecl *> &ParamList) {
   int NumItems = (N->getNumChildren() - 1) / 3;
 
   for (unsigned i = 0; i < NumItems; i++) {

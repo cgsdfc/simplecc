@@ -59,9 +59,6 @@ void ASTVerifier::visitFor(ForStmt *F) {
 }
 
 void ASTVerifier::visitFuncDef(FuncDef *FD) {
-  for (DeclAST *D : FD->getArgs()) {
-    AssertThat(IsInstance<ArgDecl>(D), "Args of FuncDef must be ArgDecl's");
-  }
   for (DeclAST *D : FD->getDecls()) {
     AssertThat(IsInstance<ConstDecl>(D) || IsInstance<VarDecl>(D),
                "Decls of FuncDef must be ConstDecl or VarDecl");

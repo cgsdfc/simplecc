@@ -163,7 +163,6 @@ public:
 
   static bool InstanceCheck(const AST *A);
 };
-// TODO: extract type member to DeclAST.
 // TODO: use UniquePtrToAST and vector<AST*> as data member.
 // save a lot of destructor, getter and setter code.
 // more safe when OOM.
@@ -237,7 +236,7 @@ public:
   /// Forward from StmtAST.
   using StmtListType = StmtAST::StmtListType;
 
-  FuncDef(BasicTypeKind return_type, std::vector<DeclAST *> args,
+  FuncDef(BasicTypeKind return_type, std::vector<ArgDecl *> args,
           std::vector<DeclAST *> decls, StmtListType stmts,
           std::string name, Location loc)
       : DeclAST(DeclAST::FuncDefKind, return_type, std::move(name), loc),
@@ -258,8 +257,8 @@ public:
   void setReturnType(BasicTypeKind RetTy) { setType(RetTy); }
 
   /// Return the formal argument list.
-  const std::vector<DeclAST *> &getArgs() const { return Args; }
-  std::vector<DeclAST *> &getArgs() { return Args; }
+  const std::vector<ArgDecl *> &getArgs() const { return Args; }
+  std::vector<ArgDecl *> &getArgs() { return Args; }
 
   /// Return the argument at specific position.
   /// Index starts from 0.
@@ -280,7 +279,7 @@ public:
   }
 private:
   friend class AST;
-  std::vector<DeclAST *> Args;
+  std::vector<ArgDecl *> Args;
   std::vector<DeclAST *> Decls;
   StmtListType Stmts;
   ~FuncDef();
@@ -648,6 +647,7 @@ public:
   BoolOpExpr &operator=(BoolOpExpr &&) = delete;
 
   // TODO: Don't wrap any node, be itself.
+
   /// Return the wrapped node.
   ExprAST *getValue() const &{ return Value; }
   UniquePtrToAST getValue() &&;
@@ -655,6 +655,7 @@ public:
   void setValue(ExprAST *E);
 
   // TODO: Let CompareOp be themselves.
+
   /// Return if the wrapped node has a compare operator.
   /// a compare operator is also known as a rich compare operator.
   /// They are the six of the BinaryOpKind enum -- Eq, NotEq, Lt, LtE, Gt, GtE.

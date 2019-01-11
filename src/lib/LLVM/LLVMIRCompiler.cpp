@@ -398,8 +398,7 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
 
   /// Setup arguments.
   for (llvm::Argument &Val : TheFunction->args()) {
-    auto Idx = Val.getArgNo();
-    auto *V = static_cast<ArgDecl *>(FD->getArgs()[Idx]);
+    auto *V = FD->getArgAt(Val.getArgNo());
     Val.setName(V->getName());
     /// Argument is never array.
     auto Ptr =

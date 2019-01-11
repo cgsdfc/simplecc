@@ -48,8 +48,7 @@ const char *SymbolEntry::getTypeName() const {
 
 BasicTypeKind FuncType::getArgTypeAt(int Idx) const {
   assert(Idx < getArgCount() && "Arg index out of range");
-  auto Arg = TheFuncDef->getArgs()[Idx];
-  return static_cast<ArgDecl *>(Arg)->getType();
+  return TheFuncDef->getArgAt(Idx)->getType();
 }
 
 VarType SymbolEntry::AsVariable() const {

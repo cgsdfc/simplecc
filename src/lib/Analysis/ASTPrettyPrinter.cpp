@@ -506,7 +506,7 @@ void ASTPrettyPrinter::visitArgDecl(ArgDecl *AD) {
 
 /// Args()
 /// Args(Int A)
-void ASTPrettyPrinter::printArgs(const std::vector<DeclAST *> &Args) {
+void ASTPrettyPrinter::printArgs(const std::vector<ArgDecl *> &Args) {
   OS << "Args";
   if (Args.empty()) {
     OS << "()";
