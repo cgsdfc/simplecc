@@ -1,9 +1,12 @@
+/// @file Definitions of the AST class hierarchy.
+/// It is deliberate to have definitions for all AST classes in one place.
+/// This is a header that gets included a lot. Be careful! Any modification
+/// to this will cause compilation of half of the project.
 #ifndef SIMPLECC_PARSE_AST_H
 #define SIMPLECC_PARSE_AST_H
 #include "simplecc/Support/Macros.h"
 #include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Enums.h"
-
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -12,104 +15,169 @@
 #include <utility>
 #include <vector>
 
+// Forward declare all AST classes.
 namespace simplecc {
+#define HANDLE_AST(Class) class Class;
+#include "simplecc/Parse/AST.def"
+} // namespace simplecc
+
+namespace simplecc {
+/// Base class for all AST nodes.
+/// The AST class hierarchy is designed to be a manually managed
+/// polymorphism. Each concrete subclass is explicitly tagged.
+/// Virtual functions are avoided.
+/// The AST of simplecc is mostly for readonly traversal use cases.
+/// Modifiers are supported in a limited and partial manner.
+/// Nodes with expression children may support setters on those children,
+/// such as AssignStmt and BinOpExpr.
+/// Nodes with statement list may support rvalue-getter that transfers their statement
+/// list to others.
+/// Both of the above may also support rvalue-getter on the their expression children that
+/// again transfers ownership.
+/// AST nodes are created on the heap and referenced mostly via pointer (if not via reference). Each instance of
+/// an AST owns their children unless they get stolen. Use deleteAST() to dispose them or
+/// better, use the specialized version of ``std::unique_ptr`` -- UniquePtrToAST.
 class AST {
   unsigned SubclassID;
   Location Loc;
 
+  static const char *getClassName(unsigned Kind);
 protected:
+  /// Protected. Use concrete subclass constructor instead.
   AST(unsigned Kind, Location L) : SubclassID(Kind), Loc(L) {}
+  /// Protected. Use deleteAST() instead.
   ~AST() = default;
-
 public:
   enum ASTKind : unsigned {
 #define HANDLE_AST(CLASS) CLASS##Kind,
 #include "simplecc/Parse/AST.def"
   };
-  static const char *getClassName(unsigned Kind);
+
+  /// Return the real class name.
   const char *getClassName() const { return getClassName(getKind()); }
+  /// Return the subclass kind.
   unsigned getKind() const { return SubclassID; }
+  /// Return the source file location where the node is created.
   Location getLocation() const { return Loc; }
+  /// Delete an AST object. Replacement of ``delete``.
   void deleteAST();
+  /// Print this AST with proper indentations.
   void Format(std::ostream &os) const;
+  /// For debugging. Does the same as Format() but uses ``std::cerr``.
   void dump() const;
 };
 
 DEFINE_INLINE_OUTPUT_OPERATOR(AST)
 
-/// This struct knows how to delete an AST or a list of AST.
+/// This struct knows how to delete an AST or a sequence of AST.
+/// Instead of calling deleteAST() directly, use methods of this struct.
+/// The apply() overloads can handle various deletion use cases of AST.
 struct DeleteAST {
   /// Delete a range of AST.
-  template<typename Iterator>
+  template <typename Iterator>
   static void apply(Iterator first, Iterator last) {
     std::for_each(first, last, DeleteAST());
   }
-  /// Delete a vector of AST, assuming the vector own them.
-  template<typename AstT> static void apply(const std::vector<AstT *> &List) {
-    apply(List.begin(), List.end());
+  /// Delete a vector of AST, assuming the vector owns them.
+  template <typename AstT> static void apply(const std::vector<AstT *> &List) {
+    return apply(List.begin(), List.end());
   }
   /// Delete a single AST.
   static void apply(AST *A) {
     if (A)
       A->deleteAST();
   }
-  // As a functor.
-  void operator()(AST *A) const { apply(A); }
+  /// Act as a functor. Replacement of ``std::default_delete``.
+  void operator()(AST *A) const { return apply(A); }
 };
 
+/// A specialized version of ``std::unique_ptr`` that works with AST.
 using UniquePtrToAST = std::unique_ptr<AST, DeleteAST>;
 
-// AbstractNode
+/// This is the base class for all declaration nodes.
 class DeclAST : public AST {
-  std::string name;
+  /// Declaration always has a type.
+  BasicTypeKind Type;
+  /// Declaration always has a name.
+  std::string Name;
 
 protected:
-  DeclAST(unsigned int Kind, std::string name, Location loc)
-      : AST(Kind, loc), name(std::move(name)) {}
-
+  /// Protected, use subclass constructors.
+  DeclAST(unsigned int Kind, BasicTypeKind Ty, std::string name, Location loc)
+      : AST(Kind, loc), Type(Ty), Name(std::move(name)) {}
+  /// Return the type of this declaration.
+  BasicTypeKind getType() const { return Type; }
+  void setType(BasicTypeKind Ty) { Type = Ty; }
 public:
-  const std::string &getName() const &{ return name; }
+  /// Return the name of this declaration.
+  const std::string &getName() const &{ return Name; }
   static bool InstanceCheck(const AST *A);
 };
 
+/// This is the base class for all statement nodes.
 class StmtAST : public AST {
 protected:
+  /// Protected, use subclass constructors.
   StmtAST(unsigned int Kind, Location loc) : AST(Kind, loc) {}
 
 public:
+  /// The type that holds a list of StmtAST nodes.
   using StmtListType = std::vector<StmtAST *>;
   static bool InstanceCheck(const AST *A);
 };
 
+/// This is the base class for all expression nodes.
 class ExprAST : public AST {
 protected:
+  /// Protected, use subclass constructors.
   ExprAST(unsigned Kind, Location loc) : AST(Kind, loc) {}
+  /// Default impl for isConstant().
+  /// Subclass that cannot determine constantness falls back to this.
   bool isConstantImpl() const { return false; }
+
+  /// Default impl for getConstantValue().
+  /// Subclass that cannot determine constantness always returns false
+  /// in isConstant() so getConstant() should never be called on it.
+  /// Assert on that case.
   int getConstantValueImpl() const {
     assert(false && "subclass should implement this!");
     return 0; // for MSVC to be happy.
   }
 
 public:
+  /// Return true if this node is mostly a literal value and can be evaluated to int
+  /// What is mostly a literal value?
+  /// 1. CharExpr or NumExpr.
+  /// 2. BoolOpExpr, UnaryOpExpr or ParenOpExpr that wraps 1. in their value or operand field.
+  /// 3. BinOpExpr is **not** constant.
   bool isConstant() const;
+
+  /// Return the constant value if isConstant() returns true.
   int getConstantValue() const;
+
+  /// Return true if this is constant zero.
   bool isZeroVal() const { return isConstant() && 0 == getConstantValue(); }
+
+  /// Return true if this is constant one.
   bool isOneVal() const { return isConstant() && 1 == getConstantValue(); }
+
   static bool InstanceCheck(const AST *A);
 };
+// TODO: extract type member to DeclAST.
+// TODO: use UniquePtrToAST and vector<AST*> as data member.
+// save a lot of destructor, getter and setter code.
+// more safe when OOM.
 
-// ConcreteNode
+/// This class represents a constant declaration.
 class ConstDecl : public DeclAST {
   friend class AST;
-  BasicTypeKind type;
+  /// The value associated with this ConstDecl. It must be either CharExpr or NumExpr.
   ExprAST *value;
-  ~ConstDecl() { value->deleteAST(); }
+  ~ConstDecl() { DeleteAST::apply(value); }
 
 public:
-  ConstDecl(BasicTypeKind type, ExprAST *value, std::string name,
-            Location loc)
-      : DeclAST(DeclAST::ConstDeclKind, std::move(name), loc), type(type),
-        value(value) {}
+  ConstDecl(BasicTypeKind type, std::string name, ExprAST *value, Location loc)
+      : DeclAST(DeclAST::ConstDeclKind, type, std::move(name), loc), value(value) {}
 
   // Disable copy and move.
   ConstDecl(const ConstDecl &) = delete;
@@ -117,7 +185,9 @@ public:
   ConstDecl &operator=(const ConstDecl &) = delete;
   ConstDecl &operator=(ConstDecl &&) = delete;
 
-  BasicTypeKind getType() const { return type; }
+  /// Return the type of this ConstDecl.
+  using DeclAST::getType;
+  /// Return the constant value of the ConstDecl.
   ExprAST *getValue() const { return value; }
 
   static bool InstanceCheck(const DeclAST *x) {
@@ -125,18 +195,21 @@ public:
   }
 };
 
+/// This class represents a variable declaration.
 class VarDecl : public DeclAST {
   friend class AST;
-  BasicTypeKind type;
-  bool is_array;
+  /// Whether this declares an array.
+  bool IsArray;
+  /// If IsArray is true, this is the size of the array.
+  /// If it is not an array, the value is 0.
+  /// Note: even if IsArray is true, this can be a non-positive value
+  /// since the Parser permits that.
   int size;
   ~VarDecl() = default;
 
 public:
-  VarDecl(BasicTypeKind type, bool is_array, int size, std::string name,
-          Location loc)
-      : DeclAST(DeclAST::VarDeclKind, std::move(name), loc), type(type),
-        is_array(is_array), size(size) {}
+  VarDecl(BasicTypeKind Type, std::string Name, bool isArray, int size, Location loc)
+      : DeclAST(DeclAST::VarDeclKind, Type, std::move(Name), loc), IsArray(isArray), size(size) {}
 
   // Disable copy and move.
   VarDecl(const VarDecl &) = delete;
@@ -144,8 +217,12 @@ public:
   VarDecl &operator=(const VarDecl &) = delete;
   VarDecl &operator=(VarDecl &&) = delete;
 
-  BasicTypeKind getType() const { return type; }
-  bool isArray() const { return is_array; }
+  /// Return the type of this VarDecl.
+  using DeclAST::getType;
+  /// Return if this declares an array.
+  bool isArray() const { return IsArray; }
+
+  /// Return the size of the array.
   int getSize() const { return size; }
 
   static bool InstanceCheck(const DeclAST *x) {
@@ -153,17 +230,18 @@ public:
   }
 };
 
-class ArgDecl;
+/// This class represents a function definition.
+/// There is no function declaration or prototype in this language.
 class FuncDef : public DeclAST {
 public:
+  /// Forward from StmtAST.
   using StmtListType = StmtAST::StmtListType;
 
   FuncDef(BasicTypeKind return_type, std::vector<DeclAST *> args,
           std::vector<DeclAST *> decls, StmtListType stmts,
           std::string name, Location loc)
-      : DeclAST(DeclAST::FuncDefKind, std::move(name), loc),
-        return_type(return_type), args(std::move(args)),
-        decls(std::move(decls)), stmts(std::move(stmts)) {}
+      : DeclAST(DeclAST::FuncDefKind, return_type, std::move(name), loc),
+        Args(std::move(args)), Decls(std::move(decls)), Stmts(std::move(stmts)) {}
 
   // Disable copy and move.
   FuncDef(const FuncDef &) = delete;
@@ -171,40 +249,51 @@ public:
   FuncDef &operator=(const FuncDef &) = delete;
   FuncDef &operator=(FuncDef &&) = delete;
 
-  BasicTypeKind getReturnType() const { return return_type; }
-  void setReturnType(BasicTypeKind RetTy) { return_type = RetTy; }
+  /// Return the return type of this function.
+  BasicTypeKind getReturnType() const { return getType(); }
 
-  const std::vector<DeclAST *> &getArgs() const { return args; }
-  std::vector<DeclAST *> &getArgs() { return args; }
+  /// This **changes** the return type of the function.
+  /// Be careful! This will invalidate the result of type checking
+  /// and break any consistency between return-stmt and return type.
+  void setReturnType(BasicTypeKind RetTy) { setType(RetTy); }
+
+  /// Return the formal argument list.
+  const std::vector<DeclAST *> &getArgs() const { return Args; }
+  std::vector<DeclAST *> &getArgs() { return Args; }
+
+  /// Return the argument at specific position.
+  /// Index starts from 0.
   ArgDecl *getArgAt(unsigned Pos) const;
-  size_t getNumArgs() const { return args.size(); }
+  /// Return the number of formal arguments.
+  size_t getNumArgs() const { return Args.size(); }
 
-  const std::vector<DeclAST *> &getDecls() const { return decls; }
-  std::vector<DeclAST *> &getDecls() { return decls; }
+  /// Return the list of local declarations.
+  const std::vector<DeclAST *> &getDecls() const { return Decls; }
+  std::vector<DeclAST *> &getDecls() { return Decls; }
 
-  const StmtListType &getStmts() const { return stmts; }
-  StmtListType &getStmts() { return stmts; }
+  /// Return the list of statement (function body).
+  const StmtListType &getStmts() const { return Stmts; }
+  StmtListType &getStmts() { return Stmts; }
 
   static bool InstanceCheck(const DeclAST *x) {
     return x->getKind() == DeclAST::FuncDefKind;
   }
 private:
   friend class AST;
-  BasicTypeKind return_type;
-  std::vector<DeclAST *> args;
-  std::vector<DeclAST *> decls;
-  StmtListType stmts;
+  std::vector<DeclAST *> Args;
+  std::vector<DeclAST *> Decls;
+  StmtListType Stmts;
   ~FuncDef();
 };
 
+/// This class represents a formal argument in the function declaration.
 class ArgDecl : public DeclAST {
   friend class AST;
-  BasicTypeKind type;
   ~ArgDecl() = default;
 
 public:
   ArgDecl(BasicTypeKind type, std::string name, Location loc)
-      : DeclAST(DeclAST::ArgDeclKind, std::move(name), loc), type(type) {}
+      : DeclAST(DeclAST::ArgDeclKind, type, std::move(name), loc) {}
 
   // Disable copy and move.
   ArgDecl(const ArgDecl &) = delete;
@@ -212,21 +301,23 @@ public:
   ArgDecl &operator=(const ArgDecl &) = delete;
   ArgDecl &operator=(ArgDecl &&) = delete;
 
-  BasicTypeKind getType() const { return type; }
+  /// Return the type of this ArgDecl.
+  using DeclAST::getType;
 
   static bool InstanceCheck(const DeclAST *x) {
     return x->getKind() == DeclAST::ArgDeclKind;
   }
 };
 
+/// This class represents a read statement, or a call to the scanf() builtin.
 class ReadStmt : public StmtAST {
   friend class AST;
-  std::vector<ExprAST *> names;
+  std::vector<ExprAST *> Names;
   ~ReadStmt();
 
 public:
   ReadStmt(std::vector<ExprAST *> names, Location loc)
-      : StmtAST(StmtAST::ReadStmtKind, loc), names(std::move(names)) {}
+      : StmtAST(StmtAST::ReadStmtKind, loc), Names(std::move(names)) {}
 
   // Disable copy and move.
   ReadStmt(const ReadStmt &) = delete;
@@ -234,23 +325,25 @@ public:
   ReadStmt &operator=(const ReadStmt &) = delete;
   ReadStmt &operator=(ReadStmt &&) = delete;
 
-  const std::vector<ExprAST *> &getNames() const { return names; }
-  std::vector<ExprAST *> &getNames() { return names; }
+  /// Return the list of names in the scanf().
+  const std::vector<ExprAST *> &getNames() const { return Names; }
+  std::vector<ExprAST *> &getNames() { return Names; }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == StmtAST::ReadStmtKind;
   }
 };
 
+/// This class represents a write statement, or a call to the printf() builtin.
 class WriteStmt : public StmtAST {
   friend class AST;
-  ExprAST *str;
-  ExprAST *value;
+  ExprAST *Str;
+  ExprAST *Value;
   ~WriteStmt();
 
 public:
   WriteStmt(ExprAST *str, ExprAST *value, Location loc)
-      : StmtAST(StmtAST::WriteStmtKind, loc), str(str), value(value) {}
+      : StmtAST(StmtAST::WriteStmtKind, loc), Str(str), Value(value) {}
 
   // Disable copy and move.
   WriteStmt(const WriteStmt &) = delete;
@@ -258,8 +351,11 @@ public:
   WriteStmt &operator=(const WriteStmt &) = delete;
   WriteStmt &operator=(WriteStmt &&) = delete;
 
-  ExprAST *getStr() const { return str; }
-  ExprAST *getValue() const { return value; }
+  /// Return the string literal if any.
+  ExprAST *getStr() const { return Str; }
+  /// Return the expression value if any.
+  ExprAST *getValue() const { return Value; }
+  /// Set expression value.
   void setValue(ExprAST *Val);
 
   static bool InstanceCheck(const StmtAST *x) {
@@ -267,15 +363,16 @@ public:
   }
 };
 
+/// This class represents an assign statement.
 class AssignStmt : public StmtAST {
   friend class AST;
-  ExprAST *target;
-  ExprAST *value;
+  ExprAST *Target;
+  ExprAST *Value;
   ~AssignStmt();
 
 public:
   AssignStmt(ExprAST *target, ExprAST *value, Location loc)
-      : StmtAST(StmtAST::AssignStmtKind, loc), target(target), value(value) {}
+      : StmtAST(StmtAST::AssignStmtKind, loc), Target(target), Value(value) {}
 
   // Disable copy and move.
   AssignStmt(const AssignStmt &) = delete;
@@ -283,29 +380,35 @@ public:
   AssignStmt &operator=(const AssignStmt &) = delete;
   AssignStmt &operator=(AssignStmt &&) = delete;
 
-  ExprAST *getTarget() const { return target; }
-  ExprAST *getValue() const { return value; }
-  void setValue(ExprAST *E);
+  /// Return the LHS.
+  ExprAST *getTarget() const { return Target; }
+  /// Return the RHS.
+  ExprAST *getValue() const { return Value; }
+
+  /// Set the LHS.
   void setTarget(ExprAST *E);
+  /// Set the RHS.
+  void setValue(ExprAST *E);
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == AssignStmtKind;
   }
 };
 
+/// This class represents a for statement.
 class ForStmt : public StmtAST {
   friend class AST;
-  StmtAST *initial;
-  ExprAST *condition;
-  StmtAST *step;
-  StmtListType body;
+  StmtAST *Initial;
+  ExprAST *Cond;
+  StmtAST *Step;
+  StmtListType Body;
   ~ForStmt();
 
 public:
   ForStmt(StmtAST *initial, ExprAST *condition, StmtAST *step,
           StmtListType body, Location loc)
-      : StmtAST(StmtAST::ForStmtKind, loc), initial(initial),
-        condition(condition), step(step), body(std::move(body)) {}
+      : StmtAST(StmtAST::ForStmtKind, loc), Initial(initial),
+        Cond(condition), Step(step), Body(std::move(body)) {}
 
   // Disable copy and move.
   ForStmt(const ForStmt &) = delete;
@@ -313,36 +416,41 @@ public:
   ForStmt &operator=(const ForStmt &) = delete;
   ForStmt &operator=(ForStmt &&) = delete;
 
-  StmtAST *getInitial() const &{ return initial; }
+  /// Return the initial statement.
+  StmtAST *getInitial() const &{ return Initial; }
   UniquePtrToAST getInitial() &&;
 
-  ExprAST *getCondition() const &{ return condition; }
+  /// Return the condition expression.
+  ExprAST *getCondition() const &{ return Cond; }
   void setCondition(ExprAST *E);
   UniquePtrToAST getCondition() &&;
 
-  StmtAST *getStep() const &{ return step; }
+  /// Return the step statement.
+  StmtAST *getStep() const &{ return Step; }
   UniquePtrToAST getStep() &&;
 
-  const StmtListType &getBody() const &{ return body; }
-  StmtListType &getBody() &{ return body; }
-  StmtListType getBody() &&{ return std::move(body); }
+  /// Return the body.
+  const StmtListType &getBody() const &{ return Body; }
+  StmtListType &getBody() &{ return Body; }
+  StmtListType getBody() &&{ return std::move(Body); }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == StmtAST::ForStmtKind;
   }
 };
 
+/// This class represents a while statement.
 class WhileStmt : public StmtAST {
   friend class AST;
-  ExprAST *condition;
-  StmtListType body;
+  ExprAST *Cond;
+  StmtListType Body;
   ~WhileStmt();
 
 public:
   WhileStmt(ExprAST *condition, StmtListType body,
             Location loc)
-      : StmtAST(WhileStmtKind, loc), condition(condition),
-        body(std::move(body)) {}
+      : StmtAST(WhileStmtKind, loc), Cond(condition),
+        Body(std::move(body)) {}
 
   // Disable copy and move.
   WhileStmt(const WhileStmt &) = delete;
@@ -350,24 +458,30 @@ public:
   WhileStmt &operator=(const WhileStmt &) = delete;
   WhileStmt &operator=(WhileStmt &&) = delete;
 
-  ExprAST *getCondition() const { return condition; }
+  /// Return the condition expression.
+  ExprAST *getCondition() const { return Cond; }
+  /// Set the condition.
   void setCondition(ExprAST *E);
-  const StmtListType &getBody() const { return body; }
-  StmtListType &getBody() { return body; }
+
+  /// Return the body.
+  const StmtListType &getBody() const { return Body; }
+  StmtListType &getBody() { return Body; }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == WhileStmtKind;
   }
 };
 
+/// This class represents a return statement.
 class ReturnStmt : public StmtAST {
-  ExprAST *value;
+  /// This is an optional field.
+  ExprAST *Value;
   friend class AST;
   ~ReturnStmt();
 
 public:
   ReturnStmt(ExprAST *value, Location loc)
-      : StmtAST(StmtAST::ReturnStmtKind, loc), value(value) {}
+      : StmtAST(StmtAST::ReturnStmtKind, loc), Value(value) {}
 
   // Disable copy and move.
   ReturnStmt(const ReturnStmt &) = delete;
@@ -375,7 +489,8 @@ public:
   ReturnStmt &operator=(const ReturnStmt &) = delete;
   ReturnStmt &operator=(ReturnStmt &&) = delete;
 
-  ExprAST *getValue() const { return value; }
+  bool hasValue() const { return !!Value; }
+  ExprAST *getValue() const { return Value; }
   void setValue(ExprAST *E);
 
   static bool InstanceCheck(const StmtAST *x) {
@@ -383,18 +498,18 @@ public:
   }
 };
 
+/// This class represents an if statement.
 class IfStmt : public StmtAST {
-  ExprAST *test;
-  StmtListType body;
-  StmtListType orelse;
+  ExprAST *Cond;
+  StmtListType Then;
+  StmtListType Else;
   friend class AST;
   ~IfStmt();
 
 public:
-  IfStmt(ExprAST *test, StmtListType body,
-         StmtListType orelse, Location loc)
-      : StmtAST(StmtAST::IfStmtKind, loc), test(test), body(std::move(body)),
-        orelse(std::move(orelse)) {}
+  IfStmt(ExprAST *C, StmtListType T, StmtListType E, Location loc)
+      : StmtAST(StmtAST::IfStmtKind, loc), Cond(C), Then(std::move(T)),
+        Else(std::move(E)) {}
 
   // Disable copy and move.
   IfStmt(const IfStmt &) = delete;
@@ -402,29 +517,33 @@ public:
   IfStmt &operator=(const IfStmt &) = delete;
   IfStmt &operator=(IfStmt &&) = delete;
 
-  ExprAST *getTest() const { return test; }
-  void setTest(ExprAST *E);
-  const StmtListType &getBody() const &{ return body; }
-  StmtListType &getBody() &{ return body; }
-  StmtListType getBody() &&{ return std::move(body); }
+  /// Return the condition.
+  ExprAST *getCondition() const { return Cond; }
+  void setCondition(ExprAST *E);
 
-  const StmtListType &getOrelse() const &{ return orelse; }
-  StmtListType &getOrelse() &{ return orelse; }
-  StmtListType getOrelse() &&{ return std::move(orelse); }
+  const StmtListType &getThen() const &{ return Then; }
+  StmtListType &getThen() &{ return Then; }
+  StmtListType getThen() &&{ return std::move(Then); }
+
+  const StmtListType &getElse() const &{ return Else; }
+  StmtListType &getElse() &{ return Else; }
+  StmtListType getElse() &&{ return std::move(Else); }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == StmtAST::IfStmtKind;
   }
 };
 
+/// This class represents an expression statement, which is effectively
+/// a call expression.
 class ExprStmt : public StmtAST {
-  ExprAST *value;
+  ExprAST *Value;
   friend class AST;
   ~ExprStmt();
 
 public:
   ExprStmt(ExprAST *value, Location loc)
-      : StmtAST(StmtAST::ExprStmtKind, loc), value(value) {}
+      : StmtAST(StmtAST::ExprStmtKind, loc), Value(value) {}
 
   // Disable copy and move.
   ExprStmt(const ExprStmt &) = delete;
@@ -432,7 +551,7 @@ public:
   ExprStmt &operator=(const ExprStmt &) = delete;
   ExprStmt &operator=(ExprStmt &&) = delete;
 
-  ExprAST *getValue() const &{ return value; }
+  ExprAST *getValue() const &{ return Value; }
   UniquePtrToAST getValue() &&;
   void setValue(ExprAST *E);
 
@@ -441,16 +560,17 @@ public:
   }
 };
 
+/// This class represents an binary operator expression.
 class BinOpExpr : public ExprAST {
-  ExprAST *left;
-  OperatorKind op;
-  ExprAST *right;
+  ExprAST *Left;
+  BinaryOpKind Op;
+  ExprAST *Right;
   friend class AST;
   ~BinOpExpr();
 
 public:
-  BinOpExpr(ExprAST *left, OperatorKind op, ExprAST *right, Location loc)
-      : ExprAST(ExprAST::BinOpExprKind, loc), left(left), op(op), right(right) {
+  BinOpExpr(ExprAST *left, BinaryOpKind op, ExprAST *right, Location loc)
+      : ExprAST(ExprAST::BinOpExprKind, loc), Left(left), Op(op), Right(right) {
   }
 
   // Disable copy and move.
@@ -459,13 +579,13 @@ public:
   BinOpExpr &operator=(const BinOpExpr &) = delete;
   BinOpExpr &operator=(BinOpExpr &&) = delete;
 
-  OperatorKind getOp() const { return op; }
+  BinaryOpKind getOp() const { return Op; }
 
-  ExprAST *getLeft() const &{ return left; }
+  ExprAST *getLeft() const &{ return Left; }
   UniquePtrToAST getLeft() &&;
   void setLeft(ExprAST *E);
 
-  ExprAST *getRight() const &{ return right; }
+  ExprAST *getRight() const &{ return Right; }
   UniquePtrToAST getRight() &&;
   void setRight(ExprAST *E);
 
@@ -474,18 +594,19 @@ public:
   }
 };
 
+/// This class represents an expression in parentheses.
 class ParenExpr : public ExprAST {
-  ExprAST *value;
+  ExprAST *Value;
   ~ParenExpr();
   friend class AST;
   friend class ExprAST;
 
-  bool isConstantImpl() const { return value->isConstant(); }
-  int getConstantValueImpl() const { return value->getConstantValue(); }
+  bool isConstantImpl() const { return Value->isConstant(); }
+  int getConstantValueImpl() const { return Value->getConstantValue(); }
 
 public:
   ParenExpr(ExprAST *value, Location loc)
-      : ExprAST(ExprAST::ParenExprKind, loc), value(value) {}
+      : ExprAST(ExprAST::ParenExprKind, loc), Value(value) {}
 
   // Disable copy and move.
   ParenExpr(const ParenExpr &) = delete;
@@ -493,7 +614,7 @@ public:
   ParenExpr &operator=(const ParenExpr &) = delete;
   ParenExpr &operator=(ParenExpr &&) = delete;
 
-  ExprAST *getValue() const &{ return value; }
+  ExprAST *getValue() const &{ return Value; }
   UniquePtrToAST getValue() &&;
   void setValue(ExprAST *E);
 
@@ -502,20 +623,23 @@ public:
   }
 };
 
+/// This class represents a boolean operator expression.
 class BoolOpExpr : public ExprAST {
   friend class AST;
-  ExprAST *value;
-  bool has_cmpop;
-  void setHasCompareOp(bool B) { has_cmpop = B; }
+  ExprAST *Value;
+  bool HasCmpOp;
+  void setHasCompareOp(bool B) { HasCmpOp = B; }
   ~BoolOpExpr();
 
   friend class ExprAST;
-  bool isConstantImpl() const { return value->isConstant(); }
-  int getConstantValueImpl() const { return value->getConstantValue(); }
+  bool isConstantImpl() const { return Value->isConstant(); }
+  int getConstantValueImpl() const { return Value->getConstantValue(); }
+  /// Impl of hasCompareOp().
+  static bool isCompareOp(BinaryOpKind Op);
 
 public:
   BoolOpExpr(ExprAST *value, bool has_cmpop, Location loc)
-      : ExprAST(BoolOpExprKind, loc), value(value), has_cmpop(has_cmpop) {}
+      : ExprAST(BoolOpExprKind, loc), Value(value), HasCmpOp(has_cmpop) {}
 
   // Disable copy and move.
   BoolOpExpr(const BoolOpExpr &) = delete;
@@ -523,33 +647,45 @@ public:
   BoolOpExpr &operator=(const BoolOpExpr &) = delete;
   BoolOpExpr &operator=(BoolOpExpr &&) = delete;
 
-  ExprAST *getValue() const &{ return value; }
+  // TODO: Don't wrap any node, be itself.
+  /// Return the wrapped node.
+  ExprAST *getValue() const &{ return Value; }
   UniquePtrToAST getValue() &&;
+  /// Set the wrapped node.
   void setValue(ExprAST *E);
-  bool hasCompareOp() const { return has_cmpop; }
+
+  // TODO: Let CompareOp be themselves.
+  /// Return if the wrapped node has a compare operator.
+  /// a compare operator is also known as a rich compare operator.
+  /// They are the six of the BinaryOpKind enum -- Eq, NotEq, Lt, LtE, Gt, GtE.
+  bool hasCompareOp() const { return HasCmpOp; }
 
   static bool InstanceCheck(const ExprAST *x) {
     return x->getKind() == BoolOpExprKind;
   }
-  static bool isCompareOp(OperatorKind Op);
 };
 
+/// This class represents a unary operator expression.
 class UnaryOpExpr : public ExprAST {
-  UnaryopKind op;
-  ExprAST *operand;
+  UnaryOpKind Op;
+  ExprAST *Operand;
   friend class AST;
   ~UnaryOpExpr();
 
+  /// For ExprAST to able to call.
   friend class ExprAST;
-  bool isConstantImpl() const { return operand->isConstant(); }
+  bool isConstantImpl() const { return Operand->isConstant(); }
+  // TODO: put evaluation of constant expression in its own class just like pretty-printing.
+  // so that the logic can be reused and don't just hidden in TrivialConstantFolder.
+  /// Evaluate it on the fly.
   int getConstantValueImpl() const {
-    auto OpVal = operand->getConstantValue();
-    return op == UnaryopKind::USub ? -OpVal : OpVal;
+    auto OpVal = Operand->getConstantValue();
+    return Op == UnaryOpKind::USub ? -OpVal : OpVal;
   }
 
 public:
-  UnaryOpExpr(UnaryopKind op, ExprAST *operand, Location loc)
-      : ExprAST(UnaryOpExprKind, loc), op(op), operand(operand) {}
+  UnaryOpExpr(UnaryOpKind op, ExprAST *operand, Location loc)
+      : ExprAST(UnaryOpExprKind, loc), Op(op), Operand(operand) {}
 
   // Disable copy and move.
   UnaryOpExpr(const UnaryOpExpr &) = delete;
@@ -557,9 +693,12 @@ public:
   UnaryOpExpr &operator=(const UnaryOpExpr &) = delete;
   UnaryOpExpr &operator=(UnaryOpExpr &&) = delete;
 
-  UnaryopKind getOp() const { return op; }
+  /// Return the unary operator.
+  UnaryOpKind getOp() const { return Op; }
+  /// Return the operand.
   UniquePtrToAST getOperand() &&;
-  ExprAST *getOperand() const &{ return operand; }
+  ExprAST *getOperand() const &{ return Operand; }
+  /// Set the operand.
   void setOperand(ExprAST *E);
 
   static bool InstanceCheck(const ExprAST *x) {
@@ -567,16 +706,17 @@ public:
   }
 };
 
+/// This class represents a call expression.
 class CallExpr : public ExprAST {
-  std::string func;
-  std::vector<ExprAST *> args;
+  std::string Callee;
+  std::vector<ExprAST *> Args;
   friend class AST;
   ~CallExpr();
 
 public:
   CallExpr(std::string func, std::vector<ExprAST *> args, Location loc)
-      : ExprAST(ExprAST::CallExprKind, loc), func(std::move(func)),
-        args(std::move(args)) {}
+      : ExprAST(ExprAST::CallExprKind, loc),
+        Callee(std::move(func)), Args(std::move(args)) {}
 
   // Disable copy and move.
   CallExpr(const CallExpr &) = delete;
@@ -584,30 +724,39 @@ public:
   CallExpr &operator=(const CallExpr &) = delete;
   CallExpr &operator=(CallExpr &&) = delete;
 
-  const std::string &getFunc() const { return func; }
-  const std::vector<ExprAST *> &getArgs() const { return args; }
-  std::vector<ExprAST *> &getArgs() { return args; }
-  ExprAST *getArgAt(unsigned I) const { return args[I]; }
+  /// Return the name of function being called.
+  const std::string &getCallee() const { return Callee; }
+  /// Return the actual arguments passed to the function.
+  const std::vector<ExprAST *> &getArgs() const { return Args; }
+  std::vector<ExprAST *> &getArgs() { return Args; }
+
+  /// Return the actual argument at specific position.
+  ExprAST *getArgAt(unsigned I) const { return Args[I]; }
+  /// Set the actual argument at specific position.
   void setArgAt(unsigned I, ExprAST *Val);
-  size_t getNumArgs() const { return args.size(); }
+
+  /// Return the number of actual arguments.
+  size_t getNumArgs() const { return Args.size(); }
 
   static bool InstanceCheck(const ExprAST *x) {
     return x->getKind() == ExprAST::CallExprKind;
   }
 };
 
+/// This class represent a number expression, which is effectively an unsigned
+/// integer literal.
 class NumExpr : public ExprAST {
-  int n;
+  int TheNum;
   friend class AST;
   ~NumExpr() = default;
 
   friend class ExprAST;
   bool isConstantImpl() const { return true; }
-  int getConstantValueImpl() const { return getN(); }
+  int getConstantValueImpl() const { return getNum(); }
 
 public:
   NumExpr(int n, Location loc)
-      : ExprAST(ExprAST::NumExprKind, loc), n(n) {}
+      : ExprAST(ExprAST::NumExprKind, loc), TheNum(n) {}
 
   // Disable copy and move.
   NumExpr(const NumExpr &) = delete;
@@ -615,21 +764,23 @@ public:
   NumExpr &operator=(const NumExpr &) = delete;
   NumExpr &operator=(NumExpr &&) = delete;
 
-  int getN() const { return n; }
+  /// Return the value of the integer literal.
+  int getNum() const { return TheNum; }
 
   static bool InstanceCheck(const ExprAST *x) {
     return x->getKind() == ExprAST::NumExprKind;
   }
 };
 
+/// This class represents a string literal expression.
 class StrExpr : public ExprAST {
-  std::string s;
+  std::string TheStr;
   friend class AST;
   ~StrExpr() = default;
 
 public:
   StrExpr(std::string s, Location loc)
-      : ExprAST(ExprAST::StrExprKind, loc), s(std::move(s)) {}
+      : ExprAST(ExprAST::StrExprKind, loc), TheStr(std::move(s)) {}
 
   // Disable copy and move.
   StrExpr(const StrExpr &) = delete;
@@ -637,25 +788,32 @@ public:
   StrExpr &operator=(const StrExpr &) = delete;
   StrExpr &operator=(StrExpr &&) = delete;
 
-  const std::string &getS() const { return s; }
+  /// Return the value of the string literal.
+  const std::string &getStr() const { return TheStr; }
 
   static bool InstanceCheck(const ExprAST *x) {
     return x->getKind() == ExprAST::StrExprKind;
   }
 };
 
+/// This class represents a character literal expression.
 class CharExpr : public ExprAST {
-  int c;
+  // TODO: Should we store it as a char? How to handle type mapping
+  // from source lang to impl lang and then to IR?
+  int TheChar;
+  // TypeMap::Char TheChar;
+  // struct TypeMap {
+  //   using Char = char;
   friend class AST;
   ~CharExpr() = default;
 
   friend class ExprAST;
   bool isConstantImpl() const { return true; }
-  int getConstantValueImpl() const { return getC(); }
+  int getConstantValueImpl() const { return getChar(); }
 
 public:
   CharExpr(int c, Location loc)
-      : ExprAST(ExprAST::CharExprKind, loc), c(c) {}
+      : ExprAST(ExprAST::CharExprKind, loc), TheChar(c) {}
 
   // Disable copy and move.
   CharExpr(const CharExpr &) = delete;
@@ -663,16 +821,18 @@ public:
   CharExpr &operator=(const CharExpr &) = delete;
   CharExpr &operator=(CharExpr &&) = delete;
 
-  int getC() const { return c; }
+  /// Return the character value.
+  int getChar() const { return TheChar; }
 
   static bool InstanceCheck(const ExprAST *x) {
     return x->getKind() == ExprAST::CharExprKind;
   }
 };
 
+/// This class represents a subscript expression.
 class SubscriptExpr : public ExprAST {
-  std::string name;
-  ExprAST *index;
+  std::string ArrayName;
+  ExprAST *Index;
   ExprContextKind context;
   ~SubscriptExpr();
   friend class AST;
@@ -680,7 +840,7 @@ class SubscriptExpr : public ExprAST {
 public:
   SubscriptExpr(std::string name, ExprAST *index, ExprContextKind ctx,
                 Location loc)
-      : ExprAST(SubscriptExprKind, loc), name(std::move(name)), index(index),
+      : ExprAST(SubscriptExprKind, loc), ArrayName(std::move(name)), Index(index),
         context(ctx) {}
 
   // Disable copy and move.
@@ -689,26 +849,32 @@ public:
   SubscriptExpr &operator=(const SubscriptExpr &) = delete;
   SubscriptExpr &operator=(SubscriptExpr &&) = delete;
 
-  const std::string &getName() const { return name; }
+  /// Return the name of the array.
+  const std::string &getArrayName() const { return ArrayName; }
+  /// Return the expression context.
   ExprContextKind getContext() const { return context; }
-  ExprAST *getIndex() const &{ return index; }
+  /// Return the index expression.
+  ExprAST *getIndex() const &{ return Index; }
   UniquePtrToAST getIndex() &&;
+  /// Set the index expression.
   void setIndex(ExprAST *E);
 
+  // TODO: use classof() and borrow llvm/Support/Casting.h
   static bool InstanceCheck(const ExprAST *x) {
     return x->getKind() == SubscriptExprKind;
   }
 };
 
+/// This class represents a name expression, which is effectively an identifier.
 class NameExpr : public ExprAST {
-  std::string id;
+  std::string TheName;
   ExprContextKind context;
   ~NameExpr() = default;
   friend class AST;
 
 public:
   NameExpr(std::string id, ExprContextKind ctx, Location loc)
-      : ExprAST(NameExprKind, loc), id(std::move(id)), context(ctx) {}
+      : ExprAST(NameExprKind, loc), TheName(std::move(id)), context(ctx) {}
 
   // Disable copy and move.
   NameExpr(const NameExpr &) = delete;
@@ -716,7 +882,9 @@ public:
   NameExpr &operator=(const NameExpr &) = delete;
   NameExpr &operator=(NameExpr &&) = delete;
 
-  const std::string &getId() const { return id; }
+  /// Return the value of this name.
+  const std::string &getName() const { return TheName; }
+  /// Return the expression context of this name.
   ExprContextKind getContext() const { return context; }
 
   static bool InstanceCheck(const ExprAST *x) {
@@ -724,25 +892,30 @@ public:
   }
 };
 
+/// This class represents the whole program as the top level AST node.
 class ProgramAST : public AST {
   std::string Filename;
-  std::vector<DeclAST *> decls;
+  std::vector<DeclAST *> Decls;
   friend class AST;
   ~ProgramAST();
 
 public:
   ProgramAST(std::string Filename, std::vector<DeclAST *> decls)
       : AST(ProgramASTKind, Location()), Filename(std::move(Filename)),
-        decls(std::move(decls)) {}
+        Decls(std::move(decls)) {}
 
+  // TODO: allow move, only disable copy.
   // Disable copy and move.
   ProgramAST(const ProgramAST &) = delete;
   ProgramAST(ProgramAST &&) = delete;
   ProgramAST &operator=(const ProgramAST &) = delete;
   ProgramAST &operator=(ProgramAST &&) = delete;
 
-  const std::vector<DeclAST *> &getDecls() const { return decls; }
-  std::vector<DeclAST *> &getDecls() { return decls; }
+  /// Return the declaration list.
+  const std::vector<DeclAST *> &getDecls() const { return Decls; }
+  std::vector<DeclAST *> &getDecls() { return Decls; }
+
+  /// Return the name of the file that produced this AST.
   const std::string &getFilename() const { return Filename; }
 
   static bool InstanceCheck(const AST *A) {

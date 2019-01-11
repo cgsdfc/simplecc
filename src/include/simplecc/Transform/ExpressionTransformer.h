@@ -80,17 +80,16 @@ void ExpressionTransformer<Derived>::visitFor(ForStmt *F) {
 
 template <typename Derived>
 void ExpressionTransformer<Derived>::visitReturn(ReturnStmt *R) {
-  if (!R->getValue())
-    return;
-  R->setValue(static_cast<Derived *>(this)->TransformExpr(R->getValue(), R));
+  if (R->hasValue())
+    R->setValue(static_cast<Derived *>(this)->TransformExpr(R->getValue(), R));
 }
 
 template <typename Derived>
 void ExpressionTransformer<Derived>::visitIf(IfStmt *I) {
-  I->setTest(static_cast<Derived *>(this)->TransformExpr(I->getTest(), I));
-  for (auto S : I->getBody())
+  I->setCondition(static_cast<Derived *>(this)->TransformExpr(I->getCondition(), I));
+  for (auto S : I->getThen())
     visitStmt(S);
-  for (auto S : I->getOrelse())
+  for (auto S : I->getElse())
     visitStmt(S);
 }
 

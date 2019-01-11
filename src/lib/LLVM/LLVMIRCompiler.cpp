@@ -47,8 +47,8 @@ bool LLVMIRCompiler::visitStmtList(
 Value *LLVMIRCompiler::visitUnaryOp(UnaryOpExpr *U) {
   Value *Operand = visitExprPromoteToInt(U->getOperand());
   switch (U->getOp()) {
-  case UnaryopKind::USub:return Builder.CreateNeg(Operand, "neg");
-  case UnaryopKind::UAdd:return Operand;
+  case UnaryOpKind::USub:return Builder.CreateNeg(Operand, "neg");
+  case UnaryOpKind::UAdd:return Operand;
   }
 }
 
@@ -90,7 +90,7 @@ Value *LLVMIRCompiler::visitStr(StrExpr *S) {
 }
 
 Value *LLVMIRCompiler::visitName(NameExpr *Nn) {
-  Value *Val = LocalValues[Nn->getId()];
+  Value *Val = LocalValues[Nn->getName()];
   assert(Val);
 
   /// This is a Store, return its address.
@@ -100,7 +100,7 @@ Value *LLVMIRCompiler::visitName(NameExpr *Nn) {
 
   /// This is a variable so **load** it.
   if (!llvm::isa<llvm::ConstantInt>(Val)) {
-    Val = Builder.CreateLoad(Val, Nn->getId());
+    Val = Builder.CreateLoad(Val, Nn->getName());
   }
 
   return Val;
@@ -144,23 +144,23 @@ Value *LLVMIRCompiler::visitBinOp(BinOpExpr *B) {
   Value *L = visitExprPromoteToInt(B->getLeft());
   Value *R = visitExprPromoteToInt(B->getRight());
   switch (B->getOp()) {
-  case OperatorKind::Add:return Builder.CreateAdd(L, R, "add");
-  case OperatorKind::Sub:return Builder.CreateSub(L, R, "sub");
-  case OperatorKind::Mult:return Builder.CreateMul(L, R, "mul");
-  case OperatorKind::Div:return Builder.CreateSDiv(L, R, "div");
-  case OperatorKind::Eq:return Builder.CreateICmpEQ(L, R, "eq");
-  case OperatorKind::NotEq:return Builder.CreateICmpNE(L, R, "ne");
-  case OperatorKind::Lt:return Builder.CreateICmpSLT(L, R, "lt");
-  case OperatorKind::LtE:return Builder.CreateICmpSLE(L, R, "le");
-  case OperatorKind::Gt:return Builder.CreateICmpSGT(L, R, "gt");
-  case OperatorKind::GtE:return Builder.CreateICmpSGE(L, R, "ge");
+  case BinaryOpKind::Add:return Builder.CreateAdd(L, R, "add");
+  case BinaryOpKind::Sub:return Builder.CreateSub(L, R, "sub");
+  case BinaryOpKind::Mult:return Builder.CreateMul(L, R, "mul");
+  case BinaryOpKind::Div:return Builder.CreateSDiv(L, R, "div");
+  case BinaryOpKind::Eq:return Builder.CreateICmpEQ(L, R, "eq");
+  case BinaryOpKind::NotEq:return Builder.CreateICmpNE(L, R, "ne");
+  case BinaryOpKind::Lt:return Builder.CreateICmpSLT(L, R, "lt");
+  case BinaryOpKind::LtE:return Builder.CreateICmpSLE(L, R, "le");
+  case BinaryOpKind::Gt:return Builder.CreateICmpSGT(L, R, "gt");
+  case BinaryOpKind::GtE:return Builder.CreateICmpSGE(L, R, "ge");
   }
 }
 
 void LLVMIRCompiler::visitIf(IfStmt *I) {
   Function *TheFunction = Builder.GetInsertBlock()->getParent();
   /// Emit the condition evaluation, which continues in the current BasicBlock.
-  Value *CondV = visitExpr(I->getTest());
+  Value *CondV = visitExpr(I->getCondition());
   /// Create the targets for the conditional branch that ends the current
   /// BasicBlock.
   BasicBlock *Then = BasicBlock::Create(TheContext, "then", TheFunction);
@@ -173,14 +173,14 @@ void LLVMIRCompiler::visitIf(IfStmt *I) {
   Builder.SetInsertPoint(Then);
   /// Check to see if control returns in the middle. If so
   /// don't insert a Br.
-  if (visitStmtList(I->getBody())) {
+  if (visitStmtList(I->getThen())) {
     /// Ends with an unconditional branch to End.
     Builder.CreateBr(End);
   }
 
   /// Begin to emit the orelse into Else BB.
   Builder.SetInsertPoint(Else);
-  if (visitStmtList(I->getOrelse())) {
+  if (visitStmtList(I->getElse())) {
     /// Ends with an unconditional branch to End.
     Builder.CreateBr(End);
   }
@@ -264,7 +264,7 @@ Value *LLVMIRCompiler::visitCall(CallExpr *C) {
 }
 
 void LLVMIRCompiler::visitReturn(ReturnStmt *Ret) {
-  if (Ret->getValue()) {
+  if (Ret->hasValue()) {
     Value *Val = visitExpr(Ret->getValue());
     Builder.CreateRet(Val);
   } else {
@@ -324,7 +324,7 @@ void LLVMIRCompiler::visitRead(ReadStmt *RD) {
   for (ExprAST *E : RD->getNames()) {
     auto Nn = static_cast<NameExpr *>(E);
     Value *FmtV = getString(SelectFmtSpc(Nn));
-    Value *Var = LocalValues[Nn->getId()];
+    Value *Var = LocalValues[Nn->getName()];
     assert(Var && "Var must be created");
     Args.clear();
     Args.push_back(FmtV);

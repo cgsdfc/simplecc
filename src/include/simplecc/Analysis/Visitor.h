@@ -226,11 +226,11 @@ void ChildrenVisitor<Derived>::visitReturn(ReturnStmt *R) {
 }
 
 template <class Derived> void ChildrenVisitor<Derived>::visitIf(IfStmt *I) {
-  static_cast<Derived *>(this)->visitExpr(I->getTest());
-  for (auto s : I->getBody()) {
+  static_cast<Derived *>(this)->visitExpr(I->getCondition());
+  for (auto s : I->getThen()) {
     static_cast<Derived *>(this)->visitStmt(s);
   }
-  for (auto s : I->getOrelse()) {
+  for (auto s : I->getElse()) {
     static_cast<Derived *>(this)->visitStmt(s);
   }
 }

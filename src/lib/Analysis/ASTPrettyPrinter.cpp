@@ -44,7 +44,7 @@ void ASTPrettyPrinter::visitVarDecl(VarDecl *VD) {
 
 /// NameExpr(Name, Load)
 void ASTPrettyPrinter::visitName(NameExpr *N) {
-  OS << N->getClassName() << "(" << N->getId() << ", " << N->getContext()
+  OS << N->getClassName() << "(" << N->getName() << ", " << N->getContext()
      << ")";
 }
 
@@ -232,17 +232,17 @@ void ASTPrettyPrinter::visitIf(IfStmt *I) {
 
   printIndent();
   OS << "Test=";
-  visitExpr(I->getTest());
+  visitExpr(I->getCondition());
   OS << ",\n";
 
   printIndent();
   OS << "Then=";
-  printStmtList(I->getBody());
+  printStmtList(I->getThen());
   OS << ",\n";
 
   printIndent();
   OS << "Else=";
-  printStmtList(I->getOrelse());
+  printStmtList(I->getElse());
   OS << ",\n";
 
   decreaseIndentLevel();
@@ -341,7 +341,7 @@ void ASTPrettyPrinter::visitWrite(WriteStmt *WR) {
 /// )
 void ASTPrettyPrinter::visitReturn(ReturnStmt *R) {
   OS << R->getClassName();
-  if (!R->getValue()) {
+  if (!R->hasValue()) {
     return;
   }
   if (isAtomicExpr(R->getValue())) {

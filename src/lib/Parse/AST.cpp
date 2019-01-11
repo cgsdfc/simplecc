@@ -36,119 +36,119 @@ ArgDecl *FuncDef::getArgAt(unsigned Pos) const {
   return static_cast<ArgDecl *>(Arg);
 }
 
-ReadStmt::~ReadStmt() { DeleteAST::apply(names); }
+ReadStmt::~ReadStmt() { DeleteAST::apply(Names); }
 
 WriteStmt::~WriteStmt() {
-  DeleteAST::apply(str);
-  DeleteAST::apply(value);
+  DeleteAST::apply(Str);
+  DeleteAST::apply(Value);
 }
 
 void WriteStmt::setValue(ExprAST *Val) {
-  SetterImpl(value, Val, /* Optional */ true);
+  SetterImpl(Value, Val, /* Optional */ true);
 }
 
 AssignStmt::~AssignStmt() {
-  DeleteAST::apply(target);
-  DeleteAST::apply(value);
+  DeleteAST::apply(Target);
+  DeleteAST::apply(Value);
 }
 
-void AssignStmt::setValue(ExprAST *E) { SetterImpl(value, E); }
-void AssignStmt::setTarget(ExprAST *E) { SetterImpl(target, E); }
+void AssignStmt::setValue(ExprAST *E) { SetterImpl(Value, E); }
+void AssignStmt::setTarget(ExprAST *E) { SetterImpl(Target, E); }
 
 ForStmt::~ForStmt() {
-  DeleteAST::apply(initial);
-  DeleteAST::apply(condition);
-  DeleteAST::apply(step);
-  DeleteAST::apply(body);
+  DeleteAST::apply(Initial);
+  DeleteAST::apply(Cond);
+  DeleteAST::apply(Step);
+  DeleteAST::apply(Body);
 }
 
-void ForStmt::setCondition(ExprAST *E) { SetterImpl(condition, E); }
-UniquePtrToAST ForStmt::getInitial() &&{ return RvalueGetterImpl(initial); }
+void ForStmt::setCondition(ExprAST *E) { SetterImpl(Cond, E); }
+UniquePtrToAST ForStmt::getInitial() &&{ return RvalueGetterImpl(Initial); }
 UniquePtrToAST ForStmt::getCondition() &&{
-  return RvalueGetterImpl(condition);
+  return RvalueGetterImpl(Cond);
 }
-UniquePtrToAST ForStmt::getStep() &&{ return RvalueGetterImpl(step); }
+UniquePtrToAST ForStmt::getStep() &&{ return RvalueGetterImpl(Step); }
 
 WhileStmt::~WhileStmt() {
-  DeleteAST::apply(condition);
-  DeleteAST::apply(body);
+  DeleteAST::apply(Cond);
+  DeleteAST::apply(Body);
 }
 
-void WhileStmt::setCondition(ExprAST *E) { SetterImpl(condition, E); }
+void WhileStmt::setCondition(ExprAST *E) { SetterImpl(Cond, E); }
 
-ReturnStmt::~ReturnStmt() { DeleteAST::apply(value); }
+ReturnStmt::~ReturnStmt() { DeleteAST::apply(Value); }
 
 void ReturnStmt::setValue(ExprAST *E) {
-  SetterImpl(value, E, /* Optional */ true);
+  SetterImpl(Value, E, /* Optional */ true);
 }
 
 IfStmt::~IfStmt() {
-  DeleteAST::apply(test);
-  DeleteAST::apply(body);
-  DeleteAST::apply(orelse);
+  DeleteAST::apply(Cond);
+  DeleteAST::apply(Then);
+  DeleteAST::apply(Else);
 }
 
-void IfStmt::setTest(ExprAST *E) { SetterImpl(test, E); }
+void IfStmt::setCondition(ExprAST *E) { SetterImpl(Cond, E); }
 
-ExprStmt::~ExprStmt() { DeleteAST::apply(value); }
-UniquePtrToAST ExprStmt::getValue() &&{ return RvalueGetterImpl(value); }
+ExprStmt::~ExprStmt() { DeleteAST::apply(Value); }
+UniquePtrToAST ExprStmt::getValue() &&{ return RvalueGetterImpl(Value); }
 void ExprStmt::setValue(ExprAST *E) {
-  SetterImpl(value, E);
+  SetterImpl(Value, E);
 }
 
 BinOpExpr::~BinOpExpr() {
-  DeleteAST::apply(left);
-  DeleteAST::apply(right);
+  DeleteAST::apply(Left);
+  DeleteAST::apply(Right);
 }
 
-void BinOpExpr::setLeft(ExprAST *E) { SetterImpl(left, E); }
+void BinOpExpr::setLeft(ExprAST *E) { SetterImpl(Left, E); }
 
-void BinOpExpr::setRight(ExprAST *E) { SetterImpl(right, E); }
-UniquePtrToAST BinOpExpr::getLeft() &&{ return RvalueGetterImpl(left); }
-UniquePtrToAST BinOpExpr::getRight() &&{ return RvalueGetterImpl(right); }
+void BinOpExpr::setRight(ExprAST *E) { SetterImpl(Right, E); }
+UniquePtrToAST BinOpExpr::getLeft() &&{ return RvalueGetterImpl(Left); }
+UniquePtrToAST BinOpExpr::getRight() &&{ return RvalueGetterImpl(Right); }
 
-ParenExpr::~ParenExpr() { DeleteAST::apply(value); }
+ParenExpr::~ParenExpr() { DeleteAST::apply(Value); }
 
-void ParenExpr::setValue(ExprAST *E) { SetterImpl(value, E); }
-UniquePtrToAST ParenExpr::getValue() &&{ return RvalueGetterImpl(value); }
+void ParenExpr::setValue(ExprAST *E) { SetterImpl(Value, E); }
+UniquePtrToAST ParenExpr::getValue() &&{ return RvalueGetterImpl(Value); }
 
-BoolOpExpr::~BoolOpExpr() { DeleteAST::apply(value); }
+BoolOpExpr::~BoolOpExpr() { DeleteAST::apply(Value); }
 
 void BoolOpExpr::setValue(ExprAST *E) {
-  SetterImpl(value, E);
+  SetterImpl(Value, E);
   setHasCompareOp(IsInstance<BinOpExpr>(E) &&
       isCompareOp(static_cast<BinOpExpr *>(E)->getOp()));
 }
 
-bool BoolOpExpr::isCompareOp(OperatorKind Op) {
+bool BoolOpExpr::isCompareOp(BinaryOpKind Op) {
   switch (Op) {
   default:return false;
 #define HANDLE_COMPARE_OPERATOR(VAL, OP, FUNC)                                 \
-  case OperatorKind::VAL:                                                      \
+  case BinaryOpKind::VAL:                                                      \
     return true;
 #include "simplecc/Parse/Enums.def"
   }
 }
 
-UniquePtrToAST BoolOpExpr::getValue() &&{ return RvalueGetterImpl(value); }
+UniquePtrToAST BoolOpExpr::getValue() &&{ return RvalueGetterImpl(Value); }
 
-UnaryOpExpr::~UnaryOpExpr() { DeleteAST::apply(operand); }
+UnaryOpExpr::~UnaryOpExpr() { DeleteAST::apply(Operand); }
 
-void UnaryOpExpr::setOperand(ExprAST *E) { SetterImpl(operand, E); }
+void UnaryOpExpr::setOperand(ExprAST *E) { SetterImpl(Operand, E); }
 
 UniquePtrToAST UnaryOpExpr::getOperand() &&{
-  return RvalueGetterImpl(operand);
+  return RvalueGetterImpl(Operand);
 }
 
 CallExpr::~CallExpr() { DeleteAST::apply(Args); }
 
 void CallExpr::setArgAt(unsigned I, ExprAST *Val) { SetterImpl(Args[I], Val); }
 
-SubscriptExpr::~SubscriptExpr() { DeleteAST::apply(index); }
+SubscriptExpr::~SubscriptExpr() { DeleteAST::apply(Index); }
 
-void SubscriptExpr::setIndex(ExprAST *E) { SetterImpl(index, E); }
+void SubscriptExpr::setIndex(ExprAST *E) { SetterImpl(Index, E); }
 
-UniquePtrToAST SubscriptExpr::getIndex() &&{ return RvalueGetterImpl(index); }
+UniquePtrToAST SubscriptExpr::getIndex() &&{ return RvalueGetterImpl(Index); }
 
 const char *AST::getClassName(unsigned Kind) {
   switch (Kind) {

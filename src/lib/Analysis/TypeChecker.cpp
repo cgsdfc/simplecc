@@ -6,7 +6,7 @@ void TypeChecker::visitRead(ReadStmt *RD) {
   for (auto E : RD->getNames()) {
     auto N = subclass_cast<NameExpr>(E);
     assert(N);
-    const auto &Entry = getSymbolEntry(N->getId());
+    const auto &Entry = getSymbolEntry(N->getName());
     if (!Entry.IsVariable()) {
       Error(N->getLocation(), "scanf() only applies to variables.");
       continue;
@@ -24,7 +24,7 @@ void TypeChecker::visitWrite(WriteStmt *WR) {
 
 void TypeChecker::visitReturn(ReturnStmt *R) {
   auto ActuallyReturn =
-      R->getValue() ? visitExpr(R->getValue()) : BasicTypeKind::Void;
+      R->hasValue() ? visitExpr(R->getValue()) : BasicTypeKind::Void;
   auto ShouldReturn = TheFuncDef->getReturnType();
 
   // order a strict match
@@ -143,7 +143,7 @@ static void CheckNoLoadFunction(SymbolEntry Entry, NameExpr *N) {
 }
 
 BasicTypeKind TypeChecker::visitName(NameExpr *N) {
-  const auto &Entry = getSymbolEntry(N->getId());
+  const auto &Entry = getSymbolEntry(N->getName());
   // Catch this frequent error first.
   CheckNoLoadFunction(Entry, N);
 

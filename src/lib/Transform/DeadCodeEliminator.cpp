@@ -9,8 +9,8 @@ void DeadCodeEliminator::visitWhile(WhileStmt *W) {
 }
 
 void DeadCodeEliminator::visitIf(IfStmt *I) {
-  visitStmtList(I->getBody());
-  visitStmtList(I->getOrelse());
+  visitStmtList(I->getThen());
+  visitStmtList(I->getElse());
 }
 
 void DeadCodeEliminator::visitFuncDef(FuncDef *FD) {
@@ -47,11 +47,11 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
     /// if (false) then; else; becomes
     /// else;
     if (IsInstance<IfStmt>(*Iter) &&
-        static_cast<IfStmt *>(*Iter)->getTest()->isConstant()) {
+        static_cast<IfStmt *>(*Iter)->getCondition()->isConstant()) {
       auto If = static_cast<IfStmt *>(*Iter);
-      std::vector<StmtAST *> Branch = If->getTest()->isZeroVal()
-                                          ? std::move(*If).getOrelse()
-                                          : std::move(*If).getBody();
+      std::vector<StmtAST *> Branch = If->getCondition()->isZeroVal()
+                                          ? std::move(*If).getElse()
+                                          : std::move(*If).getThen();
       // Delete and erase the if-stmt.
       DeleteAST::apply(If);
       Iter = StmtList.erase(Iter);

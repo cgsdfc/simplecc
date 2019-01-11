@@ -21,7 +21,7 @@ class SymbolTableBuilder : ChildrenVisitor<SymbolTableBuilder> {
   void visitDecl(DeclAST *D);
 
   /// Overloads to visit AstNodes that have names.
-  void visitName(NameExpr *N) { ResolveName(N->getId(), N->getLocation()); }
+  void visitName(NameExpr *N) { ResolveName(N->getName(), N->getLocation()); }
   void visitCall(CallExpr *C);
   void visitSubscript(SubscriptExpr *SB);
   void ResolveName(const std::string &Name, Location L);

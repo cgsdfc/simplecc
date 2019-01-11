@@ -106,7 +106,7 @@ void IRCompiler::visitAssign(AssignStmt *A) {
 }
 
 void IRCompiler::visitReturn(ReturnStmt *R) {
-  R->getValue() ? Builder.CreateRet(visitExpr(R->getValue()))
+  R->hasValue() ? Builder.CreateRet(visitExpr(R->getValue()))
                 : Builder.CreateRetVoid();
 }
 
@@ -155,15 +155,15 @@ void IRCompiler::visitWhile(WhileStmt *W) {
 
 void IRCompiler::visitIf(IfStmt *I) {
   Function *TheFunction = Builder.GetInsertBlock()->getParent();
-  auto Cond = visitExpr(I->getTest());
+  auto Cond = visitExpr(I->getCondition());
   auto Then = BasicBlock::Create(TheFunction);
   auto Else = BasicBlock::Create(TheFunction);
   Builder.CreateCondBr(Cond, Then, Else);
 
   Builder.SetInsertPoint(Then);
-  visitStmtList(I->getBody());
+  visitStmtList(I->getThen());
   Builder.SetInsertPoint(Else);
-  visitStmtList(I->getOrelse());
+  visitStmtList(I->getElse());
   if (Then->getTerminator() && Else->getTerminator()) {
     // Both Then and Else terminates.
     return;
@@ -190,24 +190,24 @@ Value *IRCompiler::visitBinOp(BinOpExpr *B) {
   auto L = visitExpr(B->getLeft());
   auto R = visitExpr(B->getRight());
   switch (B->getOp()) {
-  case OperatorKind::Add:return Builder.CreateAdd(L, R);
-  case OperatorKind::Sub:return Builder.CreateSub(L, R);
-  case OperatorKind::Mult:return Builder.CreateMul(L, R);
-  case OperatorKind::Div:return Builder.CreateDiv(L, R);
-  case OperatorKind::Eq:return Builder.CreateICmpEQ(L, R);
-  case OperatorKind::NotEq:return Builder.CreateICmpNE(L, R);
-  case OperatorKind::Lt:return Builder.CreateICmpSLT(L, R);
-  case OperatorKind::LtE:return Builder.CreateICmpSLE(L, R);
-  case OperatorKind::Gt:return Builder.CreateICmpSGT(L, R);
-  case OperatorKind::GtE:return Builder.CreateICmpSGE(L, R);
+  case BinaryOpKind::Add:return Builder.CreateAdd(L, R);
+  case BinaryOpKind::Sub:return Builder.CreateSub(L, R);
+  case BinaryOpKind::Mult:return Builder.CreateMul(L, R);
+  case BinaryOpKind::Div:return Builder.CreateDiv(L, R);
+  case BinaryOpKind::Eq:return Builder.CreateICmpEQ(L, R);
+  case BinaryOpKind::NotEq:return Builder.CreateICmpNE(L, R);
+  case BinaryOpKind::Lt:return Builder.CreateICmpSLT(L, R);
+  case BinaryOpKind::LtE:return Builder.CreateICmpSLE(L, R);
+  case BinaryOpKind::Gt:return Builder.CreateICmpSGT(L, R);
+  case BinaryOpKind::GtE:return Builder.CreateICmpSGE(L, R);
   }
 }
 
 Value *IRCompiler::visitUnaryOp(UnaryOpExpr *U) {
   Value *Operand = visitExpr(U->getOperand());
   switch (U->getOp()) {
-  case UnaryopKind::USub:return Builder.CreateNeg(Operand);
-  case UnaryopKind::UAdd:return Operand;
+  case UnaryOpKind::USub:return Builder.CreateNeg(Operand);
+  case UnaryOpKind::UAdd:return Operand;
   }
 }
 
@@ -247,7 +247,7 @@ Value *IRCompiler::visitChar(CharExpr *C) {
 }
 
 Value *IRCompiler::visitName(NameExpr *N) {
-  auto Ptr = get(N->getId());
+  auto Ptr = get(N->getName());
   return maybeLoad(Ptr, N->getContext());
 }
 

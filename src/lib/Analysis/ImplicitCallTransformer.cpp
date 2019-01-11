@@ -35,11 +35,11 @@ void ImplicitCallTransformer::visitReturn(ReturnStmt *R) {
 }
 
 void ImplicitCallTransformer::visitIf(IfStmt *I) {
-  I->setTest(TransformExpr(I->getTest()));
-  for (auto s : I->getBody()) {
+  I->setCondition(TransformExpr(I->getCondition()));
+  for (auto s : I->getThen()) {
     visitStmt(s);
   }
-  for (auto s : I->getOrelse()) {
+  for (auto s : I->getElse()) {
     visitStmt(s);
   }
 }
@@ -75,10 +75,10 @@ ExprAST *ImplicitCallTransformer::TransformExpr(ExprAST *E) {
     return E;
   }
   NameExpr *N = static_cast<NameExpr *>(E);
-  if (!TheLocalTable[N->getId()].IsFunction()) {
+  if (!TheLocalTable[N->getName()].IsFunction()) {
     return E;
   }
-  return new CallExpr(N->getId(), {}, E->getLocation());
+  return new CallExpr(N->getName(), {}, E->getLocation());
 }
 
 /// Perform implicit call transform on the program using a SymbolTable.

@@ -14,10 +14,10 @@ class ByteCodeBuilder {
   static unsigned MakeStore(Scope scope);
   static unsigned MakeRead(BasicTypeKind type);
   static unsigned MakePrint(BasicTypeKind type);
-  static unsigned MakeBinary(OperatorKind Op);
-  static unsigned MakeUnary(UnaryopKind Op);
-  static unsigned MakeJumpNegative(OperatorKind Op);
-  static unsigned MakeJump(OperatorKind Op);
+  static unsigned MakeBinary(BinaryOpKind Op);
+  static unsigned MakeUnary(UnaryOpKind Op);
+  static unsigned MakeJumpNegative(BinaryOpKind Op);
+  static unsigned MakeJump(BinaryOpKind Op);
 
   /// Insert a ByteCode into the back of InsertPoint.
   /// Return the offset of the inserted ByteCode.
@@ -44,16 +44,16 @@ public:
   unsigned CreateJumpIfFalse() { return Create(ByteCode::JUMP_IF_FALSE); }
   unsigned CreateJumpIfTrue() { return Create(ByteCode::JUMP_IF_TRUE); }
 
-  unsigned CreateJump(OperatorKind CompareOp, bool IsNeg = true) {
+  unsigned CreateJump(BinaryOpKind CompareOp, bool IsNeg = true) {
     return Create(IsNeg ? MakeJumpNegative(CompareOp) : MakeJump(CompareOp));
   }
 
   unsigned CreateJumpForward() { return Create(ByteCode::JUMP_FORWARD); }
-  unsigned CreateBinary(OperatorKind Op) { return Create(MakeBinary(Op)); }
+  unsigned CreateBinary(BinaryOpKind Op) { return Create(MakeBinary(Op)); }
   unsigned CreateReturnValue() { return Create(ByteCode::RETURN_VALUE); }
   unsigned CreateReturnNone() { return Create(ByteCode::RETURN_NONE); }
   unsigned CreatePopTop() { return Create(ByteCode::POP_TOP); }
-  unsigned CreateUnary(UnaryopKind Op) { return Create(MakeUnary(Op)); }
+  unsigned CreateUnary(UnaryOpKind Op) { return Create(MakeUnary(Op)); }
 
   unsigned CreateCallFunction(const std::string &Name, unsigned Argc) {
     return Create(ByteCode::CALL_FUNCTION, Name.data(), Argc);

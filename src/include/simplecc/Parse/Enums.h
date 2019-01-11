@@ -4,12 +4,12 @@
 #include <string>
 
 namespace simplecc {
-enum class OperatorKind {
+enum class BinaryOpKind {
 #define HANDLE_OPERATOR(Val, Str, FUNC) Val,
 #include "simplecc/Parse/Enums.def"
 };
 
-enum class UnaryopKind {
+enum class UnaryOpKind {
 #define HANDLE_UNARYOP(Val, Str) Val,
 #include "simplecc/Parse/Enums.def"
 };
@@ -24,16 +24,16 @@ enum class BasicTypeKind {
 #include "simplecc/Parse/Enums.def"
 };
 
-std::ostream &operator<<(std::ostream &os, OperatorKind val);
-std::ostream &operator<<(std::ostream &os, UnaryopKind val);
+std::ostream &operator<<(std::ostream &os, BinaryOpKind val);
+std::ostream &operator<<(std::ostream &os, UnaryOpKind val);
 std::ostream &operator<<(std::ostream &os, ExprContextKind val);
 std::ostream &operator<<(std::ostream &os, BasicTypeKind val);
 
-OperatorKind OperatorKindFromString(const std::string &s);
-const char *CStringFromOperatorKind(OperatorKind val);
+BinaryOpKind OperatorKindFromString(const std::string &s);
+const char *CStringFromOperatorKind(BinaryOpKind val);
 
-UnaryopKind UnaryopKindFromString(const std::string &s);
-const char *CStringFromUnaryopKind(UnaryopKind val);
+UnaryOpKind UnaryopKindFromString(const std::string &s);
+const char *CStringFromUnaryopKind(UnaryOpKind val);
 
 BasicTypeKind BasicTypeKindFromString(const std::string &s);
 const char *CStringFromBasicTypeKind(BasicTypeKind val);

@@ -17,25 +17,25 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
   if (!L->isConstant() && !R->isConstant()) {
     // If both side are the same name, there may be opportunity.
     if (IsInstance<NameExpr>(L) && IsInstance<NameExpr>(R) &&
-        static_cast<NameExpr *>(L)->getId() ==
-            static_cast<NameExpr *>(R)->getId()) {
+        static_cast<NameExpr *>(L)->getName() ==
+            static_cast<NameExpr *>(R)->getName()) {
       switch (B->getOp()) {
         // Case-1-1: X - X == 0
-      case OperatorKind::Sub:
+      case BinaryOpKind::Sub:
         return new NumExpr(0, B->getLocation());
         // Case-1-2: Since X might be zero, which will cause a ZeroDivisor, we
         // lose an opportunity.
-      case OperatorKind::Div:
+      case BinaryOpKind::Div:
         return B;
         // Case-1-3: X == X == 1, X >= X == 1, X <= X == 1
-      case OperatorKind::GtE:
-      case OperatorKind::LtE: // Fall through
-      case OperatorKind::Eq:
+      case BinaryOpKind::GtE:
+      case BinaryOpKind::LtE: // Fall through
+      case BinaryOpKind::Eq:
         return new NumExpr(1, B->getLocation());
         // Case-1-4: X != X == 0, X < X == 0, X > X == 0
-      case OperatorKind::Lt:
-      case OperatorKind::Gt: // Fall through
-      case OperatorKind::NotEq:
+      case BinaryOpKind::Lt:
+      case BinaryOpKind::Gt: // Fall through
+      case BinaryOpKind::NotEq:
         return new NumExpr(0, B->getLocation());
       default:
         return B;
@@ -46,7 +46,7 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
   }
 
   // Case-2: Zero divisor, no opportunity.
-  if (B->getOp() == OperatorKind::Div && R->isZeroVal()) {
+  if (B->getOp() == BinaryOpKind::Div && R->isZeroVal()) {
     // ZeroDivisorError.
     return B;
   }
@@ -57,7 +57,7 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
     default:
       assert(false && "Unhandled Enum Value");
 #define HANDLE_OPERATOR(VAL, OP, FUNC)                                         \
-  case OperatorKind::VAL:                                                      \
+  case BinaryOpKind::VAL:                                                      \
     return new NumExpr(Compute(std::FUNC<int>(), L->getConstantValue(),        \
                                R->getConstantValue()),                         \
                        B->getLocation());
@@ -67,22 +67,22 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
 
   // Case-3: single side constant.
   switch (B->getOp()) {
-  case OperatorKind::Add:
+  case BinaryOpKind::Add:
     // 0 + X == X + 0 == X
     if (L->isZeroVal())
       return static_cast<ExprAST *>(std::move(*B).getRight().release());
     if (R->isZeroVal())
       return static_cast<ExprAST *>(std::move(*B).getLeft().release());
     return B;
-  case OperatorKind::Sub:
+  case BinaryOpKind::Sub:
     // 0 - X == -X
     if (L->isZeroVal())
       return new UnaryOpExpr(
-          UnaryopKind::USub,
+          UnaryOpKind::USub,
           static_cast<ExprAST *>(std::move(*B).getRight().release()),
           B->getLocation());
     return B;
-  case OperatorKind::Mult:
+  case BinaryOpKind::Mult:
     // 0 * X == X * 0 == 0
     if (L->isZeroVal() || R->isZeroVal())
       return new NumExpr(0, B->getLocation());
@@ -92,7 +92,7 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
     if (R->isOneVal())
       return static_cast<ExprAST *>(std::move(*B).getLeft().release());
     return B;
-  case OperatorKind::Div:
+  case BinaryOpKind::Div:
     // 0 / X == 0, but X may be zero, which will cause a ZeroDivisor. Lose
     // opportunity. X / 1 == X
     if (R->isOneVal())
@@ -105,11 +105,11 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
 
 ExprAST *TrivialConstantFolder::FoldUnaryOpExpr(UnaryOpExpr *U) {
   // Case-1: Ignore UAdd, +X => X
-  if (U->getOp() == UnaryopKind::UAdd) {
+  if (U->getOp() == UnaryOpKind::UAdd) {
     return static_cast<ExprAST *>(std::move(*U).getOperand().release());
   }
   // Case-2: Compute negate of constant like -1, -2.
-  assert(U->getOp() == UnaryopKind::USub);
+  assert(U->getOp() == UnaryOpKind::USub);
   auto Operand = U->getOperand();
   if (Operand->isConstant()) {
     return new NumExpr(-Operand->getConstantValue(), U->getLocation());
@@ -117,7 +117,7 @@ ExprAST *TrivialConstantFolder::FoldUnaryOpExpr(UnaryOpExpr *U) {
 
   // Case-3: fold double negate into noop, --X => X
   if (IsInstance<UnaryOpExpr>(Operand) &&
-      static_cast<UnaryOpExpr *>(Operand)->getOp() == UnaryopKind::USub) {
+      static_cast<UnaryOpExpr *>(Operand)->getOp() == UnaryOpKind::USub) {
     auto UO = static_cast<UnaryOpExpr *>(Operand);
     return static_cast<ExprAST *>(std::move(*UO).getOperand().release());
   }
@@ -130,7 +130,7 @@ ExprAST *TrivialConstantFolder::FoldParenExpr(ParenExpr *P) {
 }
 
 ExprAST *TrivialConstantFolder::FoldNameExpr(NameExpr *N) {
-  auto Entry = getSymbolEntry(N->getId());
+  auto Entry = getSymbolEntry(N->getName());
   if (!Entry.IsConstant()) {
     return N;
   }

@@ -29,7 +29,7 @@ std::pair<bool, int> ArrayBoundChecker::getIndex(ExprAST *E) const {
       IsInstance<NumExpr>(static_cast<UnaryOpExpr *>(E)->getOperand())) {
     auto Extract = [](UnaryOpExpr *U) {
       auto Val = static_cast<NumExpr *>(U->getOperand())->getNum();
-      return U->getOp() == UnaryopKind::USub ? -Val : Val;
+      return U->getOp() == UnaryOpKind::USub ? -Val : Val;
     };
     return std::make_pair(true, Extract(static_cast<UnaryOpExpr *>(E)));
   }
@@ -39,7 +39,7 @@ std::pair<bool, int> ArrayBoundChecker::getIndex(ExprAST *E) const {
     return False;
 
   auto N = static_cast<NameExpr *>(E);
-  auto Entry = getSymbolEntry(N->getId());
+  auto Entry = getSymbolEntry(N->getName());
   if (!Entry.IsConstant())
     return False;
 

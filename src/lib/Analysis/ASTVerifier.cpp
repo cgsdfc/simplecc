@@ -24,7 +24,7 @@ void ASTVerifier::visitExprStmt(ExprStmt *ES) {
 }
 
 void ASTVerifier::visitIf(IfStmt *I) {
-  AssertThat(IsInstance<BoolOpExpr>(I->getTest()),
+  AssertThat(IsInstance<BoolOpExpr>(I->getCondition()),
              "Test of IfStmt must be a BoolOpExpr");
 }
 

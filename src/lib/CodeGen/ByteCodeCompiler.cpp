@@ -22,7 +22,7 @@ void ByteCodeCompiler::visitVarDecl(VarDecl *VD) {
 void ByteCodeCompiler::visitRead(ReadStmt *RD) {
   for (auto E : RD->getNames()) {
     auto N = static_cast<NameExpr *>(E);
-    const auto &Entry = TheLocalTable[N->getId()];
+    const auto &Entry = TheLocalTable[N->getName()];
     Builder.CreateRead(Entry.AsVariable().getType());
     Builder.CreateStore(Entry.getScope(), Entry.getName());
   }
@@ -77,12 +77,12 @@ void ByteCodeCompiler::visitWhile(WhileStmt *W) {
 }
 
 void ByteCodeCompiler::visitIf(IfStmt *I) {
-  unsigned JumpToElse = CompileBoolOp(static_cast<BoolOpExpr *>(I->getTest()));
-  for (auto s : I->getBody()) {
+  unsigned JumpToElse = CompileBoolOp(static_cast<BoolOpExpr *>(I->getCondition()));
+  for (auto s : I->getThen()) {
     visitStmt(s);
   }
 
-  if (I->getOrelse().empty()) {
+  if (I->getElse().empty()) {
     unsigned End = Builder.getSize();
     Builder.setJumpTargetAt(JumpToElse, End);
     return;
@@ -90,7 +90,7 @@ void ByteCodeCompiler::visitIf(IfStmt *I) {
   unsigned JumpToEnd = Builder.CreateJumpForward();
 
   unsigned Else = Builder.getSize();
-  for (auto s : I->getOrelse()) {
+  for (auto s : I->getElse()) {
     visitStmt(s);
   }
   unsigned End = Builder.getSize();
@@ -136,14 +136,14 @@ void ByteCodeCompiler::visitSubscript(SubscriptExpr *SB) {
 }
 
 void ByteCodeCompiler::visitName(NameExpr *N) {
-  const auto &Entry = TheLocalTable[N->getId()];
+  const auto &Entry = TheLocalTable[N->getName()];
   if (Entry.IsConstant()) {
     Builder.CreateLoadConst(Entry.AsConstant().getValue());
     return;
   }
   N->getContext() == ExprContextKind::Load
-      ? Builder.CreateLoad(Entry.getScope(), N->getId())
-      : Builder.CreateStore(Entry.getScope(), N->getId());
+      ? Builder.CreateLoad(Entry.getScope(), N->getName())
+      : Builder.CreateStore(Entry.getScope(), N->getName());
 }
 
 void ByteCodeCompiler::visitFuncDef(FuncDef *FD) {

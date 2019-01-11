@@ -54,62 +54,62 @@ unsigned ByteCodeBuilder::MakePrint(BasicTypeKind type) {
   }
 }
 
-unsigned ByteCodeBuilder::MakeBinary(OperatorKind Op) {
+unsigned ByteCodeBuilder::MakeBinary(BinaryOpKind Op) {
   switch (Op) {
-  case OperatorKind::Add:
+  case BinaryOpKind::Add:
     return ByteCode::BINARY_ADD;
-  case OperatorKind::Sub:
+  case BinaryOpKind::Sub:
     return ByteCode::BINARY_SUB;
-  case OperatorKind::Mult:
+  case BinaryOpKind::Mult:
     return ByteCode::BINARY_MULTIPLY;
-  case OperatorKind::Div:
+  case BinaryOpKind::Div:
     return ByteCode::BINARY_DIVIDE;
   default:
     assert(false);
   }
 }
 
-unsigned ByteCodeBuilder::MakeUnary(UnaryopKind Op) {
+unsigned ByteCodeBuilder::MakeUnary(UnaryOpKind Op) {
   switch (Op) {
-  case UnaryopKind::UAdd:
+  case UnaryOpKind::UAdd:
     return ByteCode::UNARY_POSITIVE;
-  case UnaryopKind::USub:
+  case UnaryOpKind::USub:
     return ByteCode::UNARY_NEGATIVE;
   }
 }
 
-unsigned ByteCodeBuilder::MakeJumpNegative(OperatorKind Op) {
+unsigned ByteCodeBuilder::MakeJumpNegative(BinaryOpKind Op) {
   switch (Op) {
-  case OperatorKind::NotEq:
+  case BinaryOpKind::NotEq:
     return ByteCode::JUMP_IF_EQUAL;
-  case OperatorKind::Eq:
+  case BinaryOpKind::Eq:
     return ByteCode::JUMP_IF_NOT_EQUAL;
-  case OperatorKind::GtE:
+  case BinaryOpKind::GtE:
     return ByteCode::JUMP_IF_LESS;
-  case OperatorKind::Gt:
+  case BinaryOpKind::Gt:
     return ByteCode::JUMP_IF_LESS_EQUAL;
-  case OperatorKind::LtE:
+  case BinaryOpKind::LtE:
     return ByteCode::JUMP_IF_GREATER;
-  case OperatorKind::Lt:
+  case BinaryOpKind::Lt:
     return ByteCode::JUMP_IF_GREATER_EQUAL;
   default:
     assert(false);
   }
 }
 
-unsigned ByteCodeBuilder::MakeJump(OperatorKind Op) {
+unsigned ByteCodeBuilder::MakeJump(BinaryOpKind Op) {
   switch (Op) {
-  case OperatorKind::Eq:
+  case BinaryOpKind::Eq:
     return ByteCode::JUMP_IF_EQUAL;
-  case OperatorKind::NotEq:
+  case BinaryOpKind::NotEq:
     return ByteCode::JUMP_IF_NOT_EQUAL;
-  case OperatorKind::Lt:
+  case BinaryOpKind::Lt:
     return ByteCode::JUMP_IF_LESS;
-  case OperatorKind::LtE:
+  case BinaryOpKind::LtE:
     return ByteCode::JUMP_IF_LESS_EQUAL;
-  case OperatorKind::Gt:
+  case BinaryOpKind::Gt:
     return ByteCode::JUMP_IF_GREATER;
-  case OperatorKind::GtE:
+  case BinaryOpKind::GtE:
     return ByteCode::JUMP_IF_GREATER_EQUAL;
   default:
     assert(false);

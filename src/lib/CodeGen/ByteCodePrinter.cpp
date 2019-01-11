@@ -60,7 +60,7 @@ void ByteCodePrinter::visitAssign(AssignStmt *A) {
 }
 
 void ByteCodePrinter::visitReturn(ReturnStmt *R) {
-  if (R->getValue()) {
+  if (R->hasValue()) {
     w.WriteLine("ret", visitExpr(R->getValue()));
     return;
   }
@@ -111,13 +111,13 @@ void ByteCodePrinter::visitFor(ForStmt *F) {
 }
 
 void ByteCodePrinter::visitIf(IfStmt *I) {
-  LineLabel Else = CompileBoolOp(static_cast<BoolOpExpr *>(I->getTest()));
+  LineLabel Else = CompileBoolOp(static_cast<BoolOpExpr *>(I->getCondition()));
 
-  for (auto S : I->getBody()) {
+  for (auto S : I->getThen()) {
     visitStmt(S);
   }
 
-  if (I->getOrelse().empty()) {
+  if (I->getElse().empty()) {
     w.WriteLine(Else.Inline(false));
     return;
   }
@@ -126,7 +126,7 @@ void ByteCodePrinter::visitIf(IfStmt *I) {
   w.WriteLine("GOTO", End.Inline(true));
   w.WriteLine(Else.Inline(false));
 
-  for (auto S : I->getOrelse()) {
+  for (auto S : I->getElse()) {
     visitStmt(S);
   }
   w.WriteLine(End.Inline(false));
@@ -194,7 +194,7 @@ void ExprValue::Format(std::ostream &O) const {
     O << static_cast<NumExpr *>(Factor)->getNum();
     break;
   case ExprAST::NameExprKind:
-    O << static_cast<NameExpr *>(Factor)->getId();
+    O << static_cast<NameExpr *>(Factor)->getName();
     break;
   case ExprAST::StrExprKind:
     O << static_cast<StrExpr *>(Factor)->getStr();
