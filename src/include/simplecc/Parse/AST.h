@@ -311,11 +311,11 @@ public:
 /// This class represents a read statement, or a call to the scanf() builtin.
 class ReadStmt : public StmtAST {
   friend class AST;
-  std::vector<ExprAST *> Names;
+  std::vector<NameExpr *> Names;
   ~ReadStmt();
 
 public:
-  ReadStmt(std::vector<ExprAST *> names, Location loc)
+  ReadStmt(std::vector<NameExpr *> names, Location loc)
       : StmtAST(StmtAST::ReadStmtKind, loc), Names(std::move(names)) {}
 
   // Disable copy and move.
@@ -325,8 +325,8 @@ public:
   ReadStmt &operator=(ReadStmt &&) = delete;
 
   /// Return the list of names in the scanf().
-  const std::vector<ExprAST *> &getNames() const { return Names; }
-  std::vector<ExprAST *> &getNames() { return Names; }
+  const std::vector<NameExpr *> &getNames() const { return Names; }
+  std::vector<NameExpr *> &getNames() { return Names; }
 
   static bool InstanceCheck(const StmtAST *x) {
     return x->getKind() == StmtAST::ReadStmtKind;

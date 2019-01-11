@@ -35,12 +35,6 @@ void ASTVerifier::visitBoolOp(BoolOpExpr *B) {
   }
 }
 
-void ASTVerifier::visitRead(ReadStmt *RD) {
-  for (ExprAST *E : RD->getNames()) {
-    AssertThat(IsInstance<NameExpr>(E), "Names in ReadStmt must be NameExpr");
-  }
-}
-
 void ASTVerifier::visitAssign(AssignStmt *A) {
   AssertThat(IsInstance<NameExpr>(A->getTarget()) ||
                  IsInstance<SubscriptExpr>(A->getTarget()),

@@ -9,7 +9,6 @@ class ASTVerifier : ChildrenVisitor<ASTVerifier> {
   /// Helper to check a condition.
   void AssertThat(bool Predicate, const char *ErrMsg);
 
-  void visitRead(ReadStmt *RD);
   void visitWrite(WriteStmt *WR);
   void visitAssign(AssignStmt *A);
   void visitBoolOp(BoolOpExpr *B);

@@ -370,7 +370,7 @@ void ASTBuilder::visit_compound_stmt(Node *N, std::vector<DeclAST *> &FnDecls,
 }
 
 StmtAST *ASTBuilder::visit_read_stmt(Node *N) {
-  std::vector<ExprAST *> Names;
+  std::vector<NameExpr *> Names;
   for (unsigned i = 1, len = N->getNumChildren(); i < len; i++) {
     auto Child = N->getChild(i);
     if (Child->getType() == Symbol::NAME) {
