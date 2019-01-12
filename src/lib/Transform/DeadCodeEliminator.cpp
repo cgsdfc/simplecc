@@ -79,12 +79,12 @@ void DeadCodeEliminator::TransformStmtList(StmtListType &StmtList) {
       // Iter+1 is always valid (even it is end()). Thus it can be passed to
       // insert(). Here, *Iter is valid storage and Iter+1 is valid iterator so
       // it is a valid construct.
-      *Iter++ = static_cast<StmtAST *>(Initial.release());
+      *Iter++ = Initial.release();
       Iter = StmtList.insert(Iter, Body.begin(), Body.end());
       // Advance to the end of the Body stmt list.
       std::advance(Iter, Body.size());
       // Insert the Step stmt right after the Body.
-      Iter = StmtList.insert(Iter, static_cast<StmtAST *>(Step.release()));
+      Iter = StmtList.insert(Iter, Step.release());
       ++Iter;
       continue;
     }

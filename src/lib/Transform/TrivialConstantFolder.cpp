@@ -70,16 +70,16 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
   case BinaryOpKind::Add:
     // 0 + X == X + 0 == X
     if (L->isZeroVal())
-      return static_cast<ExprAST *>(std::move(*B).getRight().release());
+      return (std::move(*B).getRight().release());
     if (R->isZeroVal())
-      return static_cast<ExprAST *>(std::move(*B).getLeft().release());
+      return (std::move(*B).getLeft().release());
     return B;
   case BinaryOpKind::Sub:
     // 0 - X == -X
     if (L->isZeroVal())
       return new UnaryOpExpr(
           UnaryOpKind::USub,
-          static_cast<ExprAST *>(std::move(*B).getRight().release()),
+          (std::move(*B).getRight().release()),
           B->getLocation());
     return B;
   case BinaryOpKind::Mult:
@@ -88,15 +88,15 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
       return new NumExpr(0, B->getLocation());
     // 1 * X == X * 1 == X
     if (L->isOneVal())
-      return static_cast<ExprAST *>(std::move(*B).getRight().release());
+      return std::move(*B).getRight().release();
     if (R->isOneVal())
-      return static_cast<ExprAST *>(std::move(*B).getLeft().release());
+      return std::move(*B).getLeft().release();
     return B;
   case BinaryOpKind::Div:
     // 0 / X == 0, but X may be zero, which will cause a ZeroDivisor. Lose
     // opportunity. X / 1 == X
     if (R->isOneVal())
-      return static_cast<ExprAST *>(std::move(*B).getLeft().release());
+      return std::move(*B).getLeft().release();
     return B;
   default:
     return B;
@@ -106,7 +106,7 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
 ExprAST *TrivialConstantFolder::FoldUnaryOpExpr(UnaryOpExpr *U) {
   // Case-1: Ignore UAdd, +X => X
   if (U->getOp() == UnaryOpKind::UAdd) {
-    return static_cast<ExprAST *>(std::move(*U).getOperand().release());
+    return std::move(*U).getOperand().release();
   }
   // Case-2: Compute negate of constant like -1, -2.
   assert(U->getOp() == UnaryOpKind::USub);
@@ -119,14 +119,14 @@ ExprAST *TrivialConstantFolder::FoldUnaryOpExpr(UnaryOpExpr *U) {
   if (IsInstance<UnaryOpExpr>(Operand) &&
       static_cast<UnaryOpExpr *>(Operand)->getOp() == UnaryOpKind::USub) {
     auto UO = static_cast<UnaryOpExpr *>(Operand);
-    return static_cast<ExprAST *>(std::move(*UO).getOperand().release());
+    return std::move(*UO).getOperand().release();
   }
   return U;
 }
 
 ExprAST *TrivialConstantFolder::FoldParenExpr(ParenExpr *P) {
   // Extract wrapped value, (X) => X
-  return static_cast<ExprAST *>(std::move(*P).getValue().release());
+  return (std::move(*P).getValue().release());
 }
 
 ExprAST *TrivialConstantFolder::FoldNameExpr(NameExpr *N) {
