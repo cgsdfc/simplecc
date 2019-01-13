@@ -61,7 +61,7 @@ private:
 
   std::vector<TokenInfo> TheTokens;
   AnalysisManager AM;
-  ProgramRef TheProgram;
+  std::unique_ptr<ProgramAST, DeleteAST> TheProgram;
   ByteCodeModule TheModule;
   ErrorManager EM;
 };

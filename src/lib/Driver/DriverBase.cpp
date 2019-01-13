@@ -36,7 +36,7 @@ void DriverBase::doTokenize(std::istream &IS) {
 
 bool DriverBase::doParse() {
   TheProgram = BuildAST(getInputFile(), TheTokens);
-  return TheProgram == nullptr;
+  return !TheProgram;
 }
 
 bool DriverBase::doAnalyses() {

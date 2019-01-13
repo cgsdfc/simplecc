@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_PARSE_ASTBUILDER_H
 #define SIMPLECC_PARSE_ASTBUILDER_H
-
 #include "simplecc/Parse/AST.h"
+#include "simplecc/Support/ErrorManager.h"
 #include <string>
 #include <vector>
 
@@ -10,8 +10,10 @@ class Node;
 
 /// This class builds the AST from the CST according to the Grammar rules.
 class ASTBuilder {
-  ExprAST *makeChar(Node *N);
-  ExprAST *makeNum(Node *N);
+  /// Create a CharExpr from a CHAR node.
+  CharExpr *makeCharExpr(Node *N);
+  /// Create a NumExpr from a NUMBER node.
+  NumExpr *makeNumExpr(Node *N);
 
   /// program: const_decl* declaration* ENDMARKER
   ProgramAST *visit_program(std::string Filename, Node *N);
@@ -106,10 +108,17 @@ class ASTBuilder {
   /// subscript2: '[' NUMBER ']'
   int visit_subscript2(Node *N);
 
+  /// Handle conversion from string to integer.
+  /// If the resultant integer exceeds the range of int,
+  /// report error through EM.
+  int evaluate_integer(const std::string &Str, Location L);
 public:
-  ProgramAST *Build(const std::string &Filename, const Node *N) {
-    return visit_program(Filename, const_cast<Node *>(N));
-  }
+  /// Create an AST from the parse tree and the filename.
+  /// On error, return nullptr and print an error.
+  std::unique_ptr<ProgramAST, DeleteAST>
+      Build(const std::string &Filename, const Node *N);
+private:
+  ErrorManager EM;
 };
 } // namespace simplecc
 
