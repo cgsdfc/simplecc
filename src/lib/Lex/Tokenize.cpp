@@ -1,6 +1,5 @@
 #include "simplecc/Lex/Tokenize.h"
 #include "simplecc/Support/ErrorManager.h"
-
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
@@ -23,10 +22,9 @@ static inline bool IsNameMiddle(char Chr) {
 }
 
 static bool IsBlank(const std::string &Line) {
-  for (auto Chr : Line)
-    if (!std::isspace(Chr))
-      return false;
-  return true;
+  // Find the first char that is not space.
+  return std::find_if_not(Line.begin(), Line.end(),
+                      [](char C) { return std::isspace(C); }) == Line.end();
 }
 
 static inline bool IsValidChar(char Chr) {
@@ -44,6 +42,7 @@ static inline bool IsOperator(char Chr) {
   return Operators.find(Chr) != std::string::npos;
 }
 
+/// Lower case all chars in Str.
 static inline void ToLowerInplace(std::string &Str) {
   std::transform(Str.begin(), Str.end(), Str.begin(), ::tolower);
 }
@@ -146,29 +145,4 @@ void PrintTokens(const std::vector<TokenInfo> &Tokens, std::ostream &O) {
   std::for_each(Tokens.begin(), Tokens.end(),
                 [&O](const TokenInfo &T) { DumpTokenInfo(O, T); });
 }
-
-const char *getSymbolName(Symbol S) {
-  auto Val = static_cast<int>(S);
-  return IsTerminal(S) ? TokenNames[Val] : SymbolNames[Val - NT_OFFSET];
-}
-
-bool IsTerminal(Symbol S) { return static_cast<int>(S) < NT_OFFSET; }
-
 } // namespace simplecc
-
-void TokenInfo::Format(std::ostream &O) const {
-  O << "TokenInfo("
-    << "type=" << getTypeName() << ", "
-    << "string=" << Quote(getString()) << ", " << getLocation() << ", "
-    << "line=" << Quote(getLine()) << ")";
-}
-
-void Location::Format(std::ostream &O) const {
-  O << "Location(" << Line << ", " << Column << ")";
-}
-
-void Location::FormatCompact(std::ostream &O) const {
-  O << Line << ":" << Column << ":";
-}
-
-const char *TokenInfo::getTypeName() const { return getSymbolName(Type); }

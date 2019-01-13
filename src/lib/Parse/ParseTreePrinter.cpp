@@ -51,10 +51,10 @@ void ParseTreePrinter::printNodeList(const Node::ChildrenListType &NodeList) {
 
 void ParseTreePrinter::printNode(const Node &N) {
   OS << "(" << N.getTypeName();
-  if (IsTerminal(N.getType())) {
+  if (TokenInfo::IsTerminal(N.getType())) {
     printTerminalNode(N);
   } else {
-    assert(IsNonTerminal(N.getType()));
+    assert(TokenInfo::IsNonTerminal(N.getType()));
     printNonTerminalNode(N);
   }
   OS << ")";

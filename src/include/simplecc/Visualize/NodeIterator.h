@@ -6,6 +6,7 @@
 #include <stack>
 
 namespace simplecc {
+/// This class implements an iterator to the CST graph.
 class NodeIterator
     : public TreeLikeIterator<NodeIterator, Node *, Node::const_iterator> {
 public:

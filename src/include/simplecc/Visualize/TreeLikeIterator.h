@@ -19,9 +19,10 @@ public:
   using ChildIteratorType = ChildIter;
 
   /// This ctor is the first-phrase initialization.
-  TreeLikeIterator(value_type Root) { Initialize(Root); }
+  explicit TreeLikeIterator(value_type Root) { Initialize(Root); }
   TreeLikeIterator() : TheStack(), Val() {}
 
+  /// Requirements for llvm::iterator_facade_base.
   bool operator==(const TreeLikeIterator &RHS) const { return Val == RHS.Val; }
   value_type operator*() const { return Val; }
   TreeLikeIterator &operator++() {
@@ -30,13 +31,15 @@ public:
   }
 
 protected:
+  /// The type returned by getEdges().
   using EdgeRange = llvm::iterator_range<ChildIter>;
   /// The default makes an empty range.
   EdgeRange getEdges(value_type) {
     return llvm::make_range(ChildIter(), ChildIter());
   }
 
-  // Second-phrase initialization. Derived can use this if it sees fit.
+  // Second-phrase initialization. Derived can use it if initializing via base class
+  // construction is awkward.
   void Initialize(value_type Root) {
     assert(Root && "cannot iterate null node");
     assert(TheStack.empty());
@@ -45,9 +48,13 @@ protected:
   }
 
 private:
+  /// This backs up the DFS search.
   std::stack<value_type> TheStack;
+  /// This is the current node.
   value_type Val;
 
+  /// Return the next available node from the graph.
+  /// If none is available, return nullptr.
   value_type getNext() {
     if (TheStack.empty())
       return value_type();

@@ -1,4 +1,4 @@
-#include "simplecc/CodeGen/Compile.h"
+#include "simplecc/CodeGen/CodeGen.h"
 #include "simplecc/CodeGen/ByteCodeCompiler.h"
 #include "simplecc/CodeGen/ByteCodePrinter.h"
 

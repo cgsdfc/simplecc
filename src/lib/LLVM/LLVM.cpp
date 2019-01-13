@@ -1,4 +1,4 @@
-#include "simplecc/LLVM/EmitLLVM.h"
+#include "simplecc/LLVM/LLVM.h"
 #include "simplecc/LLVM/LLVMIRCompiler.h"
 
 namespace simplecc {

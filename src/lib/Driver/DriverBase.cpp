@@ -1,7 +1,7 @@
 #include "simplecc/Driver/DriverBase.h"
 #include "simplecc/Lex/Tokenize.h"
-#include "simplecc/CodeGen/Compile.h"
-#include "simplecc/Target/Assemble.h"
+#include "simplecc/CodeGen/CodeGen.h"
+#include "simplecc/Target/Target.h"
 #include "simplecc/Transform/Transform.h"
 
 using namespace simplecc;

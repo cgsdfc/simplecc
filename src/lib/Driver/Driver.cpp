@@ -1,12 +1,12 @@
 #include "simplecc/Driver/Driver.h"
-#include "simplecc/CodeGen/Compile.h"
+#include "simplecc/CodeGen/CodeGen.h"
 #include "simplecc/Lex/Tokenize.h"
-#include "simplecc/Target/Assemble.h"
+#include "simplecc/Target/Target.h"
 #include "simplecc/Transform/Transform.h"
 #include <tclap/CmdLine.h>
 
 #ifdef SIMPLE_COMPILER_USE_LLVM
-#include "simplecc/LLVM/EmitLLVM.h"
+#include "simplecc/LLVM/LLVM.h"
 #include "simplecc/Visualize/Visualize.h"
 #endif
 

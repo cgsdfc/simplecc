@@ -1,5 +1,5 @@
-#ifndef SIMPLECC_LLVM_EMITLLVM_H
-#define SIMPLECC_LLVM_EMITLLVM_H
+#ifndef SIMPLECC_LLVM_LLVM_H
+#define SIMPLECC_LLVM_LLVM_H
 #include <llvm/Support/raw_ostream.h>
 #include <string>
 
@@ -10,4 +10,4 @@ class SymbolTable;
 bool CompileToLLVMIR(ProgramAST *P, const SymbolTable &S, llvm::raw_ostream &OS);
 } // namespace simplecc
 
-#endif
+#endif // SIMPLECC_LLVM_LLVM_H

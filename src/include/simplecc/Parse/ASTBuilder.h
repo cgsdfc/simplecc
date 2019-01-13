@@ -12,6 +12,7 @@ class Node;
 class ASTBuilder {
   /// Create a CharExpr from a CHAR node.
   CharExpr *makeCharExpr(Node *N);
+
   /// Create a NumExpr from a NUMBER node.
   NumExpr *makeNumExpr(Node *N);
 
@@ -30,8 +31,7 @@ class ASTBuilder {
   /// declaration: type_name (NAME decl_trailer | 'main' '(' ')' compound_stmt )
   void visit_declaration(Node *N, std::vector<DeclAST *> &Decls);
 
-  /// decl_trailer: [ paralist ] compound_stmt | [subscript2] (',' var_item)*
-  /// ';'
+  /// decl_trailer: [ paralist ] compound_stmt | [subscript2] (',' var_item)* ';'
   void visit_decl_trailer(Node *N, Node *TypeName, Node *Name,
                           std::vector<DeclAST *> &Decls);
 

@@ -4,7 +4,6 @@
 #include <simplecc/Parse/ParseTreePrinter.h>
 #include <algorithm> // for_each
 #include <memory>    // default_delete
-#include <simplecc/Parse/Node.h>
 
 using namespace simplecc;
 
@@ -18,7 +17,7 @@ void Node::dump() const {
   return Format(std::cerr);
 }
 
-const char *Node::getTypeName() const { return getSymbolName(Type); }
+const char *Node::getTypeName() const { return TokenInfo::getSymbolName(Type); }
 
 Node::Node(Symbol Ty, std::string Val, Location L)
     : Type(Ty), Value(std::move(Val)), Children(), Loc(L) {}

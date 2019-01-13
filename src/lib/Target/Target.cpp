@@ -1,7 +1,5 @@
-#include "simplecc/Target/Assemble.h"
+#include "simplecc/Target/Target.h"
 #include "simplecc/Target/MipsAssemblyWriter.h"
-
-#include <iostream>
 
 namespace simplecc {
 void AssembleMips(const ByteCodeModule &M, std::ostream &O) {

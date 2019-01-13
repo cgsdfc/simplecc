@@ -1,5 +1,5 @@
 #include "simplecc/Driver/WindowsDriver.h"
-#include "simplecc/CodeGen/Compile.h"
+#include "simplecc/CodeGen/CodeGen.h"
 
 using namespace simplecc;
 

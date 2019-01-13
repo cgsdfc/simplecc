@@ -23,7 +23,7 @@ set(SOURCE_FILES
         Analysis/ImplicitCallTransformer.cpp
         Analysis/ASTVerifier.cpp
         Analysis/SymbolTableBuilder.cpp
-        Analysis/AnalysisManager.cpp
+        Analysis/Analysis.cpp
         Analysis/ArrayBoundChecker.cpp
         Analysis/ASTPrettyPrinter.cpp
 
@@ -34,10 +34,10 @@ set(SOURCE_FILES
         CodeGen/ByteCodeBuilder.cpp
         CodeGen/ByteCodeFunction.cpp
         CodeGen/ByteCodeCompiler.cpp
-        CodeGen/Compile.cpp
+        CodeGen/CodeGen.cpp
 
         # Turn the ByteCode into MIPS assembly.
-        Target/Assemble.cpp
+        Target/Target.cpp
         Target/LocalContext.cpp
         Target/ByteCodeToMipsTranslator.cpp
         Target/MipsSupport.cpp
@@ -68,7 +68,7 @@ set(SOURCE_FILES
         Driver/DriverBase.cpp
         # WindowsDriver is always built for the sake of IDE.
         Driver/WindowsDriver.cpp
-        Driver/main.cpp)
+        Driver/main.cpp Lex/TokenInfo.cpp)
 
 if (NOT MSVC)
     list(APPEND SOURCE_FILES Driver/Driver.cpp)
@@ -88,7 +88,7 @@ if (USE_LLVM)
             LLVM/LLVMTypeMap.cpp
             LLVM/LLVMValueMap.cpp
             LLVM/LLVMIRCompiler.cpp
-            LLVM/EmitLLVM.cpp
+            LLVM/LLVM.cpp
             )
     list(APPEND EXTRA_LIBRARIES ${llvm_libs})
     add_definitions(-DSIMPLE_COMPILER_USE_LLVM)
