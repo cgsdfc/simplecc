@@ -140,7 +140,7 @@ void Driver::runTransform() {
 
 int Driver::run(int argc, char **argv) {
   namespace tclap = TCLAP;
-  tclap::CmdLine Parser("Simple Compiler", ' ', "3.0");
+  tclap::CmdLine Parser("A simple yet modular C-like compiler", ' ', "3.0");
   std::vector<tclap::Arg *> Switches;
   tclap::UnlabeledValueArg<std::string> InputArg(
       "input", "input file (default to stdin)", false, "", "input-file", Parser);

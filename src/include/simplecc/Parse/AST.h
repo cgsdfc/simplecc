@@ -68,6 +68,7 @@ public:
   void dump() const;
 };
 
+
 DEFINE_INLINE_OUTPUT_OPERATOR(AST)
 
 /// This struct knows how to delete an AST or a sequence of AST.
@@ -184,9 +185,7 @@ class ConstDecl : public DeclAST {
   ~ConstDecl() = default;
 
 public:
-  ConstDecl(BasicTypeKind type, std::string name, ExprAST *value, Location loc)
-      : DeclAST(DeclAST::ConstDeclKind, type, std::move(name), loc), Value(value) {}
-
+  ConstDecl(BasicTypeKind type, std::string name, ExprAST *value, Location loc);
   ConstDecl(const ConstDecl &) = delete;
   ConstDecl(ConstDecl &&) = default;
 
@@ -213,9 +212,7 @@ class VarDecl : public DeclAST {
   ~VarDecl() = default;
 
 public:
-  VarDecl(BasicTypeKind Type, std::string Name, bool isArray, int size, Location loc)
-      : DeclAST(DeclAST::VarDeclKind, Type, std::move(Name), loc), IsArray(isArray), Size(size) {}
-
+  VarDecl(BasicTypeKind Type, std::string Name, bool isArray, int size, Location loc);
   VarDecl(const VarDecl &) = delete;
   VarDecl(VarDecl &&) = default;
 
@@ -241,10 +238,7 @@ public:
 
   FuncDef(BasicTypeKind return_type, std::vector<ArgDecl *> args,
           std::vector<DeclAST *> decls, StmtListType stmts,
-          std::string name, Location loc)
-      : DeclAST(DeclAST::FuncDefKind, return_type, std::move(name), loc),
-        Args(std::move(args)), Decls(std::move(decls)), Stmts(std::move(stmts)) {}
-
+          std::string name, Location loc);
   FuncDef(const FuncDef &) = delete;
   FuncDef(FuncDef &&) = default;
 
@@ -295,9 +289,7 @@ class ArgDecl : public DeclAST {
   ~ArgDecl() = default;
 
 public:
-  ArgDecl(BasicTypeKind type, std::string name, Location loc)
-      : DeclAST(DeclAST::ArgDeclKind, type, std::move(name), loc) {}
-
+  ArgDecl(BasicTypeKind type, std::string name, Location loc);
   ArgDecl(const ArgDecl &) = delete;
   ArgDecl(ArgDecl &&) = default;
 
@@ -316,9 +308,7 @@ class ReadStmt : public StmtAST {
   ~ReadStmt() { DeleteAST::apply(Names); }
 
 public:
-  ReadStmt(std::vector<NameExpr *> names, Location loc)
-      : StmtAST(StmtAST::ReadStmtKind, loc), Names(std::move(names)) {}
-
+  ReadStmt(std::vector<NameExpr *> names, Location loc);
   ReadStmt(const ReadStmt &) = delete;
   ReadStmt(ReadStmt &&) = default;
 
@@ -339,9 +329,7 @@ class WriteStmt : public StmtAST {
   ~WriteStmt() = default;
 
 public:
-  WriteStmt(ExprAST *str, ExprAST *value, Location loc)
-      : StmtAST(StmtAST::WriteStmtKind, loc), Str(str), Value(value) {}
-
+  WriteStmt(ExprAST *str, ExprAST *value, Location loc);
   WriteStmt(const WriteStmt &) = delete;
   WriteStmt(WriteStmt &&) = default;
 
@@ -398,10 +386,7 @@ class ForStmt : public StmtAST {
 
 public:
   ForStmt(StmtAST *initial, ExprAST *condition, StmtAST *step,
-          StmtListType body, Location loc)
-      : StmtAST(StmtAST::ForStmtKind, loc), Initial(initial),
-        Cond(condition), Step(step), Body(std::move(body)) {}
-
+          StmtListType body, Location loc);
   ForStmt(const ForStmt &) = delete;
   ForStmt(ForStmt &&) = default;
 
@@ -438,9 +423,7 @@ class WhileStmt : public StmtAST {
   ~WhileStmt() { DeleteAST::apply(Body); }
 
 public:
-  WhileStmt(ExprAST *condition, StmtListType body, Location loc)
-      : StmtAST(WhileStmtKind, loc), Cond(condition), Body(std::move(body)) {}
-
+  WhileStmt(ExprAST *condition, StmtListType body, Location loc);
   WhileStmt(const WhileStmt &) = delete;
   WhileStmt(WhileStmt &&) = default;
 
@@ -466,9 +449,7 @@ class ReturnStmt : public StmtAST {
   ~ReturnStmt() = default;
 
 public:
-  ReturnStmt(ExprAST *value, Location loc)
-      : StmtAST(StmtAST::ReturnStmtKind, loc), Value(value) {}
-
+  ReturnStmt(ExprAST *value, Location loc);
   ReturnStmt(const ReturnStmt &) = delete;
   ReturnStmt(ReturnStmt &&) = default;
 
@@ -490,10 +471,7 @@ class IfStmt : public StmtAST {
   ~IfStmt();
 
 public:
-  IfStmt(ExprAST *C, StmtListType T, StmtListType E, Location loc)
-      : StmtAST(StmtAST::IfStmtKind, loc), Cond(C), Then(std::move(T)),
-        Else(std::move(E)) {}
-
+  IfStmt(ExprAST *C, StmtListType T, StmtListType E, Location loc);
   IfStmt(const IfStmt &) = delete;
   IfStmt(IfStmt &&) = default;
 
@@ -522,9 +500,7 @@ class ExprStmt : public StmtAST {
   ~ExprStmt() = default;
 
 public:
-  ExprStmt(ExprAST *value, Location loc)
-      : StmtAST(StmtAST::ExprStmtKind, loc), Value(value) {}
-
+  ExprStmt(ExprAST *value, Location loc);
   ExprStmt(const ExprStmt &) = delete;
   ExprStmt(ExprStmt &&) = default;
 
@@ -545,9 +521,7 @@ class BinOpExpr : public ExprAST {
   ~BinOpExpr() = default;
 
 public:
-  BinOpExpr(ExprAST *left, BinaryOpKind op, ExprAST *right, Location loc)
-      : ExprAST(ExprAST::BinOpExprKind, loc), Left(left), Op(op), Right(right) {}
-
+  BinOpExpr(ExprAST *left, BinaryOpKind op, ExprAST *right, Location loc);
   BinOpExpr(const BinOpExpr &) = delete;
   BinOpExpr(BinOpExpr &&) = default;
 
@@ -577,9 +551,7 @@ class ParenExpr : public ExprAST {
   int getConstantValueImpl() const { return Value->getConstantValue(); }
 
 public:
-  ParenExpr(ExprAST *value, Location loc)
-      : ExprAST(ExprAST::ParenExprKind, loc), Value(value) {}
-
+  ParenExpr(ExprAST *value, Location loc);
   ParenExpr(const ParenExpr &) = delete;
   ParenExpr(ParenExpr &&) = default;
 
@@ -607,9 +579,7 @@ class BoolOpExpr : public ExprAST {
   static bool isCompareOp(BinaryOpKind Op);
 
 public:
-  BoolOpExpr(ExprAST *value, bool has_cmpop, Location loc)
-      : ExprAST(BoolOpExprKind, loc), Value(value), HasCmpOp(has_cmpop) {}
-
+  BoolOpExpr(ExprAST *value, bool has_cmpop, Location loc);
   BoolOpExpr(const BoolOpExpr &) = delete;
   BoolOpExpr(BoolOpExpr &&) = default;
 
@@ -652,9 +622,7 @@ class UnaryOpExpr : public ExprAST {
   }
 
 public:
-  UnaryOpExpr(UnaryOpKind op, ExprAST *operand, Location loc)
-      : ExprAST(UnaryOpExprKind, loc), Op(op), Operand(operand) {}
-
+  UnaryOpExpr(UnaryOpKind op, ExprAST *operand, Location loc);
   UnaryOpExpr(const UnaryOpExpr &) = delete;
   UnaryOpExpr(UnaryOpExpr &&) = default;
 
@@ -679,10 +647,7 @@ class CallExpr : public ExprAST {
   ~CallExpr() { DeleteAST::apply(Args); }
 
 public:
-  CallExpr(std::string func, std::vector<ExprAST *> args, Location loc)
-      : ExprAST(ExprAST::CallExprKind, loc),
-        Callee(std::move(func)), Args(std::move(args)) {}
-
+  CallExpr(std::string func, std::vector<ExprAST *> args, Location loc);
   CallExpr(const CallExpr &) = delete;
   CallExpr(CallExpr &&) = default;
 
@@ -717,9 +682,7 @@ class NumExpr : public ExprAST {
   int getConstantValueImpl() const { return getNum(); }
 
 public:
-  NumExpr(int n, Location loc)
-      : ExprAST(ExprAST::NumExprKind, loc), TheNum(n) {}
-
+  NumExpr(int n, Location loc);
   NumExpr(const NumExpr &) = delete;
   NumExpr(NumExpr &&) = default;
 
@@ -738,9 +701,7 @@ class StrExpr : public ExprAST {
   ~StrExpr() = default;
 
 public:
-  StrExpr(std::string s, Location loc)
-      : ExprAST(ExprAST::StrExprKind, loc), TheStr(std::move(s)) {}
-
+  StrExpr(std::string s, Location loc);
   StrExpr(const StrExpr &) = delete;
   StrExpr(StrExpr &&) = default;
 
@@ -768,9 +729,7 @@ class CharExpr : public ExprAST {
   int getConstantValueImpl() const { return getChar(); }
 
 public:
-  CharExpr(int c, Location loc)
-      : ExprAST(ExprAST::CharExprKind, loc), TheChar(c) {}
-
+  CharExpr(int c, Location loc);
   CharExpr(const CharExpr &) = delete;
   CharExpr(CharExpr &&) = default;
 
@@ -791,10 +750,7 @@ class SubscriptExpr : public ExprAST {
   friend class AST;
 
 public:
-  SubscriptExpr(std::string name, ExprAST *index, ExprContextKind ctx, Location loc)
-      : ExprAST(SubscriptExprKind, loc),
-        ArrayName(std::move(name)), Index(index), Context(ctx) {}
-
+  SubscriptExpr(std::string name, ExprAST *index, ExprContextKind ctx, Location loc);
   SubscriptExpr(const SubscriptExpr &) = delete;
   SubscriptExpr(SubscriptExpr &&) = default;
 
@@ -822,9 +778,7 @@ class NameExpr : public ExprAST {
   friend class AST;
 
 public:
-  NameExpr(std::string id, ExprContextKind ctx, Location loc)
-      : ExprAST(NameExprKind, loc), TheName(std::move(id)), context(ctx) {}
-
+  NameExpr(std::string id, ExprContextKind ctx, Location loc);
   NameExpr(const NameExpr &) = delete;
   NameExpr(NameExpr &&) = default;
 
@@ -846,10 +800,7 @@ class ProgramAST : public AST {
   ~ProgramAST() { DeleteAST::apply(Decls); }
 
 public:
-  ProgramAST(std::string Filename, std::vector<DeclAST *> decls)
-      : AST(ProgramASTKind, Location()), Filename(std::move(Filename)),
-        Decls(std::move(decls)) {}
-
+  ProgramAST(std::string Filename, std::vector<DeclAST *> decls);
   ProgramAST(const ProgramAST &) = delete;
   ProgramAST(ProgramAST &&) = default;
 
