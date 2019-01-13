@@ -82,7 +82,7 @@ public:
     return InsertPoint;
   }
 
-  void setLocation(Location L) { CurrentLineno = L.getLineNo(); }
+  void setLocation(Location L) { CurrentLineno = L.getLine(); }
   unsigned getLineNo() const { return CurrentLineno; }
 
   /// Return the size of the current ByteCodeFunction.

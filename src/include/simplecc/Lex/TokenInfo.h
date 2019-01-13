@@ -2,27 +2,39 @@
 #define SIMPLECC_LEX_TOKENINFO_H
 #include "simplecc/Lex/Location.h"
 #include "simplecc/Parse/Grammar.h"
+#include "simplecc/Support/Macros.h"
 #include <iostream>
 #include <string>
 #include <utility>
 
 namespace simplecc {
-/// This
+/// This class represents a single token.
 class TokenInfo {
 public:
-  TokenInfo(Symbol Ty, std::string S, Location Loc, std::string Line)
-      : Type(Ty), Str(std::move(S)), Loc(Loc), Line(std::move(Line)) {}
-
+  TokenInfo(Symbol Ty, std::string S, Location Loc, std::string Line);
   TokenInfo(const TokenInfo &) = default;
   TokenInfo(TokenInfo &&) = default;
+
+  /// Return the name of the Symbol.
   const char *getTypeName() const;
+
+  /// Return the location this token was found.
   Location getLocation() const { return Loc; }
+
+  /// Return the string value of this token.
+  /// Virtual tokens like ENDMARKER have an empty one.
   const std::string &getString() const { return Str; }
+
+  /// Return the line of code where this token was found.
   const std::string &getLine() const { return Line; }
+
+  /// Return the type of this token, which must be a terminal.
   Symbol getType() const { return Type; }
+
+  /// Format each field of the token aligned properly.
   void Format(std::ostream &O) const;
 
-  /// Return if a Symbol is a non terminal.
+  /// Return if a Symbol is a non-terminal.
   static bool IsNonTerminal(Symbol S) { return !IsTerminal(S); }
   /// Return if a Symbol is a terminal.
   static bool IsTerminal(Symbol S);
@@ -36,5 +48,6 @@ private:
   std::string Line;
 };
 
+DEFINE_INLINE_OUTPUT_OPERATOR(TokenInfo)
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_LEX_TOKENINFO_H

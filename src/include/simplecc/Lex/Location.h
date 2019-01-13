@@ -4,18 +4,22 @@
 #include <iostream>
 
 namespace simplecc {
+/// This class represents a location in the source file.
 class Location {
   unsigned Line;
   unsigned Column;
 
 public:
+  /// Construct a location at the beginning of the file.
   Location() : Line(0), Column(0) {}
   Location(unsigned lineno, unsigned col_offset)
       : Line(lineno), Column(col_offset) {}
 
-  unsigned getLineNo() const { return Line; }
+  /// Return the line number.
+  unsigned getLine() const { return Line; }
 
-  unsigned getColOffset() const { return Column; }
+  /// Return the column offset.
+  unsigned getColumn() const { return Column; }
 
   void Format(std::ostream &O) const;
 

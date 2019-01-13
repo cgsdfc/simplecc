@@ -1,53 +1,60 @@
 #include "simplecc/Lex/Tokenize.h"
-#include "simplecc/Support/ErrorManager.h"
 #include <algorithm>
-#include <iomanip>
-#include <sstream>
+#include <iterator>
 #ifdef _MSC_VER
 #include <cctype>
 #endif
 
 using namespace simplecc;
 
+/// Return if a char is valid to be in a string literal.
 static inline bool IsValidStrChar(char Chr) {
   return Chr == 32 || Chr == 33 || (35 <= Chr && Chr <= 126);
 }
 
+/// Return if a char begins an identifier.
 static inline bool IsNameBegin(char Chr) {
   return Chr == '_' || std::isalpha(Chr);
 }
 
+/// Return if a char can appear in the middle and end of an identifier.
 static inline bool IsNameMiddle(char Chr) {
   return Chr == '_' || std::isalnum(Chr);
 }
 
+/// Return if a line consists totally space.
 static bool IsBlank(const std::string &Line) {
   // Find the first char that is not space.
   return std::find_if_not(Line.begin(), Line.end(),
-                      [](char C) { return std::isspace(C); }) == Line.end();
+                          [](char C) { return std::isspace(C); }) == Line.end();
 }
 
+/// Return if a char is a valid one in a character literal.
 static inline bool IsValidChar(char Chr) {
   static const std::string ValidChars("+-*/_");
   return ValidChars.find(Chr) != std::string::npos || std::isalnum(Chr);
 }
 
+/// Return if a char is _special_.
+/// Brackets, parentheses, braces, semicolon, colon and comma are _special_.
 static inline bool IsSpecial(char Chr) {
   static const std::string Special("[](){};:,");
   return Special.find(Chr) != std::string::npos;
 }
 
+/// Return if a char is (part of) an operator.
 static inline bool IsOperator(char Chr) {
   static const std::string Operators("+-*/<>!=");
   return Operators.find(Chr) != std::string::npos;
 }
 
-/// Lower case all chars in Str.
+/// Lower-case all chars in Str.
 static inline void ToLowerInplace(std::string &Str) {
   std::transform(Str.begin(), Str.end(), Str.begin(), ::tolower);
 }
 
 namespace simplecc {
+// TODO: make this a class.
 void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
   unsigned Lineno = 0;
   std::string TheLine;
@@ -119,7 +126,7 @@ void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
       } else {
         ++Pos; // ERRORTOKEN
       }
-      std::string Str(TheLine.begin() + Start.getColOffset(),
+      std::string Str(TheLine.begin() + Start.getColumn(),
                       TheLine.begin() + Pos);
       if (Type == Symbol::NAME) {
         ToLowerInplace(Str);
@@ -130,19 +137,7 @@ void Tokenize(std::istream &Input, std::vector<TokenInfo> &Output) {
   Output.emplace_back(Symbol::ENDMARKER, "", Location(Lineno, 0), "");
 }
 
-static void DumpTokenInfo(std::ostream &O, const TokenInfo &T) {
-  auto &&Loc = T.getLocation();
-  std::ostringstream OS;
-  OS << Loc.getLineNo() << ',' << Loc.getColOffset() << ":";
-  auto &&Range = OS.str();
-
-  O << std::left << std::setw(20) << Range;
-  O << std::left << std::setw(15) << T.getTypeName();
-  O << std::left << std::setw(15) << Quote(T.getString()) << "\n";
-}
-
 void PrintTokens(const std::vector<TokenInfo> &Tokens, std::ostream &O) {
-  std::for_each(Tokens.begin(), Tokens.end(),
-                [&O](const TokenInfo &T) { DumpTokenInfo(O, T); });
+  std::copy(Tokens.begin(), Tokens.end(), std::ostream_iterator<TokenInfo>(O, "\n"));
 }
 } // namespace simplecc
