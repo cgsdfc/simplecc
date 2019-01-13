@@ -5,23 +5,6 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 11)
 include_directories(include)
 
-# Find TCLAP comand line library (Required for *nix build)
-if (NOT MSVC)
-  # TODO: include tclap.
-  find_path(TCLAP_INCLUDE
-          NAMES tclap/CmdLine.h
-          PATHS "$ENV{HOME}/include"
-          DOC "Tclap command line library's headers")
-  if (NOT TCLAP_INCLUDE)
-    message(FATAL_ERROR
-            "Tclap is required for *nix build. Please install that from http://tclap.sourceforge.net/")
-  endif ()
-  message(STATUS ${TCLAP_INCLUDE})
-  include_directories(${TCLAP_INCLUDE})
-  set(CMAKE_CXX_FLAGS "-Wunused-function ${CMAKE_CXX_FLAGS}")
-endif ()
-
-
 # Find LLVM infrustrament (Optional for *nix build)
 set(USE_LLVM OFF)
 if (NOT MSVC)

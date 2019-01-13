@@ -3,6 +3,7 @@ set(EXEC_NAME simplecc)
 set(SOURCE_FILES
         # First thing first, tokenize.
         Lex/Tokenize.cpp
+        Lex/TokenInfo.cpp
 
         # Turn tokens into CST, then into AST.
         Parse/AST.cpp
@@ -66,13 +67,10 @@ set(SOURCE_FILES
         Transform/Transform.cpp
 
         Driver/DriverBase.cpp
+        Driver/Driver.cpp
         # WindowsDriver is always built for the sake of IDE.
         Driver/WindowsDriver.cpp
-        Driver/main.cpp Lex/TokenInfo.cpp)
-
-if (NOT MSVC)
-    list(APPEND SOURCE_FILES Driver/Driver.cpp)
-endif ()
+        Driver/main.cpp)
 
 set(EXTRA_LIBRARIES "")
 
