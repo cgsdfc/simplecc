@@ -1,0 +1,2 @@
+SyntaxError at 1:10: expected int initializer
+SyntaxError at 2:11: expected char initializer

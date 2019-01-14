@@ -1,0 +1,4 @@
+SyntaxError at 1:12: array size cannot be 0
+SyntaxError at 2:14: cannot declare void variable
+SyntaxError at 2:14: array size cannot be 0
+SyntaxError at 3:14: array size cannot be 0

@@ -1,0 +1,4 @@
+SyntaxError at 1:0: cannot declare void variable
+SyntaxError at 2:14: cannot declare void variable
+SyntaxError at 5:7: cannot declare void variable
+SyntaxError at 6:7: cannot declare void variable
