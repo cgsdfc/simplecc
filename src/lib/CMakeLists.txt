@@ -10,7 +10,6 @@ set(SOURCE_FILES
         Parse/Grammar.cpp
         Parse/ASTBuilder.cpp
         Parse/Parser.cpp
-        Parse/GramDef.cpp
         Parse/Node.cpp
         Parse/Parse.cpp
         Parse/Enums.cpp
@@ -24,7 +23,7 @@ set(SOURCE_FILES
         Analysis/ImplicitCallTransformer.cpp
         Analysis/ASTVerifier.cpp
         Analysis/SymbolTableBuilder.cpp
-        Analysis/Analysis.cpp
+        Analysis/AnalysisManager.cpp
         Analysis/ArrayBoundChecker.cpp
         Analysis/ASTPrettyPrinter.cpp
 

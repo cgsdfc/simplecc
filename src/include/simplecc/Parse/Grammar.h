@@ -2,6 +2,7 @@
 #define SIMPLECC_PARSE_GRAMMAR_H
 #include "simplecc/Parse/GramDef.h"
 
+namespace simplecc {
 enum class Symbol {
   program = 256,
   arglist = 257,
@@ -40,8 +41,9 @@ enum class Symbol {
   STRING = 6,
 };
 
-#define NT_OFFSET 256
+constexpr const unsigned NT_OFFSET = 256;
 extern Grammar CompilerGrammar;
 extern const char *TokenNames[], *SymbolNames[];
+} // namespace simplecc
 
-#endif
+#endif // SIMPLECC_PARSE_GRAMMAR_H

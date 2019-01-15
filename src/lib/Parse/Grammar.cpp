@@ -1,31 +1,32 @@
-
 #include "simplecc/Parse/Grammar.h"
 
-const char *TokenNames[7] = {"NAME", "OP",     "ERRORTOKEN", "ENDMARKER",
-                             "CHAR", "NUMBER", "STRING"};
+using namespace simplecc;
 
-const char *SymbolNames[28] = {
-    "program",      "arglist",    "atom",       "atom_trailer", "compound_stmt",
-    "condition",    "const_decl", "const_item", "decl_trailer", "declaration",
-    "expr",         "factor",     "flow_stmt",  "for_stmt",     "if_stmt",
-    "integer",      "paralist",   "read_stmt",  "return_stmt",  "stmt",
-    "stmt_trailer", "subscript2", "term",       "type_name",    "var_decl",
-    "var_item",     "while_stmt", "write_stmt"};
+const char *simplecc::TokenNames[7] = {"NAME", "OP", "ERRORTOKEN", "ENDMARKER",
+                                       "CHAR", "NUMBER", "STRING"};
+
+const char *simplecc::SymbolNames[28] = {
+    "program", "arglist", "atom", "atom_trailer", "compound_stmt",
+    "condition", "const_decl", "const_item", "decl_trailer", "declaration",
+    "expr", "factor", "flow_stmt", "for_stmt", "if_stmt",
+    "integer", "paralist", "read_stmt", "return_stmt", "stmt",
+    "stmt_trailer", "subscript2", "term", "type_name", "var_decl",
+    "var_item", "while_stmt", "write_stmt"};
 
 static Label labels[64] = {
-    {0, "EMPTY"}, {3, 0},       {262, 0},    {265, 0},      {0, "char"},
-    {0, "const"}, {0, "int"},   {0, "void"}, {1, "("},      {266, 0},
-    {1, ")"},     {1, ","},     {4, 0},      {0, 0},        {5, 0},
-    {259, 0},     {1, "["},     {257, 0},    {1, "]"},      {1, "{"},
-    {1, "}"},     {275, 0},     {280, 0},    {1, "!="},     {1, "<"},
-    {1, "<="},    {1, "=="},    {1, ">"},    {1, ">="},     {1, "+"},
-    {1, "-"},     {279, 0},     {263, 0},    {1, ";"},      {1, "="},
-    {271, 0},     {260, 0},     {272, 0},    {277, 0},      {281, 0},
-    {0, "main"},  {264, 0},     {278, 0},    {258, 0},      {267, 0},
-    {269, 0},     {270, 0},     {273, 0},    {274, 0},      {282, 0},
-    {283, 0},     {0, "for"},   {0, "if"},   {0, "printf"}, {0, "return"},
-    {0, "scanf"}, {0, "while"}, {261, 0},    {0, "else"},   {268, 0},
-    {276, 0},     {1, "*"},     {1, "/"},    {6, 0}};
+    {0, "EMPTY"}, {3, 0}, {262, 0}, {265, 0}, {0, "char"},
+    {0, "const"}, {0, "int"}, {0, "void"}, {1, "("}, {266, 0},
+    {1, ")"}, {1, ","}, {4, 0}, {0, 0}, {5, 0},
+    {259, 0}, {1, "["}, {257, 0}, {1, "]"}, {1, "{"},
+    {1, "}"}, {275, 0}, {280, 0}, {1, "!="}, {1, "<"},
+    {1, "<="}, {1, "=="}, {1, ">"}, {1, ">="}, {1, "+"},
+    {1, "-"}, {279, 0}, {263, 0}, {1, ";"}, {1, "="},
+    {271, 0}, {260, 0}, {272, 0}, {277, 0}, {281, 0},
+    {0, "main"}, {264, 0}, {278, 0}, {258, 0}, {267, 0},
+    {269, 0}, {270, 0}, {273, 0}, {274, 0}, {282, 0},
+    {283, 0}, {0, "for"}, {0, "if"}, {0, "printf"}, {0, "return"},
+    {0, "scanf"}, {0, "while"}, {261, 0}, {0, "else"}, {268, 0},
+    {276, 0}, {1, "*"}, {1, "/"}, {6, 0}};
 
 static Arc arcs_0_0[3] = {{1, 1}, {2, 0}, {3, 2}};
 
@@ -275,10 +276,10 @@ static Arc arcs_13_15[1] = {{0, 15}};
 static int first_13[1] = {51};
 
 static DFAState states_13[16] = {
-    {1, arcs_13_0, 0},  {1, arcs_13_1, 0},  {1, arcs_13_2, 0},
-    {1, arcs_13_3, 0},  {1, arcs_13_4, 0},  {1, arcs_13_5, 0},
-    {1, arcs_13_6, 0},  {1, arcs_13_7, 0},  {1, arcs_13_8, 0},
-    {1, arcs_13_9, 0},  {1, arcs_13_10, 0}, {2, arcs_13_11, 0},
+    {1, arcs_13_0, 0}, {1, arcs_13_1, 0}, {1, arcs_13_2, 0},
+    {1, arcs_13_3, 0}, {1, arcs_13_4, 0}, {1, arcs_13_5, 0},
+    {1, arcs_13_6, 0}, {1, arcs_13_7, 0}, {1, arcs_13_8, 0},
+    {1, arcs_13_9, 0}, {1, arcs_13_10, 0}, {2, arcs_13_11, 0},
     {1, arcs_13_12, 0}, {1, arcs_13_13, 0}, {1, arcs_13_14, 0},
     {1, arcs_13_15, 1}};
 
@@ -526,10 +527,10 @@ static DFAState states_27[7] = {
 
 static DFA dfa_27 = {"write_stmt", 7, states_27, 1, first_27};
 
-static DFA *dfas[28] = {&dfa_0,  &dfa_1,  &dfa_2,  &dfa_3,  &dfa_4,  &dfa_5,
-                        &dfa_6,  &dfa_7,  &dfa_8,  &dfa_9,  &dfa_10, &dfa_11,
+static DFA *dfas[28] = {&dfa_0, &dfa_1, &dfa_2, &dfa_3, &dfa_4, &dfa_5,
+                        &dfa_6, &dfa_7, &dfa_8, &dfa_9, &dfa_10, &dfa_11,
                         &dfa_12, &dfa_13, &dfa_14, &dfa_15, &dfa_16, &dfa_17,
                         &dfa_18, &dfa_19, &dfa_20, &dfa_21, &dfa_22, &dfa_23,
                         &dfa_24, &dfa_25, &dfa_26, &dfa_27};
 
-Grammar CompilerGrammar = {256, 28, 64, labels, dfas};
+Grammar simplecc::CompilerGrammar = {256, 28, 64, labels, dfas};

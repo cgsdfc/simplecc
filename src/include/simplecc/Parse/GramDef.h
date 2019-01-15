@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_PARSE_GRAMDEF_H
 #define SIMPLECC_PARSE_GRAMDEF_H
-
+namespace simplecc {
 struct Arc {
   int label;
   int state;
@@ -32,8 +32,5 @@ struct Grammar {
   Label *labels;
   DFA **dfas;
 };
-
-void DumpDFA(DFA *dfa);
-void DumpGrammar(const Grammar &gr);
-
+} // namespace simplecc
 #endif
