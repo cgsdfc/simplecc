@@ -35,9 +35,13 @@ public:
   void Format(std::ostream &O) const;
 
   /// Return if a Symbol is a non-terminal.
-  static bool IsNonTerminal(Symbol S) { return !IsTerminal(S); }
+  static constexpr bool IsNonTerminal(Symbol S) {
+    return !IsTerminal(S);
+  }
   /// Return if a Symbol is a terminal.
-  static bool IsTerminal(Symbol S);
+  static constexpr bool IsTerminal(Symbol S) {
+    return static_cast<int>(S) < NT_OFFSET;
+  }
   /// Return the name for a Symbol.
   static const char *getSymbolName(Symbol S);
 

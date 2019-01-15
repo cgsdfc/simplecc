@@ -10,10 +10,6 @@ const char *TokenInfo::getSymbolName(Symbol S) {
   return IsTerminal(S) ? TokenNames[Val] : SymbolNames[Val - NT_OFFSET];
 }
 
-bool TokenInfo::IsTerminal(Symbol S) {
-  return static_cast<int>(S) < NT_OFFSET;
-}
-
 void TokenInfo::Format(std::ostream &O) const {
   std::ostringstream OS;
   OS << Loc.getLine() << ',' << Loc.getColumn();
