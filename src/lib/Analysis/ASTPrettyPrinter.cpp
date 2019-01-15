@@ -1,4 +1,4 @@
-#include <simplecc/Analysis/ASTPrettyPrinter.h>
+#include "simplecc/Analysis/ASTPrettyPrinter.h"
 
 using namespace simplecc;
 
@@ -28,6 +28,7 @@ void ASTPrettyPrinter::visitProgram(ProgramAST *P) {
   OS << "])";
 }
 
+/// ConstDecl(Int, Name, NumExpr(1))
 void ASTPrettyPrinter::visitConstDecl(ConstDecl *CD) {
   OS << CD->getClassName() << "(" << CD->getType() << ", " << CD->getName()
      << ", ";
@@ -36,9 +37,10 @@ void ASTPrettyPrinter::visitConstDecl(ConstDecl *CD) {
 }
 
 /// VarDecl(Int, Name, true, 10)
+/// VarDecl(Int, Name, false, 0)
 void ASTPrettyPrinter::visitVarDecl(VarDecl *VD) {
   OS << VD->getClassName() << "(" << VD->getType() << ", " << VD->getName()
-     << ", " << std::boolalpha << bool(VD->isArray()) << ", " << VD->getSize()
+     << ", " << std::boolalpha << VD->isArray() << ", " << VD->getSize()
      << ")";
 }
 
@@ -69,19 +71,21 @@ void ASTPrettyPrinter::visitChar(CharExpr *C) {
 /// )
 void ASTPrettyPrinter::visitBinOp(BinOpExpr *B) {
   OS << B->getClassName() << "(" << B->getOp() << ",\n";
-
   increaseIndentLevel();
+
+  // print out lhs.
   printIndent();
   OS << "LHS=";
   visitExpr(B->getLeft());
   OS << ",\n";
 
+  // print out rhs.
   printIndent();
   OS << "RHS=";
   visitExpr(B->getRight());
   OS << ",\n";
-  decreaseIndentLevel();
 
+  decreaseIndentLevel();
   printIndent();
   OS << ")";
 }
@@ -95,18 +99,19 @@ void ASTPrettyPrinter::visitBinOp(BinOpExpr *B) {
 /// )
 void ASTPrettyPrinter::visitUnaryOp(UnaryOpExpr *U) {
   OS << U->getClassName() << "(" << U->getOp();
+  // short case.
   if (isAtomicExpr(U->getOperand())) {
     OS << ", ";
     visitExpr(U->getOperand());
     OS << ")";
     return;
   }
+  // long case.
   OS << ",\n";
   increaseIndentLevel();
   printIndent();
   visitExpr(U->getOperand());
   OS << "\n";
-
   decreaseIndentLevel();
   printIndent();
   OS << ")";
@@ -251,6 +256,7 @@ void ASTPrettyPrinter::visitIf(IfStmt *I) {
 }
 
 /// empty: []
+/// only one: [WriteStmt()]
 /// [
 ///   WriteStmt(),
 ///   ReadStmt(),
@@ -260,6 +266,14 @@ void ASTPrettyPrinter::printStmtList(const std::vector<StmtAST *> &StmtList) {
     OS << "[]";
     return;
   }
+
+  if (StmtList.size() == 1) {
+    OS << "[";
+    visitStmt(StmtList.front());
+    OS << "]";
+    return;
+  }
+
   OS << "[\n";
   increaseIndentLevel();
   for (StmtAST *S : StmtList) {
@@ -392,21 +406,25 @@ void ASTPrettyPrinter::visitFor(ForStmt *F) {
   OS << F->getClassName() << "(\n";
   increaseIndentLevel();
 
+  // print initial.
   printIndent();
   OS << "initial=";
   visitStmt(F->getInitial());
   OS << ",\n";
 
+  // print condition.
   printIndent();
   OS << "condition=";
   visitExpr(F->getCondition());
   OS << ",\n";
 
+  // print step.
   printIndent();
   OS << "step=";
   visitStmt(F->getStep());
   OS << ",\n";
 
+  // print body.
   printIndent();
   OS << "body=";
   printStmtList(F->getBody());
@@ -471,35 +489,45 @@ void ASTPrettyPrinter::visitSubscript(SubscriptExpr *SB) {
 /// FuncDef(Int, Fun, Args(Int Arg), [
 ///   ReturnStmt(NumExpr(1)),
 /// ])
+///
 /// FuncDef(Void, Fun, Args(), [])
 /// FuncDef(Void, Fun, Args(), [ReturnStmt])
 void ASTPrettyPrinter::visitFuncDef(FuncDef *FD) {
+  // print return type, name and arguments.
   OS << FD->getClassName() << "(" << FD->getReturnType() << ", "
      << FD->getName() << ", ";
   printArgs(FD->getArgs());
+
   OS << ", [";
   // Special case when the body is empty.
   if (FD->getDecls().empty() && FD->getStmts().empty()) {
     OS << "])";
     return;
   }
+
   OS << "\n";
   increaseIndentLevel();
+
+  // print declarations.
   for (DeclAST *D : FD->getDecls()) {
     printIndent();
     visitDecl(D);
     OS << ",\n";
   }
+
+  // print statements.
   for (StmtAST *S : FD->getStmts()) {
     printIndent();
     visitStmt(S);
     OS << ",\n";
   }
+
   decreaseIndentLevel();
   printIndent();
   OS << "])";
 }
 
+/// Int Name
 void ASTPrettyPrinter::visitArgDecl(ArgDecl *AD) {
   OS << AD->getType() << " " << AD->getName();
 }
@@ -523,6 +551,18 @@ void ASTPrettyPrinter::printArgs(const std::vector<ArgDecl *> &Args) {
 
 void ASTPrettyPrinter::PrettyPrint(const AST *A) {
   visitAST(const_cast<AST *>(A));
+}
+
+bool ASTPrettyPrinter::isAtomicExpr(ExprAST *E) const {
+  switch (E->getKind()) {
+  case ExprAST::NameExprKind:
+  case ExprAST::StrExprKind:
+  case ExprAST::NumExprKind:
+  case ExprAST::CharExprKind:
+    return true;
+  default:
+    return false;
+  }
 }
 
 namespace simplecc {

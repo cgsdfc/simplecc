@@ -3,35 +3,29 @@
 
 using namespace simplecc;
 
-ArrayType::ArrayType(VarDecl *VD)
+ArrayType::ArrayType(const VarDecl *VD)
     : ElemType(VD->getType()), Size(VD->getSize()) {
   assert(VD->isArray());
 }
 
-ConstType::ConstType(ConstDecl *CD) : Type(CD->getType()) {
+ConstType::ConstType(const ConstDecl *CD) : Type(CD->getType()) {
   auto Val = CD->getValue();
   switch (Val->getKind()) {
-  case ExprAST::CharExprKind:
-    Value = static_cast<CharExpr *>(Val)->getChar();
+  case ExprAST::CharExprKind:Value = static_cast<CharExpr *>(Val)->getChar();
     break;
-  case ExprAST::NumExprKind:
-    Value = static_cast<NumExpr *>(Val)->getNum();
+  case ExprAST::NumExprKind:Value = static_cast<NumExpr *>(Val)->getNum();
     break;
-  default:
-    assert(false && "Value of ConstDecl must be a Constant!");
+  default:assert(false && "Value of ConstDecl must be a Constant!");
   }
 }
 
-VarType::VarType(DeclAST *D) {
+VarType::VarType(const DeclAST *D) {
   switch (D->getKind()) {
-  case DeclAST::ArgDeclKind:
-    Type = static_cast<ArgDecl *>(D)->getType();
+  case DeclAST::ArgDeclKind:Type = static_cast<const ArgDecl *>(D)->getType();
     break;
-  case DeclAST::VarDeclKind:
-    Type = static_cast<VarDecl *>(D)->getType();
+  case DeclAST::VarDeclKind:Type = static_cast<const VarDecl *>(D)->getType();
     break;
-  default:
-    assert(false && "DeclAST not for Variable!");
+  default:assert(false && "DeclAST not for Variable!");
   }
 }
 
@@ -47,7 +41,7 @@ const char *SymbolEntry::getTypeName() const {
 }
 
 BasicTypeKind FuncType::getArgTypeAt(int Idx) const {
-  assert(Idx < getArgCount() && "Arg index out of range");
+  assert(Idx < getNumArgs() && "Arg index out of range");
   return TheFuncDef->getArgAt(Idx)->getType();
 }
 
@@ -58,28 +52,28 @@ VarType SymbolEntry::AsVariable() const {
 
 FuncType SymbolEntry::AsFunction() const {
   assert(IsFunction());
-  return FuncType(static_cast<FuncDef *>(TheDecl));
+  return FuncType(static_cast<const FuncDef *>(TheDecl));
 }
 
 ArrayType SymbolEntry::AsArray() const {
   assert(IsArray());
-  return ArrayType(static_cast<VarDecl *>(TheDecl));
+  return ArrayType(static_cast<const VarDecl *>(TheDecl));
 }
 
 ConstType SymbolEntry::AsConstant() const {
   assert(IsConstant());
-  return ConstType(static_cast<ConstDecl *>(TheDecl));
+  return ConstType(static_cast<const ConstDecl *>(TheDecl));
 }
 
 bool SymbolEntry::IsArray() const {
   return TheDecl && IsInstance<VarDecl>(TheDecl) &&
-         static_cast<VarDecl *>(TheDecl)->isArray();
+      static_cast<const VarDecl *>(TheDecl)->isArray();
 }
 
 bool SymbolEntry::IsVariable() const {
   return TheDecl && (IsInstance<ArgDecl>(TheDecl) ||
-                     (IsInstance<VarDecl>(TheDecl) &&
-                      !static_cast<VarDecl *>(TheDecl)->isArray()));
+      (IsInstance<VarDecl>(TheDecl) &&
+          !static_cast<const VarDecl *>(TheDecl)->isArray()));
 }
 
 bool SymbolEntry::IsConstant() const {
@@ -109,13 +103,14 @@ void SymbolEntry::Format(std::ostream &O) const {
     << getScope() << ", " << getLocation() << ")";
 }
 
+SymbolEntry::SymbolEntry(Scope scope, const DeclAST *decl)
+    : TheScope(scope), TheDecl(decl) {}
+
 namespace simplecc {
 std::ostream &operator<<(std::ostream &O, Scope S) {
   switch (S) {
-  case Scope::Global:
-    return O << "Global";
-  case Scope::Local:
-    return O << "Local";
+  case Scope::Global:return O << "Global";
+  case Scope::Local:return O << "Local";
   }
 }
 } // namespace simplecc

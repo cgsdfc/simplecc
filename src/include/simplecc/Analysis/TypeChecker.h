@@ -3,17 +3,19 @@
 #include "simplecc/Analysis/AnalysisVisitor.h"
 
 namespace simplecc {
+/// TypeChecker implements type checking of the compiler.
+/// Type checking enforces the type system, which is essentially a set of rules.
 class TypeChecker : AnalysisVisitor<TypeChecker> {
   void visitRead(ReadStmt *RD);
   void visitWrite(WriteStmt *WR);
   void visitReturn(ReturnStmt *R);
   void visitAssign(AssignStmt *A);
 
-  // check the operand of BoolOpExpr, restrict to int
+  /// check the operand of BoolOpExpr, restrict to int
   void CheckBoolOpOperand(ExprAST *E);
   BasicTypeKind visitBoolOp(BoolOpExpr *B);
 
-  // check the operand of ExprAST, restrict to NOT void
+  /// check the operand of ExprAST, restrict to NOT void
   BasicTypeKind CheckExprOperand(ExprAST *E);
   BasicTypeKind visitBinOp(BinOpExpr *B);
   BasicTypeKind visitUnaryOp(UnaryOpExpr *U);
@@ -22,20 +24,20 @@ class TypeChecker : AnalysisVisitor<TypeChecker> {
   BasicTypeKind visitSubscript(SubscriptExpr *SB);
   BasicTypeKind visitName(NameExpr *N);
 
-  // Return the type of evaluating the expression.
+  /// Return the type of evaluating the expression.
   BasicTypeKind visitExpr(ExprAST *E);
-
   BasicTypeKind visitNum(NumExpr *) { return BasicTypeKind::Int; }
   BasicTypeKind visitChar(CharExpr *) { return BasicTypeKind::Character; }
 
   void visitFuncDef(FuncDef *FD);
   void setFuncDef(FuncDef *FD) { TheFuncDef = FD; }
 
-  // not actually used, for instantiation only.
+  /// not actually used, for instantiation only.
   BasicTypeKind visitStr(StrExpr *);
 
 public:
-  TypeChecker() : AnalysisVisitor("TypeError") {}
+  TypeChecker();
+  /// Perform type checking.
   using AnalysisVisitor::Check;
 
 private:
@@ -45,4 +47,4 @@ private:
   FuncDef *TheFuncDef;
 };
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_ANALYSIS_TYPECHECKER_H

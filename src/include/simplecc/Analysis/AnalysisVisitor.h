@@ -5,7 +5,7 @@
 #include <utility>
 
 namespace simplecc {
-/// This class is a CRTP base for classes that perform analysis on the AST.
+/// AnalysisVisitor is a CRTP base for classes that perform an analysis on the AST.
 /// It also acts as an ErrorManger so that subclass don't need to own one.
 /// It provides a Check() method that means to streamline the interface of
 /// subclasses. Due to CRTP, subclasses should:
@@ -19,7 +19,7 @@ public:
   explicit AnalysisVisitor(const char *ErrorType = nullptr)
       : ErrorManager(ErrorType) {}
 
-  /// Public interface. Subclass should mark it as public.
+  /// Perform a check on the program.
   bool Check(ProgramAST *P, SymbolTable &S) {
     ContextualVisitor<Derived>::visitProgram(P, S);
     return !IsOk();

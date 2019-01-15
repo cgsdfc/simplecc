@@ -99,7 +99,7 @@ BasicTypeKind TypeChecker::visitCall(CallExpr *C) {
   }
 
   auto Ty = Entry.AsFunction();
-  auto NumFormal = Ty.getArgCount();
+  auto NumFormal = Ty.getNumArgs();
   auto NumActual = C->getArgs().size();
   if (NumFormal != NumActual) {
     Error(C->getLocation(), C->getCallee(), "expects", NumFormal,
@@ -174,4 +174,8 @@ BasicTypeKind TypeChecker::visitExpr(ExprAST *E) {
 void TypeChecker::visitFuncDef(FuncDef *FD) {
   setFuncDef(FD);
   ContextualVisitor::visitFuncDef(FD);
+}
+
+TypeChecker::TypeChecker() {
+  setErrorType("TypeError");
 }

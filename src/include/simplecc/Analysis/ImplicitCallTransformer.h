@@ -20,7 +20,6 @@ namespace simplecc {
 /// type check on the program, these implicit calls **must** be properly
 /// described by the AST. Therefore the AST needs a transformation pass right
 /// after the SymbolTable pass and right before the TypeChecker pass.
-//
 class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
   void visitWrite(WriteStmt *W);
   void visitAssign(AssignStmt *A);
@@ -38,6 +37,7 @@ class ImplicitCallTransformer : ChildrenVisitor<ImplicitCallTransformer> {
 
   void visitFuncDef(FuncDef *FD);
 
+  // TODO: use ExpressionTransformer.
   ExprAST *TransformExpr(ExprAST *E);
 
   /// Setters.
@@ -56,4 +56,4 @@ private:
   const SymbolTable *TheTable;
 };
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_ANALYSIS_IMPLICITCALLTRANSFORMER_H

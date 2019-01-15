@@ -1,5 +1,6 @@
 #include "simplecc/Analysis/SyntaxChecker.h"
 #include <cassert>
+#include <simplecc/Analysis/SyntaxChecker.h>
 
 using namespace simplecc;
 
@@ -28,8 +29,7 @@ void SyntaxChecker::visitProgram(ProgramAST *P) {
     case DeclAST::FuncDefKind:
       // FuncDef can be preceded by anything.
       break;
-    default:
-      assert(false && "Impossible DeclAST Kind");
+    default:assert(false && "Impossible DeclAST Kind");
     }
     PrevDecl = D->getKind();
     VisitorBase::visitDecl(D);
@@ -37,10 +37,8 @@ void SyntaxChecker::visitProgram(ProgramAST *P) {
 
   // check the last declaration is the void main() function
   DeclAST *LastDecl = P->getDecls().back();
-  if (IsInstance<FuncDef>(LastDecl) && LastDecl->getName() == "main" &&
-      static_cast<FuncDef *>(LastDecl)->getReturnType() == BasicTypeKind::Void)
+  if (isMainFunction(LastDecl))
     return;
-
   EM.Error(LastDecl->getLocation(), "the last declaration must be void main()");
 }
 
@@ -60,6 +58,7 @@ void SyntaxChecker::visitVarDecl(VarDecl *VD) {
   if (VD->getType() == BasicTypeKind::Void) {
     EM.Error(VD->getLocation(), "cannot declare void variable");
   }
+
   if (VD->isArray() && VD->getSize() == 0) {
     EM.Error(VD->getLocation(), "array size cannot be 0");
   }
@@ -83,4 +82,19 @@ void SyntaxChecker::visitArgDecl(ArgDecl *AD) {
 bool SyntaxChecker::Check(ProgramAST *P) {
   visitProgram(P);
   return !EM.IsOk();
+}
+
+SyntaxChecker::SyntaxChecker() {
+  EM.setErrorType("SyntaxError");
+}
+
+bool SyntaxChecker::isMainFunction(DeclAST *D) const {
+  if (!IsInstance<FuncDef>(D))
+    return false;
+  auto FD = static_cast<FuncDef *>(D);
+  if (FD->getName() != "main")
+    return false;
+  if (FD->getReturnType() != BasicTypeKind::Void)
+    return false;
+  return FD->getNumArgs() == 0;
 }

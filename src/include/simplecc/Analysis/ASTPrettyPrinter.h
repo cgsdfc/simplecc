@@ -1,9 +1,18 @@
-#ifndef SIMPLECC_VISUALIZE_ASTPRETTYPRINTER_H
-#define SIMPLECC_VISUALIZE_ASTPRETTYPRINTER_H
+#ifndef SIMPLECC_ANALYSIS_ASTPRETTYPRINTER_H
+#define SIMPLECC_ANALYSIS_ASTPRETTYPRINTER_H
 #include "simplecc/Analysis/Visitor.h"
-#include <simplecc/Support/IndentAwarePrinter.h>
+#include "simplecc/Support/IndentAwarePrinter.h"
 
 namespace simplecc {
+/// ASTPrettyPrinter implements the pretty-printing of the AST.
+/// The pretty-printing tries to visualize an AST textually to aid debugging
+/// or simply feel cool. The format basically follows:
+/// 1. Class name of the node.
+/// 2. Short attribute like name or type.
+/// 3. Short print-out of children that stay in the same line.
+/// 4. Children nodes with optionally keywords description, e.g., ``LHS=...``
+///
+/// Note: Location is not included as it tends to make output verbose.
 class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
                          IndentAwarePrinter<ASTPrettyPrinter> {
   void visitProgram(ProgramAST *P);
@@ -33,33 +42,28 @@ class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
   void visitFor(ForStmt *F);
   void visitWhile(WhileStmt *W);
 
-  void printStmtList(const std::vector<StmtAST *> &StmtList);
+  /// Print a list of statements.
+  /// Wrapped in brackets and separated by commas.
+  void printStmtList(const StmtAST::StmtListType &StmtList);
   void printArgs(const std::vector<ArgDecl *> &Args);
 
-  bool isAtomicExpr(ExprAST *E) const {
-    switch (E->getKind()) {
-    case ExprAST::NameExprKind:
-    case ExprAST::StrExprKind:
-    case ExprAST::NumExprKind:
-    case ExprAST::CharExprKind:
-      return true;
-    default:
-      return false;
-    }
-  }
-
+  /// Return if an expression is atomic, i.e., has no children.
+  bool isAtomicExpr(ExprAST *E) const;
+  /// Return if a CallExpr passes no argument.
   bool hasNoArgument(CallExpr *C) const { return !C->getNumArgs(); }
 
 public:
   explicit ASTPrettyPrinter(std::ostream &O) : OS(O) {}
+  /// Pretty print an AST node.
   void PrettyPrint(const AST *A);
 
 private:
   friend IndentAwarePrinter;
   friend VisitorBase;
   std::ostream &OS;
+  /// Required by IndentAwarePrinter.
   std::ostream &getOS() { return OS; }
 };
 } // namespace simplecc
 
-#endif // SIMPLECC_VISUALIZE_ASTPRETTYPRINTER_H
+#endif // SIMPLECC_ANALYSIS_ASTPRETTYPRINTER_H

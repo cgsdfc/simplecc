@@ -48,6 +48,7 @@ public:
 private:
   friend VisitorBase;
   friend ChildrenVisitor;
+
   ErrorManager EM;
   TableType *TheGlobal;
   TableType *TheLocal;

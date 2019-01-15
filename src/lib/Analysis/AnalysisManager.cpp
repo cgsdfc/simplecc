@@ -1,4 +1,4 @@
-#include "simplecc/Analysis/Analysis.h"
+#include "simplecc/Analysis/AnalysisManager.h"
 #include "simplecc/Analysis/ASTVerifier.h"
 #include "simplecc/Analysis/ArrayBoundChecker.h"
 #include "simplecc/Analysis/ImplicitCallTransformer.h"
@@ -8,9 +8,9 @@
 
 using namespace simplecc;
 
-Analysis::~Analysis() = default;
+AnalysisManager::~AnalysisManager() = default;
 
-bool Analysis::runAllAnalyses(ProgramAST *P) {
+bool AnalysisManager::runAllAnalyses(ProgramAST *P) {
   if (SyntaxChecker().Check(P)) {
     return true;
   }
@@ -29,7 +29,7 @@ bool Analysis::runAllAnalyses(ProgramAST *P) {
     return true;
   }
 
-  if (ASTVerifier().Verify(P)) {
+  if (ASTVerifier().Check(P)) {
     PrintErrs("ProgramAST should be well-formed after all analyses run!");
     return true;
   }

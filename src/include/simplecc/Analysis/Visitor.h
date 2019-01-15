@@ -1,3 +1,4 @@
+/// @file Defines VisitorBase and ChildrenVisitor, two important visitor base classes.
 #ifndef SIMPLECC_ANALYSIS_VISITOR_H
 #define SIMPLECC_ANALYSIS_VISITOR_H
 #include "simplecc/Parse/AST.h"
@@ -6,26 +7,50 @@
 
 namespace simplecc {
 
-// Visitor Mixin that provides runtime visit of abstract nodes
+/// VisitorBase is a CRTP mixin that provides dispatch over polymorphic AST nodes.
+/// It implements the visitor methods for all abstract AST classes and calls the
+/// visitor methods of concrete AST classes from Derived. Derived of it must implement
+/// visitor methods for all concrete AST classes or the code won't compile.
+///
+/// The visitor methods have a template parameter for their return type, which default to ``void``.
+/// This flexibility comes with some inconvenience. If you just return void, the usage is as normal.
+/// But if you return some other thing, the template parameter must be provided explicitly or you can
+/// wrap the explicitly parameterized method in a inline method. The latter approach is encouraged since
+/// it makes code less repeated.
+/// \tparam Derived Subclass that wants to visit the AST and want to implement every single visitor methods.
 template <typename Derived> class VisitorBase {
 public:
+  /// Visit any DeclAST node.
   template <typename RetTy = void> RetTy visitDecl(DeclAST *D);
+  /// Visit any StmtAST node.
   template <typename RetTy = void> RetTy visitStmt(StmtAST *S);
+  /// Visit any ExprAST node.
   template <typename RetTy = void> RetTy visitExpr(ExprAST *E);
+  /// Visit any AST node.
   template <typename RetTy = void> RetTy visitAST(AST *A);
 };
 
-/// Visitor that simply visits children recursively and return no value.
+/// ChildrenVisitor is a CRTP mixin that provides recursive visitor methods over
+/// children of all AST nodes. For each child, it visits it using the visitor method from Derived,
+/// which means Derived can override and customize the process. Since it inherits from VisitorBase
+/// it obtains the polymorphic dispatches over abstract nodes, which serve as a well default if Derived
+/// don't provide ones. Derived can even disable the visiting of a certain class by making the
+/// corresponding visitor method empty. On the other hand, Derived can hook into those and performs additional
+/// tasks, such as collecting nodes or resetting line number. This design makes ChildrenVisitor very customizable.
+///
+/// Derived don't need to implement everything. They just implement methods of interest and let ChildrenVisitor
+/// recursively visits what interests Derived.
+/// \tparam Derived Subclass that wants visit all the children with a certain pattern of an AST.
 template <class Derived> class ChildrenVisitor : public VisitorBase<Derived> {
 public:
-  /// Decl subclasses.
+  // Decl subclasses.
   void visitProgram(ProgramAST *P);
   void visitConstDecl(ConstDecl *CD);
-  void visitVarDecl(VarDecl *VD) {}
   void visitFuncDef(FuncDef *FD);
+  void visitVarDecl(VarDecl *VD) {}
   void visitArgDecl(ArgDecl *AD) {}
 
-  /// Stmt subclasses.
+  // Stmt subclasses.
   void visitRead(ReadStmt *R);
   void visitWrite(WriteStmt *W);
   void visitAssign(AssignStmt *A);
@@ -40,14 +65,16 @@ public:
   void visitParenExpr(ParenExpr *PE);
   void visitBoolOp(BoolOpExpr *B);
   void visitUnaryOp(UnaryOpExpr *U);
+  void visitSubscript(SubscriptExpr *SB);
   void visitCall(CallExpr *C);
+
+  // Atomic ExprAST nodes.
   void visitNum(NumExpr *N) {}
   void visitStr(StrExpr *S) {}
   void visitChar(CharExpr *C) {}
-  void visitSubscript(SubscriptExpr *SB);
   void visitName(NameExpr *N) {}
 
-  /// Pull in VisitorBase's methods.
+  // Pull in VisitorBase's methods as default.
   using VisitorBase<Derived>::visitDecl;
   using VisitorBase<Derived>::visitStmt;
   using VisitorBase<Derived>::visitExpr;
@@ -273,4 +300,4 @@ void ChildrenVisitor<Derived>::visitSubscript(SubscriptExpr *SB) {
 }
 
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_ANALYSIS_VISITOR_H

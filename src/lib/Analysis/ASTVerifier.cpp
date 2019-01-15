@@ -70,7 +70,7 @@ void ASTVerifier::visitProgram(ProgramAST *P) {
   }
 }
 
-bool ASTVerifier::Verify(ProgramAST *P) {
+bool ASTVerifier::Check(ProgramAST *P) {
   EM.setErrorType("InternalError");
   visitProgram(P);
   return !EM.IsOk();
