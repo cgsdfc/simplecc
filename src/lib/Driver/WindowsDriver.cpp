@@ -79,7 +79,6 @@ void WindowsDriver::printFilename(std::ostream &OS, OptSwitch Opt, ProductKind P
 }
 
 void WindowsDriver::runPrintASM(std::ostream &OS) {
-  getByteCodeModule().clear();
   doCodeGen();
   doAssemble(OS);
 }

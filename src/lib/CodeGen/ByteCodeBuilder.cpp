@@ -1,11 +1,8 @@
 #include "simplecc/CodeGen/ByteCodeBuilder.h"
-#include "simplecc/CodeGen/ByteCode.h"
-#include "simplecc/CodeGen/ByteCodeFunction.h"
-#include "simplecc/Parse/AST.h"
 
 using namespace simplecc;
 
-unsigned ByteCodeBuilder::MakeSubScr(ExprContextKind ctx) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakeSubScr(ExprContextKind ctx) {
   switch (ctx) {
   case ExprContextKind::Load:
     return ByteCode::BINARY_SUBSCR;
@@ -14,7 +11,7 @@ unsigned ByteCodeBuilder::MakeSubScr(ExprContextKind ctx) {
   }
 }
 
-unsigned ByteCodeBuilder::MakeLoad(Scope scope) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakeLoad(Scope scope) {
   switch (scope) {
   case Scope::Global:
     return ByteCode::LOAD_GLOBAL;
@@ -23,7 +20,7 @@ unsigned ByteCodeBuilder::MakeLoad(Scope scope) {
   }
 }
 
-unsigned ByteCodeBuilder::MakeStore(Scope scope) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakeStore(Scope scope) {
   switch (scope) {
   case Scope::Global:
     return ByteCode::STORE_GLOBAL;
@@ -32,7 +29,7 @@ unsigned ByteCodeBuilder::MakeStore(Scope scope) {
   }
 }
 
-unsigned ByteCodeBuilder::MakeRead(BasicTypeKind type) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakeRead(BasicTypeKind type) {
   switch (type) {
   case BasicTypeKind::Character:
     return ByteCode::READ_CHARACTER;
@@ -43,7 +40,7 @@ unsigned ByteCodeBuilder::MakeRead(BasicTypeKind type) {
   }
 }
 
-unsigned ByteCodeBuilder::MakePrint(BasicTypeKind type) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakePrint(BasicTypeKind type) {
   switch (type) {
   case BasicTypeKind::Character:
     return ByteCode::PRINT_CHARACTER;
@@ -54,7 +51,7 @@ unsigned ByteCodeBuilder::MakePrint(BasicTypeKind type) {
   }
 }
 
-unsigned ByteCodeBuilder::MakeBinary(BinaryOpKind Op) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakeBinary(BinaryOpKind Op) {
   switch (Op) {
   case BinaryOpKind::Add:
     return ByteCode::BINARY_ADD;
@@ -69,7 +66,7 @@ unsigned ByteCodeBuilder::MakeBinary(BinaryOpKind Op) {
   }
 }
 
-unsigned ByteCodeBuilder::MakeUnary(UnaryOpKind Op) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakeUnary(UnaryOpKind Op) {
   switch (Op) {
   case UnaryOpKind::UAdd:
     return ByteCode::UNARY_POSITIVE;
@@ -78,7 +75,7 @@ unsigned ByteCodeBuilder::MakeUnary(UnaryOpKind Op) {
   }
 }
 
-unsigned ByteCodeBuilder::MakeJumpNegative(BinaryOpKind Op) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakeJumpNegative(BinaryOpKind Op) {
   switch (Op) {
   case BinaryOpKind::NotEq:
     return ByteCode::JUMP_IF_EQUAL;
@@ -97,7 +94,7 @@ unsigned ByteCodeBuilder::MakeJumpNegative(BinaryOpKind Op) {
   }
 }
 
-unsigned ByteCodeBuilder::MakeJump(BinaryOpKind Op) {
+ByteCodeBuilder::Opcode ByteCodeBuilder::MakeJump(BinaryOpKind Op) {
   switch (Op) {
   case BinaryOpKind::Eq:
     return ByteCode::JUMP_IF_EQUAL;
@@ -116,16 +113,13 @@ unsigned ByteCodeBuilder::MakeJump(BinaryOpKind Op) {
   }
 }
 
-/// Insert a ByteCode into the back of InsertPoint.
-/// Return the offset of the inserted ByteCode.
-//
 unsigned ByteCodeBuilder::Insert(ByteCode Code) {
   /// get the function being built.
   ByteCodeFunction &TheFunction = *getInsertPoint();
 
   /// Fill in other members of Code.
   auto Off = TheFunction.size();
-  Code.setSourceLineno(getLineNo());
+  Code.setSourceLineno(getLineno());
   Code.setByteCodeOffset(Off);
 
   /// Insert Code at the back of the function.
@@ -137,5 +131,3 @@ void ByteCodeBuilder::setJumpTargetAt(unsigned Idx, unsigned Target) {
   ByteCode &TheCode = getInsertPoint()->getByteCodeAt(Idx);
   TheCode.setJumpTarget(Target);
 }
-
-unsigned ByteCodeBuilder::getSize() const { return getInsertPoint()->size(); }

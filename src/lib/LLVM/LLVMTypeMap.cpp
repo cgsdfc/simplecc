@@ -25,8 +25,8 @@ llvm::Type *LLVMTypeMap::getType(const ArrayType &A) const {
 
 llvm::FunctionType *LLVMTypeMap::getType(const FuncType &F) const {
   Type *ReturnType = getType(F.getReturnType());
-  std::vector<Type *> ArgTypes(F.getArgCount());
-  for (int i = 0; i < F.getArgCount(); i++) {
+  std::vector<Type *> ArgTypes(F.getNumArgs());
+  for (int i = 0; i < F.getNumArgs(); i++) {
     ArgTypes[i] = getType(F.getArgTypeAt(i));
   }
   return FunctionType::get(ReturnType, ArgTypes, false);

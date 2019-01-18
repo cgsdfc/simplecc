@@ -4,7 +4,7 @@
 #include "simplecc/Analysis/Visitor.h"
 
 namespace simplecc {
-/// ContextualVisitor is a CRTP base for Visitors that knows the LocalSymbolTable of
+/// @brief ContextualVisitor is a CRTP base for Visitors that knows the LocalSymbolTable of
 /// the FuncDef it is visiting. It sets up the corresponding LocalSymbolTable
 /// for each FuncDef to be visited.
 template <typename Derived>

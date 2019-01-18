@@ -1,6 +1,5 @@
 #include "simplecc/Target/ByteCodeToMipsTranslator.h"
 #include "simplecc/Target/LocalContext.h"
-#include <cassert>
 
 using namespace simplecc;
 
@@ -117,7 +116,7 @@ void ByteCodeToMipsTranslator::visitCallFunction(const ByteCode &C) {
 }
 
 void ByteCodeToMipsTranslator::visitReturn() {
-  WriteLine("j", ReturnLabel(TheContext.getName(), /* NeedColon */ false));
+  WriteLine("j", ReturnLabel(TheContext.getFuncName(), /* NeedColon */ false));
 }
 
 void ByteCodeToMipsTranslator::visitReturnValue(const ByteCode &C) {
@@ -191,12 +190,12 @@ void ByteCodeToMipsTranslator::visitUnaryJumpIf(const char *op,
                                                 const ByteCode &C) {
   POP("$t0");
   WriteLine(op, "$t0",
-            JumpTargetLabel(TheContext.getName(), C.getIntOperand(),
+            JumpTargetLabel(TheContext.getFuncName(), C.getIntOperand(),
                             /* NeedColon */ false));
 }
 
 void ByteCodeToMipsTranslator::visitJumpForward(const ByteCode &C) {
-  WriteLine("j", JumpTargetLabel(TheContext.getName(), C.getIntOperand(),
+  WriteLine("j", JumpTargetLabel(TheContext.getFuncName(), C.getIntOperand(),
                                  /* NeedColon */ false));
 }
 
@@ -204,7 +203,7 @@ void ByteCodeToMipsTranslator::visitBinaryJumpIf(const char *Op,
                                                  const ByteCode &C) {
   POP("$t0"); // TOS
   POP("$t1"); // TOS1
-  JumpTargetLabel Label(TheContext.getName(), C.getIntOperand(),
+  JumpTargetLabel Label(TheContext.getFuncName(), C.getIntOperand(),
                         /* NeedColon */ false);
   WriteLine(Op, "$t1, $t0,", Label);
 }
@@ -215,7 +214,7 @@ void ByteCodeToMipsTranslator::Write(const ByteCode &C) {
   unsigned Off = C.getByteCodeOffset();
   /// If this is a JumpTarget, emit a label.
   if (TheContext.IsJumpTarget(Off)) {
-    WriteLine(JumpTargetLabel(TheContext.getName(), Off, /* NeedColon */ true));
+    WriteLine(JumpTargetLabel(TheContext.getFuncName(), Off, /* NeedColon */ true));
   }
   WriteLine("#", C.getOpcodeName());
   ByteCodeVisitor::visit(C);

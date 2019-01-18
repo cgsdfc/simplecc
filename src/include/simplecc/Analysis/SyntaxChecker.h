@@ -4,7 +4,7 @@
 #include "simplecc/Support/ErrorManager.h"
 
 namespace simplecc {
-/// SyntaxChecker performs syntax checks on the program.
+/// @brief SyntaxChecker performs syntax checks on the program.
 /// Since the Parser is based on a rewritten grammar, it loosens the restrictions
 /// of the original one. Malformed code can be accepted by the Parser, so this class
 /// rejects them.

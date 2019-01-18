@@ -1,11 +1,10 @@
 #include "simplecc/CodeGen/ByteCodeCompiler.h"
-#include "simplecc/CodeGen/ByteCodeFunction.h"
 #include "simplecc/CodeGen/ByteCodeModule.h"
 
 using namespace simplecc;
 
 void ByteCodeCompiler::visitStmt(StmtAST *S) {
-  Builder.setLocation(S->getLocation());
+  Builder.setLineno(S->getLocation());
   ChildrenVisitor::visitStmt(S);
 }
 
@@ -36,6 +35,7 @@ void ByteCodeCompiler::visitWrite(WriteStmt *WR) {
     visitExpr(WR->getValue());
     Builder.CreatePrint(TheTable->getExprType(WR->getValue()));
   }
+  /// Add a newline for ease of reading.
   Builder.CreatePrintNewline();
 }
 
@@ -55,28 +55,34 @@ void ByteCodeCompiler::visitFor(ForStmt *node) {
   unsigned JumpToLoop = Builder.CreateJumpForward();
   unsigned End = Builder.getSize();
 
+  /// Link offset to jump.
   Builder.setJumpTargetAt(JumpToStart, Start);
   Builder.setJumpTargetAt(JumpToEnd, End);
   Builder.setJumpTargetAt(JumpToLoop, Loop);
 }
 
 void ByteCodeCompiler::visitWhile(WhileStmt *W) {
+  /// label Loop:
   unsigned Loop = Builder.getSize();
   unsigned JumpToEnd =
       CompileBoolOp(static_cast<BoolOpExpr *>(W->getCondition()));
 
+  /// Compile body.
   for (auto s : W->getBody()) {
     visitStmt(s);
   }
+  /// Jump back to Loop.
   unsigned JumpToLoop = Builder.CreateJumpForward();
-
   unsigned End = Builder.getSize();
+
+  /// Link offset to jump.
   Builder.setJumpTargetAt(JumpToEnd, End);
   Builder.setJumpTargetAt(JumpToLoop, Loop);
 }
 
 void ByteCodeCompiler::visitIf(IfStmt *I) {
-  unsigned JumpToElse = CompileBoolOp(static_cast<BoolOpExpr *>(I->getCondition()));
+  unsigned JumpToElse =
+      CompileBoolOp(static_cast<BoolOpExpr *>(I->getCondition()));
   for (auto s : I->getThen()) {
     visitStmt(s);
   }
@@ -94,13 +100,14 @@ void ByteCodeCompiler::visitIf(IfStmt *I) {
   }
   unsigned End = Builder.getSize();
 
+  /// Link offset to jump.
   Builder.setJumpTargetAt(JumpToElse, Else);
   Builder.setJumpTargetAt(JumpToEnd, End);
 }
 
 void ByteCodeCompiler::visitReturn(ReturnStmt *R) {
   ChildrenVisitor::visitReturn(R);
-  R->getValue() ? Builder.CreateReturnValue() : Builder.CreateReturnNone();
+  R->hasValue() ? Builder.CreateReturnValue() : Builder.CreateReturnNone();
 }
 
 unsigned ByteCodeCompiler::CompileBoolOp(BoolOpExpr *B) {
@@ -108,7 +115,7 @@ unsigned ByteCodeCompiler::CompileBoolOp(BoolOpExpr *B) {
     auto BO = static_cast<BinOpExpr *>(B->getValue());
     visitExpr(BO->getLeft());
     visitExpr(BO->getRight());
-    return Builder.CreateJump(BO->getOp());
+    return Builder.CreateCondJump(BO->getOp());
   }
   ChildrenVisitor::visitBoolOp(B);
   return Builder.CreateJumpIfFalse();
@@ -141,8 +148,8 @@ void ByteCodeCompiler::visitName(NameExpr *N) {
     return;
   }
   N->getContext() == ExprContextKind::Load
-      ? Builder.CreateLoad(Entry.getScope(), N->getName())
-      : Builder.CreateStore(Entry.getScope(), N->getName());
+  ? Builder.CreateLoad(Entry.getScope(), N->getName())
+  : Builder.CreateStore(Entry.getScope(), N->getName());
 }
 
 void ByteCodeCompiler::visitFuncDef(FuncDef *FD) {
@@ -164,28 +171,16 @@ void ByteCodeCompiler::visitFuncDef(FuncDef *FD) {
 void ByteCodeCompiler::visitProgram(ProgramAST *P) {
   for (DeclAST *D : P->getDecls()) {
     switch (D->getKind()) {
-    case DeclAST::FuncDefKind:
-      visitFuncDef(static_cast<FuncDef *>(D));
+    case DeclAST::FuncDefKind:visitFuncDef(static_cast<FuncDef *>(D));
       break;
     case DeclAST::VarDeclKind:
       // Collect global objects.
       TheModule->getGlobalVariables().push_back(
           TheTable->getGlobalEntry(D->getName()));
       break;
-    default:
-      break; // Ignore ConstDecl.
+    default:break; // Ignore ConstDecl.
     }
   }
-}
-
-// public interface
-void ByteCodeCompiler::Compile(ProgramAST *P, const SymbolTable &S,
-                               ByteCodeModule &M) {
-  EM.clear();
-  M.clear();
-  setTable(&S);
-  setModule(&M);
-  visitProgram(P);
 }
 
 void ByteCodeCompiler::visitExprStmt(ExprStmt *ES) {
@@ -204,12 +199,25 @@ void ByteCodeCompiler::visitBinOp(BinOpExpr *B) {
   Builder.CreateBinary(B->getOp());
 }
 
-void ByteCodeCompiler::visitNum(NumExpr *N) { Builder.CreateLoadConst(N->getNum()); }
-void ByteCodeCompiler::visitChar(CharExpr *C) { Builder.CreateLoadConst(C->getChar()); }
+void ByteCodeCompiler::visitNum(NumExpr *N) {
+  Builder.CreateLoadConst(N->getNum());
+}
+
+void ByteCodeCompiler::visitChar(CharExpr *C) {
+  Builder.CreateLoadConst(C->getChar());
+}
 
 /// Visit value first and then target. The order of
 /// ChildrenVisitor::visitAssign is unfortunately wrong.
 void ByteCodeCompiler::visitAssign(AssignStmt *A) {
   visitExpr(A->getValue());
   visitExpr(A->getTarget());
+}
+
+void ByteCodeCompiler::Compile(ProgramAST *P, const SymbolTable &S, ByteCodeModule &M) {
+  EM.clear();
+  M.clear();
+  setTable(&S);
+  setModule(&M);
+  visitProgram(P);
 }

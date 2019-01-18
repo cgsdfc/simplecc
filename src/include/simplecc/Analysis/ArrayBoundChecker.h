@@ -7,7 +7,7 @@
 #include <utility> // for pair
 
 namespace simplecc {
-/// ArrayBoundChecker performs static array bound check on a program.
+/// @brief ArrayBoundChecker performs static array bound check on a program.
 /// For any SubscriptExpr in a program, if its index is a simple constant expression
 /// then it checks whether the index goes out of bound.
 /// Simple constant expression means it is a:

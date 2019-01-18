@@ -60,7 +60,7 @@ bool LocalContext::IsArray(const char *Name) const {
   return TheFunction->getLocalTable()[Name].IsArray();
 }
 
-const std::string &LocalContext::getName() const {
+const std::string &LocalContext::getFuncName() const {
   return TheFunction->getName();
 }
 

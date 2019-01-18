@@ -11,7 +11,7 @@ class SymbolTableBuilder;
 class TypeChecker;
 using TableType = std::unordered_map<std::string, SymbolEntry>;
 
-/// LocalSymbolTable provides a readonly view to a local symbol table.
+/// @brief LocalSymbolTable provides a readonly view to a local symbol table.
 /// It overloads the ``operator[]`` to provide readonly access to SymbolEntry
 /// and prevents lookup failure by assertion.
 class LocalSymbolTable {
@@ -37,7 +37,7 @@ public:
   const_iterator end() const { return TheTable->end(); }
 };
 
-/// SymbolTable holds all the symbols and expression of a program.
+/// @brief SymbolTable holds all the symbols and expression of a program.
 class SymbolTable {
 public:
   /// Construct an empty SymbolTable.

@@ -9,16 +9,18 @@
 
 namespace simplecc {
 class ByteCodeModule;
-class ProgramAST;
 
+/// @brief ByteCodeCompiler compiles an AST into a ByteCodeModule.
 class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitProgram(ProgramAST *P);
+
+  /// Compile DeclAST.
   void visitFuncDef(FuncDef *FD);
-  /// Explicitly do nothing.
   void visitConstDecl(ConstDecl *) {}
   void visitArgDecl(ArgDecl *A);
   void visitVarDecl(VarDecl *VD);
 
+  /// Compile StmtAST.
   void visitStmt(StmtAST *S);
   void visitRead(ReadStmt *RD);
   void visitWrite(WriteStmt *WR);
@@ -29,11 +31,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitReturn(ReturnStmt *R);
   void visitExprStmt(ExprStmt *ES);
 
-  unsigned CompileBoolOp(BoolOpExpr *B);
-  void visitBoolOp(BoolOpExpr *) {
-    assert(false && "BoolOpExpr should be handled by CompileBoolOp()");
-  }
-
+  /// Compile ExprAST.
   void visitUnaryOp(UnaryOpExpr *U);
   void visitBinOp(BinOpExpr *B);
   void visitCall(CallExpr *C);
@@ -43,18 +41,25 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitSubscript(SubscriptExpr *SB);
   void visitName(NameExpr *N);
 
+  /// Compile a BoolOpExpr. Replacement of visitBoolOp().
+  unsigned CompileBoolOp(BoolOpExpr *B);
+  void visitBoolOp(BoolOpExpr *) {
+    assert(false && "BoolOpExpr should be handled by CompileBoolOp()");
+  }
+
+  /// Setters.
   void setModule(ByteCodeModule *M) { TheModule = M; }
   void setTable(const SymbolTable *S) { TheTable = S; }
   void setLocalTable(LocalSymbolTable V) { TheLocalTable = V; }
 
 public:
   ByteCodeCompiler() = default;
+  /// Compile a program into a ByteCodeModule.
   void Compile(ProgramAST *P, const SymbolTable &S, ByteCodeModule &M);
 
 private:
   friend ChildrenVisitor;
   friend VisitorBase;
-
   ByteCodeBuilder Builder;
   LocalSymbolTable TheLocalTable;
   const SymbolTable *TheTable = nullptr;
@@ -62,5 +67,4 @@ private:
   ErrorManager EM;
 };
 } // namespace simplecc
-
 #endif // SIMPLECC_CODEGEN_BYTECODECOMPILER_H

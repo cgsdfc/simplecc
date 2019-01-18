@@ -4,7 +4,7 @@
 #include "simplecc/Analysis/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 #include <string>
-
+// TODO: docs
 namespace simplecc {
 /// This all-in-one class does what MakeLocal(), MakeGlobal()
 /// and LocalResolver do and in a uniform Visitor fashion.
@@ -56,5 +56,4 @@ private:
   SymbolTable *TheTable;
 };
 } // namespace simplecc
-
 #endif // SIMPLECC_ANALYSIS_SYMBOLTABLEBUILDER_H

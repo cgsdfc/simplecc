@@ -7,7 +7,7 @@
 
 namespace simplecc {
 
-/// VisitorBase is a CRTP mixin that provides dispatch over polymorphic AST nodes.
+/// @brief VisitorBase is a CRTP mixin that provides dispatch over polymorphic AST nodes.
 /// It implements the visitor methods for all abstract AST classes and calls the
 /// visitor methods of concrete AST classes from Derived. Derived of it must implement
 /// visitor methods for all concrete AST classes or the code won't compile.
@@ -30,7 +30,7 @@ public:
   template <typename RetTy = void> RetTy visitAST(AST *A);
 };
 
-/// ChildrenVisitor is a CRTP mixin that provides recursive visitor methods over
+/// @brief ChildrenVisitor is a CRTP mixin that provides recursive visitor methods over
 /// children of all AST nodes. For each child, it visits it using the visitor method from Derived,
 /// which means Derived can override and customize the process. Since it inherits from VisitorBase
 /// it obtains the polymorphic dispatches over abstract nodes, which serve as a well default if Derived

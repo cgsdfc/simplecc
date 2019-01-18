@@ -5,7 +5,7 @@
 #include <utility>
 
 namespace simplecc {
-/// AnalysisVisitor is a CRTP base for classes that perform an analysis on the AST.
+/// @brief AnalysisVisitor is a CRTP base for classes that perform an analysis on the AST.
 /// It also acts as an ErrorManger so that subclass don't need to own one.
 /// It provides a Check() method that means to streamline the interface of
 /// subclasses. Due to CRTP, subclasses should:

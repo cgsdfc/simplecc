@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_DRIVER_DRIVERBASE_H
 #define SIMPLECC_DRIVER_DRIVERBASE_H
-#include "simplecc/Analysis/Analysis.h"
+#include "simplecc/Analysis/AnalysisManager.h"
 #include "simplecc/CodeGen/ByteCodeModule.h"
 #include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Support/ErrorManager.h"
@@ -60,7 +60,7 @@ private:
   std::ofstream StdOFStream;
 
   std::vector<TokenInfo> TheTokens;
-  Analysis AM;
+  AnalysisManager AM;
   std::unique_ptr<ProgramAST, DeleteAST> TheProgram;
   ByteCodeModule TheModule;
   ErrorManager EM;

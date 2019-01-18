@@ -4,6 +4,7 @@
 #include "simplecc/Analysis/Visitor.h"
 
 namespace simplecc {
+/// @brief ImplicitCallTransformer modifies an AST and transform implicit call nodes to explicit calls.
 /// What is an implicit call and why we need to transform them?
 /// Q1: What is an implicit call?
 /// A1: An implicit call is to call a function without parentheses.

@@ -6,7 +6,7 @@
 #include <iostream>
 
 namespace simplecc {
-/// This class handles the formatting of the result of an expression
+/// ExprValue handles the formatting of the result of an expression
 /// It is a discriminated union of a factor Expr and a temporary.
 class ExprValue {
   ExprAST *Factor;
@@ -28,7 +28,7 @@ public:
 
 DEFINE_INLINE_OUTPUT_OPERATOR(ExprValue)
 
-/// This class handles the formatting of a label of two form:
+/// LineLabel handles the formatting of a label of two form:
 /// inline form like GOTO Label_1 and non-inline form like:
 /// Label_1:
 /// printf t0
@@ -53,7 +53,7 @@ public:
 
 DEFINE_INLINE_OUTPUT_OPERATOR(LineLabel)
 
-/// This class prints a program in the form required by the school.
+/// ByteCodePrinter prints a program in the form required by the school.
 class ByteCodePrinter : ChildrenVisitor<ByteCodePrinter> {
   void visitConstDecl(ConstDecl *CD);
   void visitVarDecl(VarDecl *VD);

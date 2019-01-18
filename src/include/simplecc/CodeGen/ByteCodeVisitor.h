@@ -3,7 +3,7 @@
 #include "simplecc/CodeGen/ByteCode.h"
 
 namespace simplecc {
-/// This class is a CRTP Mixin that provides a visit() method
+/// ByteCodeVisitor is a CRTP mixin that provides a visit() method
 /// to dispatch handling of each opcode to subclass.
 /// Note: subclass must implement a corresponding visit method for **every**
 /// opcode.
@@ -11,8 +11,7 @@ template <class Derived> class ByteCodeVisitor {
 public:
   void visit(const ByteCode &C) {
     switch (C.getOpcode()) {
-    default:
-      assert(false && "Invalid Opcode");
+    default:assert(false && "Invalid Opcode");
 #define HANDLE_OPCODE(opcode, camelName)                                       \
   case ByteCode::opcode:                                                       \
     return static_cast<Derived *>(this)->visit##camelName(C);
@@ -22,4 +21,4 @@ public:
 };
 
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_CODEGEN_BYTECODEVISITOR_H

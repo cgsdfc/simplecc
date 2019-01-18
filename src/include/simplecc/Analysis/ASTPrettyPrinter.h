@@ -4,7 +4,7 @@
 #include "simplecc/Support/IndentAwarePrinter.h"
 
 namespace simplecc {
-/// ASTPrettyPrinter implements the pretty-printing of the AST.
+/// @brief ASTPrettyPrinter implements the pretty-printing of the AST.
 /// The pretty-printing tries to visualize an AST textually to aid debugging
 /// or simply feel cool. The format basically follows:
 /// 1. Class name of the node.

@@ -1,10 +1,6 @@
 #include "simplecc/CodeGen/ByteCode.h"
 #include "simplecc/Support/ErrorManager.h"
-
-#include <cassert>
 #include <iomanip>
-#include <iostream>
-#include <simplecc/CodeGen/ByteCode.h>
 
 namespace simplecc {
 
@@ -29,29 +25,24 @@ ByteCode ByteCode::Create(Opcode Op, const char *Str, int Int) {
 
 bool ByteCode::IsJump(Opcode Op) {
   switch (Op) {
-  default:
-    return false;
-#define HANDLE_JUMP(opcode, camelName) case Opcode::opcode:
+  default:return false;
+#define HANDLE_JUMP(opcode, camelName) case Opcode::opcode: return true;
 #include "simplecc/CodeGen/Opcode.def"
-    return true;
   }
 }
 
 bool ByteCode::HasIntOperand(Opcode Op) {
   switch (Op) {
-  default:
-    return false;
-#define HAS_INT_OPERAND_ONLY(OP, NAME) case OP:
-#define HAS_INT_AND_STR_OPERAND(OP, NAME) case OP:
+  default:return false;
+#define HAS_INT_OPERAND_ONLY(OP, NAME) case OP: return true;
+#define HAS_INT_AND_STR_OPERAND(OP, NAME) case OP: return true;
 #include "simplecc/CodeGen/Opcode.def"
-    return true;
   }
 }
 
 bool ByteCode::HasStrOperand(Opcode Op) {
   switch (Op) {
-  default:
-    return false;
+  default:return false;
 #define HAS_STR_OPERAND_ONLY(OP, NAME) case OP:
 #define HAS_INT_AND_STR_OPERAND(OP, NAME) case OP:
 #include "simplecc/CodeGen/Opcode.def"
@@ -61,8 +52,7 @@ bool ByteCode::HasStrOperand(Opcode Op) {
 
 bool ByteCode::HasNoOperand(Opcode Op) {
   switch (Op) {
-  default:
-    return false;
+  default:return false;
 #define HAS_NO_OPERAND(OP, NAME) case OP:
 #include "simplecc/CodeGen/Opcode.def"
     return true;
@@ -84,8 +74,7 @@ void ByteCode::Format(std::ostream &O) const {
 
 const char *ByteCode::getOpcodeName(unsigned Op) {
   switch (Op) {
-  default:
-    assert(false && "Invalid Opcode");
+  default:assert(false && "Invalid Opcode");
 #define HANDLE_OPCODE(opcode, camelName)                                       \
   case Opcode::opcode:                                                         \
     return #opcode;

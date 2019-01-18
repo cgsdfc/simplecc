@@ -5,97 +5,126 @@
 #include <iostream>
 
 namespace simplecc {
-/// This class is a simplified byte code implementation.
-/// A ByteCode instance consists of an Opcode, an optional integer
-/// operand and an optional string operand. It also has information
-/// that connects compiled form to source code -- a kind of debugging
-/// information, namely the source line No and offset in the byte code
-/// stream of a function.
+/// @brief ByteCode is the primary intermediate representation (IR) of simplecc.
+/// A ByteCode instance consists of an Opcode, an optional integer operand and an optional cstring operand.
 ///
-/// ByteCode can be translated to MIPS with a software-emulated stack
-/// without much difficulty. However, it cannot be subject to meaningful
-/// optimization. And the resultant MIPS code has a lot of stack traffic
-/// that makes it less than optimal.
+/// Different Opcode demands different number and type of operands. For example, the ``JUMP_FORWARD`` Opcode
+/// demands a int operand as its jump target. The ``LOAD_GLOBAL`` Opcode demands a cstring operand as its name.
+/// Those properties about operands can be obtained by calling hasIntOperand(), hasStrOperand() and hasNoOperand() member functions.
+/// If an Opcode demands a certain operands, one can get and set these operands by the calling the Operand accessors.
+/// Otherwise, calling accessors on ByteCode that does not has a certain operands triggers an assertion.
 ///
+/// ByteCode can be translated to MIPS backing by a software-emulated stack.
+/// However, meaningful optimization cannot be applied to this form of IR and
+/// the resultant machine code is rather slow.
 class ByteCode {
 public:
+  /// Opcode for ByteCode.
   enum Opcode : unsigned {
 #define HANDLE_OPCODE(opcode, camelName) opcode,
 #include "simplecc/CodeGen/Opcode.def"
   };
 private:
-  /// Core IR information.
   Opcode Op;
   int IntOperand = 0;
   const char *StrOperand = nullptr;
 
-  /// Debugging Information.
-  // lineno in source file
+  // Lineno in source file.
   unsigned SourceLineno = 0;
 
-  // offset in the ByteCode stream.
+  // Offset in the ByteCode stream of a ByteCodeFunction.
   unsigned ByteCodeOffset = 0;
 
   /// Private. Use Create() instead.
-  ByteCode(Opcode Op) : Op(Op) {}
+  explicit ByteCode(Opcode Op) : Op(Op) {}
 
+  /// Helpers.
+  static bool HasStrOperand(Opcode op);
+  static bool HasIntOperand(Opcode op);
+  static bool IsJump(Opcode Op);
+  static bool HasNoOperand(Opcode op);
+  static const char *getOpcodeName(unsigned Op);
 public:
   ~ByteCode() = default;
+  ByteCode(const ByteCode &) = default;
+  ByteCode(ByteCode &&) = default;
 
-  /// Factories to create ByteCode instance correctly.
+  /// Create a ByteCode with no operand.
   static ByteCode Create(Opcode Op) { return ByteCode(Op); }
+
+  /// Create a ByteCode with an int operand.
   static ByteCode Create(Opcode Op, int Val);
+
+  /// Create a ByteCode with a cstring operand.
+  /// The pointer is a borrowed one and the actual storage must outlive the ByteCode instance.
   static ByteCode Create(Opcode Op, const char *Val);
+
+  /// Create a ByteCode with both an int and a cstring operand.
   static ByteCode Create(Opcode Op, const char *Str, int Int);
 
-  /// ByteCode operand inspection.
-  static bool HasIntOperand(Opcode op);
+  /// Return if this opcode has an int operand.
   bool HasIntOperand() const { return HasIntOperand(getOpcode()); }
 
-  static bool HasStrOperand(Opcode op);
+  /// Return if this opcode has an cstring operand.
   bool HasStrOperand() const { return HasStrOperand(getOpcode()); }
 
-  static bool HasNoOperand(Opcode op);
+  /// Return if this opcode has no operand.
   bool HasNoOperand() const { return HasNoOperand(getOpcode()); }
 
-  static bool IsJump(Opcode Op);
+  /// Return if this has a jump Opcode.
   bool IsJump() const { return IsJump(getOpcode()); }
 
+  /// Set the source lineno.
   void setSourceLineno(unsigned Line) { SourceLineno = Line; }
+
+  /// Return the source lineno.
   unsigned getSourceLineno() const { return SourceLineno; }
 
-  /// set the jump target for this ByteCode if this is a jump.
+  /// Set the jump target for this ByteCode if this is a jump.
   void setJumpTarget(unsigned Target) {
-    assert(IsJump() && "SetJumpTarget() on non-jump ByteCode");
+    assert(IsJump() && "not a jump!");
     IntOperand = Target;
   }
 
+  /// Return the jump target if it is a jump.
   unsigned getJumpTarget() const {
-    assert(IsJump() && "GetJumpTarget() on non-jump ByteCode");
-    assert(IntOperand >= 0 && "Negative JumpTarget!");
+    assert(IsJump() && "not a jump!");
+    assert(IntOperand >= 0 && "negative jump target!");
     return static_cast<unsigned>(IntOperand);
   }
 
+  /// Set the offset in the stream.
   void setByteCodeOffset(unsigned Offset) { ByteCodeOffset = Offset; }
+
+  /// Return the offset in the stream.
   unsigned getByteCodeOffset() const { return ByteCodeOffset; }
 
+  /// Return the Opcode.
   Opcode getOpcode() const { return Op; }
-  static const char *getOpcodeName(unsigned Op);
+
+  /// Return the name of the Opcode.
   const char *getOpcodeName() const { return getOpcodeName(getOpcode()); }
 
+  /// Return the int operand if has one.
   int getIntOperand() const {
     assert(HasIntOperand());
     return IntOperand;
   }
+
+  /// Set the int operand if has one.
   void setIntOperand(int Val) {
     assert(HasIntOperand());
     IntOperand = Val;
   }
 
+  /// Return the cstring operand if has one.
   const char *getStrOperand() const {
     assert(HasStrOperand());
     return StrOperand;
   }
+
+  /// Set the cstring operand if has one.
+  /// The pointer is a borrowed one and the actual storage must outlive the ByteCode instance.
   void setStrOperand(const char *Val) {
     assert(HasStrOperand());
     StrOperand = Val;
@@ -107,4 +136,4 @@ public:
 DEFINE_INLINE_OUTPUT_OPERATOR(ByteCode)
 
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_CODEGEN_BYTECODE_H

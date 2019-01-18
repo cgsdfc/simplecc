@@ -11,7 +11,7 @@ class ProgramAST;
 class SymbolTable;
 class ByteCodeFunction;
 
-/// This class is a container for ByteCodeFunction.
+/// @brief ByteCodeModule is a container of ByteCodeFunction.
 class ByteCodeModule {
 public:
   /// A list of global variables.
@@ -54,7 +54,7 @@ public:
   bool empty() const { return FunctionList.empty(); }
   size_t size() const { return FunctionList.size(); }
 
-  /// Make this Module empty.
+  /// Make this module empty.
   void clear();
   void Format(std::ostream &O) const;
 
@@ -67,4 +67,4 @@ private:
 DEFINE_INLINE_OUTPUT_OPERATOR(ByteCodeModule)
 
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_CODEGEN_BYTECODEMODULE_H
