@@ -1,6 +1,7 @@
 #include "simplecc/Parse/Parser.h"
 #include "simplecc/Parse/Node.h"
-#include <algorithm>
+#include <algorithm> // find_if()
+#include <iterator> // next()
 
 using namespace simplecc;
 
@@ -10,30 +11,43 @@ Parser::Parser(const Grammar *G) : TheStack(), TheGrammar(G), EM("SyntaxError") 
   TheStack.push(StackEntry(G->dfas[Start - NT_OFFSET], 0, Root));
 }
 
-bool Parser::IsAcceptOnlyState(DFAState *State) {
+bool Parser::IsAcceptOnlyState(const DFAState *State) {
   return State->is_final && State->n_arcs == 1;
 }
 
-bool Parser::IsInFirst(DFA *D, int Label) {
+bool Parser::IsInFirstSet(const DFA *D, int Label) {
   auto end = D->first + D->n_first;
   return std::find(D->first, end, Label) != end;
 }
 
-int Parser::Classify(const TokenInfo &T) {
-  if (T.getType() == Symbol::NAME || T.getType() == Symbol::OP) {
-    for (int I = 1; I < TheGrammar->n_labels; I++) {
-      const Label &L = TheGrammar->labels[I];
-      if (L.string && L.string == T.getString())
-        return I;
+int Parser::Classify(Symbol Type, const std::string &Value) {
+  // the first label item is for the empty label.
+  const auto LabelBegin = TheGrammar->labels;
+  const auto LabelEnd = TheGrammar->labels + TheGrammar->n_labels;
+
+  // Convert an iterator to an offset(index).
+  auto ToIndex = [LabelBegin](decltype(LabelBegin) Iter) {
+    return int(Iter - LabelBegin);
+  };
+
+  // look for a keyword or operator first.
+  if (Type == Symbol::NAME || Type == Symbol::OP) {
+    auto Iter = std::find_if(std::next(LabelBegin), LabelEnd,
+                             [&Value](const Label &L) { return L.string && L.string == Value; });
+    if (Iter != LabelEnd) {
+      // the index of the label item is the label value for this token.
+      return ToIndex(Iter);
     }
   }
-  for (int I = 1; I < TheGrammar->n_labels; I++) {
-    const Label &L = TheGrammar->labels[I];
-    if (L.type == static_cast<int>(T.getType()) && L.string == nullptr) {
-      return I;
-    }
+
+  // look for an ordinary token.
+  auto Iter = std::find_if(std::next(LabelBegin), LabelEnd,
+                           [Type](const Label &L) { return static_cast<int>(Type) == L.type && !L.string; });
+  if (Iter != LabelEnd) {
+    return ToIndex(Iter);
   }
-  EM.Error(T.getLocation(), "unexpected", T.getString());
+
+  // failure.
   return -1;
 }
 
@@ -44,7 +58,7 @@ void Parser::Shift(const TokenInfo &T, int NewState) {
   Top.setState(NewState);
 }
 
-void Parser::Push(Symbol Ty, DFA *NewDFA, int NewState, Location Loc) {
+void Parser::Push(Symbol Ty, const DFA *NewDFA, int NewState, Location Loc) {
   StackEntry &Top = TheStack.top();
   Top.setState(NewState);
   Node *NewNode = new Node(Ty, "", Loc);
@@ -55,23 +69,32 @@ void Parser::Pop() {
   StackEntry Top = TheStack.top();
   TheStack.pop();
   Node *NewNode = Top.getNode();
-
-  if (TheStack.size()) {
-    TheStack.top().getNode()->AddChild(NewNode);
-  } else {
+  if (TheStack.empty()) {
+    // we are done.
     RootNode = NewNode;
+    return;
   }
+  TheStack.top().getNode()->AddChild(NewNode);
 }
 
 int Parser::AddToken(const TokenInfo &T) {
-  int Label = Classify(T);
-  if (Label < 0) {
+  // fail fast if it is an error token.
+  if (T.getType() == Symbol::ERRORTOKEN) {
+    EM.Error(T.getLocation(), "error token", T.getString());
     return -1;
   }
 
+  // classify the token into label value.
+  auto Label = Classify(T.getType(), T.getString());
+  if (Label < 0) {
+    EM.Error(T.getLocation(), "unexpected token", T.getString());
+    return -1;
+  }
+
+  // loop until we are done.
   while (true) {
     StackEntry &Top = TheStack.top();
-    DFA *D = Top.getDFA();
+    const DFA *D = Top.getDFA();
     DFAState *States = D->states;
     DFAState *TheState = &States[Top.getState()];
     bool Flag = true;
@@ -96,7 +119,7 @@ int Parser::AddToken(const TokenInfo &T) {
 
       } else if (TokenInfo::IsNonTerminal(Ty)) {
         DFA *NewDFA = TheGrammar->dfas[static_cast<int>(Ty) - NT_OFFSET];
-        if (IsInFirst(NewDFA, Label)) {
+        if (IsInFirstSet(NewDFA, Label)) {
           Push(Ty, NewDFA, NewState, T.getLocation());
           Flag = false;
           break;
@@ -119,22 +142,24 @@ int Parser::AddToken(const TokenInfo &T) {
   }
 }
 
-Node *Parser::ParseTokens(const std::vector<TokenInfo> &Tokens) {
+std::unique_ptr<Node> Parser::ParseTokens(const std::vector<TokenInfo> &Tokens) {
   for (const auto &T : Tokens) {
-    if (T.getType() == Symbol::ERRORTOKEN) {
-      EM.Error(T.getLocation(), "error token", T.getString());
-      return nullptr;
-    }
-    int RC = AddToken(T);
-    if (RC == 1) {
-      return RootNode;
-    }
+    auto RC = AddToken(T);
+    // error happened.
     if (RC < 0) {
       return nullptr;
     }
+    // all tokens parsed successfully.
+    if (RC == 1) {
+      assert(RootNode && "RootNode cannot be null!");
+      // ownership handled to caller.
+      return std::unique_ptr<Node>(RootNode);
+    }
+    // continue...
   }
-  auto LastToken = Tokens.end() - 1;
-  EM.Error(LastToken->getLocation(), "incomplete input");
+  // if not return from the loop above, we are screw by extraordinary input.
+  const auto &LastToken = Tokens.back();
+  EM.Error(LastToken.getLocation(), "incomplete input");
   return nullptr;
 }
 

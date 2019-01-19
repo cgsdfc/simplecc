@@ -5,7 +5,7 @@
 namespace simplecc {
 std::unique_ptr<Node> BuildCST(const std::vector<TokenInfo> &TheTokens) {
   Parser P(&CompilerGrammar);
-  return std::unique_ptr<Node>(P.ParseTokens(TheTokens));
+  return P.ParseTokens(TheTokens);
 }
 
 std::unique_ptr<ProgramAST, DeleteAST>
