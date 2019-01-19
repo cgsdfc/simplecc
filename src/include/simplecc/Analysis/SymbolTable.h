@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_ANALYSIS_SYMBOLTABLE_H
 #define SIMPLECC_ANALYSIS_SYMBOLTABLE_H
 #include "simplecc/Analysis/Types.h"
-#include "simplecc/Parse/AST.h"
+#include "simplecc/AST/AST.h"
 #include <iostream>
 #include <string>
 #include <unordered_map>

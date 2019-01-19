@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_TRANSFORM_TRIVIALDCETRANSFORMER_H
 #define SIMPLECC_TRANSFORM_TRIVIALDCETRANSFORMER_H
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/AST/Visitor.h"
 
 namespace simplecc {
 /// This class implements a trivial dead code elimination (DCE) transformation

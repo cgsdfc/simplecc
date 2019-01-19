@@ -1,27 +1,27 @@
-#ifndef SIMPLECC_PARSE_ENUMS_H
-#define SIMPLECC_PARSE_ENUMS_H
+#ifndef SIMPLECC_AST_ENUMS_H
+#define SIMPLECC_AST_ENUMS_H
 #include <iostream>
 #include <string>
 
 namespace simplecc {
 enum class BinaryOpKind {
 #define HANDLE_OPERATOR(Val, Str, FUNC) Val,
-#include "simplecc/Parse/Enums.def"
+#include "Enums.def"
 };
 
 enum class UnaryOpKind {
 #define HANDLE_UNARYOP(Val, Str) Val,
-#include "simplecc/Parse/Enums.def"
+#include "Enums.def"
 };
 
 enum class ExprContextKind {
 #define HANDLE_EXPRCONTEXT(Val, Str) Val,
-#include "simplecc/Parse/Enums.def"
+#include "Enums.def"
 };
 
 enum class BasicTypeKind {
 #define HANDLE_BASICTYPE(Val, Str) Val,
-#include "simplecc/Parse/Enums.def"
+#include "Enums.def"
 };
 
 std::ostream &operator<<(std::ostream &os, BinaryOpKind val);
@@ -38,4 +38,4 @@ const char *CStringFromUnaryopKind(UnaryOpKind val);
 BasicTypeKind BasicTypeKindFromString(const std::string &s);
 const char *CStringFromBasicTypeKind(BasicTypeKind val);
 } // namespace simplecc
-#endif // SIMPLECC_PARSE_ENUMS_H
+#endif // SIMPLECC_AST_ENUMS_H

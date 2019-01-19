@@ -1,7 +1,7 @@
 /// @file Defines VisitorBase and ChildrenVisitor, two important visitor base classes.
-#ifndef SIMPLECC_ANALYSIS_VISITOR_H
-#define SIMPLECC_ANALYSIS_VISITOR_H
-#include "simplecc/Parse/AST.h"
+#ifndef SIMPLECC_AST_VISITOR_H
+#define SIMPLECC_AST_VISITOR_H
+#include "simplecc/AST/AST.h"
 #include "simplecc/Support/Casting.h"
 #include <cassert>
 
@@ -300,4 +300,4 @@ void ChildrenVisitor<Derived>::visitSubscript(SubscriptExpr *SB) {
 }
 
 } // namespace simplecc
-#endif // SIMPLECC_ANALYSIS_VISITOR_H
+#endif // SIMPLECC_AST_VISITOR_H

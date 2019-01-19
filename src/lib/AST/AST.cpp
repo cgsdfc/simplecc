@@ -1,5 +1,5 @@
 /// @file this file implements the AST class hierarchy.
-#include "simplecc/Parse/AST.h"
+#include "simplecc/AST/AST.h"
 #include "simplecc/Support/Casting.h"
 
 using namespace simplecc;
@@ -90,7 +90,7 @@ bool BoolOpExpr::isCompareOp(BinaryOpKind Op) {
 #define HANDLE_COMPARE_OPERATOR(VAL, OP, FUNC)                                 \
   case BinaryOpKind::VAL:                                                      \
     return true;
-#include "simplecc/Parse/Enums.def"
+#include "simplecc/AST/Enums.def"
   }
 }
 
@@ -125,7 +125,7 @@ const char *AST::getClassName(unsigned Kind) {
 #define HANDLE_AST(CLASS)                                                      \
   case CLASS##Kind:                                                            \
     return #CLASS;
-#include "simplecc/Parse/AST.def"
+#include "simplecc/AST/AST.def"
   }
 }
 
@@ -136,7 +136,7 @@ void AST::deleteAST() {
   case CLASS##Kind:                                                            \
     delete static_cast<CLASS *>(this);                                         \
     break;
-#include "simplecc/Parse/AST.def"
+#include "simplecc/AST/AST.def"
   }
 }
 
@@ -149,7 +149,7 @@ bool DeclAST::InstanceCheck(const AST *A) {
 #define HANDLE_DECL(CLASS)                                                     \
   case AST::CLASS##Kind:                                                       \
     return true;
-#include "simplecc/Parse/AST.def"
+#include "simplecc/AST/AST.def"
   }
 }
 
@@ -159,7 +159,7 @@ bool StmtAST::InstanceCheck(const AST *A) {
 #define HANDLE_STMT(CLASS)                                                     \
   case AST::CLASS##Kind:                                                       \
     return true;
-#include "simplecc/Parse/AST.def"
+#include "simplecc/AST/AST.def"
   }
 }
 
@@ -169,7 +169,7 @@ bool ExprAST::InstanceCheck(const AST *A) {
 #define HANDLE_EXPR(CLASS)                                                     \
   case AST::CLASS##Kind:                                                       \
     return true;
-#include "simplecc/Parse/AST.def"
+#include "simplecc/AST/AST.def"
   }
 }
 
@@ -179,7 +179,7 @@ int ExprAST::getConstantValue() const {
 #define HANDLE_EXPR(CLASS)                                                     \
   case ExprAST::CLASS##Kind:                                                   \
     return static_cast<const CLASS *>(this)->getConstantValueImpl();
-#include "simplecc/Parse/AST.def"
+#include "simplecc/AST/AST.def"
   default:assert(false && "Unhandled Enum Value");
   }
 }
@@ -189,7 +189,7 @@ bool ExprAST::isConstant() const {
 #define HANDLE_EXPR(CLASS)                                                     \
   case ExprAST::CLASS##Kind:                                                   \
     return static_cast<const CLASS *>(this)->isConstantImpl();
-#include "simplecc/Parse/AST.def"
+#include "simplecc/AST/AST.def"
   default:assert(false && "Unhandled Enum Value");
   }
 }

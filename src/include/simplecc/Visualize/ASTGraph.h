@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_VISUALIZE_ASTGRAPH_H
 #define SIMPLECC_VISUALIZE_ASTGRAPH_H
-#include "simplecc/Parse/AST.h"
+#include "simplecc/AST/AST.h"
 #include "simplecc/Visualize/ASTNode.h"
 #include "simplecc/Visualize/TreeLikeIterator.h"
 #include <llvm/ADT/STLExtras.h>

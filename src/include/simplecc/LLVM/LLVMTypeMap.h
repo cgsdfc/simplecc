@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_LLVM_LLVMTYPEMAP_H
 #define SIMPLECC_LLVM_LLVMTYPEMAP_H
 #include "simplecc/Analysis/Types.h"
-#include "simplecc/Parse/AST.h"
+#include "simplecc/AST/AST.h"
 
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/LLVMContext.h>

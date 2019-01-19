@@ -17,7 +17,7 @@ public:
 private:
   std::ostream &OS;
   friend IndentAwarePrinter;
-  std::ostream &getOS() {
+  std::ostream &getOstream() {
     return OS;
   }
   void printNewline();

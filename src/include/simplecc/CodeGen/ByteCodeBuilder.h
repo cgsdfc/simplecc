@@ -3,7 +3,7 @@
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/CodeGen/ByteCode.h"
 #include "simplecc/CodeGen/ByteCodeFunction.h"
-#include "simplecc/Parse/AST.h"
+#include "simplecc/AST/AST.h"
 #include <cassert>
 #include <utility> // forward()
 

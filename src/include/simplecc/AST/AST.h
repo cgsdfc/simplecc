@@ -2,11 +2,11 @@
 /// It is deliberate to have definitions for all AST classes in one place.
 /// This is a header that gets included a lot. Be careful! Any modification
 /// to this will cause compilation of half of the project.
-#ifndef SIMPLECC_PARSE_AST_H
-#define SIMPLECC_PARSE_AST_H
+#ifndef SIMPLECC_AST_AST_H
+#define SIMPLECC_AST_AST_H
 #include "simplecc/Support/Macros.h"
 #include "simplecc/Lex/Location.h"
-#include "simplecc/Parse/Enums.h"
+#include "simplecc/AST/Enums.h"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -18,8 +18,7 @@
 namespace simplecc {
 // Forward declare all AST classes.
 #define HANDLE_AST(Class) class Class;
-#include "simplecc/Parse/AST.def"
-
+#include "AST.def"
 } // namespace simplecc
 
 namespace simplecc {
@@ -51,7 +50,7 @@ protected:
 public:
   enum ASTKind : unsigned {
 #define HANDLE_AST(CLASS) CLASS##Kind,
-#include "simplecc/Parse/AST.def"
+#include "AST.def"
   };
 
   /// Return the real class name.
@@ -819,4 +818,4 @@ public:
 /// Pretty print.
 void PrettyPrintAST(const AST &A, std::ostream &O);
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_AST_AST_H

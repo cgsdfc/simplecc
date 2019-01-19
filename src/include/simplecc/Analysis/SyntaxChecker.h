@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_ANALYSIS_SYNTAXCHECKER_H
 #define SIMPLECC_ANALYSIS_SYNTAXCHECKER_H
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/AST/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 
 namespace simplecc {

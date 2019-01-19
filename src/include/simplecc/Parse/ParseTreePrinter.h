@@ -4,7 +4,7 @@
 #include <simplecc/Parse/Node.h>
 
 namespace simplecc {
-/// This class pretty prints the parse tree.
+/// ParseTreePrinter pretty-prints the parse tree.
 class ParseTreePrinter : IndentAwarePrinter<ParseTreePrinter> {
   void printTerminalNode(const Node &N);
   void printNonTerminalNode(const Node &N);
@@ -18,7 +18,7 @@ public:
 private:
   std::ostream &OS;
   friend IndentAwarePrinter;
-  std::ostream &getOS() { return OS; }
+  std::ostream &getOstream() { return OS; }
 };
 
 } // namespace simplecc

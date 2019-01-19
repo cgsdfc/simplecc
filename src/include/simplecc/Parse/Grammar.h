@@ -45,5 +45,4 @@ constexpr const unsigned NT_OFFSET = 256;
 extern Grammar CompilerGrammar;
 extern const char *TokenNames[], *SymbolNames[];
 } // namespace simplecc
-
 #endif // SIMPLECC_PARSE_GRAMMAR_H

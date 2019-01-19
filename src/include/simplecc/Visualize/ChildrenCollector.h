@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_VISUALIZE_CHILDRENCOLLECTOR_H
 #define SIMPLECC_VISUALIZE_CHILDRENCOLLECTOR_H
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/AST/Visitor.h"
 #include "simplecc/Visualize/ASTGraph.h"
 
 namespace simplecc {

@@ -2,7 +2,7 @@
 #define SIMPLECC_ANALYSIS_ARRAYBOUNDCHECKER_H
 #include "simplecc/Analysis/AnalysisVisitor.h"
 #include "simplecc/Analysis/SymbolTable.h"
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/AST/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 #include <utility> // for pair
 

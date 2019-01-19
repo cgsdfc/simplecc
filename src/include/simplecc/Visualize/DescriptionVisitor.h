@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_VISUALIZE_DESCRIPTIONVISITOR_H
 #define SIMPLECC_VISUALIZE_DESCRIPTIONVISITOR_H
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/AST/Visitor.h"
 
 namespace simplecc {
 class ASTNode;

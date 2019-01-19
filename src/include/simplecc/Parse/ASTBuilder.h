@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_PARSE_ASTBUILDER_H
 #define SIMPLECC_PARSE_ASTBUILDER_H
-#include "simplecc/Parse/AST.h"
+#include "simplecc/AST/AST.h"
 #include "simplecc/Support/ErrorManager.h"
 #include <string>
 #include <vector>
@@ -121,5 +121,4 @@ private:
   ErrorManager EM;
 };
 } // namespace simplecc
-
-#endif
+#endif // SIMPLECC_PARSE_ASTBUILDER_H

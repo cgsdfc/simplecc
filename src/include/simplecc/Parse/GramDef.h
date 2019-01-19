@@ -33,4 +33,4 @@ struct Grammar {
   DFA **dfas;
 };
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_PARSE_GRAMDEF_H

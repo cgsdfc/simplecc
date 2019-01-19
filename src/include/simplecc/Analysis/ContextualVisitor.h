@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_ANALYSIS_CONTEXTUALVISITOR_H
 #define SIMPLECC_ANALYSIS_CONTEXTUALVISITOR_H
 #include "simplecc/Analysis/SymbolTable.h"
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/AST/Visitor.h"
 
 namespace simplecc {
 /// @brief ContextualVisitor is a CRTP base for Visitors that knows the LocalSymbolTable of

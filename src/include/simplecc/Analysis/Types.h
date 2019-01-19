@@ -1,7 +1,7 @@
 /// @file This file defines the type system of simplecc.
 #ifndef SIMPLECC_ANALYSIS_TYPES_H
 #define SIMPLECC_ANALYSIS_TYPES_H
-#include "simplecc/Parse/AST.h"
+#include "simplecc/AST/AST.h"
 #include "simplecc/Support/Macros.h"
 #include <cassert>
 #include <string>

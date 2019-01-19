@@ -61,7 +61,7 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
     return new NumExpr(Compute(std::FUNC<int>(), L->getConstantValue(),        \
                                R->getConstantValue()),                         \
                        B->getLocation());
-#include "simplecc/Parse/Enums.def"
+#include "simplecc/AST/Enums.def"
     }
   }
 

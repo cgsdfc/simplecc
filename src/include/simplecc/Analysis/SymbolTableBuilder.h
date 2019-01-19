@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_ANALYSIS_SYMBOLTABLEBUILDER_H
 #define SIMPLECC_ANALYSIS_SYMBOLTABLEBUILDER_H
 #include "simplecc/Analysis/SymbolTable.h"
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/AST/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 #include <string>
 // TODO: docs

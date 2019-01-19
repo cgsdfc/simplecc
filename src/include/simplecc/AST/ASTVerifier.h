@@ -1,6 +1,6 @@
-#ifndef SIMPLCC_ANALYSIS_ASTVERIFIER_H
-#define SIMPLCC_ANALYSIS_ASTVERIFIER_H
-#include "simplecc/Analysis/Visitor.h"
+#ifndef SIMPLECC_AST_ASTVERIFIER_H
+#define SIMPLECC_AST_ASTVERIFIER_H
+#include "simplecc/AST/Visitor.h"
 #include "simplecc/Support/ErrorManager.h"
 
 namespace simplecc {
@@ -34,4 +34,4 @@ private:
   ErrorManager EM;
 };
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_AST_ASTVERIFIER_H

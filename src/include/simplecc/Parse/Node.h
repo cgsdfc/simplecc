@@ -54,5 +54,4 @@ private:
 DEFINE_INLINE_OUTPUT_OPERATOR(Node)
 
 } // namespace simplecc
-
-#endif
+#endif // SIMPLECC_PARSE_NODE_H

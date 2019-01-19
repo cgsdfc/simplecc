@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_PARSE_PARSE_H
 #define SIMPLECC_PARSE_PARSE_H
 #include "simplecc/Lex/TokenInfo.h"
-#include "simplecc/Parse/AST.h"
+#include "simplecc/AST/AST.h"
 #include "simplecc/Parse/Node.h"
 #include <iostream>
 #include <memory> // for unique_ptr

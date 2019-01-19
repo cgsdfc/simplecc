@@ -1,4 +1,4 @@
-#include "simplecc/Analysis/ASTVerifier.h"
+#include "simplecc/AST/ASTVerifier.h"
 
 using namespace simplecc;
 

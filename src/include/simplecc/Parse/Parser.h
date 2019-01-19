@@ -2,6 +2,7 @@
 #define SIMPLECC_PARSE_PARSER_H
 #include "simplecc/Lex/TokenInfo.h"
 #include "simplecc/Support/ErrorManager.h"
+#include "simplecc/Support/Macros.h"
 #include <iostream>
 #include <stack>
 #include <vector>
@@ -9,11 +10,17 @@
 namespace simplecc {
 class Node;
 
+/// @brief Parser is a push-down finite state machine that parses the tokens
+/// linearly with one lookahead without any recursion call.
 class Parser {
 
+  /// @brief StackEntry represents an entry in the Parser's deduction stack.
   class StackEntry {
+    /// @brief TheDFA is the grammar rule that is being expanded.
     DFA *TheDFA;
+    /// @brief TheState is the current state of TheDFA.
     int TheState;
+    /// @brief TheNode is the Node being constructed under the grammar rule.
     Node *TheNode;
 
   public:
@@ -21,20 +28,14 @@ class Parser {
         : TheDFA(D), TheState(State), TheNode(N) {}
 
     DFA *getDFA() const { return TheDFA; }
-
     int getState() const { return TheState; }
-
     Node *getNode() const { return TheNode; }
-
     void setState(int S) { TheState = S; }
 
     void Format(std::ostream &O) const;
-    friend std::ostream &operator<<(std::ostream &os, const StackEntry &entry) {
-      entry.Format(os);
-      return os;
-    }
   };
 
+  /// @brief
   int Classify(const TokenInfo &T);
   void Shift(const TokenInfo &T, int NewState);
   void Push(Symbol Ty, DFA *NewDFA, int NewState, Location Loc);
@@ -54,5 +55,6 @@ private:
   Node *RootNode = nullptr;
   ErrorManager EM;
 };
+
 } // namespace simplecc
-#endif
+#endif // SIMPLECC_PARSE_PARSER_H

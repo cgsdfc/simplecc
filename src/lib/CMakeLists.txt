@@ -6,13 +6,13 @@ set(SOURCE_FILES
         Lex/TokenInfo.cpp
 
         # Turn tokens into CST, then into AST.
-        Parse/AST.cpp
+        AST/AST.cpp
         Parse/Grammar.cpp
         Parse/ASTBuilder.cpp
         Parse/Parser.cpp
         Parse/Node.cpp
         Parse/Parse.cpp
-        Parse/Enums.cpp
+        AST/Enums.cpp
         Parse/ParseTreePrinter.cpp
 
         # Perform various analyses (or checks) on the AST.
@@ -21,11 +21,11 @@ set(SOURCE_FILES
         Analysis/SyntaxChecker.cpp
         Analysis/Types.cpp
         Analysis/ImplicitCallTransformer.cpp
-        Analysis/ASTVerifier.cpp
+        AST/ASTVerifier.cpp
         Analysis/SymbolTableBuilder.cpp
         Analysis/AnalysisManager.cpp
         Analysis/ArrayBoundChecker.cpp
-        Analysis/ASTPrettyPrinter.cpp
+        AST/ASTPrettyPrinter.cpp
 
         # Generate ByteCode from the AST.
         CodeGen/ByteCodePrinter.cpp

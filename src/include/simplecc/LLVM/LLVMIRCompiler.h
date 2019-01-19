@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_LLVM_LLVMIRCOMPILER_H
 #define SIMPLECC_LLVM_LLVMIRCOMPILER_H
-#include "simplecc/Analysis/Visitor.h"
+#include "simplecc/AST/Visitor.h"
 #include "simplecc/LLVM/LLVMValueMap.h"
 #include "simplecc/Support/ErrorManager.h"
 #include <llvm/ADT/StringRef.h>
