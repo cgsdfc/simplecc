@@ -1,6 +1,6 @@
-#ifndef SIMPLECC_ANALYSIS_ASTPRETTYPRINTER_H
-#define SIMPLECC_ANALYSIS_ASTPRETTYPRINTER_H
-#include "simplecc/Analysis/Visitor.h"
+#ifndef SIMPLECC_AST_ASTPRETTYPRINTER_H
+#define SIMPLECC_AST_ASTPRETTYPRINTER_H
+#include "simplecc/AST/Visitor.h"
 #include "simplecc/Support/IndentAwarePrinter.h"
 
 namespace simplecc {
@@ -15,6 +15,7 @@ namespace simplecc {
 /// Note: Location is not included as it tends to make output verbose.
 class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
                          IndentAwarePrinter<ASTPrettyPrinter> {
+  void visitAST(AST *A);
   void visitProgram(ProgramAST *P);
   void visitFuncDef(FuncDef *FD);
   void visitConstDecl(ConstDecl *CD);
@@ -36,7 +37,7 @@ class ASTPrettyPrinter : VisitorBase<ASTPrettyPrinter>,
   void visitExprStmt(ExprStmt *E);
   void visitIf(IfStmt *I);
   void visitRead(ReadStmt *RD);
-  void visitWrite(WriteStmt *WR);
+  void visitWrite(WriteStmt *W);
   void visitReturn(ReturnStmt *R);
   void visitAssign(AssignStmt *A);
   void visitFor(ForStmt *F);
@@ -62,8 +63,7 @@ private:
   friend VisitorBase;
   std::ostream &OS;
   /// Required by IndentAwarePrinter.
-  std::ostream &getOS() { return OS; }
+  std::ostream &getOstream() { return OS; }
 };
 } // namespace simplecc
-
-#endif // SIMPLECC_ANALYSIS_ASTPRETTYPRINTER_H
+#endif // SIMPLECC_AST_ASTPRETTYPRINTER_H
