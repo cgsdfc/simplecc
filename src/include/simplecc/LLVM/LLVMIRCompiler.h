@@ -1,11 +1,9 @@
 #ifndef SIMPLECC_LLVM_LLVMIRCOMPILER_H
 #define SIMPLECC_LLVM_LLVMIRCOMPILER_H
-#include "simplecc/AST/Visitor.h"
+#include "simplecc/AST/VisitorBase.h"
 #include "simplecc/LLVM/LLVMValueMap.h"
 #include "simplecc/Support/ErrorManager.h"
-#include <llvm/ADT/StringRef.h>
 #include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LLVMContext.h>
 #include <unordered_map>
 
 namespace llvm {

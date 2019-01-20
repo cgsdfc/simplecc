@@ -3,7 +3,6 @@
 #include "simplecc/Analysis/ContextualVisitor.h"
 #include "simplecc/IR/IRBuilder.h"
 #include "Argument.h"
-#include <unordered_map>
 
 namespace simplecc {
 class Module;

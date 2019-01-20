@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_CODEGEN_BYTECODECOMPILER_H
 #define SIMPLECC_CODEGEN_BYTECODECOMPILER_H
 #include "simplecc/Analysis/SymbolTable.h"
-#include "simplecc/AST/Visitor.h"
+#include "simplecc/AST/ChildrenVisitor.h"
 #include "simplecc/CodeGen/ByteCodeBuilder.h"
 #include "simplecc/Support/ErrorManager.h"
 #include <cassert>

@@ -23,6 +23,7 @@ class Parser {
     int TheState;
     /// @brief TheNode is the Node being constructed under the grammar rule.
     Node *TheNode;
+    // use unique_ptr.
 
   public:
     StackEntry(const DFA *D, int State, Node *N)

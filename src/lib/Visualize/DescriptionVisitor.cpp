@@ -1,7 +1,6 @@
 #include "simplecc/Visualize/DescriptionVisitor.h"
 #include "simplecc/Support/Print.h"
 #include "simplecc/Visualize/ASTNode.h"
-
 #include <sstream>
 
 using namespace simplecc;

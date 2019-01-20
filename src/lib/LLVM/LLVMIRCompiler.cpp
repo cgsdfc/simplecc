@@ -1,6 +1,5 @@
 #include "simplecc/LLVM/LLVMIRCompiler.h"
 #include "simplecc/Analysis/SymbolTable.h"
-
 #include <llvm/IR/Verifier.h>
 
 using llvm::BasicBlock;

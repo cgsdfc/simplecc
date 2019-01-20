@@ -1,9 +1,8 @@
 #ifndef SIMPLECC_CODEGEN_BYTECODEPRINTER_H
 #define SIMPLECC_CODEGEN_BYTECODEPRINTER_H
-#include "simplecc/AST/Visitor.h"
+#include "simplecc/AST/ChildrenVisitor.h"
 #include "simplecc/Support/Print.h"
 #include <cassert>
-#include <iostream>
 
 namespace simplecc {
 /// ExprValue handles the formatting of the result of an expression

@@ -1,7 +1,7 @@
 #ifndef SIMPLECC_ANALYSIS_IMPLICITCALLTRANSFORMER_H
 #define SIMPLECC_ANALYSIS_IMPLICITCALLTRANSFORMER_H
 #include "simplecc/Analysis/SymbolTable.h"
-#include "simplecc/AST/Visitor.h"
+#include "simplecc/AST/ChildrenVisitor.h"
 
 namespace simplecc {
 /// @brief ImplicitCallTransformer modifies an AST and transform implicit call nodes to explicit calls.

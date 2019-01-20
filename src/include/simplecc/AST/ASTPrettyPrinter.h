@@ -1,6 +1,6 @@
 #ifndef SIMPLECC_AST_ASTPRETTYPRINTER_H
 #define SIMPLECC_AST_ASTPRETTYPRINTER_H
-#include "simplecc/AST/Visitor.h"
+#include "simplecc/AST/ChildrenVisitor.h"
 #include "simplecc/Support/IndentAwarePrinter.h"
 
 namespace simplecc {

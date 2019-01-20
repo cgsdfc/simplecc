@@ -69,7 +69,7 @@ set(SOURCE_FILES
         Driver/Driver.cpp
         # WindowsDriver is always built for the sake of IDE.
         Driver/WindowsDriver.cpp
-        Driver/main.cpp)
+        Driver/main.cpp ../include/simplecc/AST/VisitorBase.h)
 
 set(EXTRA_LIBRARIES "")
 

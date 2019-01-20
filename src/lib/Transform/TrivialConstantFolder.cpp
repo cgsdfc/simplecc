@@ -1,5 +1,5 @@
+#include "simplecc/Transform/TrivialConstantFolder.h"
 #include <functional>
-#include <simplecc/Transform/TrivialConstantFolder.h>
 
 using namespace simplecc;
 
@@ -21,24 +21,19 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
             static_cast<NameExpr *>(R)->getName()) {
       switch (B->getOp()) {
         // Case-1-1: X - X == 0
-      case BinaryOpKind::Sub:
-        return new NumExpr(0, B->getLocation());
+      case BinaryOpKind::Sub:return new NumExpr(0, B->getLocation());
         // Case-1-2: Since X might be zero, which will cause a ZeroDivisor, we
         // lose an opportunity.
-      case BinaryOpKind::Div:
-        return B;
+      case BinaryOpKind::Div:return B;
         // Case-1-3: X == X == 1, X >= X == 1, X <= X == 1
       case BinaryOpKind::GtE:
       case BinaryOpKind::LtE: // Fall through
-      case BinaryOpKind::Eq:
-        return new NumExpr(1, B->getLocation());
+      case BinaryOpKind::Eq:return new NumExpr(1, B->getLocation());
         // Case-1-4: X != X == 0, X < X == 0, X > X == 0
       case BinaryOpKind::Lt:
       case BinaryOpKind::Gt: // Fall through
-      case BinaryOpKind::NotEq:
-        return new NumExpr(0, B->getLocation());
-      default:
-        return B;
+      case BinaryOpKind::NotEq:return new NumExpr(0, B->getLocation());
+      default:return B;
       }
     }
     // No opportunity.
@@ -54,8 +49,7 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
   // Case-2: both side is constant, evaluate it directly.
   if (L->isConstant() && R->isConstant()) {
     switch (B->getOp()) {
-    default:
-      assert(false && "Unhandled Enum Value");
+    default:assert(false && "Unhandled Enum Value");
 #define HANDLE_OPERATOR(VAL, OP, FUNC)                                         \
   case BinaryOpKind::VAL:                                                      \
     return new NumExpr(Compute(std::FUNC<int>(), L->getConstantValue(),        \
@@ -98,8 +92,7 @@ ExprAST *TrivialConstantFolder::FoldBinOpExpr(BinOpExpr *B) {
     if (R->isOneVal())
       return std::move(*B).getLeft().release();
     return B;
-  default:
-    return B;
+  default:return B;
   }
 }
 
@@ -136,12 +129,9 @@ ExprAST *TrivialConstantFolder::FoldNameExpr(NameExpr *N) {
   }
   auto CT = Entry.AsConstant();
   switch (CT.getType()) {
-  case BasicTypeKind::Int:
-    return new NumExpr(CT.getValue(), N->getLocation());
-  case BasicTypeKind::Character:
-    return new CharExpr(CT.getValue(), N->getLocation());
-  default:
-    assert(false && "Invalid Enum Value");
+  case BasicTypeKind::Int:return new NumExpr(CT.getValue(), N->getLocation());
+  case BasicTypeKind::Character:return new CharExpr(CT.getValue(), N->getLocation());
+  default:assert(false && "Invalid Enum Value");
   }
 }
 
@@ -151,8 +141,7 @@ ExprAST *TrivialConstantFolder::FoldExprAST(ExprAST *E) {
   case ExprAST::Class##Kind:                                                   \
     return Fold##Class(static_cast<Class *>(E));
 #include "simplecc/Transform/TrivialConstantFolder.def"
-  default:
-    return E;
+  default:return E;
   }
 }
 

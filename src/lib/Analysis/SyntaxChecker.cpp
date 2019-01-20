@@ -1,6 +1,4 @@
 #include "simplecc/Analysis/SyntaxChecker.h"
-#include <cassert>
-#include <simplecc/Analysis/SyntaxChecker.h>
 
 using namespace simplecc;
 
