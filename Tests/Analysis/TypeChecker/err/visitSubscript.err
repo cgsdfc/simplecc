@@ -1,0 +1,10 @@
+TypeError at 13:10: intconst is not an array
+TypeError at 14:19: intconst is not an array
+TypeError at 15:10: voidfunc is not an array
+TypeError at 16:19: voidfunc is not an array
+TypeError at 18:19: array index must be int
+TypeError at 19:19: array index must be int
+TypeError at 20:19: array index must be int
+TypeError at 21:20: using an array in an expression
+TypeError at 22:19: array index must be int
+TypeError at 23:19: array index must be int

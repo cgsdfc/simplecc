@@ -1,0 +1,19 @@
+ProgramAST(Filename='src/visitBinOp.c', [
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, var, false, 0),
+    AssignStmt(
+      LHS=NameExpr(var, Store),
+      RHS=BinOpExpr(Mult,
+        LHS=NameExpr(var, Load),
+        RHS=NameExpr(var, Load),
+      ),
+    ),
+    AssignStmt(
+      LHS=NameExpr(var, Store),
+      RHS=BinOpExpr(Div,
+        LHS=NameExpr(var, Load),
+        RHS=NameExpr(var, Load),
+      ),
+    ),
+  ]),
+])

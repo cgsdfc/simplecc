@@ -1,0 +1,22 @@
+ProgramAST(Filename='src/StmtList.c', [
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, i, false, 0),
+    AssignStmt(
+      LHS=NameExpr(i, Store),
+      RHS=NumExpr(1),
+    ),
+    AssignStmt(
+      LHS=NameExpr(i, Store),
+      RHS=NumExpr(2),
+    ),
+    WriteStmt(NameExpr(i, Load)),
+    ReadStmt([NameExpr(i, Store)]),
+    AssignStmt(
+      LHS=NameExpr(i, Store),
+      RHS=BinOpExpr(Mult,
+        LHS=NameExpr(i, Load),
+        RHS=NumExpr(2),
+      ),
+    ),
+  ]),
+])

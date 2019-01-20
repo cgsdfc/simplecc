@@ -1,0 +1,4 @@
+TypeError at 6:7: only variables can be assigned to
+TypeError at 6:17: operands of condition must be all int
+TypeError at 6:34: using void value in an expression
+TypeError at 6:27: only variables can be assigned to

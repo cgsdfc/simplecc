@@ -1,0 +1,17 @@
+ProgramAST(Filename='src/visitReturn.c', [
+  FuncDef(Void, fun1, Args(), [
+    ReturnStmt(),
+  ]),
+  FuncDef(Character, fun2, Args(), [
+    ReturnStmt(CharExpr('a')),
+  ]),
+  FuncDef(Int, fun3, Args(), [
+    ReturnStmt(
+      BinOpExpr(Add,
+        LHS=NumExpr(1),
+        RHS=NumExpr(1),
+      )
+    ),
+  ]),
+  FuncDef(Void, main, Args(), [])),
+])

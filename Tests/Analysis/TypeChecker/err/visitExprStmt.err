@@ -1,0 +1,8 @@
+TypeError at 18:2: voidfuncii expects 2 arguments, got 0
+TypeError at 19:2: voidfuncii expects 2 arguments, got 1
+TypeError at 20:2: voidfuncii expects 2 arguments, got 3
+TypeError at 21:2: voidfunc expects 0 arguments, got 1
+TypeError at 23:13: argument 1 of voidfuncii must be int
+TypeError at 24:14: argument 1 of voidfunc_ic must be int
+TypeError at 25:13: argument 1 of voidfuncii must be int
+TypeError at 25:23: argument 2 of voidfuncii must be int

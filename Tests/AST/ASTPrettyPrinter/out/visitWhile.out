@@ -1,0 +1,27 @@
+ProgramAST(Filename='src/visitWhile.c', [
+  VarDecl(Int, intvar, false, 0),
+  FuncDef(Void, test1, Args(), [
+    WhileStmt(
+      condition=BoolOpExpr(false, NumExpr(1)),
+      body=[AssignStmt(
+        LHS=NameExpr(intvar, Store),
+        RHS=NumExpr(1),
+      )],
+    ),
+  ]),
+  FuncDef(Void, test2, Args(), [
+    WhileStmt(
+      condition=BoolOpExpr(true,
+        BinOpExpr(Lt,
+          LHS=NameExpr(intvar, Load),
+          RHS=NumExpr(1),
+        )
+      ),
+      body=[AssignStmt(
+        LHS=NameExpr(intvar, Store),
+        RHS=NumExpr(1),
+      )],
+    ),
+  ]),
+  FuncDef(Void, main, Args(), [])),
+])

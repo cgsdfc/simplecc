@@ -1,0 +1,8 @@
+ProgramAST(Filename='src/visitProgram.c', [
+  ConstDecl(Int, c, NumExpr(1)),
+  VarDecl(Int, v, false, 0),
+  FuncDef(Int, fun, Args(), [
+    ReturnStmt(NumExpr(1)),
+  ]),
+  FuncDef(Void, main, Args(), [])),
+])

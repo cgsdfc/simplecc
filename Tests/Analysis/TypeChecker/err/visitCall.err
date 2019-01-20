@@ -1,0 +1,12 @@
+TypeError at 18:2: intvar is not a function
+TypeError at 19:2: intvar is not a function
+TypeError at 20:2: chararray is not a function
+TypeError at 21:2: chararray is not a function
+TypeError at 23:2: voidfuncii expects 2 arguments, got 0
+TypeError at 24:2: voidfuncii expects 2 arguments, got 1
+TypeError at 25:2: voidfuncii expects 2 arguments, got 3
+TypeError at 26:2: voidfunc expects 0 arguments, got 1
+TypeError at 28:13: argument 1 of voidfuncii must be int
+TypeError at 29:14: argument 1 of voidfunc_ic must be int
+TypeError at 30:13: argument 1 of voidfuncii must be int
+TypeError at 30:23: argument 2 of voidfuncii must be int

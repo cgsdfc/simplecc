@@ -1,0 +1,6 @@
+ProgramAST(Filename='src/Args.c', [
+  FuncDef(Void, fun1, Args(ArgDecl(Int a)), [])),
+  FuncDef(Void, fun2, Args(ArgDecl(Int a), ArgDecl(Int b)), [])),
+  FuncDef(Void, fun3, Args(ArgDecl(Int a), ArgDecl(Int b), ArgDecl(Int c)), [])),
+  FuncDef(Void, main, Args(), [])),
+])

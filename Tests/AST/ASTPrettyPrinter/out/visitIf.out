@@ -1,0 +1,44 @@
+ProgramAST(Filename='src/visitIf.c', [
+  VarDecl(Int, intvar, false, 0),
+  FuncDef(Void, test1, Args(), [
+    IfStmt(
+      Test=BoolOpExpr(false, NumExpr(1)),
+      Then=[AssignStmt(
+        LHS=NameExpr(intvar, Store),
+        RHS=NumExpr(1),
+      )],
+      Else=[],
+    ),
+  ]),
+  FuncDef(Void, test2, Args(), [
+    IfStmt(
+      Test=BoolOpExpr(false, NumExpr(1)),
+      Then=[AssignStmt(
+        LHS=NameExpr(intvar, Store),
+        RHS=NumExpr(1),
+      )],
+      Else=[AssignStmt(
+        LHS=NameExpr(intvar, Store),
+        RHS=NumExpr(2),
+      )],
+    ),
+  ]),
+  FuncDef(Void, test3, Args(), [
+    IfStmt(
+      Test=BoolOpExpr(false, NumExpr(1)),
+      Then=[],
+      Else=[],
+    ),
+  ]),
+  FuncDef(Void, test4, Args(), [
+    IfStmt(
+      Test=BoolOpExpr(false, NumExpr(1)),
+      Then=[],
+      Else=[AssignStmt(
+        LHS=NameExpr(intvar, Store),
+        RHS=NumExpr(1),
+      )],
+    ),
+  ]),
+  FuncDef(Void, main, Args(), [])),
+])

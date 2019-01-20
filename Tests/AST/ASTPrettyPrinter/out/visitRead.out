@@ -1,0 +1,11 @@
+ProgramAST(Filename='src/visitRead.c', [
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, var1, false, 0),
+    VarDecl(Int, var2, false, 0),
+    ReadStmt([NameExpr(var1, Store)]),
+    ReadStmt([
+      NameExpr(var1, Store),
+      NameExpr(var2, Store),
+    ]),
+  ]),
+])

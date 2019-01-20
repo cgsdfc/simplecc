@@ -1,0 +1,7 @@
+TypeError at 10:17: operands of condition must be all int
+TypeError at 11:6: operands of condition must be all int
+TypeError at 11:28: operands of condition must be all int
+TypeError at 12:26: operands of condition must be all int
+TypeError at 16:6: operands of condition must be all int
+TypeError at 17:13: operands of condition must be all int
+TypeError at 18:15: operands of condition must be all int

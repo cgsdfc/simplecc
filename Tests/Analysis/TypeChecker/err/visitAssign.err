@@ -1,0 +1,13 @@
+TypeError at 8:2: only variables can be assigned to
+TypeError at 9:2: only variables can be assigned to
+TypeError at 20:2: only variables can be assigned to
+TypeError at 21:2: only variables can be assigned to
+TypeError at 22:2: only variables can be assigned to
+TypeError at 24:11: using an array in an expression
+TypeError at 25:12: using an array in an expression
+TypeError at 27:2: cannot assign char to int
+TypeError at 28:2: cannot assign int to char
+TypeError at 29:2: cannot assign char to int
+TypeError at 30:2: cannot assign int to char
+TypeError at 31:2: cannot assign int to char
+TypeError at 32:2: cannot assign char to int

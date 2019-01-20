@@ -1,0 +1,25 @@
+ProgramAST(Filename='src/visitCall.c', [
+  FuncDef(Void, fun1, Args(), [])),
+  FuncDef(Void, fun2, Args(ArgDecl(Int a)), [])),
+  FuncDef(Void, fun3, Args(ArgDecl(Int a), ArgDecl(Int b)), [])),
+  FuncDef(Void, main, Args(), [
+    ExprStmt(CallExpr(fun1, Args=[])),
+    ExprStmt(
+      CallExpr(fun2, Args=[NumExpr(1)])
+    ),
+    ExprStmt(
+      CallExpr(fun2, Args=[
+        BinOpExpr(Add,
+          LHS=NumExpr(1),
+          RHS=NumExpr(1),
+        ),
+      ])
+    ),
+    ExprStmt(
+      CallExpr(fun3, Args=[
+        NumExpr(1),
+        NumExpr(1),
+      ])
+    ),
+  ]),
+])

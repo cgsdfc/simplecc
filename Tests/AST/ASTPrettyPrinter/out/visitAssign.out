@@ -1,0 +1,9 @@
+ProgramAST(Filename='src/visitAssign.c', [
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, var, false, 0),
+    AssignStmt(
+      LHS=NameExpr(var, Store),
+      RHS=NumExpr(1),
+    ),
+  ]),
+])

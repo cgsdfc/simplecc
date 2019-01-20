@@ -1,0 +1,5 @@
+TypeError at 6:9: operands of condition must be all int
+TypeError at 7:9: operands of condition must be all int
+TypeError at 7:20: operands of condition must be all int
+TypeError at 8:19: operands of condition must be all int
+TypeError at 9:9: using an array in an expression

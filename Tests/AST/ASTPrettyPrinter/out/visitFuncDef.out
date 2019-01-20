@@ -1,0 +1,8 @@
+ProgramAST(Filename='src/visitFuncDef.c', [
+  FuncDef(Void, main, Args(), [
+    ConstDecl(Int, ci, NumExpr(1)),
+    VarDecl(Int, vi, false, 0),
+    WriteStmt(NameExpr(vi, Load)),
+    ReadStmt([NameExpr(vi, Store)]),
+  ]),
+])

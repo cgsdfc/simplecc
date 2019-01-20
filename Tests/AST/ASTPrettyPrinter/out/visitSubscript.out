@@ -1,0 +1,18 @@
+ProgramAST(Filename='src/visitSubscript.c', [
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, a, true, 3),
+    AssignStmt(
+      LHS=SubscriptExpr(Store,
+        array=a,
+        index=NumExpr(0),
+      ),
+      RHS=SubscriptExpr(Load,
+        array=a,
+        index=BinOpExpr(Add,
+          LHS=NumExpr(1),
+          RHS=NumExpr(1),
+        ),
+      ),
+    ),
+  ]),
+])

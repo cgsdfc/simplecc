@@ -1,0 +1,32 @@
+ProgramAST(Filename='src/visitUnaryOp.c', [
+  FuncDef(Void, test1, Args(), [
+    WriteStmt(
+      UnaryOpExpr(USub, NumExpr(1))),
+    ),
+    WriteStmt(
+      UnaryOpExpr(UAdd, NumExpr(1))),
+    ),
+  ]),
+  FuncDef(Void, test2, Args(), [
+    WriteStmt(
+      UnaryOpExpr(USub, CharExpr('a'))),
+    ),
+    WriteStmt(
+      UnaryOpExpr(UAdd, CharExpr('a'))),
+    ),
+  ]),
+  FuncDef(Void, test3, Args(), [
+    VarDecl(Int, intvar, false, 0),
+    WriteStmt(
+      UnaryOpExpr(USub,
+        UnaryOpExpr(USub, NameExpr(intvar, Load)))
+      ),
+    ),
+    WriteStmt(
+      UnaryOpExpr(UAdd,
+        UnaryOpExpr(UAdd, NameExpr(intvar, Load)))
+      ),
+    ),
+  ]),
+  FuncDef(Void, main, Args(), [])),
+])

@@ -1,0 +1,12 @@
+ProgramAST(Filename='src/visitVarDecl.c', [
+  VarDecl(Int, iv, false, 0),
+  VarDecl(Int, ia, true, 1),
+  VarDecl(Character, cv, false, 0),
+  VarDecl(Character, ca, true, 2),
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, iv, false, 0),
+    VarDecl(Int, ia, true, 1),
+    VarDecl(Character, cv, false, 0),
+    VarDecl(Character, ca, true, 2),
+  ]),
+])

@@ -1,0 +1,23 @@
+ProgramAST(Filename='src/visitWrite.c', [
+  FuncDef(Void, main, Args(), [
+    WriteStmt(StrExpr("a")),
+    WriteStmt(CharExpr('a')),
+    WriteStmt(
+      StrExpr("a"),
+      CharExpr('a'),
+    ),
+    WriteStmt(
+      StrExpr("a"),
+      BinOpExpr(Add,
+        LHS=NumExpr(1),
+        RHS=NumExpr(1),
+      ),
+    ),
+    WriteStmt(
+      BinOpExpr(Add,
+        LHS=NumExpr(1),
+        RHS=NumExpr(1),
+      ),
+    ),
+  ]),
+])

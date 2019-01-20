@@ -1,0 +1,4 @@
+TypeError at 6:9: using an array in an expression
+TypeError at 7:9: using an array in an expression
+TypeError at 9:2: only variables can be assigned to
+TypeError at 10:2: only variables can be assigned to

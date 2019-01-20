@@ -1,0 +1,8 @@
+ProgramAST(Filename='src/visitConstDecl.c', [
+  ConstDecl(Int, ci, NumExpr(1)),
+  ConstDecl(Character, cc, CharExpr('a')),
+  FuncDef(Void, main, Args(), [
+    ConstDecl(Int, ci, NumExpr(1)),
+    ConstDecl(Character, cc, CharExpr('a')),
+  ]),
+])

@@ -1,0 +1,19 @@
+ProgramAST(Filename='src/visitParenExpr.c', [
+  FuncDef(Void, main, Args(), [
+    VarDecl(Int, v, false, 0),
+    WriteStmt(
+      ParenExpr(NameExpr(v, Load)),
+    ),
+    WriteStmt(
+      ParenExpr(CharExpr('a')),
+    ),
+    WriteStmt(
+      ParenExpr(
+        BinOpExpr(Div,
+          LHS=NumExpr(1),
+          RHS=NumExpr(2),
+        )
+      ),
+    ),
+  ]),
+])

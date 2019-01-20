@@ -1,0 +1,6 @@
+TypeError at 2:2: i_fun1 must return int
+TypeError at 7:2: i_fun2 must return int
+TypeError at 11:2: c_fun1 must return char
+TypeError at 16:2: c_fun2 must return char
+TypeError at 20:2: v_fun1 must return void
+TypeError at 24:2: v_fun2 must return void

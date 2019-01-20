@@ -1,0 +1,4 @@
+TypeError at 8:9: using an array in an expression
+TypeError at 9:18: using an array in an expression
+TypeError at 11:13: using void value in an expression
+TypeError at 12:21: using void value in an expression
