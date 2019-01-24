@@ -1,0 +1,10 @@
+Dump Arguments:
+Expect 1: 1
+Expect 2: 2
+Expect a: a
+Dump Local Variables:
+Expect 100: 100
+Expect 101: 101
+Dump Local Array:
+Expect z: z
+Expect y: y

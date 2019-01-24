@@ -1,0 +1,10 @@
+Test_IArray:
+Expect 0: 0
+Expect 0: 0
+Expect 1: 1
+Expect 2: 2
+Test_CArray:
+Expect 0: 0
+Expect 0: 0
+Expect a: a
+Expect b: b

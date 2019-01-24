@@ -1,0 +1,5 @@
+Dump Global Variable:
+Expect 1: 1
+Dump Global Array:
+Expect a: a
+Expect b: b

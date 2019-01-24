@@ -1,0 +1,9 @@
+Invalid Order: -1
+Expect -1: -1
+Expect 1: 1
+Expect 1: 1
+Expect 2: 2
+Expect 6: 6
+Expect 24: 24
+Expect 120: 120
+Expect 720: 720
