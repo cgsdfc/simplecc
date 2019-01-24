@@ -22,3 +22,5 @@ if (USE_LLVM)
     target_link_libraries(simplecc ${llvm_libs})
     target_link_libraries(simplecc EmitLLVM Visualize)
 endif ()
+
+install(TARGETS simplecc DESTINATION bin/)
