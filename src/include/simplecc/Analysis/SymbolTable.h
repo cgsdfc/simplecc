@@ -8,7 +8,6 @@
 
 namespace simplecc {
 class SymbolTableBuilder;
-class TypeChecker;
 using TableType = std::unordered_map<std::string, SymbolEntry>;
 
 /// @brief LocalSymbolTable provides a readonly view to a local symbol table.
@@ -53,26 +52,17 @@ public:
   /// Return a SymbolEntry for a global name.
   SymbolEntry getGlobalEntry(const std::string &Name) const;
 
-  /// Return the type of an expression.
-  BasicTypeKind getExprType(const ExprAST *E) const;
-
   void Format(std::ostream &O) const;
 
 private:
   TableType GlobalTable;
   std::unordered_map<const FuncDef *, TableType> LocalTables;
-  std::unordered_map<const ExprAST *, BasicTypeKind> ExprTypeTable;
 
   friend class SymbolTableBuilder;
   /// Return the global table to be populate.
   TableType &getGlobal() { return GlobalTable; }
   /// Create or Return a local table to be populate.
   TableType &getLocal(FuncDef *FD) { return LocalTables[FD]; }
-
-  // TODO: eliminate the ExprTypeTable.
-  friend class TypeChecker;
-  /// For TypeChecker to set type of an expression.
-  void setExprType(const ExprAST *E, BasicTypeKind Ty);
 };
 
 DEFINE_INLINE_OUTPUT_OPERATOR(SymbolTable)

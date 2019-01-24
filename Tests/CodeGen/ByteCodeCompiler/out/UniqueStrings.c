@@ -2,15 +2,15 @@
    0: "Unique String"
 
 main:
-0   30                       0         
-1   14                       0         
-2   17                       0         
-3   30                       0         
-4   14                       0         
-5   17                       0         
-6   30                       0         
-7   14                       0         
-8   17                       0         
-9   31                       
+0   LOAD_STRING              0         
+1   PRINT_STRING             0         
+2   PRINT_NEWLINE            0         
+3   LOAD_STRING              0         
+4   PRINT_STRING             0         
+5   PRINT_NEWLINE            0         
+6   LOAD_STRING              0         
+7   PRINT_STRING             0         
+8   PRINT_NEWLINE            0         
+9   RETURN_NONE              
 
 

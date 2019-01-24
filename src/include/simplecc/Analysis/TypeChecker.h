@@ -2,15 +2,12 @@
 #define SIMPLECC_ANALYSIS_TYPECHECKER_H
 #include "simplecc/Analysis/AnalysisVisitor.h"
 
-// TODO: add a TypeEvaluator to compute type of ExprAST.
-// TypeEvaluator::TypeOf(const ExprAST *E)
-
 namespace simplecc {
 /// @brief TypeChecker implements type checking of the compiler.
 /// Type checking enforces the type system, which is essentially a set of rules.
 class TypeChecker : AnalysisVisitor<TypeChecker> {
   void visitRead(ReadStmt *RD);
-  void visitWrite(WriteStmt *WR);
+  void visitWrite(WriteStmt *W);
   void visitReturn(ReturnStmt *R);
   void visitAssign(AssignStmt *A);
 

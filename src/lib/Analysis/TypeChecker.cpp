@@ -9,14 +9,12 @@ void TypeChecker::visitRead(ReadStmt *RD) {
       Error(N->getLocation(), "scanf() only applies to variables.");
       continue;
     }
-    /// set the Expr type for this.
-    getSymbolTable().setExprType(N, Entry.AsVariable().getType());
   }
 }
 
-void TypeChecker::visitWrite(WriteStmt *WR) {
-  if (WR->getValue()) {
-    CheckExprOperand(WR->getValue());
+void TypeChecker::visitWrite(WriteStmt *W) {
+  if (W->getValue()) {
+    CheckExprOperand(W->getValue());
   }
 }
 
@@ -137,7 +135,7 @@ BasicTypeKind TypeChecker::visitSubscript(SubscriptExpr *SB) {
 
 static void CheckNoLoadFunction(SymbolEntry Entry, NameExpr *N) {
   assert(!(Entry.IsFunction() && N->getContext() == ExprContextKind::Load) &&
-         "There should be no NameExpr being a Function!");
+      "There should be no NameExpr being a Function!");
 }
 
 BasicTypeKind TypeChecker::visitName(NameExpr *N) {
@@ -166,9 +164,7 @@ BasicTypeKind TypeChecker::visitStr(StrExpr *) {
 
 // Return the type of evaluating the expression
 BasicTypeKind TypeChecker::visitExpr(ExprAST *E) {
-  auto T = VisitorBase::visitExpr<BasicTypeKind>(E);
-  getSymbolTable().setExprType(E, T);
-  return T;
+  return VisitorBase::visitExpr<BasicTypeKind>(E);
 }
 
 void TypeChecker::visitFuncDef(FuncDef *FD) {

@@ -1,6 +1,6 @@
 
 
 main:
-0   31                       
+0   RETURN_NONE              
 
 

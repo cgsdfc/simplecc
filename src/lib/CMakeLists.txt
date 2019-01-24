@@ -6,13 +6,11 @@ set(SOURCE_FILES
         Lex/TokenInfo.cpp
 
         # Turn tokens into CST, then into AST.
-        AST/AST.cpp
         Parse/Grammar.cpp
         Parse/ASTBuilder.cpp
         Parse/Parser.cpp
         Parse/Node.cpp
         Parse/Parse.cpp
-        AST/Enums.cpp
         Parse/ParseTreePrinter.cpp
 
         # Perform various analyses (or checks) on the AST.
@@ -21,11 +19,16 @@ set(SOURCE_FILES
         Analysis/SyntaxChecker.cpp
         Analysis/Types.cpp
         Analysis/ImplicitCallTransformer.cpp
-        AST/ASTVerifier.cpp
         Analysis/SymbolTableBuilder.cpp
         Analysis/AnalysisManager.cpp
         Analysis/ArrayBoundChecker.cpp
+        Analysis/TypeEvaluator.cpp
+
+        # The AST module.
+        AST/ASTVerifier.cpp
         AST/ASTPrettyPrinter.cpp
+        AST/Enums.cpp
+        AST/AST.cpp
 
         # Generate ByteCode from the AST.
         CodeGen/ByteCodePrinter.cpp
@@ -69,7 +72,7 @@ set(SOURCE_FILES
         Driver/Driver.cpp
         # WindowsDriver is always built for the sake of IDE.
         Driver/WindowsDriver.cpp
-        Driver/main.cpp ../include/simplecc/AST/VisitorBase.h)
+        Driver/main.cpp)
 
 set(EXTRA_LIBRARIES "")
 

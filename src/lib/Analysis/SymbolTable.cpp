@@ -10,7 +10,7 @@ void SymbolTable::Format(std::ostream &O) const {
   O << "\n";
   for (const auto &Pair : LocalTables) {
     O << "Local(" << Pair.first->getName() << "):\n";
-    for (const std::pair<const std::string, SymbolEntry> &Item : Pair.second) {
+    for (const auto &Item : Pair.second) {
       O << "  " << Item.first << ": " << Item.second << "\n";
     }
     O << "\n";
@@ -20,7 +20,6 @@ void SymbolTable::Format(std::ostream &O) const {
 void SymbolTable::clear() {
   GlobalTable.clear();
   LocalTables.clear();
-  ExprTypeTable.clear();
 }
 
 LocalSymbolTable SymbolTable::getLocalTable(const FuncDef *FD) const {
@@ -31,15 +30,6 @@ LocalSymbolTable SymbolTable::getLocalTable(const FuncDef *FD) const {
 SymbolEntry SymbolTable::getGlobalEntry(const std::string &Name) const {
   assert(GlobalTable.count(Name));
   return GlobalTable.find(Name)->second;
-}
-
-BasicTypeKind SymbolTable::getExprType(const ExprAST *E) const {
-  assert(ExprTypeTable.count(E));
-  return ExprTypeTable.find(E)->second;
-}
-
-void SymbolTable::setExprType(const ExprAST *E, BasicTypeKind Ty) {
-  ExprTypeTable.emplace(E, Ty);
 }
 
 SymbolEntry LocalSymbolTable::operator[](const std::string &Name) const {

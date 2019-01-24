@@ -25,14 +25,14 @@ unsigned ByteCodeModule::getStringLiteralID(const std::string &Str) {
   return StringLiterals.emplace(Str, ID).first->second;
 }
 
+// TODO: make the printing better (currently like a shut).
 void ByteCodeModule::Format(std::ostream &O) const {
   for (const SymbolEntry &GV : getGlobalVariables()) {
     O << GV << "\n";
   }
 
   O << "\n";
-  for (const std::pair<const std::string, unsigned> &Pair :
-       getStringLiteralTable()) {
+  for (const auto &Pair : getStringLiteralTable()) {
     O << std::setw(4) << Pair.second << ": " << Pair.first << "\n";
   }
 

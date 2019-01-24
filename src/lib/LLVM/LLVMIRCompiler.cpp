@@ -1,6 +1,8 @@
 #include "simplecc/LLVM/LLVMIRCompiler.h"
-#include "simplecc/Analysis/SymbolTable.h"
+#include "simplecc/Analysis/TypeEvaluator.h"
 #include <llvm/IR/Verifier.h>
+#include <simplecc/LLVM/LLVMIRCompiler.h>
+#include <array>
 
 using llvm::BasicBlock;
 using llvm::GlobalVariable;
@@ -31,8 +33,8 @@ bool LLVMIRCompiler::Compile() {
 /// Client can use its return value to judge whether they should insert
 /// a Terminator.
 bool LLVMIRCompiler::visitStmtList(
-    const std::vector<StmtAST *> &StatementList) {
-  for (StmtAST *S : StatementList) {
+    const std::vector<StmtAST *> &StmtList) {
+  for (StmtAST *S : StmtList) {
     visitStmt(S);
     if (IsInstance<ReturnStmt>(S)) {
       /// We see a Return.
@@ -84,24 +86,24 @@ Value *LLVMIRCompiler::visitStr(StrExpr *S) {
   /// Strip quotes first.
   auto &&Str = S->getStr();
   assert(Str.size() >= 2 && "StrExpr must have quotes");
+  // std::ostringstream OS;
+  // OS << std::quoted(S->getStr());
+  // XXX: use std::quoted?
   std::string Stripped(Str.begin() + 1, Str.end() - 1);
   return getString(Stripped);
 }
 
-Value *LLVMIRCompiler::visitName(NameExpr *Nn) {
-  Value *Val = LocalValues[Nn->getName()];
+Value *LLVMIRCompiler::visitName(NameExpr *N) {
+  Value *Val = LocalValues[N->getName()];
   assert(Val);
-
-  /// This is a Store, return its address.
-  if (Nn->getContext() == ExprContextKind::Store) {
+  // This is a Store, return its address.
+  if (N->getContext() == ExprContextKind::Store) {
     return Val;
   }
-
-  /// This is a variable so **load** it.
+  // This is a variable so **load** it.
   if (!llvm::isa<llvm::ConstantInt>(Val)) {
-    Val = Builder.CreateLoad(Val, Nn->getName());
+    return Builder.CreateLoad(Val, N->getName());
   }
-
   return Val;
 }
 
@@ -111,21 +113,19 @@ Value *LLVMIRCompiler::visitName(NameExpr *Nn) {
 /// expression and produce a bool value that indicates whether the condition
 /// is true. We have these in grammar:
 /// Form-1: <Expr> <RichCompareOp> <Expr> => bool -- already a bool.
-/// Form-2: <Expr> => int -- not a bool yet, compare it to int(0).
+/// Form-2: <Expr> => int -- not a bool yet, compare it with int(0).
 Value *LLVMIRCompiler::visitBoolOp(BoolOpExpr *B) {
   Value *Val = visitExpr(B->getValue());
-
   if (Val->getType() == VM.getBoolType()) {
-    /// RichCompareOp produces a bool, we cross validate that.
-    assert(B->hasCompareOp() && "RichCompareOp must produce a bool");
     /// We already got a bool
+    assert(B->hasCompareOp() && "RichCompareOp must produce a bool");
     return Val;
-  } else if (Val->getType() == VM.getIntType()) {
-    return Builder.CreateICmpNE(Val, VM.getInt(0), "cmp");
-  } else {
-    /// This is impossible. Char must be promoted to int to reach BoolOp.
-    llvm_unreachable("CharExpr cannot be!");
   }
+  if (Val->getType() == VM.getIntType()) {
+    return Builder.CreateICmpNE(Val, VM.getInt(0));
+  }
+  /// This is impossible. Char must be promoted to int to reach BoolOp.
+  llvm_unreachable("CharExpr cannot be!");
 }
 
 /// This method accept an int or char and cast it to an int.
@@ -133,9 +133,8 @@ Value *LLVMIRCompiler::PromoteToInt(Value *Val) {
   if (Val->getType() == VM.getIntType())
     return Val; /// The same as target type.
   if (Val->getType() == VM.getCharType())
-    return Builder.CreateIntCast(Val, VM.getIntType(), /* isSigned */ false,
-                                 "cast");
-  llvm_unreachable("Val->getType() must be char or int");
+    return Builder.CreateIntCast(Val, VM.getIntType(), /* isSigned */ false);
+  llvm_unreachable("Type must be char or int");
 }
 
 /// BinOp requires both operands to be int's.
@@ -143,16 +142,16 @@ Value *LLVMIRCompiler::visitBinOp(BinOpExpr *B) {
   Value *L = visitExprPromoteToInt(B->getLeft());
   Value *R = visitExprPromoteToInt(B->getRight());
   switch (B->getOp()) {
-  case BinaryOpKind::Add:return Builder.CreateAdd(L, R, "add");
-  case BinaryOpKind::Sub:return Builder.CreateSub(L, R, "sub");
-  case BinaryOpKind::Mult:return Builder.CreateMul(L, R, "mul");
-  case BinaryOpKind::Div:return Builder.CreateSDiv(L, R, "div");
-  case BinaryOpKind::Eq:return Builder.CreateICmpEQ(L, R, "eq");
-  case BinaryOpKind::NotEq:return Builder.CreateICmpNE(L, R, "ne");
-  case BinaryOpKind::Lt:return Builder.CreateICmpSLT(L, R, "lt");
-  case BinaryOpKind::LtE:return Builder.CreateICmpSLE(L, R, "le");
-  case BinaryOpKind::Gt:return Builder.CreateICmpSGT(L, R, "gt");
-  case BinaryOpKind::GtE:return Builder.CreateICmpSGE(L, R, "ge");
+  case BinaryOpKind::Add:return Builder.CreateAdd(L, R);
+  case BinaryOpKind::Sub:return Builder.CreateSub(L, R);
+  case BinaryOpKind::Mult:return Builder.CreateMul(L, R);
+  case BinaryOpKind::Div:return Builder.CreateSDiv(L, R);
+  case BinaryOpKind::Eq:return Builder.CreateICmpEQ(L, R);
+  case BinaryOpKind::NotEq:return Builder.CreateICmpNE(L, R);
+  case BinaryOpKind::Lt:return Builder.CreateICmpSLT(L, R);
+  case BinaryOpKind::LtE:return Builder.CreateICmpSLE(L, R);
+  case BinaryOpKind::Gt:return Builder.CreateICmpSGT(L, R);
+  case BinaryOpKind::GtE:return Builder.CreateICmpSGE(L, R);
   }
 }
 
@@ -253,22 +252,20 @@ void LLVMIRCompiler::visitFor(ForStmt *F) {
 Value *LLVMIRCompiler::visitCall(CallExpr *C) {
   Value *Callee = LocalValues[C->getCallee()];
   assert(Callee && "Callee must be created");
-  std::vector<Value *> ArgsV;
-  ArgsV.reserve(C->getArgs().size());
-  for (ExprAST *A : C->getArgs()) {
-    Value *Val = visitExpr(A);
-    ArgsV.push_back(Val);
+  std::vector<Value *> Args;
+  Args.reserve(C->getArgs().size());
+  for (ExprAST *E : C->getArgs()) {
+    Args.push_back(visitExpr(E));
   }
-  return Builder.CreateCall(Callee, ArgsV);
+  return Builder.CreateCall(Callee, Args);
 }
 
 void LLVMIRCompiler::visitReturn(ReturnStmt *Ret) {
   if (Ret->hasValue()) {
-    Value *Val = visitExpr(Ret->getValue());
-    Builder.CreateRet(Val);
-  } else {
-    Builder.CreateRetVoid();
+    Builder.CreateRet(visitExpr(Ret->getValue()));
+    return;
   }
+  Builder.CreateRetVoid();
 }
 
 void LLVMIRCompiler::visitAssign(AssignStmt *A) {
@@ -277,58 +274,64 @@ void LLVMIRCompiler::visitAssign(AssignStmt *A) {
   Builder.CreateStore(RHS, LHS);
 }
 
-/// The logic varies depending on whether it is a load/store
 Value *LLVMIRCompiler::visitSubscript(SubscriptExpr *SB) {
   Value *Array = LocalValues[SB->getArrayName()];
-
   assert(Array && "Array Value must exist");
   Value *Index = visitExpr(SB->getIndex());
 
   /// Always remember Array values are represented by **ptr to array**
   /// and to get an address to its element, it **must** be stepped through
   /// first using a zero index in getelementptr and then the desired index.
-  Value *IdxList[2] = {VM.getInt(0), Index};
-  Value *ElemPtr = Builder.CreateInBoundsGEP(Array, IdxList, "elemptr");
+  // Value *IdxList[2] = {VM.getInt(0), Index};
+  const std::array<Value *, 2> IdxList{VM.getInt(0), Index};
+  Value *ElemPtr = Builder.CreateInBoundsGEP(Array, IdxList);
 
   switch (SB->getContext()) {
   case ExprContextKind::Load:
     /// If this is a Load, emit a load.
-    return Builder.CreateLoad(ElemPtr, "elemval");
+    return Builder.CreateLoad(ElemPtr);
   case ExprContextKind::Store:
-    /// If this is a Store, just return the ptr to the elememt
+    /// If this is a Store, just return the ptr to the element
     /// to be stored by an Assign.
     return ElemPtr;
   }
 }
 
+const char *LLVMIRCompiler::getScanfFmtSpec(const NameExpr *N) const {
+  switch (TypeEvaluator::getExprType(N, TheLocal)) {
+  case BasicTypeKind::Int:
+    // read an int.
+    return "%d";
+  case BasicTypeKind::Character:
+    // read a char. Skip one extra space.
+    return " %c";
+  default:llvm_unreachable("Void cannot be!");
+  }
+}
+
 void LLVMIRCompiler::visitRead(ReadStmt *RD) {
-  /// XXX: getFunction() may have different behavior than
-  /// getGlobalVariable(). Unify with GlobalValues[<name>].
   Function *Scanf = TheModule.getFunction("scanf");
   assert(Scanf && "scanf() must be declared");
-  llvm::SmallVector<Value *, 2> Args;
-
-  /// Select appropriate format specifier by type.
-  auto SelectFmtSpc = [this](ExprAST *Name) {
-    auto T = TheTable.getExprType(Name);
-    switch (T) {
-    case BasicTypeKind::Int:return "%d";
-    case BasicTypeKind::Character:
-      /// Skip one extra space.
-      return " %c";
-    default:llvm_unreachable("Void cannot be!");
-    }
-  };
 
   for (auto N : RD->getNames()) {
-    Value *FmtV = getString(SelectFmtSpc(N));
+    Value *Fmt = getString(getScanfFmtSpec(N));
     Value *Var = LocalValues[N->getName()];
     assert(Var && "Var must be created");
-    Args.clear();
-    Args.push_back(FmtV);
-    Args.push_back(Var);
-    Builder.CreateCall(Scanf, Args, "scanf");
+    Builder.CreateCall(Scanf, std::array<Value *, 2>{Fmt, Var});
   }
+}
+
+const char *LLVMIRCompiler::getPrintfFmtSpec(const simplecc::WriteStmt *W) const {
+  if (!W->getValue()) {
+    // No expr, no need to consult SymbolTable
+    return "%s\n";
+  }
+  auto ValTy = TypeEvaluator::getExprType(W->getValue(), TheLocal);
+  if (!W->getStr()) {
+    // No string.
+    return ValTy == BasicTypeKind::Character ? "%c\n" : "%d\n";
+  }
+  return ValTy == BasicTypeKind::Character ? "%s%c\n" : "%s%d\n";
 }
 
 /// Emit a printf("%d\n", Var) for printf(<int-expr>);
@@ -336,31 +339,17 @@ void LLVMIRCompiler::visitRead(ReadStmt *RD) {
 ///      a printf("%s\n", Str) for printf(<string>);
 ///      a printf("%s%d\n", Str, Var) for printf(<string>, <int-expr>);
 ///      a printf("%s%c\n", Str, Var) for printf(<string>, <char-expr>);
-void LLVMIRCompiler::visitWrite(WriteStmt *WR) {
-  /// A small lambda to select the appropriate format specifier.
-  auto SelectFmtSpc = [WR, this]() {
-    if (!WR->getValue()) {
-      // No expr, no need to consult SymbolTable
-      return "%s\n";
-    }
-    auto T = TheTable.getExprType(WR->getValue());
-    if (!WR->getStr()) {
-      // No string.
-      return T == BasicTypeKind::Character ? "%c\n" : "%d\n";
-    }
-    return T == BasicTypeKind::Character ? "%s%c\n" : "%s%d\n";
-  };
+void LLVMIRCompiler::visitWrite(WriteStmt *W) {
   Function *Printf = TheModule.getFunction("printf");
   assert(Printf && "printf() must be declared");
 
   /// Take a maximum of 3 arguments.
   llvm::SmallVector<Value *, 3> Args;
-  Value *FmtV = getString(SelectFmtSpc());
-  Args.push_back(FmtV);
-  if (WR->getStr())
-    Args.push_back(visitExpr(WR->getStr()));
-  if (WR->getValue())
-    Args.push_back(visitExpr(WR->getValue()));
+  Args.push_back(getString(getPrintfFmtSpec(W)));
+  if (W->getStr())
+    Args.push_back(visitExpr(W->getStr()));
+  if (W->getValue())
+    Args.push_back(visitExpr(W->getValue()));
   Builder.CreateCall(Printf, Args);
 }
 
@@ -369,6 +358,7 @@ void LLVMIRCompiler::visitWrite(WriteStmt *WR) {
 void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
   /// Clear the Mapping.
   LocalValues.clear();
+  TheLocal = TheTable.getLocalTable(FD);
 
   // TODO: only fixing return type is not enough. Fix any return;
   // within main() to return 0;
@@ -422,8 +412,8 @@ void LLVMIRCompiler::visitFuncDef(FuncDef *FD) {
       /// create local arrays. This makes the GEP as: %elemptr = getelementptr
       /// inbound [i32 x 2], [i32 x 2]* %1, i32 0, i32 <index> which is
       /// *verbose*, but consistent.
-      auto Alloca = Builder.CreateAlloca(VM.getTypeFromVarDecl(VD), nullptr,
-                                         VD->getName());
+      auto Alloca = Builder.CreateAlloca(VM.getTypeFromVarDecl(VD),
+          /* Size */ nullptr, VD->getName());
       LocalValues.emplace(VD->getName(), Alloca);
     } else if (auto CD = subclass_cast<ConstDecl>(D)) {
       LocalValues.emplace(CD->getName(),
@@ -509,7 +499,6 @@ void LLVMIRCompiler::visitProgram(ProgramAST *P) {
   std::string ErrorMsg;
   llvm::raw_string_ostream OS(ErrorMsg);
   if (llvm::verifyModule(TheModule, &OS)) {
-    TheModule.print(llvm::errs(), nullptr);
     EM.Error(ErrorMsg);
   }
 }

@@ -61,7 +61,7 @@ bool ByteCode::HasNoOperand(Opcode Op) {
 
 void ByteCode::Format(std::ostream &O) const {
   O << std::left << std::setw(4) << getByteCodeOffset();
-  O << std::left << std::setw(25) << getOpcode();
+  O << std::left << std::setw(25) << getOpcodeName();
 
   if (HasIntOperand()) {
     O << std::setw(10) << getIntOperand();

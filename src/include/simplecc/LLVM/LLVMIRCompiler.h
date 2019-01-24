@@ -1,6 +1,7 @@
 #ifndef SIMPLECC_LLVM_LLVMIRCOMPILER_H
 #define SIMPLECC_LLVM_LLVMIRCOMPILER_H
 #include "simplecc/AST/VisitorBase.h"
+#include "simplecc/Analysis/SymbolTable.h"
 #include "simplecc/LLVM/LLVMValueMap.h"
 #include "simplecc/Support/ErrorManager.h"
 #include <llvm/IR/IRBuilder.h>
@@ -12,7 +13,6 @@ class Function;
 } // namespace llvm
 
 namespace simplecc {
-class SymbolTable;
 using llvm::Function;
 using llvm::IRBuilder;
 using llvm::LLVMContext;
@@ -24,61 +24,88 @@ using llvm::Value;
 /// 2. Be well-formed in terms of LLVM IR.
 /// 3. Avoid useless stuffs.
 class LLVMIRCompiler : VisitorBase<LLVMIRCompiler> {
+  /// @brief Generates code for the whole program.
   void visitProgram(ProgramAST *P);
+
+  /// @brief Noop.
   void visitArgDecl(ArgDecl *) {}
   void visitVarDecl(VarDecl *VD);
   void visitConstDecl(ConstDecl *CD);
   void visitFuncDef(FuncDef *FD);
 
-  void visitWrite(WriteStmt *WR);
+  void visitWrite(WriteStmt *W);
   void visitRead(ReadStmt *RD);
   void visitAssign(AssignStmt *A);
   void visitReturn(ReturnStmt *Ret);
   void visitFor(ForStmt *F);
   void visitWhile(WhileStmt *W);
   void visitIf(IfStmt *I);
-  void visitExprStmt(ExprStmt *ES) { visitExpr(ES->getValue()); }
 
-  Value *visitExpr(ExprAST *E) { return VisitorBase::visitExpr<Value *>(E); }
+  void visitExprStmt(ExprStmt *ES) {
+    visitExpr(ES->getValue());
+  }
+
+  Value *visitExpr(ExprAST *E) {
+    return VisitorBase::visitExpr<Value *>(E);
+  }
+
   Value *visitBinOp(BinOpExpr *B);
   Value *visitUnaryOp(UnaryOpExpr *U);
   Value *visitSubscript(SubscriptExpr *SB);
   Value *visitCall(CallExpr *C);
   Value *visitBoolOp(BoolOpExpr *B);
+
   Value *visitParenExpr(ParenExpr *PE) {
     return visitExprPromoteToInt(PE->getValue());
   }
 
-  /// Simple atom nodes.
-  Value *visitNum(NumExpr *N) { return VM.getInt(N->getNum()); }
-  Value *visitChar(CharExpr *C) { return VM.getChar(C->getChar()); }
-  Value *visitName(NameExpr *Nn);
+  Value *visitNum(NumExpr *N) {
+    return VM.getInt(N->getNum());
+  }
+
+  Value *visitChar(CharExpr *C) {
+    return VM.getChar(C->getChar());
+  }
+
+  Value *visitName(NameExpr *N);
   Value *visitStr(StrExpr *S);
 
-  /// This method accept an int or char and cast it to an int.
+  /// @brief PromoteToInt accepts an int or char and cast it to an int.
   Value *PromoteToInt(Value *Val);
 
-  /// This helper evaluates an Expr, optional emits a char-to-int cast
-  /// to ensure the result is int.
+  /// @brief visitExprPromoteToInt generates code for an expression and ensures the result is an int.
   Value *visitExprPromoteToInt(ExprAST *E) {
     return PromoteToInt(visitExpr(E));
   }
 
-  bool visitStmtList(const std::vector<StmtAST *> &StatementList);
+  /// @brief Generates code for a list of statements.
+  /// @return true if \param StmtList does not contain a ReturnStmt.
+  bool visitStmtList(const StmtAST::StmtListType &StmtList);
+
+  /// @brief Inserts declarations for builtin functions such as ``printf()`` and ``scanf()``
+  /// into the Module.
   void DeclareBuiltinFunctions();
+
+  /// @brief Declares an IO builtin by inserting it into the Module.
   Function *DeclareIOBuiltins(const char *Name);
+
+  /// @brief Converts a string literal to a llvm string constant.
   Value *getString(llvm::StringRef Str);
+
+  /// @brief Return a format specifier for printf() to use.
+  const char *getPrintfFmtSpec(const WriteStmt *W) const;
+
+  /// @brief Return a format specifier for scanf() to use.
+  const char *getScanfFmtSpec(const NameExpr *N) const;
 
 public:
   /// Don't put instance on the stack. It is about 1K.
   LLVMIRCompiler(ProgramAST *P, const SymbolTable &S);
 
-  /// No copy no move.
   LLVMIRCompiler(const LLVMIRCompiler &) = delete;
-  LLVMIRCompiler &operator=(const LLVMIRCompiler &) = delete;
   LLVMIRCompiler(LLVMIRCompiler &&) = delete;
-  LLVMIRCompiler &operator=(LLVMIRCompiler &&) = delete;
 
+  /// Force a out-of-line destructor.
   ~LLVMIRCompiler();
 
   /// Compile the program, return true if errors happened.
@@ -104,6 +131,7 @@ private:
   const SymbolTable &TheTable;
   /// AST tree node to be visited.
   ProgramAST *TheProgram;
+  LocalSymbolTable TheLocal;
 
   /// LLVM core data structures.
   LLVMContext TheContext;
@@ -134,6 +162,6 @@ private:
   /// But developer can make mistakes and this EM will tell.
   ErrorManager EM;
 };
-} // namespace simplecc
 
+} // namespace simplecc
 #endif // SIMPLECC_LLVM_LLVMIRCOMPILER_H

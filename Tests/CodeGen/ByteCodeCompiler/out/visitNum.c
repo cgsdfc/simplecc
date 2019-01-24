@@ -2,16 +2,16 @@
 
 main:
 SymbolEntry(intvar, Variable, Local, Location(2, 6))
-0   29                       1         
-1   2                        intvar              
-2   29                       123456789 
-3   2                        intvar              
-4   29                       1         
-5   16                       0         
-6   17                       0         
-7   29                       123456789 
-8   16                       0         
-9   17                       0         
-10  31                       
+0   LOAD_CONST               1         
+1   STORE_LOCAL              intvar              
+2   LOAD_CONST               123456789 
+3   STORE_LOCAL              intvar              
+4   LOAD_CONST               1         
+5   PRINT_INTEGER            0         
+6   PRINT_NEWLINE            0         
+7   LOAD_CONST               123456789 
+8   PRINT_INTEGER            0         
+9   PRINT_NEWLINE            0         
+10  RETURN_NONE              
 
 

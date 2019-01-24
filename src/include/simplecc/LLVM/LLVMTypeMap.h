@@ -2,7 +2,6 @@
 #define SIMPLECC_LLVM_LLVMTYPEMAP_H
 #include "simplecc/Analysis/Types.h"
 #include "simplecc/AST/AST.h"
-
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Type.h>
@@ -12,49 +11,54 @@ using llvm::FunctionType;
 using llvm::LLVMContext;
 using llvm::Type;
 
-/// This class translates simplecc's type system to LLVM's type system.
-/// Provides helpers to convert objects of different types to their LLVM
-/// counterparts.
+/// @brief LLVMTypeMap translates simplecc's type system to LLVM's type system.
+/// Provides helpers to convert objects of different types to their LLVM counterparts.
 class LLVMTypeMap {
   LLVMContext &TheContext;
 
-protected:
-  LLVMContext &getContext() const { return TheContext; }
-
 public:
+  /// @brief Constructor.
   explicit LLVMTypeMap(LLVMContext &Context) : TheContext(Context) {}
 
-  /// Convert a basic type.
+  /// @brief Convert a BasicTypeKind to a llvm type.
+  /// 1. Void => void.
+  /// 2. Int => i32.
+  /// 3. Character => i8.
   Type *getType(BasicTypeKind Type) const;
 
   /// Convert different basic types.
   Type *getCharType() const { return getType(BasicTypeKind::Character); }
   Type *getIntType() const { return getType(BasicTypeKind::Int); }
+
+  /// @brief Return the type for bool.
+  /// getBoolType() is a shortcut for llvm's i1.
   Type *getBoolType() const { return Type::getInt1Ty(TheContext); }
 
-  /// Convert from Types.
-  /// Convert an ArrayType.
+  /// @brief Convert an ArrayType.
   Type *getType(const ArrayType &A) const;
 
-  /// Convert a VarType.
+  /// @brief Convert a VarType.
   Type *getType(const VarType &V) const { return getType(V.getType()); }
-  /// Convert a ConstType.
+
+  /// @brief Convert a ConstType.
   Type *getType(const ConstType &C) const { return getType(C.getType()); }
-  /// Convert a FuncType.
+
+  /// @brief Convert a FuncType.
   FunctionType *getType(const FuncType &F) const;
 
-  /// Convert from Ast.
-  /// Convert a FuncDef.
+  /// @brief Convert a FuncDef.
   FunctionType *getTypeFromFuncDef(FuncDef *FD) const {
     return getType(FuncType(FD));
   }
-  /// Convert a VarDecl.
+
+  /// @brief Convert a VarDecl.
   Type *getTypeFromVarDecl(VarDecl *VD) const;
-  /// Convert a ConstDecl.
+
+  /// @brief Convert a ConstDecl.
   Type *getTypeFromConstDecl(ConstDecl *CD) const {
     return getType(CD->getType());
   }
 };
-} // namespace simplecc
 
+} // namespace simplecc
 #endif // SIMPLECC_LLVM_LLVMTYPEMAP_H

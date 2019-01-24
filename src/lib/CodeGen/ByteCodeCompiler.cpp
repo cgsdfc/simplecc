@@ -1,3 +1,4 @@
+#include <simplecc/Analysis/TypeEvaluator.h>
 #include "simplecc/CodeGen/ByteCodeCompiler.h"
 #include "simplecc/CodeGen/ByteCodeModule.h"
 
@@ -33,23 +34,24 @@ void ByteCodeCompiler::visitWrite(WriteStmt *WR) {
   }
   if (WR->getValue()) {
     visitExpr(WR->getValue());
-    Builder.CreatePrint(TheTable->getExprType(WR->getValue()));
+    auto ValTy = TypeEvaluator::getExprType(WR->getValue(), TheLocalTable);
+    Builder.CreatePrint(ValTy);
   }
   /// Add a newline for ease of reading.
   Builder.CreatePrintNewline();
 }
 
-void ByteCodeCompiler::visitFor(ForStmt *node) {
-  visitStmt(node->getInitial());
+void ByteCodeCompiler::visitFor(ForStmt *F) {
+  visitStmt(F->getInitial());
   unsigned JumpToStart = Builder.CreateJumpForward();
 
   unsigned Loop = Builder.getSize();
-  visitStmt(node->getStep());
+  visitStmt(F->getStep());
   unsigned JumpToEnd =
-      CompileBoolOp(static_cast<BoolOpExpr *>(node->getCondition()));
+      CompileBoolOp(static_cast<BoolOpExpr *>(F->getCondition()));
 
   unsigned Start = Builder.getSize();
-  for (auto s : node->getBody()) {
+  for (auto s : F->getBody()) {
     visitStmt(s);
   }
   unsigned JumpToLoop = Builder.CreateJumpForward();

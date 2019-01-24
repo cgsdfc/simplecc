@@ -25,7 +25,7 @@ class ByteCodeCompiler : ChildrenVisitor<ByteCodeCompiler> {
   void visitRead(ReadStmt *RD);
   void visitWrite(WriteStmt *WR);
   void visitAssign(AssignStmt *A);
-  void visitFor(ForStmt *node);
+  void visitFor(ForStmt *F);
   void visitWhile(WhileStmt *W);
   void visitIf(IfStmt *I);
   void visitReturn(ReturnStmt *R);
