@@ -22,11 +22,9 @@ static inline bool IsNameMiddle(char Chr) {
   return Chr == '_' || std::isalnum(Chr);
 }
 
-/// Return if a line consists totally space.
+/// Return true if a line consists of totally space.
 static bool IsBlank(const std::string &Line) {
-  // Find the first char that is not space.
-  return std::find_if_not(Line.begin(), Line.end(),
-                          [](char C) { return std::isspace(C); }) == Line.end();
+  return std::all_of(Line.begin(), Line.end(), [](char C) { return std::isspace(C); });
 }
 
 /// Return if a char is a valid one in a character literal.
