@@ -13,7 +13,7 @@ class Driver : public DriverBase {
   void runDumpSymbolTable();
 #define HANDLE_COMMAND(Name, Arg, Description) void run##Name();
 #include "simplecc/Driver/Driver.def"
-#ifdef SIMPLE_COMPILER_USE_LLVM
+#if SIMPLE_COMPILER_USE_LLVM
   std::unique_ptr<llvm::raw_ostream> getLLVMRawOstream();
 #endif
 

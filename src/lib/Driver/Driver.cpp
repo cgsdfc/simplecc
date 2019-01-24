@@ -5,14 +5,14 @@
 #include "simplecc/Transform/Transform.h"
 #include <tclap/CmdLine.h>
 
-#ifdef SIMPLE_COMPILER_USE_LLVM
+#if SIMPLE_COMPILER_USE_LLVM
 #include "simplecc/LLVM/LLVM.h"
 #include "simplecc/Visualize/Visualize.h"
 #endif
 
 using namespace simplecc;
 
-#ifdef SIMPLE_COMPILER_USE_LLVM
+#if SIMPLE_COMPILER_USE_LLVM
 void Driver::runEmitLLVMIR() {
   if (runAnalyses())
     return;
