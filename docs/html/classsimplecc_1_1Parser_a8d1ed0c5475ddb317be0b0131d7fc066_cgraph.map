@@ -1,0 +1,31 @@
+<map id="simplecc::Parser::AddToken" name="simplecc::Parser::AddToken">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Parser.html#acde9228ef3c3a6ee34301058532b1d8f" title="simplecc::Parser::Classify" alt="" coords="249,477,425,503"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1TokenInfo.html#abe6d5f167cfd607ed69c9f7e97e93de1" title="simplecc::TokenInfo\l::getLocation" alt="" coords="977,459,1117,500"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1TokenInfo.html#ad046e490a126f172e16fad692cb696ad" title="simplecc::TokenInfo\l::getLine" alt="" coords="977,751,1117,792"/>
+<area shape="rect" id="node12" href="$classsimplecc_1_1ErrorManager.html#a2381e18267b4ea8df767961cef6e121a" title="TODO: these 2 overloads are too easy to be ambiguous. " alt="" coords="498,201,658,243"/>
+<area shape="rect" id="node19" href="$classsimplecc_1_1Parser_1_1StackEntry.html#a1e5508efaaf63b9dd53e53acc71831be" title="simplecc::Parser::StackEntry\l::getDFA" alt="" coords="240,528,433,569"/>
+<area shape="rect" id="node20" href="$classsimplecc_1_1Parser_1_1StackEntry.html#a8fa737412af06016dfb3a6f8fbb67cfb" title="simplecc::Parser::StackEntry\l::getState" alt="" coords="240,593,433,635"/>
+<area shape="rect" id="node21" href="$classsimplecc_1_1Parser.html#a4066e882b6b11dc6e60790012de1e41c" title="simplecc::Parser::Shift" alt="" coords="259,659,414,686"/>
+<area shape="rect" id="node26" href="$classsimplecc_1_1Parser.html#a3d7825c0a43ca3ad7071fce32ba3baba" title="simplecc::Parser::IsAccept\lOnlyState" alt="" coords="247,711,427,752"/>
+<area shape="rect" id="node27" href="$classsimplecc_1_1Parser.html#a17141d8f97bfc6044b9e6b88811f4047" title="simplecc::Parser::Pop" alt="" coords="261,777,412,803"/>
+<area shape="rect" id="node28" href="$namespacesimplecc.html#a4ef7c696242b70528144ad9c2df6300b" title="simplecc::IsNonTerminal" alt="" coords="964,887,1131,914"/>
+<area shape="rect" id="node29" href="$classsimplecc_1_1Parser.html#a406d7bba05e850faa2bd93d69055ded8" title="simplecc::Parser::IsInFirst" alt="" coords="249,882,425,909"/>
+<area shape="rect" id="node30" href="$classsimplecc_1_1Parser.html#aa5e1ae7be6ba181242604e4341f6dab5" title="simplecc::Parser::Push" alt="" coords="257,343,416,370"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1TokenInfo.html#a7d4b58c7a1bb7336ac8545e6b138638d" title="simplecc::TokenInfo\l::getType" alt="" coords="508,601,648,643"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1TokenInfo.html#a623ae799c4a911b6d81b6747f7db20a9" title="simplecc::TokenInfo\l::getString" alt="" coords="977,651,1117,692"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1TokenInfo.html#aaf511b4d93bdedd578828e528b938469" title="simplecc::TokenInfo\l::Format" alt="" coords="749,551,889,592"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1TokenInfo.html#a930b11949601fae4f0d303d7f340e23f" title="simplecc::TokenInfo\l::getTypeName" alt="" coords="977,585,1117,627"/>
+<area shape="rect" id="node8" href="$namespacesimplecc.html#a961a3c54d01e7ea889e72575569a451c" title="simplecc::Quote" alt="" coords="989,534,1106,561"/>
+<area shape="rect" id="node6" href="$namespacesimplecc.html#a724a2683995177e8ebe0798861d9133d" title="simplecc::getSymbolName" alt="" coords="1179,837,1357,863"/>
+<area shape="rect" id="node7" href="$namespacesimplecc.html#ab9b3139072ae1e9bf98d2e57915a6447" title="simplecc::IsTerminal" alt="" coords="1405,862,1548,889"/>
+<area shape="rect" id="node13" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="755,71,883,112"/>
+<area shape="rect" id="node14" href="$classsimplecc_1_1ErrorManager.html#a342e07ff6becfedc4308a469308942de" title="simplecc::ErrorManager\l::getErrorType" alt="" coords="739,201,899,243"/>
+<area shape="rect" id="node15" href="$classsimplecc_1_1Location.html#a6da594f9835c13c893c347571d863e6c" title="simplecc::Location\l::FormatCompact" alt="" coords="754,267,885,308"/>
+<area shape="rect" id="node16" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="755,136,883,177"/>
+<area shape="rect" id="node18" href="$classsimplecc_1_1ErrorManager.html#a49fdfb32b0f46019c52b6155684de57e" title="simplecc::ErrorManager\l::increaseErrorCount" alt="" coords="739,5,899,47"/>
+<area shape="rect" id="node17" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="993,242,1102,269"/>
+<area shape="rect" id="node22" href="$classsimplecc_1_1Parser_1_1StackEntry.html#a2228921a91def29ebc27c5e8ace506eb" title="simplecc::Parser::StackEntry\l::getNode" alt="" coords="481,769,675,811"/>
+<area shape="rect" id="node23" href="$classsimplecc_1_1Node.html#a47a4c79f0dbda6bc744e3c1987d53db0" title="simplecc::Node::AddChild" alt="" coords="491,718,665,745"/>
+<area shape="rect" id="node24" href="$classsimplecc_1_1Parser_1_1StackEntry.html#a47f2f6a377d0706e073e1e3c0ad6f034" title="simplecc::Parser::StackEntry\l::setState" alt="" coords="481,332,675,373"/>
+<area shape="rect" id="node25" href="$classsimplecc_1_1Parser_1_1StackEntry.html#ac5138c51241835bdcbc9df75d4d7ecd7" title="simplecc::Parser::StackEntry\l::Format" alt="" coords="723,332,916,373"/>
+</map>

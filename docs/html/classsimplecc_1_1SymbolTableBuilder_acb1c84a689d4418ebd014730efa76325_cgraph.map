@@ -1,0 +1,7 @@
+<map id="simplecc::SymbolTableBuilder::setGlobal" name="simplecc::SymbolTableBuilder::setGlobal">
+<area shape="rect" id="node2" href="$classsimplecc_1_1SymbolTableBuilder.html#a72c7daac365ee8eda9bb46d0c2681a18" title="Clear the state of this SymbolTableBuilder. " alt="" coords="252,104,451,145"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1SymbolTableBuilder.html#a3a0e2c5462e21d6fc87e74e0e4ea30af" title="simplecc::SymbolTableBuilder\l::setTable" alt="" coords="499,5,697,47"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1SymbolTableBuilder.html#a0570a65f49ea53918930cad2fd09b751" title="simplecc::SymbolTableBuilder\l::setLocal" alt="" coords="499,71,697,112"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1SymbolTableBuilder.html#a66eb434e563994f68f7148745b8117c1" title="Trivial setters for important states during the construction of a table. " alt="" coords="499,136,697,177"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1ErrorManager.html#aa89e017ee0d20c6f2001c3d4c4dbdcef" title="simplecc::ErrorManager\l::clear" alt="" coords="518,201,678,243"/>
+</map>

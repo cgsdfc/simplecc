@@ -1,0 +1,4 @@
+<map id="simplecc::ReturnStmt" name="simplecc::ReturnStmt">
+<area shape="rect" id="node2" href="$classsimplecc_1_1StmtAST.html" title="This is the base class for all statement nodes. " alt="" coords="12,233,148,325"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1AST.html" title="Base class for all AST nodes. " alt="" coords="15,5,145,185"/>
+</map>

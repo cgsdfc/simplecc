@@ -1,0 +1,12 @@
+<map id="simplecc::Module::getInstructionCount" name="simplecc::Module::getInstructionCount">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Module.html#af20dd3d72b63beb68839ec33f69668c4" title="simplecc::Module::begin" alt="" coords="264,86,427,113"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1Module.html#a7c34bf67b3be7573d75c8f851c2406cd" title="simplecc::Module::end" alt="" coords="269,137,422,163"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1Function.html#af67f86066ad1891d424553b352dfa821" title="simplecc::Function\l::getInstructionCount" alt="" coords="273,188,417,229"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Function.html#a6fef260576801e440b4ebae50a001ef2" title="simplecc::Function\l::begin" alt="" coords="519,5,651,47"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1Function.html#a52665aa2671306ef4d3a53fd090aa947" title="simplecc::Function::end" alt="" coords="505,71,666,98"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1BasicBlock.html#a9f3929332adfded0712e1eb0eff7d98d" title="simplecc::BasicBlock\l::size" alt="" coords="511,123,659,164"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1Argument.html#abad52d64eac195fbb351afa7cfbdfb7c" title="simplecc::Argument\l::Create" alt="" coords="516,188,655,229"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1Module.html#ac5a129820785fa956b85c3f36381dc7d" title="simplecc::Module::getFunctionList" alt="" coords="475,254,696,281"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1Function.html#abb4e0da5d621756e42b4da4a2fe50069" title="simplecc::Function\l::arg_begin" alt="" coords="519,305,651,347"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1Function.html#ac7ef369ecc785a31ef1f44045d70cf7f" title="simplecc::Function\l::arg_end" alt="" coords="519,371,651,412"/>
+</map>

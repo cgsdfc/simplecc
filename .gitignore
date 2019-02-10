@@ -44,9 +44,6 @@ compile_commands.json
 *.png
 *.dot
 
-# generated documents
-docs/
-
 # CLion stuffs
 .idea
 cmake-build-*

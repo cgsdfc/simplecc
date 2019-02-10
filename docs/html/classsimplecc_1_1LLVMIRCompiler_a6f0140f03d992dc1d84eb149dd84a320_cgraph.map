@@ -1,0 +1,6 @@
+<map id="simplecc::LLVMIRCompiler::visitName" name="simplecc::LLVMIRCompiler::visitName">
+<area shape="rect" id="node2" href="$classsimplecc_1_1NameExpr.html#ac65adbb9decc2bb9d34143e9c5b42b9e" title="simplecc::NameExpr\l::getId" alt="" coords="236,5,380,47"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1NameExpr.html#a8470c03bc121ff0d06ca296276b619e7" title="simplecc::NameExpr\l::getContext" alt="" coords="236,71,380,112"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1IRBuilder.html#a33771eae3558a8acdbf6d8d02cbd80de" title="simplecc::IRBuilder\l::CreateLoad" alt="" coords="240,136,376,177"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1LoadInst.html#ab60e664b414eb3c8e9f0cbb10da05b4e" title="simplecc::LoadInst\l::Create" alt="" coords="428,136,560,177"/>
+</map>

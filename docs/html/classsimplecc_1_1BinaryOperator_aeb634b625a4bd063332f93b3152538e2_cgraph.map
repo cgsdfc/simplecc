@@ -1,0 +1,9 @@
+<map id="simplecc::BinaryOperator::CreateNeg" name="simplecc::BinaryOperator::CreateNeg">
+<area shape="rect" id="node2" href="$classsimplecc_1_1ConstantInt.html#a8216ad84b435a0b7b0a319338acdb2f7" title="simplecc::ConstantInt\l::getZeroVal" alt="" coords="240,5,391,47"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1Instruction.html#af018253fe16abfd0199a088720fab7d0" title="simplecc::Instruction\l::Instruction" alt="" coords="244,71,387,112"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Function.html#a07de8fd0ffd2d85bf3553954445dc762" title="simplecc::Function\l::getReturnType" alt="" coords="249,136,381,177"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1User.html#a8bbe027dd8e594e920cae165f5d2a82d" title="simplecc::User::setOperand" alt="" coords="223,202,408,229"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1BasicBlock.html#a5e5f06495aafd9637322fbddd9ba10e7" title="simplecc::BasicBlock\l::getInstList" alt="" coords="492,71,640,112"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1Function.html#a0a2018973a8b68a04fdfaec8b9564ab8" title="simplecc::Function\l::operator=" alt="" coords="500,136,632,177"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1User.html#a61a8c19f646255637d35ed1b7f3cd290" title="simplecc::User::getNumOperands" alt="" coords="456,202,676,229"/>
+</map>

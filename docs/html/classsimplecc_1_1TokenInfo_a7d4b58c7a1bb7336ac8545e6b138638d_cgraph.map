@@ -1,0 +1,10 @@
+<map id="simplecc::TokenInfo::getType" name="simplecc::TokenInfo::getType">
+<area shape="rect" id="node2" href="$classsimplecc_1_1TokenInfo.html#aaf511b4d93bdedd578828e528b938469" title="simplecc::TokenInfo\l::Format" alt="" coords="193,123,333,164"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1TokenInfo.html#a930b11949601fae4f0d303d7f340e23f" title="simplecc::TokenInfo\l::getTypeName" alt="" coords="381,5,521,47"/>
+<area shape="rect" id="node6" href="$namespacesimplecc.html#a961a3c54d01e7ea889e72575569a451c" title="simplecc::Quote" alt="" coords="393,71,510,98"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1TokenInfo.html#a623ae799c4a911b6d81b6747f7db20a9" title="simplecc::TokenInfo\l::getString" alt="" coords="381,123,521,164"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1TokenInfo.html#a58870923a760e79143d116de2718bed5" title="simplecc::TokenInfo\l::getLocation" alt="" coords="381,188,521,229"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1TokenInfo.html#ad046e490a126f172e16fad692cb696ad" title="simplecc::TokenInfo\l::getLine" alt="" coords="381,253,521,295"/>
+<area shape="rect" id="node4" href="$namespacesimplecc.html#a724a2683995177e8ebe0798861d9133d" title="simplecc::getSymbolName" alt="" coords="569,13,748,39"/>
+<area shape="rect" id="node5" href="$namespacesimplecc.html#ab9b3139072ae1e9bf98d2e57915a6447" title="simplecc::IsTerminal" alt="" coords="796,13,939,39"/>
+</map>

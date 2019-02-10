@@ -1,0 +1,4 @@
+<map id="simplecc::If" name="simplecc::If">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Stmt.html" title="{simplecc::Stmt\n|+ loc\l&#45; Kind\l|+ GetKind()\l+ Stmt()\l+ getLoc()\l}" alt="" coords="16,160,127,281"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1AST.html" title="{simplecc::AST\n||+ ~AST()\l+ GetClassName()\l+ Format()\l}" alt="" coords="5,5,137,112"/>
+</map>

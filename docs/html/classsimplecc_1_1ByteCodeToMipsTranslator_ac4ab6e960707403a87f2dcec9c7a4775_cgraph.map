@@ -1,0 +1,10 @@
+<map id="simplecc::ByteCodeToMipsTranslator::Write" name="simplecc::ByteCodeToMipsTranslator::Write">
+<area shape="rect" id="node2" href="$classsimplecc_1_1ByteCode.html#a176117c60aff58ddb9814dd63796ecd5" title="simplecc::ByteCode\l::getByteCodeOffset" alt="" coords="253,71,396,112"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1LocalContext.html#af59e5ca8c7fd5fee39a0a5ef8f355aeb" title="simplecc::LocalContext\l::IsJumpTarget" alt="" coords="245,136,404,177"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1LocalContext.html#a61750492c302830cf1310b1d5e747258" title="simplecc::LocalContext\l::getName" alt="" coords="461,201,620,243"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1ByteCode.html#a092584f532d828b0c6aba26f3b0d76b1" title="simplecc::ByteCode\l::getOpcodeName" alt="" coords="255,253,395,295"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1ByteCodeVisitor.html#a570d5f15653410e9ff143a6b00f62a62" title="simplecc::ByteCodeVisitor\l::visit" alt="" coords="236,319,413,360"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1LocalContext.html#a659ef243ba56058d7a7cdb33fbae1ab5" title="simplecc::LocalContext\l::getLocalOffset" alt="" coords="461,5,620,47"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1LocalContext.html#a3d1e4cd9a19f31ed81d872f9758eb5b2" title="simplecc::LocalContext\l::IsVariable" alt="" coords="461,71,620,112"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1LocalContext.html#af6dedc5a5b6f74242531b0cfbfa9b472" title="simplecc::LocalContext\l::IsArray" alt="" coords="461,136,620,177"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="simplecc::LLVMIRCompiler::PromoteToInt" name="simplecc::LLVMIRCompiler::PromoteToInt">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Value.html#a89e9f837617d00f946bd952693ab193b" title="simplecc::Value::getType" alt="" coords="236,5,407,32"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1LLVMTypeMap.html#ab30d4993ab64c6dd4ab5471d059633cf" title="simplecc::LLVMTypeMap\l::getIntType" alt="" coords="236,57,407,98"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1LLVMTypeMap.html#aa94a1065724a37e94a382e26186249e7" title="Convert different basic types. " alt="" coords="236,122,407,163"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1LLVMTypeMap.html#a78b5c1a6936158777f21a5e619ca68ab" title="Convert a basic type. " alt="" coords="455,90,625,131"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="simplecc::Instruction::getFunction" name="simplecc::Instruction::getFunction">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Instruction.html#a6a66ebb3aa12757479a3c88de77d78f8" title="simplecc::Instruction\l::getFunction" alt="" coords="196,5,339,47"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1Instruction.html#ae1606775439c68a21b69590b63d13b43" title="simplecc::Instruction\l::removeFromParent" alt="" coords="196,71,339,112"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Instruction.html#a6060436b2c1a448f1c0678011fee51da" title="simplecc::Instruction\l::insertBefore" alt="" coords="196,136,339,177"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1Instruction.html#a5d0a82ae40fc8abbc3f17d857eb975bb" title="simplecc::Instruction\l::insertAfter" alt="" coords="196,201,339,243"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1Instruction.html#a11d8a2b401fd29aa4731c29000448fe7" title="simplecc::Instruction\l::moveBefore" alt="" coords="196,267,339,308"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1Instruction.html#a791ab134c99efd3a0a415bf5420bb570" title="simplecc::Instruction\l::moveAfter" alt="" coords="196,332,339,373"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1Instruction.html#a9c24155745025f6b6292ad10663eaf59" title="Get an iterator in parent pointing to this. " alt="" coords="196,397,339,439"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1BasicBlock.html#a3a41a85887111cea5549295fa2e452d3" title="simplecc::BasicBlock\l::getParent" alt="" coords="401,5,549,47"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1BasicBlock.html#a53a9c7481b425d247227b7bb52941707" title="simplecc::BasicBlock\l::begin" alt="" coords="401,368,549,409"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1BasicBlock.html#a89d7ccdb1b47860098a216f880130290" title="simplecc::BasicBlock::end" alt="" coords="387,434,564,461"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classTCLAP_1_1Visitor.html" title="A base class that defines the interface for visitors. " alt="" coords="5,56,116,83"/>
+<area shape="rect" id="node2" href="$classTCLAP_1_1HelpVisitor.html" title="A Visitor object that calls the usage method of the given CmdLineOutput object for the specified CmdL..." alt="" coords="183,5,320,32"/>
+<area shape="rect" id="node3" href="$classTCLAP_1_1IgnoreRestVisitor.html" title="A Visitor that tells the CmdLine to begin ignoring arguments after this one is parsed. " alt="" coords="164,56,339,83"/>
+<area shape="rect" id="node4" href="$classTCLAP_1_1VersionVisitor.html" title="A Visitor that will call the version method of the given CmdLineOutput for the specified CmdLine obje..." alt="" coords="174,107,329,133"/>
+</map>

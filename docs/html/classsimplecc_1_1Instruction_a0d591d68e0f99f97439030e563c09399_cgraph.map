@@ -1,0 +1,4 @@
+<map id="simplecc::Instruction::isCommutative" name="simplecc::Instruction::isCommutative">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Instruction.html#a10dec352d9b53d1df2a489402db2190a" title="simplecc::Instruction\l::mayWriteToMemory" alt="" coords="203,5,351,47"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1Instruction.html#afbc3b85101f67828145e8a531d585cd0" title="simplecc::Instruction\l::mayReadFromMemory" alt="" coords="196,71,359,112"/>
+</map>

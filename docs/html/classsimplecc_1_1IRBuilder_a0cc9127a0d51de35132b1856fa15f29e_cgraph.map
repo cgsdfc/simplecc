@@ -1,0 +1,8 @@
+<map id="simplecc::IRBuilder::GetCurrentFunction" name="simplecc::IRBuilder::GetCurrentFunction">
+<area shape="rect" id="node2" href="$classsimplecc_1_1BasicBlock.html#a3a41a85887111cea5549295fa2e452d3" title="simplecc::BasicBlock\l::getParent" alt="" coords="469,64,617,105"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1IRBuilder.html#a82e0a6cc4bbfd089229fc7a3da6b964a" title="simplecc::IRBuilder\l::SetInsertPoint" alt="" coords="234,5,370,47"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1IRBuilder.html#a575101d349091c6f7ee49a6e12c1b451" title="simplecc::IRBuilder\l::getCurrentFunctionReturnType" alt="" coords="197,123,407,164"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1BasicBlock.html#a89d7ccdb1b47860098a216f880130290" title="simplecc::BasicBlock::end" alt="" coords="455,13,632,39"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1Function.html#a07de8fd0ffd2d85bf3553954445dc762" title="simplecc::Function\l::getReturnType" alt="" coords="477,129,609,171"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1Function.html#a0a2018973a8b68a04fdfaec8b9564ab8" title="simplecc::Function\l::operator=" alt="" coords="680,129,812,171"/>
+</map>

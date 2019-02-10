@@ -1,0 +1,10 @@
+<map id="simplecc::LLVMIRCompiler::visitRead" name="simplecc::LLVMIRCompiler::visitRead">
+<area shape="rect" id="node2" href="$classsimplecc_1_1SymbolTable.html#ae469595b21e7173024ecdbd22e831e55" title="simplecc::SymbolTable\l::getExprType" alt="" coords="248,5,407,47"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ReadStmt.html#a0db15d876861424dc6671776c52dbf8e" title="simplecc::ReadStmt\l::getNames" alt="" coords="257,71,398,112"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1LLVMIRCompiler.html#a259a30868a512b4bbf859d9bf2f7f5e5" title="Helper to create IR that loads a string literal (global string ptr). " alt="" coords="236,136,419,177"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1IRBuilder.html#ad9454e3e92d5ce87cb92ac2a0b63a505" title="simplecc::IRBuilder\l::CreateCall" alt="" coords="259,201,395,243"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1CallInst.html#a0f1d3dca75a6ddf6f865cb3f10950425" title="simplecc::CallInst\l::Create" alt="" coords="467,201,593,243"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1CallInst.html#a5627e3f603f19a73a89396b653b556c2" title="The layout is: arg1, arg2, ..., callee. " alt="" coords="641,201,768,243"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1User.html#a8bbe027dd8e594e920cae165f5d2a82d" title="simplecc::User::setOperand" alt="" coords="816,209,1001,235"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1User.html#a61a8c19f646255637d35ed1b7f3cd290" title="simplecc::User::getNumOperands" alt="" coords="1049,209,1269,235"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="simplecc::LLVMTypeMap::getTypeFromVarDecl" name="simplecc::LLVMTypeMap::getTypeFromVarDecl">
+<area shape="rect" id="node2" href="$classsimplecc_1_1VarDecl.html#a38c410cff95b3c59a059f59037a55909" title="simplecc::VarDecl::\lisArray" alt="" coords="241,5,378,47"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1LLVMTypeMap.html#a78b5c1a6936158777f21a5e619ca68ab" title="Convert a basic type. " alt="" coords="224,71,395,112"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1VarDecl.html#abe73a8082e2e231ea7570c875e679dfe" title="simplecc::VarDecl::\lgetType" alt="" coords="241,136,378,177"/>
+</map>

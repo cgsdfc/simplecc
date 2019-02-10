@@ -1,0 +1,8 @@
+<map id="simplecc::BasicBlock::getTerminator" name="simplecc::BasicBlock::getTerminator">
+<area shape="rect" id="node2" href="$classsimplecc_1_1BasicBlock.html#ae00b003bb1d5f33dd1eaee9711a94b8d" title="simplecc::BasicBlock\l::getTerminator" alt="" coords="201,71,349,112"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1BasicBlock.html#ad697ff4decdb0ee1b9fc2920775c1c6a" title="simplecc::BasicBlock\l::empty" alt="" coords="397,5,545,47"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1BasicBlock.html#a4f001cb2aca2735cab6f902a4400a5d4" title="simplecc::BasicBlock\l::back" alt="" coords="397,71,545,112"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Instruction.html#aa8d2a92b5d22b64050171511ff25148b" title="simplecc::Instruction\l::isTerminator" alt="" coords="400,160,543,201"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1Instruction.html#aa969ec8fe29b9fd291cc93d0f9e98666" title="simplecc::Instruction\l::getOpcode" alt="" coords="593,160,736,201"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1Value.html#a59e055a8982f897cd5569b62e372c193" title="simplecc::Value::getValueID" alt="" coords="784,167,972,194"/>
+</map>

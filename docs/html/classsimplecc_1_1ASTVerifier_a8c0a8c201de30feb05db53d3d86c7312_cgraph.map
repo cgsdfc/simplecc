@@ -1,0 +1,14 @@
+<map id="simplecc::ASTVerifier::visitFuncDef" name="simplecc::ASTVerifier::visitFuncDef">
+<area shape="rect" id="node2" href="$classsimplecc_1_1FuncDef.html#a547e67cb16fd9318c43aed26feba1399" title="simplecc::FuncDef::\lgetArgs" alt="" coords="219,71,359,112"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ASTVerifier.html#aab442e7973aa718a0c01b87e2ba9fe93" title="Helper to check a condition. " alt="" coords="215,136,364,177"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1FuncDef.html#a9f41e580dd51dc028c8936197e6a0b1e" title="simplecc::FuncDef::\lgetDecls" alt="" coords="219,201,359,243"/>
+<area shape="rect" id="node12" href="$classsimplecc_1_1FuncDef.html#a706e79bbca16bf603b180cc9b6def731" title="simplecc::FuncDef::\lgetStmts" alt="" coords="219,267,359,308"/>
+<area shape="rect" id="node13" href="$classsimplecc_1_1VisitorBase.html#a09e85f398d7e6c5f1a7d96d8d57803b9" title="simplecc::VisitorBase\l\&lt; ASTVerifier \&gt;::visitStmt" alt="" coords="203,332,376,373"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1ErrorManager.html#a2381e18267b4ea8df767961cef6e121a" title="TODO: these 2 overloads are too easy to be ambiguous. " alt="" coords="424,136,584,177"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="648,5,776,47"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1ErrorManager.html#a342e07ff6becfedc4308a469308942de" title="simplecc::ErrorManager\l::getErrorType" alt="" coords="632,71,792,112"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1Location.html#a6da594f9835c13c893c347571d863e6c" title="simplecc::Location\l::FormatCompact" alt="" coords="647,136,777,177"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="648,201,776,243"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1ErrorManager.html#a49fdfb32b0f46019c52b6155684de57e" title="simplecc::ErrorManager\l::increaseErrorCount" alt="" coords="632,267,792,308"/>
+<area shape="rect" id="node9" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="840,209,949,235"/>
+</map>

@@ -1,0 +1,51 @@
+<map id="simplecc::LLVMIRCompiler::visitFuncDef" name="simplecc::LLVMIRCompiler::visitFuncDef">
+<area shape="rect" id="node2" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="256,5,399,47"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1FuncDef.html#aa55fa5acc5dffa0ad6de64ef46997e94" title="simplecc::FuncDef::\lsetReturnType" alt="" coords="257,71,397,112"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1Function.html#a2d4766fd6ebcff0ece4431b5bf3cf271" title="simplecc::Function\l::Create" alt="" coords="261,136,393,177"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1LLVMTypeMap.html#a77475ccd4b198b403d3e8ab37b4c462a" title="Convert from Ast. " alt="" coords="242,253,413,295"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1LLVMTypeMap.html#a78b5c1a6936158777f21a5e619ca68ab" title="Convert a basic type. " alt="" coords="747,312,917,353"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1LLVMTypeMap.html#a57c35da781943b520f4742840d05a407" title="Convert a VarDecl. " alt="" coords="485,203,655,244"/>
+<area shape="rect" id="node14" href="$classsimplecc_1_1BasicBlock.html#a83b5f434a73b62e4ddc5150372722be0" title="simplecc::BasicBlock\l::Create" alt="" coords="253,371,401,412"/>
+<area shape="rect" id="node17" href="$classsimplecc_1_1IRBuilder.html#a82e0a6cc4bbfd089229fc7a3da6b964a" title="simplecc::IRBuilder\l::SetInsertPoint" alt="" coords="259,436,395,477"/>
+<area shape="rect" id="node19" href="$classsimplecc_1_1Function.html#ad93990ff28f7b24ea7ad0e974a3fe40d" title="simplecc::Function\l::args" alt="" coords="261,501,393,543"/>
+<area shape="rect" id="node23" href="$classsimplecc_1_1FuncDef.html#a547e67cb16fd9318c43aed26feba1399" title="simplecc::FuncDef::\lgetArgs" alt="" coords="257,567,397,608"/>
+<area shape="rect" id="node24" href="$classsimplecc_1_1IRBuilder.html#a0b93c10a993113e8fbc9132c6f13655e" title="simplecc::IRBuilder\l::CreateAlloca" alt="" coords="259,632,395,673"/>
+<area shape="rect" id="node26" href="$classsimplecc_1_1Type.html#a861a2f6bd2cd2c2df7846e202f0ce137" title="The name of this Type. " alt="" coords="241,698,413,725"/>
+<area shape="rect" id="node28" href="$classsimplecc_1_1IRBuilder.html#a18b40da62e428cd34edd399cbc6cfa37" title="simplecc::IRBuilder\l::CreateStore" alt="" coords="259,749,395,791"/>
+<area shape="rect" id="node30" href="$classsimplecc_1_1FuncDef.html#a9f41e580dd51dc028c8936197e6a0b1e" title="simplecc::FuncDef::\lgetDecls" alt="" coords="257,815,397,856"/>
+<area shape="rect" id="node31" href="$classsimplecc_1_1LLVMValueMap.html#a45658c7e74b3086bee1c801045e9afff" title="simplecc::LLVMValueMap\l::getConstantFromExpr" alt="" coords="240,932,415,973"/>
+<area shape="rect" id="node33" href="$classsimplecc_1_1LLVMValueMap.html#a9c427655659fb5212cabfd8865e99678" title="Convert an int value. " alt="" coords="483,873,657,915"/>
+<area shape="rect" id="node36" href="$classsimplecc_1_1LLVMValueMap.html#ab0ef6b6dd0fdf61736c56ca06f9f6e00" title="Convert a char value. " alt="" coords="483,991,657,1032"/>
+<area shape="rect" id="node37" href="$classsimplecc_1_1SymbolTable.html#a123704b19c998c46bdb54bf74dd5fdea" title="Return a SymbolTableView for a given FuncDef. " alt="" coords="248,1049,407,1091"/>
+<area shape="rect" id="node38" href="$classsimplecc_1_1SymbolEntry.html#a1b869c5cc4e61eaa5509c4bfba5fa8fa" title="simplecc::SymbolEntry\l::IsLocal" alt="" coords="249,1115,406,1156"/>
+<area shape="rect" id="node39" href="$classsimplecc_1_1SymbolEntry.html#af90f421fd83c7fb6e411782f5227a760" title="simplecc::SymbolEntry\l::getName" alt="" coords="249,1180,406,1221"/>
+<area shape="rect" id="node40" href="$classsimplecc_1_1LLVMIRCompiler.html#afe3f18a4f94a0707a7db927069ba9eae" title="This helper visits a list of statements, skip those that appear after a Return. " alt="" coords="236,1245,419,1287"/>
+<area shape="rect" id="node42" href="$classsimplecc_1_1FuncDef.html#a706e79bbca16bf603b180cc9b6def731" title="simplecc::FuncDef::\lgetStmts" alt="" coords="257,1311,397,1352"/>
+<area shape="rect" id="node43" href="$classsimplecc_1_1FuncDef.html#a3caf8d2a528269f56067701577f25bad" title="simplecc::FuncDef::\lgetReturnType" alt="" coords="257,1376,397,1417"/>
+<area shape="rect" id="node44" href="$classsimplecc_1_1IRBuilder.html#a64d2db307dc661031b0bff4e0f33d83a" title="simplecc::IRBuilder\l::CreateRetVoid" alt="" coords="259,1507,395,1548"/>
+<area shape="rect" id="node50" href="$classsimplecc_1_1IRBuilder.html#a021ddf6d6aa7e401adec4cf42b79b00e" title="simplecc::IRBuilder\l::CreateRet" alt="" coords="259,1441,395,1483"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Function.html#a37daaa6b37e6e7fbb444fba407ca2ff1" title="simplecc::Function\l::Function" alt="" coords="504,116,636,157"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1Argument.html#abad52d64eac195fbb351afa7cfbdfb7c" title="simplecc::Argument\l::Create" alt="" coords="763,116,901,157"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1Module.html#ac5a129820785fa956b85c3f36381dc7d" title="simplecc::Module::getFunctionList" alt="" coords="721,65,943,91"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1Argument.html#ab779f0e0645c5826d7e6d2c678d32903" title="simplecc::Argument\l::Argument" alt="" coords="1007,116,1145,157"/>
+<area shape="rect" id="node12" href="$classsimplecc_1_1VarDecl.html#a38c410cff95b3c59a059f59037a55909" title="simplecc::VarDecl::\lisArray" alt="" coords="763,247,901,288"/>
+<area shape="rect" id="node13" href="$classsimplecc_1_1VarDecl.html#abe73a8082e2e231ea7570c875e679dfe" title="simplecc::VarDecl::\lgetType" alt="" coords="763,181,901,223"/>
+<area shape="rect" id="node15" href="$classsimplecc_1_1BasicBlock.html#acda3da2db756b14209adc2c2866d44c0" title="simplecc::BasicBlock\l::BasicBlock" alt="" coords="496,371,644,412"/>
+<area shape="rect" id="node16" href="$classsimplecc_1_1Function.html#a5ce1ebb649d3fc0056d8084d865696ca" title="simplecc::Function\l::getBasicBlockList" alt="" coords="765,377,899,419"/>
+<area shape="rect" id="node18" href="$classsimplecc_1_1BasicBlock.html#a89d7ccdb1b47860098a216f880130290" title="simplecc::BasicBlock::end" alt="" coords="481,437,659,463"/>
+<area shape="rect" id="node20" href="$namespacesimplecc.html#a2002535f38731e6d30a91a4fad7fa80c" title="Convenience function for iterating over sub&#45;ranges. " alt="" coords="493,487,647,514"/>
+<area shape="rect" id="node21" href="$classsimplecc_1_1Function.html#abb4e0da5d621756e42b4da4a2fe50069" title="simplecc::Function\l::arg_begin" alt="" coords="504,539,636,580"/>
+<area shape="rect" id="node22" href="$classsimplecc_1_1Function.html#ac7ef369ecc785a31ef1f44045d70cf7f" title="simplecc::Function\l::arg_end" alt="" coords="504,604,636,645"/>
+<area shape="rect" id="node25" href="$classsimplecc_1_1AllocaInst.html#a088f0e8b317add3ec3b72729ee7353ca" title="simplecc::AllocaInst\l::Create" alt="" coords="500,669,640,711"/>
+<area shape="rect" id="node27" href="$classsimplecc_1_1Type.html#ad397cfe6d997b82d7012e7d618394f27" title="simplecc::Type::getTypeID" alt="" coords="480,735,660,762"/>
+<area shape="rect" id="node29" href="$classsimplecc_1_1StoreInst.html#aff3d988fd8f79a64f80c127c7a95563d" title="simplecc::StoreInst\l::Create" alt="" coords="503,787,637,828"/>
+<area shape="rect" id="node32" href="$classsimplecc_1_1AST.html#a686b7312f873fa72e5dd07f8fbd72d4f" title="simplecc::AST::getKind" alt="" coords="490,939,650,966"/>
+<area shape="rect" id="node34" href="$classsimplecc_1_1ConstantInt.html#a1676295b60bdfe1fd9718f55a8f70078" title="simplecc::ConstantInt::get" alt="" coords="744,939,920,966"/>
+<area shape="rect" id="node35" href="$classsimplecc_1_1IRContext.html#ae80816b52d12f721940565eb9ad9165e" title="simplecc::IRContext\l::getConstantInt" alt="" coords="1005,932,1147,973"/>
+<area shape="rect" id="node41" href="$classsimplecc_1_1VisitorBase.html#a09e85f398d7e6c5f1a7d96d8d57803b9" title="simplecc::VisitorBase\l\&lt; LLVMIRCompiler \&gt;::visitStmt" alt="" coords="467,1245,673,1287"/>
+<area shape="rect" id="node45" href="$classsimplecc_1_1IRBuilder.html#af52aac1cb9806c0d4e3a03c4b59d8a4e" title="simplecc::IRBuilder\l::Insert" alt="" coords="502,1441,638,1483"/>
+<area shape="rect" id="node47" href="$classsimplecc_1_1ReturnInst.html#a897115d77352c08c084d5e8e4f0ed276" title="simplecc::ReturnInst\l::Create" alt="" coords="499,1507,641,1548"/>
+<area shape="rect" id="node46" href="$classsimplecc_1_1BasicBlock.html#a5e5f06495aafd9637322fbddd9ba10e7" title="simplecc::BasicBlock\l::getInstList" alt="" coords="758,1441,906,1483"/>
+<area shape="rect" id="node48" href="$classsimplecc_1_1ReturnInst.html#af8df39db6e9d134c3912fa3ecbcbdf5b" title="simplecc::ReturnInst\l::ReturnInst" alt="" coords="761,1507,903,1548"/>
+<area shape="rect" id="node49" href="$classsimplecc_1_1Value.html#a89e9f837617d00f946bd952693ab193b" title="simplecc::Value::getType" alt="" coords="991,1514,1161,1541"/>
+</map>

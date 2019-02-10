@@ -1,0 +1,22 @@
+<map id="simplecc::SymbolTableBuilder::visitCall" name="simplecc::SymbolTableBuilder::visitCall">
+<area shape="rect" id="node2" href="$classsimplecc_1_1SymbolTableBuilder.html#a5a7ed603498e98525ba2b436c39746eb" title="simplecc::SymbolTableBuilder\l::ResolveName" alt="" coords="252,239,451,280"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1CallExpr.html#ab406f1a4c8407bc37eb6040fd5813f8b" title="simplecc::CallExpr\l::getFunc" alt="" coords="285,311,417,352"/>
+<area shape="rect" id="node12" href="$classsimplecc_1_1AST.html#a1eea8b917eed18b1c977a5a6263b8b83" title="simplecc::AST::getLocation" alt="" coords="260,377,443,403"/>
+<area shape="rect" id="node21" href="$classsimplecc_1_1ChildrenVisitor.html#ab9b1559cf94e82d87bf165eafe9ac059" title="simplecc::ChildrenVisitor\l::visitCall" alt="" coords="268,428,435,469"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ErrorManager.html#a2381e18267b4ea8df767961cef6e121a" title="TODO: these 2 overloads are too easy to be ambiguous. " alt="" coords="507,161,667,203"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="516,239,659,280"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="740,5,868,47"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1ErrorManager.html#a342e07ff6becfedc4308a469308942de" title="simplecc::ErrorManager\l::getErrorType" alt="" coords="724,71,884,112"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1Location.html#a6da594f9835c13c893c347571d863e6c" title="simplecc::Location\l::FormatCompact" alt="" coords="739,136,869,177"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="740,201,868,243"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1ErrorManager.html#a49fdfb32b0f46019c52b6155684de57e" title="simplecc::ErrorManager\l::increaseErrorCount" alt="" coords="724,267,884,308"/>
+<area shape="rect" id="node8" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="963,209,1072,235"/>
+<area shape="rect" id="node13" href="$classsimplecc_1_1AST.html#aa97816ebd8b8de10ab65e4f0eee38c94" title="simplecc::AST::deleteAST" alt="" coords="499,329,676,355"/>
+<area shape="rect" id="node15" href="$classsimplecc_1_1AST.html#a3ad154eb9e7d1dcf9a88fcae64de2b88" title="simplecc::AST::Format" alt="" coords="725,402,883,429"/>
+<area shape="rect" id="node20" href="$classsimplecc_1_1AST.html#a63c44f18a9b3a6b3c765e1d30257806e" title="simplecc::AST::dump" alt="" coords="513,430,661,457"/>
+<area shape="rect" id="node14" href="$classsimplecc_1_1AST.html#a686b7312f873fa72e5dd07f8fbd72d4f" title="simplecc::AST::getKind" alt="" coords="724,333,884,359"/>
+<area shape="rect" id="node16" href="$namespacesimplecc.html#a0ecd2f66b04630874a444b63f7055036" title="Pretty print. " alt="" coords="932,402,1103,429"/>
+<area shape="rect" id="node17" href="$classsimplecc_1_1ASTPrettyPrinter.html#a2bfd69570edb29b7c5819feeafb9581d" title="simplecc::ASTPrettyPrinter\l::ASTPrettyPrinter" alt="" coords="1151,395,1332,436"/>
+<area shape="rect" id="node18" href="$classsimplecc_1_1ASTPrettyPrinter.html#a5c79349d8cfe457d4a84c754b57863aa" title="simplecc::ASTPrettyPrinter\l::PrettyPrint" alt="" coords="1380,395,1561,436"/>
+<area shape="rect" id="node19" href="$classsimplecc_1_1VisitorBase.html#a40ffc80c288ed7338f95c9a50f14b8ea" title="simplecc::VisitorBase\l\&lt; ASTPrettyPrinter \&gt;\l::visitAST" alt="" coords="1609,387,1759,443"/>
+</map>

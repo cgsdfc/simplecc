@@ -1,0 +1,8 @@
+<map id="simplecc::LLVMValueMap::getConstantFromExpr" name="simplecc::LLVMValueMap::getConstantFromExpr">
+<area shape="rect" id="node2" href="$classsimplecc_1_1AST.html#a686b7312f873fa72e5dd07f8fbd72d4f" title="Return the subclass kind. " alt="" coords="235,5,395,32"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1LLVMValueMap.html#a9c427655659fb5212cabfd8865e99678" title="Convert an int value. " alt="" coords="228,122,403,163"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1LLVMValueMap.html#ab0ef6b6dd0fdf61736c56ca06f9f6e00" title="Convert a char value. " alt="" coords="228,57,403,98"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1ConstantInt.html#a1676295b60bdfe1fd9718f55a8f70078" title="simplecc::ConstantInt::get" alt="" coords="451,67,627,93"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1LLVMTypeMap.html#a78b5c1a6936158777f21a5e619ca68ab" title="Convert a basic type. " alt="" coords="453,119,624,161"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1IRContext.html#ae80816b52d12f721940565eb9ad9165e" title="simplecc::IRContext\l::getConstantInt" alt="" coords="675,59,817,101"/>
+</map>

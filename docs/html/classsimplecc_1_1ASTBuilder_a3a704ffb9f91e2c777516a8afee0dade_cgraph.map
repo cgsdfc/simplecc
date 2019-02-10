@@ -1,0 +1,51 @@
+<map id="simplecc::ASTBuilder::visit_declaration" name="simplecc::ASTBuilder::visit_declaration">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Node.html#ad598392450dfd99812aa838c89e0a4d6" title="simplecc::Node::getFirst\lChild" alt="" coords="2085,1463,2250,1504"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1Node.html#a880539e7216b17aa97be286ad04cd765" title="simplecc::Node::getChild" alt="" coords="2315,1470,2484,1497"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1ASTBuilder.html#a24265b6f1bb4fb6f9dceaa4a4ccbd485" title="type_name: &#39;int&#39; | &#39;char&#39; | &#39;void&#39; " alt="" coords="1188,283,1336,324"/>
+<area shape="rect" id="node17" href="$classsimplecc_1_1ASTBuilder.html#aa617abd3a9e8f1fb4947c2cb1a0190ca" title="compound_stmt: &#39;{&#39; const_decl* var_decl* stmt* &#39;}&#39; " alt="" coords="593,1553,748,1595"/>
+<area shape="rect" id="node39" href="$classsimplecc_1_1Node.html#a4582fe03622f480a87885b92acb30d59" title="simplecc::Node::getLastChild" alt="" coords="1387,2401,1581,2427"/>
+<area shape="rect" id="node48" href="$classsimplecc_1_1ASTBuilder.html#aa743c5fa8c54775946d50b8093f53670" title="decl_trailer: [ paralist ] compound_stmt | [subscript2] (&#39;,&#39; var_item)* &#39;;&#39; " alt="" coords="201,915,349,956"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1Node.html#aa0fe5fcced97abd89dff41e59033efac" title="simplecc::Node::getNumChildren" alt="" coords="2537,1470,2752,1497"/>
+<area shape="rect" id="node6" href="$namespacesimplecc.html#abfae99df76cbc0556ee6f3f9b08cc967" title="simplecc::BasicTypeKindFrom\lString" alt="" coords="1384,283,1584,324"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1Node.html#a5bf0355412a85f60720a1c3f0ac07e77" title="simplecc::Node::getValue" alt="" coords="1640,197,1812,223"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1Node.html#aa8e1f045a1dac8a8a162afd1757d727c" title="simplecc::Node::Format" alt="" coords="2086,189,2249,215"/>
+<area shape="rect" id="node16" href="$classsimplecc_1_1Node.html#ac0b8b415ec930f1c5444128c1825a1fd" title="simplecc::Node::dump" alt="" coords="1870,197,2023,223"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1ParseTreePrinter.html#a316a13d3cf5112aecdf15cb93a040e75" title="simplecc::ParseTreePrinter\l::Print" alt="" coords="2309,181,2489,223"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1ParseTreePrinter.html#a10e88d44be97d59313f2f762f8f8e979" title="simplecc::ParseTreePrinter\l::printNode" alt="" coords="2555,181,2735,223"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1Node.html#a2b42e9b32afdc70229715437bdd26edb" title="simplecc::Node::getTypeName" alt="" coords="3244,218,3447,245"/>
+<area shape="rect" id="node12" href="$namespacesimplecc.html#ab9b3139072ae1e9bf98d2e57915a6447" title="simplecc::IsTerminal" alt="" coords="3041,189,3183,215"/>
+<area shape="rect" id="node13" href="$classsimplecc_1_1Node.html#a3443576356ee64fca2e5cf668319b08a" title="simplecc::Node::getType" alt="" coords="3028,323,3196,350"/>
+<area shape="rect" id="node14" href="$classsimplecc_1_1ParseTreePrinter.html#a5c622c20f5882ed62521448a53f361d7" title="(NAME: Var) (STRING: &quot;a&quot;) (ENDMARKER) " alt="" coords="2800,316,2980,357"/>
+<area shape="rect" id="node15" href="$namespacesimplecc.html#a4ef7c696242b70528144ad9c2df6300b" title="simplecc::IsNonTerminal" alt="" coords="2807,163,2973,190"/>
+<area shape="rect" id="node18" href="$classsimplecc_1_1Node.html#a32eb93d930a4f7c0b7123b5884e51a83" title="simplecc::Node::getChildren" alt="" coords="1633,2553,1819,2579"/>
+<area shape="rect" id="node19" href="$classsimplecc_1_1ASTBuilder.html#a183a6a141abb343d957bd8fb885cf7e1" title="const_decl: &#39;const&#39; type_name const_item (&#39;,&#39; const_item)* &#39;;&#39; " alt="" coords="992,544,1140,585"/>
+<area shape="rect" id="node28" href="$classsimplecc_1_1ASTBuilder.html#a8da7ea6df5c06da1f33ca94c5a00c5c8" title="var_decl: type_name var_item (&#39;,&#39; var_item)* &#39;;&#39; " alt="" coords="992,1075,1140,1116"/>
+<area shape="rect" id="node31" href="$classsimplecc_1_1ASTBuilder.html#a6ccb4af32793b87f5445380d5586e4ee" title="stmt: flow_stmt | &#39;{&#39; stmt* &#39;}&#39; | NAME [stmt_trailer] &#39;;&#39; | &#39;;&#39; " alt="" coords="796,1704,944,1745"/>
+<area shape="rect" id="node20" href="$classsimplecc_1_1ASTBuilder.html#ab705df25731bf8d96724fa38b710c671" title="const_item: NAME &#39;=&#39; (integer | CHAR) " alt="" coords="1188,733,1336,775"/>
+<area shape="rect" id="node21" href="$classsimplecc_1_1ASTBuilder.html#a8bdad932d8df7b0b6e6ead0b309904d4" title="simplecc::ASTBuilder\l::makeChar" alt="" coords="1410,704,1558,745"/>
+<area shape="rect" id="node23" href="$classsimplecc_1_1ASTBuilder.html#a694e7bab7060c1921e41f63ba65505c0" title="integer: [&#39;+&#39;|&#39;&#45;&#39;] NUMBER " alt="" coords="1410,2116,1558,2157"/>
+<area shape="rect" id="node24" href="$classsimplecc_1_1AST.html#a1eea8b917eed18b1c977a5a6263b8b83" title="simplecc::AST::getLocation" alt="" coords="1393,770,1575,797"/>
+<area shape="rect" id="node22" href="$classsimplecc_1_1Node.html#a0f6c256fd74588f0c9455960b98f2135" title="simplecc::Node::getLocation" alt="" coords="1632,1494,1820,1521"/>
+<area shape="rect" id="node25" href="$classsimplecc_1_1AST.html#aa97816ebd8b8de10ab65e4f0eee38c94" title="simplecc::AST::deleteAST" alt="" coords="1637,805,1815,831"/>
+<area shape="rect" id="node26" href="$classsimplecc_1_1AST.html#a3ad154eb9e7d1dcf9a88fcae64de2b88" title="simplecc::AST::Format" alt="" coords="1868,729,2025,755"/>
+<area shape="rect" id="node27" href="$classsimplecc_1_1AST.html#a63c44f18a9b3a6b3c765e1d30257806e" title="simplecc::AST::dump" alt="" coords="1652,703,1800,730"/>
+<area shape="rect" id="node29" href="$classsimplecc_1_1ASTBuilder.html#a120a1f728dd30b902c457a261016528a" title="var_item: NAME [subscript2] " alt="" coords="1188,485,1336,527"/>
+<area shape="rect" id="node30" href="$classsimplecc_1_1ASTBuilder.html#afaac6109dee5be97a2a89ccf91dca8c2" title="subscript2: &#39;[&#39; NUMBER &#39;]&#39; " alt="" coords="1410,165,1558,207"/>
+<area shape="rect" id="node32" href="$classsimplecc_1_1ASTBuilder.html#a7cd3d9c0dcae00bb9638bacd399afe41" title="flow_stmt: if_stmt | for_stmt | while_stmt | read_stmt &#39;;&#39; | write_stmt &#39;;&#39; | return_stmt &#39;;&#39; ..." alt="" coords="992,1704,1140,1745"/>
+<area shape="rect" id="node46" href="$classsimplecc_1_1ASTBuilder.html#acdfbc0a7c01818bed82a1b438fd3bfdf" title="stmt_trailer: arglist | [&#39;[&#39; expr &#39;]&#39;] &#39;=&#39; expr " alt="" coords="1188,1992,1336,2033"/>
+<area shape="rect" id="node33" href="$classsimplecc_1_1ASTBuilder.html#ad1a31490b2e29ae16b845995761ce0ce" title="if_stmt: &#39;if&#39; &#39;(&#39; condition &#39;)&#39; stmt [&#39;else&#39; stmt] " alt="" coords="1188,2057,1336,2099"/>
+<area shape="rect" id="node40" href="$classsimplecc_1_1ASTBuilder.html#a27dcfa3c67e85b59c9986632c5a13743" title="for_stmt: (&#39;for&#39; &#39;(&#39; NAME &#39;=&#39; expr &#39;;&#39; condition &#39;;&#39; " alt="" coords="1188,1407,1336,1448"/>
+<area shape="rect" id="node42" href="$classsimplecc_1_1ASTBuilder.html#aa253a0688d2aa96e0829dfb401145685" title="while_stmt: &#39;while&#39; &#39;(&#39; condition &#39;)&#39; stmt " alt="" coords="1188,1613,1336,1655"/>
+<area shape="rect" id="node43" href="$classsimplecc_1_1ASTBuilder.html#a2780c3941a8e2904797d1ef65c5f8fbb" title="return_stmt: &#39;return&#39; [&#39;(&#39; expr &#39;)&#39;] " alt="" coords="1410,1883,1558,1924"/>
+<area shape="rect" id="node44" href="$classsimplecc_1_1ASTBuilder.html#a8056ed8679f176acdb1b832dfd1bc798" title="read_stmt: &#39;scanf&#39; &#39;(&#39; NAME (&#39;,&#39; NAME)* &#39;)&#39; " alt="" coords="1410,1075,1558,1116"/>
+<area shape="rect" id="node45" href="$classsimplecc_1_1ASTBuilder.html#a57fe3e039a7d6a2c3047fbef09797209" title="write_stmt: &#39;printf&#39; &#39;(&#39; (expr|STRING [&#39;,&#39; expr]) &#39;)&#39; " alt="" coords="1410,2051,1558,2092"/>
+<area shape="rect" id="node34" href="$classsimplecc_1_1ASTBuilder.html#ac4b46435fcf45661cea3747eb40abf83" title="condition: expr (&#39;&lt;&#39;|&#39;&lt;=&#39;|&#39;&gt;&#39;|&#39;&gt;=&#39;|&#39;!=&#39;|&#39;==&#39;) expr | expr " alt="" coords="1410,1563,1558,1604"/>
+<area shape="rect" id="node35" href="$classsimplecc_1_1ASTBuilder.html#a52b0b5b3202b6f253317b9d6b7e877e5" title="expr: term ((&#39;+&#39;|&#39;&#45;&#39;) term)* " alt="" coords="1652,2035,1800,2076"/>
+<area shape="rect" id="node36" href="$classsimplecc_1_1ASTBuilder.html#ad9b61c06aa0e6142fd1745c629d1d618" title="term: factor ((&#39;*&#39;|&#39;/&#39;) factor)* " alt="" coords="1873,1988,2021,2029"/>
+<area shape="rect" id="node38" href="$classsimplecc_1_1ASTBuilder.html#aed6d7c0276ab9937dbdd75ade317f03d" title="factor: atom | unaryop factor " alt="" coords="1873,2053,2021,2095"/>
+<area shape="rect" id="node37" href="$namespacesimplecc.html#a535bebc596981579bac49d822e090d59" title="simplecc::OperatorKindFrom\lString" alt="" coords="2073,1879,2261,1920"/>
+<area shape="rect" id="node41" href="$classsimplecc_1_1ASTBuilder.html#a363b4f053c6b67fe844da61d8775175d" title="simplecc::ASTBuilder\l::makeNum" alt="" coords="1410,1293,1558,1335"/>
+<area shape="rect" id="node47" href="$classsimplecc_1_1ASTBuilder.html#a36b856faffc3d111c4e45396b88e9dbe" title="arglist: &#39;(&#39; expr (&#39;,&#39; expr)* &#39;)&#39; " alt="" coords="1410,2233,1558,2275"/>
+<area shape="rect" id="node49" href="$classsimplecc_1_1ASTBuilder.html#a97b146190425fa3893e3a1cb9f7741b3" title="simplecc::ASTBuilder\l::visit_funcdef" alt="" coords="397,995,545,1036"/>
+<area shape="rect" id="node50" href="$classsimplecc_1_1ASTBuilder.html#a1a5869562eaecb52e061b72743dc1fd9" title="paralist: &#39;(&#39; type_name NAME (&#39;,&#39; type_name NAME)* &#39;)&#39; " alt="" coords="992,212,1140,253"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="simplecc::IRCompiler::visitNum" name="simplecc::IRCompiler::visitNum">
+<area shape="rect" id="node2" href="$classsimplecc_1_1IRBuilder.html#abcd3af1d24aeaf2420046f07c5a08065" title="simplecc::IRBuilder\l::getInt" alt="" coords="220,5,356,47"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1NumExpr.html#a3e74eb42e07132c7a74ff4f7bd666c3c" title="simplecc::NumExpr::getN" alt="" coords="201,71,375,98"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ConstantInt.html#a1676295b60bdfe1fd9718f55a8f70078" title="simplecc::ConstantInt::get" alt="" coords="423,13,599,39"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1IRContext.html#ae80816b52d12f721940565eb9ad9165e" title="simplecc::IRContext\l::getConstantInt" alt="" coords="647,5,789,47"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="simplecc::ASTVerifier::visitProgram" name="simplecc::ASTVerifier::visitProgram">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Program.html#aa62abbc11d9056ad22fa7f960491a084" title="simplecc::ProgramAST::\lgetDecls" alt="" coords="219,71,358,112"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ASTVerifier.html#aab442e7973aa718a0c01b87e2ba9fe93" title="Helper to check a condition. " alt="" coords="214,136,363,177"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1VisitorBase.html#ab4abe05fba787f0c31358e5c08736b07" title="simplecc::VisitorBase\l\&lt; ASTVerifier \&gt;::visitDecl" alt="" coords="203,201,375,243"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1ErrorManager.html#a2381e18267b4ea8df767961cef6e121a" title="TODO: these 2 overloads are too easy to be ambiguous. " alt="" coords="423,136,583,177"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="647,5,775,47"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1ErrorManager.html#a342e07ff6becfedc4308a469308942de" title="simplecc::ErrorManager\l::getErrorType" alt="" coords="631,71,791,112"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1Location.html#a6da594f9835c13c893c347571d863e6c" title="simplecc::Location\l::FormatCompact" alt="" coords="645,136,776,177"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="647,201,775,243"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1ErrorManager.html#a49fdfb32b0f46019c52b6155684de57e" title="simplecc::ErrorManager\l::increaseErrorCount" alt="" coords="631,267,791,308"/>
+<area shape="rect" id="node9" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="839,209,948,235"/>
+</map>

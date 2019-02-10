@@ -1,0 +1,8 @@
+<map id="simplecc::ByteCodeToMipsTranslator::visitBinaryMultiply" name="simplecc::ByteCodeToMipsTranslator::visitBinaryMultiply">
+<area shape="rect" id="node2" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#a49616fe68853bd371a8eecc1748a86f2" title="Binary Operator. " alt="" coords="248,64,431,105"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#afec59a1a410292342fa83db4d0e42ee9" title="simplecc::ByteCodeToMips\lTranslator::POP" alt="" coords="479,5,661,47"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#a49f51005fd5cd62cf23b67ff64211feb" title="Forward WriteLine() to ThePrinter. " alt="" coords="709,64,892,105"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#a64effc89e70ec225cdf933d32bdb271e" title="simplecc::ByteCodeToMips\lTranslator::PUSH" alt="" coords="479,123,661,164"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="940,64,1068,105"/>
+<area shape="rect" id="node6" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="1116,71,1225,98"/>
+</map>

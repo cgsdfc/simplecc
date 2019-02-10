@@ -1,0 +1,6 @@
+<map id="simplecc::Instruction::isBinaryOp" name="simplecc::Instruction::isBinaryOp">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Instruction.html#aa969ec8fe29b9fd291cc93d0f9e98666" title="simplecc::Instruction\l::getOpcode" alt="" coords="387,9,529,51"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1Instruction.html#aa8d2a92b5d22b64050171511ff25148b" title="simplecc::Instruction\l::isTerminator" alt="" coords="196,51,339,92"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Instruction.html#affc8fab8dac9b4031c6b555e2a776052" title="simplecc::Instruction\l::isAssociative" alt="" coords="196,116,339,157"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1Value.html#a59e055a8982f897cd5569b62e372c193" title="simplecc::Value::getValueID" alt="" coords="577,17,765,43"/>
+</map>

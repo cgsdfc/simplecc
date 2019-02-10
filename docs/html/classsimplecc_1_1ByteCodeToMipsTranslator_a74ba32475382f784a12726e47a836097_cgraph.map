@@ -1,0 +1,14 @@
+<map id="simplecc::ByteCodeToMipsTranslator::visitLoadGlobal" name="simplecc::ByteCodeToMipsTranslator::visitLoadGlobal">
+<area shape="rect" id="node2" href="$classsimplecc_1_1ByteCode.html#a533b773003d0c7bc9acce222ab09f4eb" title="simplecc::ByteCode\l::getStrOperand" alt="" coords="257,60,397,101"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#a49f51005fd5cd62cf23b67ff64211feb" title="Forward WriteLine() to ThePrinter. " alt="" coords="471,175,653,216"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1LocalContext.html#a3d1e4cd9a19f31ed81d872f9758eb5b2" title="simplecc::LocalContext\l::IsVariable" alt="" coords="248,243,407,284"/>
+<area shape="rect" id="node13" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#a64effc89e70ec225cdf933d32bdb271e" title="simplecc::ByteCodeToMips\lTranslator::PUSH" alt="" coords="236,177,419,219"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ByteCode.html#a9c9976f1fd74e17cfb1de5d800727ee6" title="simplecc::ByteCode\l::HasStrOperand" alt="" coords="492,60,632,101"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1ByteCode.html#a5bfe99f011402c31cecac0db12abe601" title="simplecc::ByteCode\l::getOpcode" alt="" coords="1081,29,1221,71"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1ByteCode.html#a6ee47cc9a990727e0787bd31145e2c0a" title="simplecc::ByteCode\l::HasNoOperand" alt="" coords="705,61,845,103"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1ByteCode.html#a6918b19af018afd2d6f2a599f23c41ff" title="simplecc::ByteCode\l::getOpcodeName" alt="" coords="1269,29,1409,71"/>
+<area shape="rect" id="node7" href="$classsimplecc_1_1ByteCode.html#a1138523c44c14158a46fcc426cfc68ae" title="simplecc::ByteCode\l::IsJump" alt="" coords="893,112,1033,153"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="711,175,839,216"/>
+<area shape="rect" id="node10" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="909,182,1018,209"/>
+<area shape="rect" id="node12" href="$classsimplecc_1_1ByteCodeFunction.html#adb6c3045d4ce446a29bb6d7b8e30cb74" title="simplecc::ByteCodeFunction\l::getLocalTable" alt="" coords="467,243,657,284"/>
+</map>

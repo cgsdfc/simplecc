@@ -1,0 +1,19 @@
+<map id="simplecc::MipsAssemblyWriter::WriteText" name="simplecc::MipsAssemblyWriter::WriteText">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="795,375,923,416"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1MipsAssemblyWriter.html#a0219090a42c71c60fd95700ab5bcdf49" title="simplecc::MipsAssemblyWriter\l::WriteFunction" alt="" coords="256,255,459,296"/>
+<area shape="rect" id="node3" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="1049,385,1158,411"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1LocalContext.html#abee94c613c7f7f83cd1d9de87ad8a547" title="Initialize both LocalOffsets and JumpTargets. " alt="" coords="529,72,687,113"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="544,255,672,296"/>
+<area shape="rect" id="node12" href="$classsimplecc_1_1MipsAssemblyWriter.html#a1bdb8f716f913b6f6bea2acb15c2f72d" title="simplecc::MipsAssemblyWriter\l::WritePrologue" alt="" coords="507,189,709,231"/>
+<area shape="rect" id="node18" href="$classsimplecc_1_1MipsAssemblyWriter.html#ab7e2848c67a84a23fef088b2513e4b70" title="simplecc::MipsAssemblyWriter\l::WriteEpilogue" alt="" coords="507,320,709,361"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1LocalContext.html#a77ea8f3f915e3bdab7fb45d6ddf220a2" title="Initialize the local offset dictionary for a function. " alt="" coords="779,72,938,113"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1LocalContext.html#a7f36535946c50a82e99f8bada45ea269" title="Initialize the jump targets set, which tells us whether an offset in the ByteCode stream is a target ..." alt="" coords="779,7,938,48"/>
+<area shape="rect" id="node7" href="$namespacesimplecc.html#a95389beb86382656adc66fe1660308c8" title="simplecc::BytesFromEntries" alt="" coords="1010,137,1197,163"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1ByteCodeFunction.html#ae263f0aa91b1c881eaa192ae0e2a7865" title="simplecc::ByteCodeFunction\l::getFormalArguments" alt="" coords="1008,71,1199,112"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1ByteCodeFunction.html#a1e7d338cb55124ac06015a8ccd171d25" title="simplecc::ByteCodeFunction\l::getLocalVariables" alt="" coords="1008,5,1199,47"/>
+<area shape="rect" id="node13" href="$classsimplecc_1_1ByteCodeFunction.html#a592c76d7be7fa14ee1ba6a2c0b65f4d7" title="simplecc::ByteCodeFunction\l::getName" alt="" coords="763,308,954,349"/>
+<area shape="rect" id="node14" href="$classsimplecc_1_1ByteCodeFunction.html#a6c6a384c1363945e33a94b4aaf7ea09e" title="simplecc::ByteCodeFunction\l::getFormalArgumentCount" alt="" coords="1008,319,1199,360"/>
+<area shape="rect" id="node15" href="$classsimplecc_1_1MipsAssemblyWriter.html#af81b48930c4fed0960558ad7a80bc866" title="simplecc::MipsAssemblyWriter\l::getLocalObjectsInBytes" alt="" coords="757,189,960,231"/>
+<area shape="rect" id="node16" href="$classsimplecc_1_1ByteCodeFunction.html#ab73b2048e615f5b0b581aa7deb355507" title="simplecc::ByteCodeFunction\l::local_begin" alt="" coords="1008,188,1199,229"/>
+<area shape="rect" id="node17" href="$classsimplecc_1_1ByteCodeFunction.html#ad76d9cae769ddd779bf4c2868ef6c548" title="simplecc::ByteCodeFunction\l::local_end" alt="" coords="1008,253,1199,295"/>
+</map>

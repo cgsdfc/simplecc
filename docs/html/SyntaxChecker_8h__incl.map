@@ -1,0 +1,10 @@
+<map id="src/include/simplecc/Analysis/SyntaxChecker.h" name="src/include/simplecc/Analysis/SyntaxChecker.h">
+<area shape="rect" id="node2" href="$Visitor_8h.html" title="simplecc/Analysis/Visitor.h" alt="" coords="741,95,921,121"/>
+<area shape="rect" id="node17" href="$ErrorManager_8h.html" title="simplecc/Support/ErrorManager.h" alt="" coords="1013,169,1229,196"/>
+<area shape="rect" id="node3" href="$AST_8h.html" title="simplecc/Parse/AST.h" alt="" coords="476,169,629,196"/>
+<area shape="rect" id="node16" href="$Casting_8h.html" title="simplecc/Support/Casting.h" alt="" coords="805,169,988,196"/>
+<area shape="rect" id="node4" href="$Macros_8h.html" title="simplecc/Support/Macros.h" alt="" coords="642,319,823,345"/>
+<area shape="rect" id="node6" href="$Location_8h.html" title="simplecc/Lex/Location.h" alt="" coords="779,244,942,271"/>
+<area shape="rect" id="node7" href="$Enums_8h.html" title="simplecc/Parse/Enums.h" alt="" coords="22,244,190,271"/>
+<area shape="rect" id="node18" href="$Print_8h.html" title="simplecc/Support/Print.h" alt="" coords="1158,244,1323,271"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="simplecc::Instruction::getParent" name="simplecc::Instruction::getParent">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Instruction.html#a4ba3a5be6c0e9b9e8a525de055836733" title="simplecc::Instruction\l::getModule" alt="" coords="196,39,339,80"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1Instruction.html#a6a66ebb3aa12757479a3c88de77d78f8" title="simplecc::Instruction\l::getFunction" alt="" coords="387,5,529,47"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Function.html#a398f696a5a6d2d108ac589638d524296" title="simplecc::Function\l::getParent" alt="" coords="392,71,524,112"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1BasicBlock.html#a3a41a85887111cea5549295fa2e452d3" title="simplecc::BasicBlock\l::getParent" alt="" coords="577,5,725,47"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="simplecc::ASTGraph::getEdgeOrCreate" name="simplecc::ASTGraph::getEdgeOrCreate">
+<area shape="rect" id="node2" href="$classsimplecc_1_1ASTNode.html#a87e7c332e66775d4a3d834050d5922cd" title="simplecc::ASTNode::get" alt="" coords="427,5,592,32"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ChildrenCollector.html#ae873fc6b351ec797bd428331a47aaa20" title="Call this to do the collecting. Otherwise, nothing will happen. " alt="" coords="196,57,379,98"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1VisitorBase.html#a40ffc80c288ed7338f95c9a50f14b8ea" title="simplecc::VisitorBase\l\&lt; ChildrenCollector \&gt;\l::visitAST" alt="" coords="435,56,584,112"/>
+</map>

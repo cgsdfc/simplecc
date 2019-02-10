@@ -1,0 +1,10 @@
+<map id="simplecc::SymbolTableBuilder::ResolveName" name="simplecc::SymbolTableBuilder::ResolveName">
+<area shape="rect" id="node2" href="$classsimplecc_1_1ErrorManager.html#a2381e18267b4ea8df767961cef6e121a" title="TODO: these 2 overloads are too easy to be ambiguous. " alt="" coords="252,136,412,177"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="261,201,403,243"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="476,5,604,47"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1ErrorManager.html#a342e07ff6becfedc4308a469308942de" title="simplecc::ErrorManager\l::getErrorType" alt="" coords="460,71,620,112"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1Location.html#a6da594f9835c13c893c347571d863e6c" title="simplecc::Location\l::FormatCompact" alt="" coords="475,136,605,177"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="476,201,604,243"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1ErrorManager.html#a49fdfb32b0f46019c52b6155684de57e" title="simplecc::ErrorManager\l::increaseErrorCount" alt="" coords="460,267,620,308"/>
+<area shape="rect" id="node7" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="668,209,777,235"/>
+</map>

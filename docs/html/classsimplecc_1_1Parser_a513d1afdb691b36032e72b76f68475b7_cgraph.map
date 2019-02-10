@@ -1,0 +1,19 @@
+<map id="simplecc::Parser::Parser" name="simplecc::Parser::Parser">
+<area shape="rect" id="node2" href="$classsimplecc_1_1TokenInfo.html#a7d4b58c7a1bb7336ac8545e6b138638d" title="simplecc::TokenInfo\l::getType" alt="" coords="230,130,370,171"/>
+<area shape="rect" id="node8" href="$classsimplecc_1_1TokenInfo.html#a623ae799c4a911b6d81b6747f7db20a9" title="simplecc::TokenInfo\l::getString" alt="" coords="649,174,789,215"/>
+<area shape="rect" id="node9" href="$classsimplecc_1_1TokenInfo.html#a58870923a760e79143d116de2718bed5" title="simplecc::TokenInfo\l::getLocation" alt="" coords="649,239,789,281"/>
+<area shape="rect" id="node10" href="$classsimplecc_1_1TokenInfo.html#ad046e490a126f172e16fad692cb696ad" title="simplecc::TokenInfo\l::getLine" alt="" coords="649,305,789,346"/>
+<area shape="rect" id="node11" href="$classsimplecc_1_1ErrorManager.html#a2381e18267b4ea8df767961cef6e121a" title="TODO: these 2 overloads are too easy to be ambiguous. " alt="" coords="220,446,380,487"/>
+<area shape="rect" id="node18" href="$namespacesimplecc.html#a4ef7c696242b70528144ad9c2df6300b" title="simplecc::IsNonTerminal" alt="" coords="636,5,803,32"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1TokenInfo.html#aaf511b4d93bdedd578828e528b938469" title="simplecc::TokenInfo\l::Format" alt="" coords="438,130,578,171"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1TokenInfo.html#a930b11949601fae4f0d303d7f340e23f" title="simplecc::TokenInfo\l::getTypeName" alt="" coords="649,57,789,98"/>
+<area shape="rect" id="node7" href="$namespacesimplecc.html#a961a3c54d01e7ea889e72575569a451c" title="simplecc::Quote" alt="" coords="661,123,778,149"/>
+<area shape="rect" id="node5" href="$namespacesimplecc.html#a724a2683995177e8ebe0798861d9133d" title="simplecc::getSymbolName" alt="" coords="851,56,1029,83"/>
+<area shape="rect" id="node6" href="$namespacesimplecc.html#ab9b3139072ae1e9bf98d2e57915a6447" title="simplecc::IsTerminal" alt="" coords="1077,31,1220,57"/>
+<area shape="rect" id="node12" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="444,349,572,390"/>
+<area shape="rect" id="node13" href="$classsimplecc_1_1ErrorManager.html#a342e07ff6becfedc4308a469308942de" title="simplecc::ErrorManager\l::getErrorType" alt="" coords="428,414,588,455"/>
+<area shape="rect" id="node14" href="$classsimplecc_1_1Location.html#a6da594f9835c13c893c347571d863e6c" title="simplecc::Location\l::FormatCompact" alt="" coords="443,479,573,521"/>
+<area shape="rect" id="node15" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="444,545,572,586"/>
+<area shape="rect" id="node17" href="$classsimplecc_1_1ErrorManager.html#a49fdfb32b0f46019c52b6155684de57e" title="simplecc::ErrorManager\l::increaseErrorCount" alt="" coords="428,610,588,651"/>
+<area shape="rect" id="node16" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="665,552,774,579"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="simplecc::ReturnInst" name="simplecc::ReturnInst">
+<area shape="rect" id="node2" href="$classsimplecc_1_1Instruction.html" title="{simplecc::Instruction\n||+ getParent()\l+ getParent()\l+ getModule()\l+ getModule()\l+ getFunction()\l+ getFunction()\l+ removeFromParent()\l+ insertBefore()\l+ insertAfter()\l+ moveBefore()\land 21 more...\l+ getOpcodeName()\l+ isTerminator()\l+ isBinaryOp()\l+ isAssociative()\l+ isCommutative()\l+ InstanceCheck()\l# Instruction()\l# ~Instruction()\l}" alt="" coords="7,740,161,1081"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1User.html" title="User represents a Value that can use other Values as operands. " alt="" coords="12,380,156,692"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1Value.html" title="This class represents a value in the SSA form. " alt="" coords="27,5,141,332"/>
+</map>

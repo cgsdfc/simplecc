@@ -1,0 +1,7 @@
+<map id="simplecc::Decl" name="simplecc::Decl">
+<area shape="rect" id="node3" href="$classsimplecc_1_1ArgDecl.html" title="{simplecc::ArgDecl\n|+ type\l|+ ArgDecl()\l+ ArgDecl()\l+ ArgDecl()\l+ operator=()\l+ operator=()\l+ ~ArgDecl()\l+ GetClassName()\l+ Format()\l+ getType()\l+ InstanceCheck()\l}" alt="" coords="5,403,137,612"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1ConstDecl.html" title="{simplecc::ConstDecl\n|+ type\l+ value\l|+ ConstDecl()\l+ ConstDecl()\l+ ConstDecl()\l+ operator=()\l+ operator=()\l+ ~ConstDecl()\l+ GetClassName()\l+ Format()\l+ getType()\l+ getValue()\l+ InstanceCheck()\l}" alt="" coords="162,388,306,627"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1FuncDef.html" title="{simplecc::FuncDef\n|+ return_type\l+ args\l+ decls\l+ stmts\l|+ FuncDef()\l+ FuncDef()\l+ FuncDef()\l+ operator=()\l+ operator=()\l+ ~FuncDef()\l+ GetClassName()\l+ Format()\l+ getReturnType()\l+ getArgs()\l+ getDecls()\l+ getStmts()\l+ InstanceCheck()\l}" alt="" coords="331,359,463,656"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1VarDecl.html" title="{simplecc::VarDecl\n|+ type\l+ IsArray\l+ size\l|+ VarDecl()\l+ VarDecl()\l+ VarDecl()\l+ operator=()\l+ operator=()\l+ ~VarDecl()\l+ GetClassName()\l+ Format()\l+ getType()\l+ getIsArray()\l+ getSize()\l+ InstanceCheck()\l}" alt="" coords="487,373,619,641"/>
+<area shape="rect" id="node2" href="$classsimplecc_1_1AST.html" title="{simplecc::AST\n||+ ~AST()\l+ GetClassName()\l+ Format()\l}" alt="" coords="249,5,381,112"/>
+</map>

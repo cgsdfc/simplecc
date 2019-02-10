@@ -1,0 +1,7 @@
+<map id="simplecc::ASTGraph::child_end" name="simplecc::ASTGraph::child_end">
+<area shape="rect" id="node2" href="$classsimplecc_1_1ASTGraph.html#a167c4d324564a1cc3b90e22f92106dbe" title="Lazily create edges for a Node. " alt="" coords="196,27,339,69"/>
+<area shape="rect" id="node6" href="$classsimplecc_1_1ASTGraph.html#ad4047300fcaf04d796af9adbc37006ab" title="Lazily create an ASTNode. " alt="" coords="196,93,339,134"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1ASTNode.html#a87e7c332e66775d4a3d834050d5922cd" title="simplecc::ASTNode::get" alt="" coords="617,5,783,32"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1ChildrenCollector.html#ae873fc6b351ec797bd428331a47aaa20" title="Call this to do the collecting. Otherwise, nothing will happen. " alt="" coords="387,57,569,98"/>
+<area shape="rect" id="node5" href="$classsimplecc_1_1VisitorBase.html#a40ffc80c288ed7338f95c9a50f14b8ea" title="simplecc::VisitorBase\l\&lt; ChildrenCollector \&gt;\l::visitAST" alt="" coords="625,56,775,112"/>
+</map>

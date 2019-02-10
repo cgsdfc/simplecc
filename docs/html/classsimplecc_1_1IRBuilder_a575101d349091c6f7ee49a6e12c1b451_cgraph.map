@@ -1,0 +1,5 @@
+<map id="simplecc::IRBuilder::getCurrentFunctionReturnType" name="simplecc::IRBuilder::getCurrentFunctionReturnType">
+<area shape="rect" id="node2" href="$classsimplecc_1_1BasicBlock.html#a3a41a85887111cea5549295fa2e452d3" title="simplecc::BasicBlock\l::getParent" alt="" coords="263,5,411,47"/>
+<area shape="rect" id="node3" href="$classsimplecc_1_1Function.html#a07de8fd0ffd2d85bf3553954445dc762" title="simplecc::Function\l::getReturnType" alt="" coords="271,71,403,112"/>
+<area shape="rect" id="node4" href="$classsimplecc_1_1Function.html#a0a2018973a8b68a04fdfaec8b9564ab8" title="simplecc::Function\l::operator=" alt="" coords="459,71,591,112"/>
+</map>
