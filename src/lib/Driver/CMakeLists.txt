@@ -10,5 +10,4 @@ target_link_libraries(Driver
         Analysis
         CodeGen
         Target
-        IR
         Transform)

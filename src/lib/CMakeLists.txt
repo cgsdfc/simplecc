@@ -6,7 +6,6 @@ add_subdirectory(Analysis)
 add_subdirectory(CodeGen)
 add_subdirectory(Transform)
 add_subdirectory(Target)
-add_subdirectory(IR)
 add_subdirectory(Driver)
 
 # Add main executable.
