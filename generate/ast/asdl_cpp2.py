@@ -22,8 +22,6 @@
 
 """Ast generation"""
 
-import sys
-import os
 import abc
 
 from string import Template

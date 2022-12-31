@@ -20,6 +20,7 @@ We have a hand-rolled stack-based IR generator that emits unoptimized Mips assem
 ```
 simplecc --asm input.c0
 ```
+For more examples of the emitted Mips assembly
 
 ### 2.2 LLVM IR
 
