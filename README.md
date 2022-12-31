@@ -97,7 +97,7 @@ If you use our code in your research, we highly recommend your proper citation a
 @misc{cong_simplecc_2018,
 	title = {Simplecc: {A} simple and modular {C}-like compiler in {C}++},
 	shorttitle = {Simplecc},
-	url = {https://gitee.com/cgsdfc/simplecc.git},
+	url = {https://github.com/cgsdfc/simplecc.git},
 	abstract = {Simplecc is a small compiler written in modern C++ that compiles an educational C-like language C0. It has a primary backend that emits stack-based unoptimized Mips assembly. It also integrates with an external LLVM backend that enables optimization and native codegen. Internally it uses a generated parser and generated abstract syntax tree with other important components written in an object-oriented style.},
 	author = {Cong Feng},
 	year = {2018},
