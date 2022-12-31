@@ -1,7 +1,0 @@
-<map id="simplecc::LLVMIRCompiler::visitAssign" name="simplecc::LLVMIRCompiler::visitAssign">
-<area shape="rect" id="node2" href="$classsimplecc_1_1LLVMIRCompiler.html#af13b44207c3eaf3219260edc316f5870" title="simplecc::LLVMIRCompiler\l::visitExpr" alt="" coords="236,5,419,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1AssignStmt.html#a2dd51e478a3c034d24e102e9ac4fa09a" title="simplecc::AssignStmt\l::getValue" alt="" coords="252,71,403,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1AssignStmt.html#a79fe86e197020440f6e70ddf41a60f4c" title="simplecc::AssignStmt\l::getTarget" alt="" coords="252,136,403,177"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1IRBuilder.html#a18b40da62e428cd34edd399cbc6cfa37" title="simplecc::IRBuilder\l::CreateStore" alt="" coords="259,201,395,243"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1StoreInst.html#aff3d988fd8f79a64f80c127c7a95563d" title="simplecc::StoreInst\l::Create" alt="" coords="467,201,601,243"/>
-</map>

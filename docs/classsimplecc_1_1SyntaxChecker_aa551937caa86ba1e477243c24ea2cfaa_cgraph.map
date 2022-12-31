@@ -1,5 +1,0 @@
-<map id="simplecc::SyntaxChecker::visitFuncDef" name="simplecc::SyntaxChecker::visitFuncDef">
-<area shape="rect" id="node2" href="$classsimplecc_1_1FuncDef.html#a547e67cb16fd9318c43aed26feba1399" title="simplecc::FuncDef::\lgetArgs" alt="" coords="230,5,370,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1VisitorBase.html#ab4abe05fba787f0c31358e5c08736b07" title="simplecc::VisitorBase\l::visitDecl" alt="" coords="225,71,375,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1FuncDef.html#a9f41e580dd51dc028c8936197e6a0b1e" title="simplecc::FuncDef::\lgetDecls" alt="" coords="230,136,370,177"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="simplecc::ImplicitCallTransformer::visitFuncDef" name="simplecc::ImplicitCallTransformer::visitFuncDef">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ImplicitCallTransformer.html#a34b8d47fa0ade0fd232e4d1e6e46b304" title="Setters. " alt="" coords="271,5,488,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1SymbolTable.html#a123704b19c998c46bdb54bf74dd5fdea" title="Return a SymbolTableView for a given FuncDef. " alt="" coords="300,71,459,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ChildrenVisitor.html#aa53b603ec0ba7f5d6adc39d23436341e" title="simplecc::ChildrenVisitor\l::visitFuncDef" alt="" coords="296,136,463,177"/>
-</map>

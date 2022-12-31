@@ -1,4 +1,0 @@
-<map id="simplecc::TypeChecker::visitExpr" name="simplecc::TypeChecker::visitExpr">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ContextualVisitor.html#a5bc268cda0cc845567da39abe4e52050" title="simplecc::ContextualVisitor\l\&lt; TypeChecker \&gt;::getSymbolTable" alt="" coords="213,5,440,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1SymbolTable.html#a1746e46c283d554194bcf4e04b37b84f" title="simplecc::SymbolTable\l::setExprType" alt="" coords="247,71,406,112"/>
-</map>

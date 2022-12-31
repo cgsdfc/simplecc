@@ -1,6 +1,0 @@
-<map id="simplecc::IRPrinter::printGlobalVariable" name="simplecc::IRPrinter::printGlobalVariable">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Value.html#ac8f01aee72208ee5ccaabc95bf7b31ce" title="simplecc::Value::getName" alt="" coords="192,5,368,32"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1GlobalVariable.html#aec1557533da1bc4125884dce6d93f258" title="simplecc::GlobalVariable\l::getSize" alt="" coords="197,57,363,98"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1Value.html#a99d640257f7689aa8095dccfb111e50c" title="simplecc::Value::deleteValue" alt="" coords="416,5,607,32"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Value.html#a59e055a8982f897cd5569b62e372c193" title="simplecc::Value::getValueID" alt="" coords="655,5,843,32"/>
-</map>

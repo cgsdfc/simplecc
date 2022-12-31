@@ -1,8 +1,0 @@
-<map id="src/include/simplecc/IR/Instruction.h" name="src/include/simplecc/IR/Instruction.h">
-<area shape="rect" id="node2" href="$User_8h.html" title="simplecc/IR/User.h" alt="" coords="655,95,790,121"/>
-<area shape="rect" id="node14" href="$BasicBlock_8h.html" title="simplecc/IR/BasicBlock.h" alt="" coords="457,95,631,121"/>
-<area shape="rect" id="node3" href="$Value_8h.html" title="simplecc/IR/Value.h" alt="" coords="474,169,614,196"/>
-<area shape="rect" id="node4" href="$Type_8h.html" title="simplecc/IR/Type.h" alt="" coords="11,251,147,278"/>
-<area shape="rect" id="node6" href="$Use_8h.html" title="simplecc/IR/Use.h" alt="" coords="171,251,301,278"/>
-<area shape="rect" id="node7" href="$iterator__range_8h.html" title="simplecc/Support/iterator\l_range.h" alt="" coords="326,244,493,285"/>
-</map>

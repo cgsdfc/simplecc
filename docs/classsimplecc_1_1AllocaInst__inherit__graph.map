@@ -1,5 +1,0 @@
-<map id="simplecc::AllocaInst" name="simplecc::AllocaInst">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Instruction.html" title="{simplecc::Instruction\n||+ getParent()\l+ getParent()\l+ getModule()\l+ getModule()\l+ getFunction()\l+ getFunction()\l+ removeFromParent()\l+ insertBefore()\l+ insertAfter()\l+ moveBefore()\land 21 more...\l+ getOpcodeName()\l+ isTerminator()\l+ isBinaryOp()\l+ isAssociative()\l+ isCommutative()\l+ InstanceCheck()\l# Instruction()\l# ~Instruction()\l}" alt="" coords="5,740,159,1081"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1User.html" title="User represents a Value that can use other Values as operands. " alt="" coords="10,380,154,692"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Value.html" title="This class represents a value in the SSA form. " alt="" coords="25,5,139,332"/>
-</map>

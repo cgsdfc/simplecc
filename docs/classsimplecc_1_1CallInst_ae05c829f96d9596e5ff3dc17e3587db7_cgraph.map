@@ -1,5 +1,0 @@
-<map id="simplecc::CallInst::getCalleeOperand" name="simplecc::CallInst::getCalleeOperand">
-<area shape="rect" id="node2" href="$classsimplecc_1_1User.html#a6c361bc0235159bc9c3e4a2b2ab56f36" title="simplecc::User::getOperand" alt="" coords="188,5,373,32"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1User.html#a61a8c19f646255637d35ed1b7f3cd290" title="simplecc::User::getNumOperands" alt="" coords="679,31,899,57"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1User.html#a20b4fddfa995bfe0bbc68536e6ba21fc" title="simplecc::User::getOperandUse" alt="" coords="421,5,631,32"/>
-</map>

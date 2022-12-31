@@ -1,6 +1,0 @@
-<map id="simplecc::DescriptionVisitor::visitFuncDef" name="simplecc::DescriptionVisitor::visitFuncDef">
-<area shape="rect" id="node2" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="279,5,388,32"/>
-<area shape="rect" id="node3" href="$namespacesimplecc.html#ac192ed8957b51679c13d66044daae3b2" title="simplecc::CStringFromBasic\lTypeKind" alt="" coords="239,57,428,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1FuncDef.html#a3caf8d2a528269f56067701577f25bad" title="simplecc::FuncDef::\lgetReturnType" alt="" coords="263,122,403,163"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="262,187,405,229"/>
-</map>

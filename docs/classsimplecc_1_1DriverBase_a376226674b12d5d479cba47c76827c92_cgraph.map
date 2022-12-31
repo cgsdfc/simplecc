@@ -1,6 +1,0 @@
-<map id="simplecc::DriverBase::doAssemble" name="simplecc::DriverBase::doAssemble">
-<area shape="rect" id="node2" href="$namespacesimplecc.html#ae1e7af44a10cc13fd1e0bb4a9bc6db81" title="simplecc::AssembleMips" alt="" coords="200,13,368,39"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1MipsAssemblyWriter.html#a28858736f977efc5c2232a374efa3486" title="Write one ByteCodeModule to output translating to MIPS. " alt="" coords="416,5,619,47"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="667,5,795,47"/>
-<area shape="rect" id="node5" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="843,13,952,39"/>
-</map>

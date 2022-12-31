@@ -1,5 +1,0 @@
-<map id="simplecc::ImplicitCallTransformer::setTable" name="simplecc::ImplicitCallTransformer::setTable">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ImplicitCallTransformer.html#ab6428eaf12e56bc51e1bf26ec6cabc1e" title="simplecc::ImplicitCallTransformer\l::ImplicitCallTransformer" alt="" coords="271,5,488,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ImplicitCallTransformer.html#aacdc69c554c368cbe30035a465967855" title="Perform implicit call transform on the program using a SymbolTable. " alt="" coords="271,71,488,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ChildrenVisitor.html#a99e5e2bd9c1386f5d3d902cab8cd88d7" title="Decl subclasses. " alt="" coords="536,63,705,119"/>
-</map>

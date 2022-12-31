@@ -1,7 +1,0 @@
-<map id="simplecc::BasicBlock::InstanceCheck" name="simplecc::BasicBlock::InstanceCheck">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Value.html#a59e055a8982f897cd5569b62e372c193" title="simplecc::Value::getValueID" alt="" coords="201,13,389,39"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1BasicBlock.html#a3bb0f8134ad4d6802d7ca10213b168a1" title="simplecc::BasicBlock\l::removeInst" alt="" coords="221,64,369,105"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1BasicBlock.html#a53a9c7481b425d247227b7bb52941707" title="simplecc::BasicBlock\l::begin" alt="" coords="452,5,600,47"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1BasicBlock.html#a89d7ccdb1b47860098a216f880130290" title="simplecc::BasicBlock::end" alt="" coords="437,71,615,98"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1Function.html#a5ce1ebb649d3fc0056d8084d865696ca" title="simplecc::Function\l::getBasicBlockList" alt="" coords="459,123,593,164"/>
-</map>

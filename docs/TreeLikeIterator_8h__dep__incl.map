@@ -1,7 +1,0 @@
-<map id="src/include/simplecc/Visualize/TreeLikeIterator.h" name="src/include/simplecc/Visualize/TreeLikeIterator.h">
-<area shape="rect" id="node2" href="$ASTGraph_8h.html" title="src/include/simplecc\l/Visualize/ASTGraph.h" alt="" coords="137,95,292,136"/>
-<area shape="rect" id="node5" href="$NodeIterator_8h.html" title="src/include/simplecc\l/Visualize/NodeIterator.h" alt="" coords="317,95,483,136"/>
-<area shape="rect" id="node3" href="$ChildrenCollector_8h.html" title="src/include/simplecc\l/Visualize/ChildrenCollector.h" alt="" coords="5,184,200,225"/>
-<area shape="rect" id="node4" href="$ASTGraph_8cpp.html" title="src/lib/Visualize/ASTGraph.cpp" alt="" coords="67,273,271,300"/>
-<area shape="rect" id="node6" href="$CSTGraph_8cpp.html" title="src/lib/Visualize/CSTGraph.cpp" alt="" coords="297,191,503,218"/>
-</map>

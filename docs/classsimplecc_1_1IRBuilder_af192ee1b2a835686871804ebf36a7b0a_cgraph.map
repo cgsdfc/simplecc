@@ -1,6 +1,0 @@
-<map id="simplecc::IRBuilder::SetInsertPoint" name="simplecc::IRBuilder::SetInsertPoint">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Instruction.html#abf7528bf10ce99b7300e7748ae4cd3b2" title="simplecc::Instruction\l::getParent" alt="" coords="189,5,332,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1Instruction.html#a9c24155745025f6b6292ad10663eaf59" title="Get an iterator in parent pointing to this. " alt="" coords="189,71,332,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1BasicBlock.html#a53a9c7481b425d247227b7bb52941707" title="simplecc::BasicBlock\l::begin" alt="" coords="395,41,543,83"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1BasicBlock.html#a89d7ccdb1b47860098a216f880130290" title="simplecc::BasicBlock::end" alt="" coords="380,107,557,134"/>
-</map>

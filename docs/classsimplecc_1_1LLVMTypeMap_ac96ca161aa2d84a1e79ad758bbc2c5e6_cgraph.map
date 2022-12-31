@@ -1,9 +1,0 @@
-<map id="simplecc::LLVMTypeMap::getType" name="simplecc::LLVMTypeMap::getType">
-<area shape="rect" id="node2" href="$classsimplecc_1_1LLVMTypeMap.html#a78b5c1a6936158777f21a5e619ca68ab" title="Convert a basic type. " alt="" coords="224,5,395,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1FuncType.html#afaa7cd51f1b781875e667585fe2459d8" title="simplecc::FuncType\l::getReturnType" alt="" coords="239,71,379,112"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1FuncType.html#aac61dfacc0066115832c8b0896489b4c" title="simplecc::FuncType\l::getArgCount" alt="" coords="239,136,379,177"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1FuncType.html#a6a3cdfd84d88089ed8286db7d96038b1" title="simplecc::FuncType\l::getArgTypeAt" alt="" coords="239,201,379,243"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1FuncDef.html#a3caf8d2a528269f56067701577f25bad" title="simplecc::FuncDef::\lgetReturnType" alt="" coords="446,71,586,112"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1FuncDef.html#a547e67cb16fd9318c43aed26feba1399" title="simplecc::FuncDef::\lgetArgs" alt="" coords="446,136,586,177"/>
-<area shape="rect" id="node8" href="$classsimplecc_1_1ConstType.html#ab3d63638818ba721cba18a6a699142be" title="simplecc::ConstType\l::getType" alt="" coords="443,201,589,243"/>
-</map>

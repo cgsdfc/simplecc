@@ -1,8 +1,0 @@
-<map id="simplecc::Printer" name="simplecc::Printer">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ErrorManager.html" title="{simplecc::ErrorManager\n||+ ErrorManager()\l+ setErrorType()\l+ getErrorType()\l+ Error()\l+ Error()\l+ clear()\l+ getErrorCount()\l+ increaseErrorCount()\l+ IsOk()\l}" alt="" coords="225,160,385,355"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1AnalysisVisitor.html" title="{simplecc::AnalysisVisitor\l\&lt; ArrayBoundChecker \&gt;\n||+ AnalysisVisitor()\l+ Check()\l}" alt="" coords="23,403,192,509"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1AnalysisVisitor.html" title="{simplecc::AnalysisVisitor\l\&lt; TypeChecker \&gt;\n||+ AnalysisVisitor()\l+ Check()\l}" alt="" coords="220,403,389,509"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1AnalysisVisitor.html" title="This class is a CRTP base for classes that perform analysis on the AST. " alt="" coords="413,403,583,509"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ArrayBoundChecker.html" title="{simplecc::ArrayBoundChecker\n||+ ArrayBoundChecker()\l}" alt="" coords="5,557,204,635"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1TypeChecker.html" title="{simplecc::TypeChecker\n||+ TypeChecker()\l}" alt="" coords="227,557,387,635"/>
-</map>

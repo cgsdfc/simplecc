@@ -1,9 +1,0 @@
-<map id="src/lib/Transform/DeadCodeEliminator.cpp" name="src/lib/Transform/DeadCodeEliminator.cpp">
-<area shape="rect" id="node2" href="$DeadCodeEliminator_8h.html" title="simplecc/Transform\l/DeadCodeEliminator.h" alt="" coords="940,95,1097,136"/>
-<area shape="rect" id="node3" href="$Visitor_8h.html" title="simplecc/Analysis/Visitor.h" alt="" coords="929,184,1109,211"/>
-<area shape="rect" id="node4" href="$AST_8h.html" title="simplecc/Parse/AST.h" alt="" coords="661,259,814,285"/>
-<area shape="rect" id="node17" href="$Casting_8h.html" title="simplecc/Support/Casting.h" alt="" coords="1057,259,1239,285"/>
-<area shape="rect" id="node5" href="$Macros_8h.html" title="simplecc/Support/Macros.h" alt="" coords="5,408,187,435"/>
-<area shape="rect" id="node7" href="$Location_8h.html" title="simplecc/Lex/Location.h" alt="" coords="132,333,295,360"/>
-<area shape="rect" id="node8" href="$Enums_8h.html" title="simplecc/Parse/Enums.h" alt="" coords="319,333,487,360"/>
-</map>

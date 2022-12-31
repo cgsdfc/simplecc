@@ -1,9 +1,0 @@
-<map id="simplecc::ByteCodeBuilder::Insert" name="simplecc::ByteCodeBuilder::Insert">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ByteCodeBuilder.html#ac3c2661d84149d6bae47e9f6d43010fe" title="simplecc::ByteCodeBuilder\l::getInsertPoint" alt="" coords="705,28,885,70"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ByteCodeFunction.html#acb09f8c7750e0b38d28c4e70f05c0f1d" title="simplecc::ByteCodeFunction\l::size" alt="" coords="700,123,891,164"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ByteCode.html#ab330bab4747ee5c9551cd2ab02b42ef2" title="simplecc::ByteCode\l::setSourceLineno" alt="" coords="259,123,399,164"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1ByteCodeBuilder.html#aba2591581ec31fff1561daaa2bf1c89e" title="simplecc::ByteCodeBuilder\l::getLineNo" alt="" coords="239,58,419,99"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1ByteCode.html#a4bfe813328d5bec97f036a289611d754" title="simplecc::ByteCode\l::setByteCodeOffset" alt="" coords="257,240,400,282"/>
-<area shape="rect" id="node8" href="$classsimplecc_1_1ByteCodeFunction.html#aef9909780876031dbe6814e59371984e" title="simplecc::ByteCodeFunction\l::getByteCodeList" alt="" coords="233,306,424,347"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1ByteCodeBuilder.html#a178425b9f1071221c0174184264345e1" title="Return the size of the current ByteCodeFunction. " alt="" coords="472,58,652,99"/>
-</map>

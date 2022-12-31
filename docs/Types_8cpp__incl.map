@@ -1,8 +1,0 @@
-<map id="src/lib/Analysis/Types.cpp" name="src/lib/Analysis/Types.cpp">
-<area shape="rect" id="node2" href="$Types_8h.html" title="simplecc/Analysis/Types.h" alt="" coords="876,80,1055,107"/>
-<area shape="rect" id="node16" href="$Casting_8h.html" title="simplecc/Support/Casting.h" alt="" coords="1080,80,1262,107"/>
-<area shape="rect" id="node3" href="$AST_8h.html" title="simplecc/Parse/AST.h" alt="" coords="672,155,825,181"/>
-<area shape="rect" id="node4" href="$Macros_8h.html" title="simplecc/Support/Macros.h" alt="" coords="263,304,444,331"/>
-<area shape="rect" id="node6" href="$Location_8h.html" title="simplecc/Lex/Location.h" alt="" coords="423,229,586,256"/>
-<area shape="rect" id="node7" href="$Enums_8h.html" title="simplecc/Parse/Enums.h" alt="" coords="610,229,778,256"/>
-</map>

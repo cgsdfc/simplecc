@@ -1,4 +1,0 @@
-<map id="simplecc::BoolOp" name="simplecc::BoolOp">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Expr.html" title="{simplecc::Expr\n|+ loc\l&#45; Kind\l|+ GetKind()\l+ Expr()\l+ getLoc()\l}" alt="" coords="17,160,126,281"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1AST.html" title="{simplecc::AST\n||+ ~AST()\l+ GetClassName()\l+ Format()\l}" alt="" coords="5,5,137,112"/>
-</map>

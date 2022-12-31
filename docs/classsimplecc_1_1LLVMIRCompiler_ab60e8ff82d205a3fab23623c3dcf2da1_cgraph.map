@@ -1,8 +1,0 @@
-<map id="simplecc::LLVMIRCompiler::DeclareBuiltinFunctions" name="simplecc::LLVMIRCompiler::DeclareBuiltinFunctions">
-<area shape="rect" id="node2" href="$classsimplecc_1_1LLVMIRCompiler.html#a5d1bd02707184178cf64b88eebb32e07" title="Helper of DeclareBuiltinFunctions() since their prototypes is similar. " alt="" coords="236,35,419,76"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1Function.html#a2d4766fd6ebcff0ece4431b5bf3cf271" title="simplecc::Function\l::Create" alt="" coords="467,35,599,76"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Function.html#a37daaa6b37e6e7fbb444fba407ca2ff1" title="simplecc::Function\l::Function" alt="" coords="647,35,779,76"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1Argument.html#abad52d64eac195fbb351afa7cfbdfb7c" title="simplecc::Argument\l::Create" alt="" coords="868,5,1007,47"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1Module.html#ac5a129820785fa956b85c3f36381dc7d" title="simplecc::Module::getFunctionList" alt="" coords="827,71,1048,98"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1Argument.html#ab779f0e0645c5826d7e6d2c678d32903" title="simplecc::Argument\l::Argument" alt="" coords="1096,5,1235,47"/>
-</map>

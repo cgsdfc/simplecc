@@ -1,6 +1,0 @@
-<map id="simplecc::IRBuilder::IRBuilder" name="simplecc::IRBuilder::IRBuilder">
-<area shape="rect" id="node2" href="$classsimplecc_1_1IRBuilder.html#a82e0a6cc4bbfd089229fc7a3da6b964a" title="simplecc::IRBuilder\l::SetInsertPoint" alt="" coords="195,5,331,47"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1IRBuilder.html#a895b8b2575b3a9f70cafe2a4e87eabcf" title="simplecc::IRBuilder\l::~IRBuilder" alt="" coords="195,71,331,112"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1BasicBlock.html#a5e5f06495aafd9637322fbddd9ba10e7" title="simplecc::BasicBlock\l::getInstList" alt="" coords="189,136,337,177"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1BasicBlock.html#a89d7ccdb1b47860098a216f880130290" title="simplecc::BasicBlock::end" alt="" coords="385,13,563,39"/>
-</map>

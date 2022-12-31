@@ -1,2 +1,0 @@
-To visualize the control flow graph, you can use a nifty feature of the LLVM ‘opt’ tool. If you put this LLVM IR into “t.ll” and run “llvm-as < t.ll | opt -analyze -view-cfg”, a window will pop up and you’ll see this graph:
-

@@ -1,5 +1,0 @@
-<map id="simplecc::ASTPrettyPrinter::visitName" name="simplecc::ASTPrettyPrinter::visitName">
-<area shape="rect" id="node2" href="$classsimplecc_1_1AST.html#a1b1bf7d3b54d99e589ff15b42da0d68e" title="simplecc::AST::getClassName" alt="" coords="235,5,437,32"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1NameExpr.html#ac65adbb9decc2bb9d34143e9c5b42b9e" title="simplecc::NameExpr\l::getId" alt="" coords="264,57,408,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1NameExpr.html#a8470c03bc121ff0d06ca296276b619e7" title="simplecc::NameExpr\l::getContext" alt="" coords="264,122,408,163"/>
-</map>

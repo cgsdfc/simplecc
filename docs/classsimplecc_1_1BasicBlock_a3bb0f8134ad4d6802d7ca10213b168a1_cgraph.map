@@ -1,5 +1,0 @@
-<map id="simplecc::BasicBlock::removeInst" name="simplecc::BasicBlock::removeInst">
-<area shape="rect" id="node2" href="$classsimplecc_1_1BasicBlock.html#a53a9c7481b425d247227b7bb52941707" title="simplecc::BasicBlock\l::begin" alt="" coords="216,5,364,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1BasicBlock.html#a89d7ccdb1b47860098a216f880130290" title="simplecc::BasicBlock::end" alt="" coords="201,71,379,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Function.html#a5ce1ebb649d3fc0056d8084d865696ca" title="simplecc::Function\l::getBasicBlockList" alt="" coords="223,123,357,164"/>
-</map>

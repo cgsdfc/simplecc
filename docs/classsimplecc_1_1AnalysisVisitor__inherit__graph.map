@@ -1,7 +1,0 @@
-<map id="simplecc::AnalysisVisitor&lt; Derived &gt;" name="simplecc::AnalysisVisitor&lt; Derived &gt;">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ContextualVisitor.html" title="This class is a CRTP base for Visitors that knows the LocalSymbolTable of the FuncDef it is visiting..." alt="" coords="5,476,188,685"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ChildrenVisitor.html" title="Visitor that simply visits children recursively and return no value. " alt="" coords="13,189,180,428"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1VisitorBase.html" title="{simplecc::VisitorBase\l\&lt; Derived \&gt;\n||+ visitDecl()\l+ visitStmt()\l+ visitExpr()\l+ visitAST()\l}" alt="" coords="22,5,171,141"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1ErrorManager.html" title="{simplecc::ErrorManager\n||+ ErrorManager()\l+ setErrorType()\l+ getErrorType()\l+ Error()\l+ Error()\l+ clear()\l+ getErrorCount()\l+ increaseErrorCount()\l+ IsOk()\l}" alt="" coords="213,483,373,678"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1Printer.html" title="{simplecc::Printer\n||+ Printer()\l+ WriteLine()\l+ getOuts()\l}" alt="" coords="233,255,353,362"/>
-</map>

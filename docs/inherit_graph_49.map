@@ -1,7 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node2" href="$classsimplecc_1_1TreeLikeIterator.html" title="This is a CRTP base class can be used as an iterator to any tree&#45;like object, provided that the Deriv..." alt="" coords="196,5,400,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1TreeLikeIterator.html" title="simplecc::TreeLikeIterator\l\&lt; ASTIterator, ASTNode *,\l ChildIteratorType \&gt;" alt="" coords="209,71,387,127"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1TreeLikeIterator.html" title="simplecc::TreeLikeIterator\l\&lt; NodeIterator, Node *,\l Node::const_iterator \&gt;" alt="" coords="211,151,385,207"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ASTGraph_1_1ASTIterator.html" title="Iterator to all nodes of a graph. " alt="" coords="454,79,597,120"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1NodeIterator.html" title="This class implements an iterator to the CST graph. " alt="" coords="448,166,603,193"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="simplecc::ASTPrettyPrinter::visitConstDecl" name="simplecc::ASTPrettyPrinter::visitConstDecl">
-<area shape="rect" id="node2" href="$classsimplecc_1_1AST.html#a1b1bf7d3b54d99e589ff15b42da0d68e" title="simplecc::AST::getClassName" alt="" coords="235,5,437,32"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ConstDecl.html#a8771ae065bd25cc87c862d85b497b8e5" title="simplecc::ConstDecl\l::getType" alt="" coords="264,57,408,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="265,122,407,163"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1VisitorBase.html#a6e6a07b581ea07f3ba5b0900ecf67ba4" title="simplecc::VisitorBase\l\&lt; ASTPrettyPrinter \&gt;\l::visitExpr" alt="" coords="261,188,411,244"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1ConstDecl.html#aee810592d82cc700801a2a099e8c8a64" title="simplecc::ConstDecl\l::getValue" alt="" coords="264,269,408,310"/>
-</map>

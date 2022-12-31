@@ -1,5 +1,0 @@
-<map id="simplecc::LLVMValueMap::getChar" name="simplecc::LLVMValueMap::getChar">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ConstantInt.html#a1676295b60bdfe1fd9718f55a8f70078" title="simplecc::ConstantInt::get" alt="" coords="228,13,404,39"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1LLVMTypeMap.html#a78b5c1a6936158777f21a5e619ca68ab" title="Convert a basic type. " alt="" coords="231,64,401,105"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1IRContext.html#ae80816b52d12f721940565eb9ad9165e" title="simplecc::IRContext\l::getConstantInt" alt="" coords="452,5,595,47"/>
-</map>

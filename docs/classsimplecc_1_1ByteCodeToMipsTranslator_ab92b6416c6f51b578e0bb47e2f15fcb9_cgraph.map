@@ -1,7 +1,0 @@
-<map id="simplecc::ByteCodeToMipsTranslator::visitPrintString" name="simplecc::ByteCodeToMipsTranslator::visitPrintString">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#a567dc8077db2c4090803050e54120f81" title="Print Operators. " alt="" coords="236,5,419,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#a49f51005fd5cd62cf23b67ff64211feb" title="Forward WriteLine() to ThePrinter. " alt="" coords="697,5,880,47"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1ByteCodeToMipsTranslator.html#afec59a1a410292342fa83db4d0e42ee9" title="simplecc::ByteCodeToMips\lTranslator::POP" alt="" coords="467,35,649,76"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="928,5,1056,47"/>
-<area shape="rect" id="node5" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="1104,13,1213,39"/>
-</map>

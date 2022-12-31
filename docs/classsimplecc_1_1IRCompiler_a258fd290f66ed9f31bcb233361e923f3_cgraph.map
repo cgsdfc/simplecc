@@ -1,5 +1,0 @@
-<map id="simplecc::IRCompiler::maybeLoad" name="simplecc::IRCompiler::maybeLoad">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Value.html#a89e9f837617d00f946bd952693ab193b" title="simplecc::Value::getType" alt="" coords="201,5,372,32"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1IRBuilder.html#a33771eae3558a8acdbf6d8d02cbd80de" title="simplecc::IRBuilder\l::CreateLoad" alt="" coords="219,57,355,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1LoadInst.html#ab60e664b414eb3c8e9f0cbb10da05b4e" title="simplecc::LoadInst\l::Create" alt="" coords="420,57,552,98"/>
-</map>

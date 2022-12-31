@@ -1,7 +1,0 @@
-<map id="simplecc::BinaryOperator::InstanceCheck" name="simplecc::BinaryOperator::InstanceCheck">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Instruction.html#a28e761551abe6d960107f2a1abe87387" title="simplecc::Instruction\l::isBinaryOp" alt="" coords="223,51,365,92"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1Instruction.html#aa969ec8fe29b9fd291cc93d0f9e98666" title="simplecc::Instruction\l::getOpcode" alt="" coords="604,9,747,51"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1Instruction.html#aa8d2a92b5d22b64050171511ff25148b" title="simplecc::Instruction\l::isTerminator" alt="" coords="413,51,556,92"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1Instruction.html#affc8fab8dac9b4031c6b555e2a776052" title="simplecc::Instruction\l::isAssociative" alt="" coords="413,116,556,157"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Value.html#a59e055a8982f897cd5569b62e372c193" title="simplecc::Value::getValueID" alt="" coords="795,17,983,43"/>
-</map>

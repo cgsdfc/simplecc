@@ -1,7 +1,0 @@
-<map id="simplecc::ASTGraph::ASTIterator::getEdges" name="simplecc::ASTGraph::ASTIterator::getEdges">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ASTGraph.html#a167c4d324564a1cc3b90e22f92106dbe" title="Lazily create edges for a Node. " alt="" coords="219,27,361,69"/>
-<area shape="rect" id="node6" href="$namespacesimplecc.html#a2002535f38731e6d30a91a4fad7fa80c" title="Convenience function for iterating over sub&#45;ranges. " alt="" coords="213,93,367,120"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ASTNode.html#a87e7c332e66775d4a3d834050d5922cd" title="simplecc::ASTNode::get" alt="" coords="645,5,811,32"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ChildrenCollector.html#ae873fc6b351ec797bd428331a47aaa20" title="Call this to do the collecting. Otherwise, nothing will happen. " alt="" coords="415,57,597,98"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1VisitorBase.html#a40ffc80c288ed7338f95c9a50f14b8ea" title="simplecc::VisitorBase\l\&lt; ChildrenCollector \&gt;\l::visitAST" alt="" coords="653,56,803,112"/>
-</map>

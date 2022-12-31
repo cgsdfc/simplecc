@@ -1,5 +1,0 @@
-<map id="simplecc::TransformProgram" name="simplecc::TransformProgram">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ExpressionTransformer.html#a3bde7b200a8c095a1e38b8537af05cd8" title="simplecc::ExpressionTransformer\l::Transform" alt="" coords="244,5,461,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1DeadCodeEliminator.html#ad91f85fa1b0cd4d9082445cb9d131b74" title="simplecc::DeadCodeEliminator\l::Transform" alt="" coords="251,71,454,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ChildrenVisitor.html#a99e5e2bd9c1386f5d3d902cab8cd88d7" title="Decl subclasses. " alt="" coords="509,71,676,112"/>
-</map>

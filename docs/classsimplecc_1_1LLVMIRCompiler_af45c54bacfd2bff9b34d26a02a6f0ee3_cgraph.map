@@ -1,9 +1,0 @@
-<map id="simplecc::LLVMIRCompiler::visitUnaryOp" name="simplecc::LLVMIRCompiler::visitUnaryOp">
-<area shape="rect" id="node2" href="$classsimplecc_1_1LLVMIRCompiler.html#aa3d9aeca46ef801dcd0bd5e4eaafe201" title="This helper evaluates an Expr, optional emits a char&#45;to&#45;int cast to ensure the result is int..." alt="" coords="236,5,419,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1UnaryOpExpr.html#a299edcc26a071d14f3a9fb9b23921bc4" title="simplecc::UnaryOpExpr\l::getOperand" alt="" coords="247,71,408,112"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1UnaryOpExpr.html#a0007bb8c296547a0e84ad9c06fed7cc6" title="simplecc::UnaryOpExpr\l::getOp" alt="" coords="247,136,408,177"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1IRBuilder.html#a153ceaa6819bb50dd18d4eadb5b9446b" title="simplecc::IRBuilder\l::CreateNeg" alt="" coords="259,201,395,243"/>
-<area shape="rect" id="node4" href="$AST_8cpp.html#a032df7a83773926a04a35e2b33fe6baf" title="Implement the rvalue getter. " alt="" coords="489,78,613,105"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1BinaryOperator.html#aeb634b625a4bd063332f93b3152538e2" title="simplecc::BinaryOperator\l::CreateNeg" alt="" coords="467,201,636,243"/>
-<area shape="rect" id="node8" href="$classsimplecc_1_1ConstantInt.html#a8216ad84b435a0b7b0a319338acdb2f7" title="simplecc::ConstantInt\l::getZeroVal" alt="" coords="684,201,835,243"/>
-</map>

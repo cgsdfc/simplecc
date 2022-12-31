@@ -1,7 +1,0 @@
-<map id="simplecc::DeclAST" name="simplecc::DeclAST">
-<area shape="rect" id="node3" href="$classsimplecc_1_1ArgDecl.html" title="This class represents a formal argument in the function declaration. " alt="" coords="5,454,136,619"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ConstDecl.html" title="This class represents a constant declaration. " alt="" coords="160,447,304,627"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1FuncDef.html" title="This class represents a function definition. " alt="" coords="329,388,461,685"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1VarDecl.html" title="This class represents a variable declaration. " alt="" coords="485,439,616,634"/>
-<area shape="rect" id="node2" href="$classsimplecc_1_1AST.html" title="Base class for all AST nodes. " alt="" coords="249,5,378,185"/>
-</map>

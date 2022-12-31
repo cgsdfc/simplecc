@@ -1,9 +1,0 @@
-<map id="simplecc::ByteCodePrinter::visitFuncDef" name="simplecc::ByteCodePrinter::visitFuncDef">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="263,5,391,47"/>
-<area shape="rect" id="node4" href="$namespacesimplecc.html#ac192ed8957b51679c13d66044daae3b2" title="simplecc::CStringFromBasic\lTypeKind" alt="" coords="232,71,421,112"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1FuncDef.html#a3caf8d2a528269f56067701577f25bad" title="simplecc::FuncDef::\lgetReturnType" alt="" coords="257,136,397,177"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="263,201,391,243"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="255,267,398,308"/>
-<area shape="rect" id="node8" href="$classsimplecc_1_1ChildrenVisitor.html#aa53b603ec0ba7f5d6adc39d23436341e" title="simplecc::ChildrenVisitor\l::visitFuncDef" alt="" coords="243,332,410,373"/>
-<area shape="rect" id="node3" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="469,13,579,39"/>
-</map>

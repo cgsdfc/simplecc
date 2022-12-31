@@ -1,7 +1,0 @@
-<map id="src/include/simplecc/Analysis/AnalysisVisitor.h" name="src/include/simplecc/Analysis/AnalysisVisitor.h">
-<area shape="rect" id="node2" href="$ArrayBoundChecker_8h.html" title="src/include/simplecc\l/Analysis/ArrayBoundChecker.h" alt="" coords="91,95,299,136"/>
-<area shape="rect" id="node5" href="$TypeChecker_8h.html" title="src/include/simplecc\l/Analysis/TypeChecker.h" alt="" coords="324,95,493,136"/>
-<area shape="rect" id="node3" href="$AnalysisManager_8cpp.html" title="src/lib/Analysis/Analysis\lManager.cpp" alt="" coords="213,184,378,225"/>
-<area shape="rect" id="node4" href="$ArrayBoundChecker_8cpp.html" title="src/lib/Analysis/ArrayBound\lChecker.cpp" alt="" coords="5,184,188,225"/>
-<area shape="rect" id="node6" href="$TypeChecker_8cpp.html" title="src/lib/Analysis/TypeChecker.cpp" alt="" coords="402,191,621,218"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="src/include/simplecc/Parse/ParseTreePrinter.h" name="src/include/simplecc/Parse/ParseTreePrinter.h">
-<area shape="rect" id="node2" href="$IndentAwarePrinter_8h.html" title="simplecc/Support/IndentAware\lPrinter.h" alt="" coords="5,95,205,136"/>
-<area shape="rect" id="node4" href="$Node_8h.html" title="simplecc/Parse/Node.h" alt="" coords="335,102,494,129"/>
-<area shape="rect" id="node5" href="$Location_8h.html" title="simplecc/Lex/Location.h" alt="" coords="87,184,249,211"/>
-<area shape="rect" id="node6" href="$Macros_8h.html" title="simplecc/Support/Macros.h" alt="" coords="137,259,319,285"/>
-<area shape="rect" id="node7" href="$Grammar_8h.html" title="simplecc/Parse/Grammar.h" alt="" coords="324,184,505,211"/>
-<area shape="rect" id="node8" href="$GramDef_8h.html" title="simplecc/Parse/GramDef.h" alt="" coords="343,259,523,285"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="simplecc::BranchInst::getNumSuccessors" name="simplecc::BranchInst::getNumSuccessors">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ReturnInst.html#a6dcdeda96ad42a23cffd4db4dcb66306" title="simplecc::ReturnInst\l::getSuccessor" alt="" coords="199,5,341,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ReturnInst.html#a55927e0b02a121383a2a68457981061e" title="simplecc::ReturnInst\l::setSuccessor" alt="" coords="199,71,341,112"/>
-</map>

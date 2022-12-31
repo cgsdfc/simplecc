@@ -1,4 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classsimplecc_1_1VisitorBase.html" title="simplecc::VisitorBase\l\&lt; LLVMIRCompiler \&gt;" alt="" coords="5,5,155,47"/>
-<area shape="rect" id="node2" href="$classsimplecc_1_1LLVMIRCompiler.html" title="This class emits LLVM IR from an AST. " alt="" coords="203,13,385,39"/>
-</map>

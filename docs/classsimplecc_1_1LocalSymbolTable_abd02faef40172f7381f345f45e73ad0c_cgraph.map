@@ -1,6 +1,0 @@
-<map id="simplecc::LocalSymbolTable::LocalSymbolTable" name="simplecc::LocalSymbolTable::LocalSymbolTable">
-<area shape="rect" id="node2" href="$classsimplecc_1_1LocalSymbolTable.html#aaef4170011fb347ab80692c906c116d4" title="simplecc::LocalSymbolTable\l::LocalSymbolTable" alt="" coords="243,5,432,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1LocalSymbolTable.html#a87990e403f6c1039220ecba49f8d4e7e" title="simplecc::LocalSymbolTable\l::~LocalSymbolTable" alt="" coords="243,71,432,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1LocalSymbolTable.html#ada4f907a6493d4f3b3e73e92a9d8d5a3" title="simplecc::LocalSymbolTable\l::operator=" alt="" coords="243,136,432,177"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1LocalSymbolTable.html#a3ef34961538073ffc969175d503cd422" title="Return the SymbolEntry for a name. " alt="" coords="243,201,432,243"/>
-</map>

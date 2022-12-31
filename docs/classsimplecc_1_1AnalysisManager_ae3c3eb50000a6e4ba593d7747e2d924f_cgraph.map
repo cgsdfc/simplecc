@@ -1,8 +1,0 @@
-<map id="simplecc::AnalysisManager::runAllAnalyses" name="simplecc::AnalysisManager::runAllAnalyses">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ImplicitCallTransformer.html#aacdc69c554c368cbe30035a465967855" title="Perform implicit call transform on the program using a SymbolTable. " alt="" coords="236,43,453,84"/>
-<area shape="rect" id="node6" href="$namespacesimplecc.html#ac950079ae6eb1a237938b74f0faca195" title="simplecc::PrintErrs" alt="" coords="278,111,411,138"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ImplicitCallTransformer.html#a0a9256430e8461802831a0a879f839cc" title="simplecc::ImplicitCallTransformer\l::setTable" alt="" coords="501,5,719,47"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1ChildrenVisitor.html#a99e5e2bd9c1386f5d3d902cab8cd88d7" title="Decl subclasses. " alt="" coords="525,71,695,127"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ImplicitCallTransformer.html#ab6428eaf12e56bc51e1bf26ec6cabc1e" title="simplecc::ImplicitCallTransformer\l::ImplicitCallTransformer" alt="" coords="767,5,984,47"/>
-<area shape="rect" id="node7" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="555,151,665,178"/>
-</map>

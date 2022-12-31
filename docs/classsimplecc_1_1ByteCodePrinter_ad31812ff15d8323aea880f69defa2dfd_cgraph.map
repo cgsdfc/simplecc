@@ -1,9 +1,0 @@
-<map id="simplecc::ByteCodePrinter::visitCall" name="simplecc::ByteCodePrinter::visitCall">
-<area shape="rect" id="node2" href="$classsimplecc_1_1CallExpr.html#ae928bd9efb5cda28cdf3a15f888b7716" title="simplecc::CallExpr\l::getArgs" alt="" coords="255,5,387,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="257,71,385,112"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1ByteCodePrinter.html#ab80883ca3729d64ae3ba981a85f0debb" title="simplecc::ByteCodePrinter\l::visitExpr" alt="" coords="232,136,411,177"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1CallExpr.html#ab406f1a4c8407bc37eb6040fd5813f8b" title="simplecc::CallExpr\l::getFunc" alt="" coords="255,201,387,243"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1ByteCodePrinter.html#a53c8a7cbf316d3509bbb3250e933a1c5" title="simplecc::ByteCodePrinter\l::MakeTemporary" alt="" coords="232,267,411,308"/>
-<area shape="rect" id="node4" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="475,78,585,105"/>
-<area shape="rect" id="node8" href="$classsimplecc_1_1ExprValue.html#af0b7478df9649f60fe3a9a7388f6cdd2" title="simplecc::ExprValue\l::ExprValue" alt="" coords="459,267,601,308"/>
-</map>

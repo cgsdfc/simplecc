@@ -1,7 +1,0 @@
-<map id="simplecc::ASTPrettyPrinter::visitVarDecl" name="simplecc::ASTPrettyPrinter::visitVarDecl">
-<area shape="rect" id="node2" href="$classsimplecc_1_1AST.html#a1b1bf7d3b54d99e589ff15b42da0d68e" title="simplecc::AST::getClassName" alt="" coords="235,5,437,32"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1VarDecl.html#abe73a8082e2e231ea7570c875e679dfe" title="simplecc::VarDecl::\lgetType" alt="" coords="267,57,405,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="265,122,407,163"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1VarDecl.html#a38c410cff95b3c59a059f59037a55909" title="simplecc::VarDecl::\lisArray" alt="" coords="267,187,405,229"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1VarDecl.html#a3bd6d806044181a94a43cfcc84aa8161" title="simplecc::VarDecl::\lgetSize" alt="" coords="267,253,405,294"/>
-</map>

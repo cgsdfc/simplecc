@@ -1,5 +1,0 @@
-<map id="simplecc::IRBuilder::getTrue" name="simplecc::IRBuilder::getTrue">
-<area shape="rect" id="node2" href="$classsimplecc_1_1IRBuilder.html#abcd3af1d24aeaf2420046f07c5a08065" title="simplecc::IRBuilder\l::getInt" alt="" coords="189,5,325,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ConstantInt.html#a1676295b60bdfe1fd9718f55a8f70078" title="simplecc::ConstantInt::get" alt="" coords="373,13,549,39"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1IRContext.html#ae80816b52d12f721940565eb9ad9165e" title="simplecc::IRContext\l::getConstantInt" alt="" coords="597,5,740,47"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="simplecc::LocalContext::InitializeLocalOffsets" name="simplecc::LocalContext::InitializeLocalOffsets">
-<area shape="rect" id="node2" href="$namespacesimplecc.html#a95389beb86382656adc66fe1660308c8" title="simplecc::BytesFromEntries" alt="" coords="214,5,401,32"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ByteCodeFunction.html#ae263f0aa91b1c881eaa192ae0e2a7865" title="simplecc::ByteCodeFunction\l::getFormalArguments" alt="" coords="212,57,403,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ByteCodeFunction.html#a1e7d338cb55124ac06015a8ccd171d25" title="simplecc::ByteCodeFunction\l::getLocalVariables" alt="" coords="212,122,403,163"/>
-</map>

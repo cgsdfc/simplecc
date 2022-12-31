@@ -1,7 +1,0 @@
-<map id="src/include/simplecc/LLVM/LLVMTypeMap.h" name="src/include/simplecc/LLVM/LLVMTypeMap.h">
-<area shape="rect" id="node2" href="$Types_8h.html" title="simplecc/Analysis/Types.h" alt="" coords="759,95,937,121"/>
-<area shape="rect" id="node3" href="$AST_8h.html" title="simplecc/Parse/AST.h" alt="" coords="627,169,781,196"/>
-<area shape="rect" id="node4" href="$Macros_8h.html" title="simplecc/Support/Macros.h" alt="" coords="483,319,664,345"/>
-<area shape="rect" id="node6" href="$Location_8h.html" title="simplecc/Lex/Location.h" alt="" coords="355,244,517,271"/>
-<area shape="rect" id="node7" href="$Enums_8h.html" title="simplecc/Parse/Enums.h" alt="" coords="885,244,1053,271"/>
-</map>

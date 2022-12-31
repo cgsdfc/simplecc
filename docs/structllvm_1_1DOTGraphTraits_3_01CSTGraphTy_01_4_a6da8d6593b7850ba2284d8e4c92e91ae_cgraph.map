@@ -1,6 +1,0 @@
-<map id="llvm::DOTGraphTraits&lt; CSTGraphTy &gt;::getNodeDescription" name="llvm::DOTGraphTraits&lt; CSTGraphTy &gt;::getNodeDescription">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Node.html#a5bf0355412a85f60720a1c3f0ac07e77" title="simplecc::Node::getValue" alt="" coords="300,13,472,39"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1Node.html#aa8e1f045a1dac8a8a162afd1757d727c" title="simplecc::Node::Format" alt="" coords="721,13,884,39"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1Node.html#ac0b8b415ec930f1c5444128c1825a1fd" title="simplecc::Node::dump" alt="" coords="520,38,673,65"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ParseTreePrinter.html#a316a13d3cf5112aecdf15cb93a040e75" title="simplecc::ParseTreePrinter\l::Print" alt="" coords="932,5,1112,47"/>
-</map>

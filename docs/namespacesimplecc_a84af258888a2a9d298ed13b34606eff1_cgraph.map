@@ -1,6 +1,0 @@
-<map id="simplecc::operator&lt;&lt;" name="simplecc::operator&lt;&lt;">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ByteCodeFunction.html#ae4f1fda0a2326795853c8935aeff5dee" title="simplecc::ByteCodeFunction\l::Format" alt="" coords="199,71,389,112"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ByteCodeFunction.html#a592c76d7be7fa14ee1ba6a2c0b65f4d7" title="simplecc::ByteCodeFunction\l::getName" alt="" coords="437,5,628,47"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ByteCodeFunction.html#ae263f0aa91b1c881eaa192ae0e2a7865" title="simplecc::ByteCodeFunction\l::getFormalArguments" alt="" coords="437,71,628,112"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1ByteCodeFunction.html#a1e7d338cb55124ac06015a8ccd171d25" title="simplecc::ByteCodeFunction\l::getLocalVariables" alt="" coords="437,136,628,177"/>
-</map>

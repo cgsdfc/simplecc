@@ -1,5 +1,0 @@
-<map id="simplecc::StoreInst::StoreInst" name="simplecc::StoreInst::StoreInst">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Value.html#a89e9f837617d00f946bd952693ab193b" title="simplecc::Value::getType" alt="" coords="195,5,366,32"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1User.html#a8bbe027dd8e594e920cae165f5d2a82d" title="simplecc::User::setOperand" alt="" coords="188,56,373,83"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1User.html#a61a8c19f646255637d35ed1b7f3cd290" title="simplecc::User::getNumOperands" alt="" coords="421,56,641,83"/>
-</map>

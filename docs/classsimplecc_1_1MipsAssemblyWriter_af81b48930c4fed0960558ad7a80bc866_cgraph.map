@@ -1,6 +1,0 @@
-<map id="simplecc::MipsAssemblyWriter::getLocalObjectsInBytes" name="simplecc::MipsAssemblyWriter::getLocalObjectsInBytes">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ByteCodeFunction.html#ab73b2048e615f5b0b581aa7deb355507" title="simplecc::ByteCodeFunction\l::local_begin" alt="" coords="256,5,447,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ByteCodeFunction.html#ad76d9cae769ddd779bf4c2868ef6c548" title="simplecc::ByteCodeFunction\l::local_end" alt="" coords="256,71,447,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ByteCodeFunction.html#a6c6a384c1363945e33a94b4aaf7ea09e" title="simplecc::ByteCodeFunction\l::getFormalArgumentCount" alt="" coords="256,136,447,177"/>
-<area shape="rect" id="node5" href="$namespacesimplecc.html#a95389beb86382656adc66fe1660308c8" title="simplecc::BytesFromEntries" alt="" coords="258,202,445,229"/>
-</map>

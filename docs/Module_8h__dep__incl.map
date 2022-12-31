@@ -1,7 +1,0 @@
-<map id="src/include/simplecc/IR/Module.h" name="src/include/simplecc/IR/Module.h">
-<area shape="rect" id="node2" href="$Function_8cpp.html" title="src/lib/IR/Function.cpp" alt="" coords="5,95,160,121"/>
-<area shape="rect" id="node3" href="$GlobalVariable_8cpp.html" title="src/lib/IR/GlobalVariable.cpp" alt="" coords="185,95,373,121"/>
-<area shape="rect" id="node4" href="$IRCompiler_8cpp.html" title="src/lib/IR/IRCompiler.cpp" alt="" coords="397,95,568,121"/>
-<area shape="rect" id="node5" href="$IRPrinter_8cpp.html" title="src/lib/IR/IRPrinter.cpp" alt="" coords="593,95,749,121"/>
-<area shape="rect" id="node6" href="$Module_8cpp.html" title="src/lib/IR/Module.cpp" alt="" coords="773,95,920,121"/>
-</map>

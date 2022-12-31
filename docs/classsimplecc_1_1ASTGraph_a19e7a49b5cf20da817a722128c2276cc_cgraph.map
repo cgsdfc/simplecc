@@ -1,5 +1,0 @@
-<map id="simplecc::ASTGraph::nodes" name="simplecc::ASTGraph::nodes">
-<area shape="rect" id="node2" href="$namespacesimplecc.html#a2002535f38731e6d30a91a4fad7fa80c" title="Convenience function for iterating over sub&#45;ranges. " alt="" coords="196,5,349,32"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ASTGraph.html#a1ebd0be3f05a5f0d743bfa96e1250403" title="Iterate over all nodes. " alt="" coords="201,57,344,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ASTGraph.html#a644b7ba031ad442a54454915b2414412" title="simplecc::ASTGraph\l::nodes_end" alt="" coords="201,122,344,163"/>
-</map>

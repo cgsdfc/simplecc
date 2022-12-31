@@ -1,9 +1,0 @@
-<map id="src/include/simplecc/IR/IRPrinter.h" name="src/include/simplecc/IR/IRPrinter.h">
-<area shape="rect" id="node2" href="$IndentAwarePrinter_8h.html" title="simplecc/Support/IndentAware\lPrinter.h" alt="" coords="128,95,328,136"/>
-<area shape="rect" id="node4" href="$GlobalVariable_8h.html" title="GlobalVariable.h" alt="" coords="352,102,469,129"/>
-<area shape="rect" id="node15" href="$BasicBlock_8h.html" title="BasicBlock.h" alt="" coords="493,102,592,129"/>
-<area shape="rect" id="node5" href="$Value_8h.html" title="simplecc/IR/Value.h" alt="" coords="406,184,546,211"/>
-<area shape="rect" id="node6" href="$Type_8h.html" title="simplecc/IR/Type.h" alt="" coords="11,266,147,293"/>
-<area shape="rect" id="node8" href="$Use_8h.html" title="simplecc/IR/Use.h" alt="" coords="171,266,301,293"/>
-<area shape="rect" id="node9" href="$iterator__range_8h.html" title="simplecc/Support/iterator\l_range.h" alt="" coords="326,259,493,300"/>
-</map>

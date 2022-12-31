@@ -1,8 +1,0 @@
-<map id="simplecc::MipsAssemblyWriter::WriteData" name="simplecc::MipsAssemblyWriter::WriteData">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="285,5,413,47"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ByteCodeModule.html#a662e3a1d014c1986893ee89ded9f318d" title="simplecc::ByteCodeModule\l::getGlobalVariables" alt="" coords="258,71,441,112"/>
-<area shape="rect" id="node5" href="$namespacesimplecc.html#a95389beb86382656adc66fe1660308c8" title="simplecc::BytesFromEntries" alt="" coords="256,137,443,163"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1ByteCodeModule.html#aaad765dd34082355483cfc227a97a462" title="String literal interface. " alt="" coords="258,188,441,229"/>
-<area shape="rect" id="node3" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="527,13,637,39"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1ByteCodeModule.html#a8bbf7fa7537f2249db348dd20212e132" title="For a string literal, this method returns the corresponding ID. " alt="" coords="491,188,673,229"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="llvm::DOTGraphTraits&lt; ASTGraph &gt;::getGraphName" name="llvm::DOTGraphTraits&lt; ASTGraph &gt;::getGraphName">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ASTGraph.html#afa4188fb3f8cfa4d5a169f3afc5cd5e9" title="simplecc::ASTGraph\l::getProgram" alt="" coords="263,5,406,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ProgramAST.html#a3e83429d017bebba056193b4b9aa7650" title="Getter of the filename, which corresponds to the source file producing this AST. " alt="" coords="256,71,413,112"/>
-</map>

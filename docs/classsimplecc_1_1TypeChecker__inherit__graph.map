@@ -1,8 +1,0 @@
-<map id="simplecc::TypeChecker" name="simplecc::TypeChecker">
-<area shape="rect" id="node2" href="$classsimplecc_1_1AnalysisVisitor.html" title="{simplecc::AnalysisVisitor\l\&lt; TypeChecker \&gt;\n||+ AnalysisVisitor()\l+ Check()\l}" alt="" coords="109,733,279,840"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ContextualVisitor.html" title="{simplecc::ContextualVisitor\l\&lt; TypeChecker \&gt;\n||+ visitFuncDef()\l+ visitProgram()\l# ContextualVisitor()\l# setTable()\l# setLocalTable()\l# getSymbolTable()\l# getSymbolTable()\l# getLocalTable()\l# getSymbolEntry()\l}" alt="" coords="5,476,188,685"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ChildrenVisitor.html" title="{simplecc::ChildrenVisitor\l\&lt; TypeChecker \&gt;\n||+ visitProgram()\l+ visitConstDecl()\l+ visitVarDecl()\l+ visitFuncDef()\l+ visitArgDecl()\l+ visitRead()\l+ visitWrite()\l+ visitAssign()\l+ visitFor()\l+ visitWhile()\land 13 more...\l}" alt="" coords="13,189,180,428"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1VisitorBase.html" title="{simplecc::VisitorBase\l\&lt; TypeChecker \&gt;\n||+ visitDecl()\l+ visitStmt()\l+ visitExpr()\l+ visitAST()\l}" alt="" coords="22,5,171,141"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1ErrorManager.html" title="{simplecc::ErrorManager\n||+ ErrorManager()\l+ setErrorType()\l+ getErrorType()\l+ Error()\l+ Error()\l+ clear()\l+ getErrorCount()\l+ increaseErrorCount()\l+ IsOk()\l}" alt="" coords="213,483,373,678"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1Printer.html" title="{simplecc::Printer\n||+ Printer()\l+ WriteLine()\l+ getOuts()\l}" alt="" coords="233,255,353,362"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classTCLAP_1_1CmdLineOutput.html" title="The interface that any output object must implement. " alt="" coords="5,56,169,83"/>
-<area shape="rect" id="node2" href="$classTCLAP_1_1DocBookOutput.html" title="A class that generates DocBook output for usage() method for the given CmdLine and its Args..." alt="" coords="234,5,401,32"/>
-<area shape="rect" id="node3" href="$classTCLAP_1_1StdOutput.html" title="A class that isolates any output from the CmdLine object so that it may be easily modified..." alt="" coords="251,56,383,83"/>
-<area shape="rect" id="node4" href="$classTCLAP_1_1ZshCompletionOutput.html" title="A class that generates a Zsh completion function as output from the usage() method for the given CmdL..." alt="" coords="217,107,417,133"/>
-</map>

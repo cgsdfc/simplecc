@@ -1,6 +1,0 @@
-<map id="simplecc::DescriptionVisitor::visitArgDecl" name="simplecc::DescriptionVisitor::visitArgDecl">
-<area shape="rect" id="node2" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="279,5,388,32"/>
-<area shape="rect" id="node3" href="$namespacesimplecc.html#ac192ed8957b51679c13d66044daae3b2" title="simplecc::CStringFromBasic\lTypeKind" alt="" coords="239,57,428,98"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ArgDecl.html#aed33652bac760348cc3190fa1dec8685" title="simplecc::ArgDecl::\lgetType" alt="" coords="265,122,402,163"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="262,187,405,229"/>
-</map>

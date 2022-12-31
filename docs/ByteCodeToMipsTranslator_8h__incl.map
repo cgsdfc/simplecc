@@ -1,7 +1,0 @@
-<map id="src/include/simplecc/Target/ByteCodeToMipsTranslator.h" name="src/include/simplecc/Target/ByteCodeToMipsTranslator.h">
-<area shape="rect" id="node2" href="$ByteCodeVisitor_8h.html" title="simplecc/CodeGen/ByteCode\lVisitor.h" alt="" coords="218,95,413,136"/>
-<area shape="rect" id="node8" href="$Print_8h.html" title="simplecc/Support/Print.h" alt="" coords="811,102,977,129"/>
-<area shape="rect" id="node10" href="$MipsSupport_8h.html" title="simplecc/Target/MipsSupport.h" alt="" coords="483,184,686,211"/>
-<area shape="rect" id="node3" href="$ByteCode_8h.html" title="simplecc/CodeGen/ByteCode.h" alt="" coords="212,184,419,211"/>
-<area shape="rect" id="node4" href="$Macros_8h.html" title="simplecc/Support/Macros.h" alt="" coords="374,259,555,285"/>
-</map>

@@ -1,6 +1,0 @@
-<map id="simplecc::ASTPrettyPrinter::printStmtList" name="simplecc::ASTPrettyPrinter::printStmtList">
-<area shape="rect" id="node2" href="$classsimplecc_1_1IndentAwarePrinter.html#a11918d9edd308ae075283c8413c05b80" title="simplecc::IndentAwarePrinter\l\&lt; ASTPrettyPrinter \&gt;::increaseIndentLevel" alt="" coords="237,5,506,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1IndentAwarePrinter.html#a75bef13a9f7414bc322370709c138646" title="simplecc::IndentAwarePrinter\l\&lt; ASTPrettyPrinter \&gt;::printIndent" alt="" coords="264,71,479,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1VisitorBase.html#a09e85f398d7e6c5f1a7d96d8d57803b9" title="simplecc::VisitorBase\l\&lt; ASTPrettyPrinter \&gt;\l::visitStmt" alt="" coords="297,137,446,193"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1IndentAwarePrinter.html#a30f48b095b093c7bf2ba50c541e39754" title="simplecc::IndentAwarePrinter\l\&lt; ASTPrettyPrinter \&gt;::decreaseIndentLevel" alt="" coords="235,217,508,259"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="simplecc::ErrorManager::Error" name="simplecc::ErrorManager::Error">
-<area shape="rect" id="node2" href="$classsimplecc_1_1Printer.html#aa2607310e7c02215c9d36f9b2b1ea9aa" title="Use this when Printer::WriteLine() becomes awkward. " alt="" coords="229,5,357,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ErrorManager.html#a342e07ff6becfedc4308a469308942de" title="simplecc::ErrorManager\l::getErrorType" alt="" coords="213,71,373,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Printer.html#a2ff4578b9593ebe25cca4a8199c7b95b" title="simplecc::Printer::\lWriteLine" alt="" coords="229,136,357,177"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1ErrorManager.html#a49fdfb32b0f46019c52b6155684de57e" title="simplecc::ErrorManager\l::increaseErrorCount" alt="" coords="213,201,373,243"/>
-<area shape="rect" id="node5" href="$namespacesimplecc.html#aa63548b910e947ec73cc30a98a638c88" title="simplecc::Print" alt="" coords="421,143,531,170"/>
-</map>

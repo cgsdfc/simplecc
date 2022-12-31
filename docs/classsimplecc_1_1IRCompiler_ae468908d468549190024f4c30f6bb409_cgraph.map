@@ -1,8 +1,0 @@
-<map id="simplecc::IRCompiler::visitName" name="simplecc::IRCompiler::visitName">
-<area shape="rect" id="node2" href="$classsimplecc_1_1NameExpr.html#ac65adbb9decc2bb9d34143e9c5b42b9e" title="simplecc::NameExpr\l::getId" alt="" coords="203,5,347,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1IRCompiler.html#a258fd290f66ed9f31bcb233361e923f3" title="simplecc::IRCompiler\l::maybeLoad" alt="" coords="201,71,349,112"/>
-<area shape="rect" id="node7" href="$classsimplecc_1_1NameExpr.html#a8470c03bc121ff0d06ca296276b619e7" title="simplecc::NameExpr\l::getContext" alt="" coords="203,136,347,177"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1Value.html#a89e9f837617d00f946bd952693ab193b" title="simplecc::Value::getType" alt="" coords="397,49,568,75"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1IRBuilder.html#a33771eae3558a8acdbf6d8d02cbd80de" title="simplecc::IRBuilder\l::CreateLoad" alt="" coords="415,100,551,141"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1LoadInst.html#ab60e664b414eb3c8e9f0cbb10da05b4e" title="simplecc::LoadInst\l::Create" alt="" coords="616,100,748,141"/>
-</map>

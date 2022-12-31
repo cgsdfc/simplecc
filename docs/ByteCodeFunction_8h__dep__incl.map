@@ -1,8 +1,0 @@
-<map id="src/include/simplecc/CodeGen/ByteCodeFunction.h" name="src/include/simplecc/CodeGen/ByteCodeFunction.h">
-<area shape="rect" id="node2" href="$ByteCodeBuilder_8cpp.html" title="src/lib/CodeGen/ByteCode\lBuilder.cpp" alt="" coords="5,95,184,136"/>
-<area shape="rect" id="node3" href="$ByteCodeCompiler_8cpp.html" title="src/lib/CodeGen/ByteCode\lCompiler.cpp" alt="" coords="208,95,387,136"/>
-<area shape="rect" id="node4" href="$ByteCodeFunction_8cpp.html" title="src/lib/CodeGen/ByteCode\lFunction.cpp" alt="" coords="411,95,589,136"/>
-<area shape="rect" id="node5" href="$ByteCodeModule_8cpp.html" title="src/lib/CodeGen/ByteCode\lModule.cpp" alt="" coords="613,95,792,136"/>
-<area shape="rect" id="node6" href="$LocalContext_8cpp.html" title="src/lib/Target/LocalContext.cpp" alt="" coords="817,102,1021,129"/>
-<area shape="rect" id="node7" href="$MipsAssemblyWriter_8cpp.html" title="src/lib/Target/MipsAssembly\lWriter.cpp" alt="" coords="1045,95,1233,136"/>
-</map>

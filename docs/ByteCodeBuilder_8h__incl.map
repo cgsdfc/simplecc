@@ -1,8 +1,0 @@
-<map id="src/include/simplecc/CodeGen/ByteCodeBuilder.h" name="src/include/simplecc/CodeGen/ByteCodeBuilder.h">
-<area shape="rect" id="node2" href="$Types_8h.html" title="simplecc/Analysis/Types.h" alt="" coords="406,95,585,121"/>
-<area shape="rect" id="node3" href="$AST_8h.html" title="simplecc/Parse/AST.h" alt="" coords="915,169,1068,196"/>
-<area shape="rect" id="node16" href="$ByteCode_8h.html" title="simplecc/CodeGen/ByteCode.h" alt="" coords="124,169,331,196"/>
-<area shape="rect" id="node4" href="$Macros_8h.html" title="simplecc/Support/Macros.h" alt="" coords="394,319,575,345"/>
-<area shape="rect" id="node6" href="$Location_8h.html" title="simplecc/Lex/Location.h" alt="" coords="527,244,690,271"/>
-<area shape="rect" id="node7" href="$Enums_8h.html" title="simplecc/Parse/Enums.h" alt="" coords="1103,244,1271,271"/>
-</map>

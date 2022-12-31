@@ -1,5 +1,0 @@
-<map id="simplecc::ByteCodeModule::Format" name="simplecc::ByteCodeModule::Format">
-<area shape="rect" id="node2" href="$classsimplecc_1_1ByteCodeModule.html#a662e3a1d014c1986893ee89ded9f318d" title="simplecc::ByteCodeModule\l::getGlobalVariables" alt="" coords="236,5,419,47"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ByteCodeModule.html#aaad765dd34082355483cfc227a97a462" title="String literal interface. " alt="" coords="236,71,419,112"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ByteCodeModule.html#a8bbf7fa7537f2249db348dd20212e132" title="For a string literal, this method returns the corresponding ID. " alt="" coords="467,71,649,112"/>
-</map>

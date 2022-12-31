@@ -1,6 +1,0 @@
-<map id="src/include/simplecc/Visualize/ASTNode.h" name="src/include/simplecc/Visualize/ASTNode.h">
-<area shape="rect" id="node2" href="$ASTGraph_8h.html" title="src/include/simplecc\l/Visualize/ASTGraph.h" alt="" coords="92,95,247,136"/>
-<area shape="rect" id="node5" href="$DescriptionVisitor_8cpp.html" title="src/lib/Visualize/Description\lVisitor.cpp" alt="" coords="271,95,455,136"/>
-<area shape="rect" id="node3" href="$ChildrenCollector_8h.html" title="src/include/simplecc\l/Visualize/ChildrenCollector.h" alt="" coords="5,184,200,225"/>
-<area shape="rect" id="node4" href="$ASTGraph_8cpp.html" title="src/lib/Visualize/ASTGraph.cpp" alt="" coords="67,273,271,300"/>
-</map>

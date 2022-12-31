@@ -1,5 +1,0 @@
-<map id="simplecc::ASTGraph::ASTIterator::ASTIterator" name="simplecc::ASTGraph::ASTIterator::ASTIterator">
-<area shape="rect" id="node2" href="$classsimplecc_1_1TreeLikeIterator.html#a84b870c26680fd200063ae36921452f8" title="simplecc::TreeLikeIterator\l\&lt; ASTIterator, ASTNode *,\l ChildIteratorType \&gt;::Initialize" alt="" coords="225,5,420,61"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1ASTGraph.html#ad4047300fcaf04d796af9adbc37006ab" title="Lazily create an ASTNode. " alt="" coords="251,86,394,127"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1ASTGraph_1_1ASTIterator.html#ab4ed80b86337de7e079cebb7e8b788fc" title="simplecc::ASTGraph\l::ASTIterator::ASTIterator" alt="" coords="237,151,409,193"/>
-</map>

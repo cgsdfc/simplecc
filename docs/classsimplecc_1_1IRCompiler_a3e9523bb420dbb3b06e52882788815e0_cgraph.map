@@ -1,7 +1,0 @@
-<map id="simplecc::IRCompiler::visitArgDecl" name="simplecc::IRCompiler::visitArgDecl">
-<area shape="rect" id="node2" href="$classsimplecc_1_1IRBuilder.html#a0b93c10a993113e8fbc9132c6f13655e" title="simplecc::IRBuilder\l::CreateAlloca" alt="" coords="205,5,341,47"/>
-<area shape="rect" id="node4" href="$classsimplecc_1_1IRBuilder.html#a18b40da62e428cd34edd399cbc6cfa37" title="simplecc::IRBuilder\l::CreateStore" alt="" coords="205,71,341,112"/>
-<area shape="rect" id="node6" href="$classsimplecc_1_1DeclAST.html#a3753dbc812f482d56daf5a916a641eb2" title="simplecc::DeclAST::\lgetName" alt="" coords="201,136,344,177"/>
-<area shape="rect" id="node3" href="$classsimplecc_1_1AllocaInst.html#a088f0e8b317add3ec3b72729ee7353ca" title="simplecc::AllocaInst\l::Create" alt="" coords="392,5,532,47"/>
-<area shape="rect" id="node5" href="$classsimplecc_1_1StoreInst.html#aff3d988fd8f79a64f80c127c7a95563d" title="simplecc::StoreInst\l::Create" alt="" coords="395,71,529,112"/>
-</map>

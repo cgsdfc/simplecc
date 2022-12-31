@@ -1,9 +1,0 @@
-<map id="src/include/simplecc/Analysis/ASTPrettyPrinter.h" name="src/include/simplecc/Analysis/ASTPrettyPrinter.h">
-<area shape="rect" id="node2" href="$Visitor_8h.html" title="simplecc/Analysis/Visitor.h" alt="" coords="331,102,511,129"/>
-<area shape="rect" id="node17" href="$IndentAwarePrinter_8h.html" title="simplecc/Support/IndentAware\lPrinter.h" alt="" coords="807,95,1007,136"/>
-<area shape="rect" id="node3" href="$AST_8h.html" title="simplecc/Parse/AST.h" alt="" coords="440,184,593,211"/>
-<area shape="rect" id="node16" href="$Casting_8h.html" title="simplecc/Support/Casting.h" alt="" coords="233,184,416,211"/>
-<area shape="rect" id="node4" href="$Macros_8h.html" title="simplecc/Support/Macros.h" alt="" coords="77,333,258,360"/>
-<area shape="rect" id="node6" href="$Location_8h.html" title="simplecc/Lex/Location.h" alt="" coords="146,259,309,285"/>
-<area shape="rect" id="node7" href="$Enums_8h.html" title="simplecc/Parse/Enums.h" alt="" coords="925,259,1093,285"/>
-</map>

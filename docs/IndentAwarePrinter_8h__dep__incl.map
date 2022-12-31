@@ -1,9 +1,0 @@
-<map id="src/include/simplecc/Support/IndentAwarePrinter.h" name="src/include/simplecc/Support/IndentAwarePrinter.h">
-<area shape="rect" id="node2" href="$ASTPrettyPrinter_8h.html" title="src/include/simplecc\l/Analysis/ASTPrettyPrinter.h" alt="" coords="5,95,196,136"/>
-<area shape="rect" id="node4" href="$IRPrinter_8h.html" title="src/include/simplecc\l/IR/IRPrinter.h" alt="" coords="221,95,362,136"/>
-<area shape="rect" id="node6" href="$ParseTreePrinter_8h.html" title="src/include/simplecc\l/Parse/ParseTreePrinter.h" alt="" coords="386,95,559,136"/>
-<area shape="rect" id="node3" href="$ASTPrettyPrinter_8cpp.html" title="src/lib/Analysis/ASTPretty\lPrinter.cpp" alt="" coords="13,184,189,225"/>
-<area shape="rect" id="node5" href="$IRPrinter_8cpp.html" title="src/lib/IR/IRPrinter.cpp" alt="" coords="213,191,369,218"/>
-<area shape="rect" id="node7" href="$Node_8cpp.html" title="src/lib/Parse/Node.cpp" alt="" coords="394,191,549,218"/>
-<area shape="rect" id="node8" href="$ParseTreePrinter_8cpp.html" title="src/lib/Parse/ParseTreePrinter.cpp" alt="" coords="573,191,796,218"/>
-</map>
