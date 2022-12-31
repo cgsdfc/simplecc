@@ -1,5 +1,5 @@
-; ModuleID = 'while.lc'
-source_filename = "../../Benchmark/Sample4Opt-1-while.c"
+; ModuleID = 'example.lc'
+source_filename = "./example/example.c0"
 
 @max_num = constant i32 1024
 @0 = private unnamed_addr constant [6 x i8] c"%s%d\0A\00", align 1

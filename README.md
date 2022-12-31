@@ -1,96 +1,104 @@
 # A simple and modular C-like compiler in C++
 
-## Introduction
+## 1. Source language
 
-This project uses modern C++ to achieve the same goal. This project highlights a lot of improvement over the old version, which includes a pure object-oriented implementation, well-formatted code (LLVM style), better tests and documentation, better source code organization, and a richer feature set.
+This project is a small compiler written in modern C++ for education and practice. The source language it compiles is called C0, which is a modified subset of C for educational purposes. The BNF grammar rules of C0 can be found in the file ``Grammar``. In brief, this tiny language consists of the following components:
+
+1. Constant declarations, like `const int a = 1, f = 2;`
+2. Variable declarations, like `char b; int c;`
+3. Function definitions, like `void func() {}`
+4. Some C-like statements and expressions. 
+
+The ``test/`` folder contains some vivid examples of the C0 language (files with ``.c0`` suffix).
 
 
-## Source language
+## 2. Supported backends
 
-The language this compiler compiles is a tiny subset of C, which is called ``C0``. The formal grammar of it can be found in the ``Grammar`` file located at the project root, which is written in an extended BNF, in the same format as the grammar specification of Python. In brief, it consists of three kinds of declarations, namely _constant declaration_, _variable declaration_ and _function definition_ and a subset of C's varieties of statement and expression. To see some examples, visit the ``Tests/`` at the project root, where files with ``.c`` suffix under ``src/`` folders are examples of this language.
+### 2.1 Mips Assembly
 
-
-## Features
-
-The main feature of simplecc is compiling the source down to MIPS assembly, which can be executed by the
-[Mars simulator](https://courses.missouristate.edu/KenVollmar/MARS). The command is:
+We have a hand-rolled stack-based IR generator that emits unoptimized Mips assembly, which can be executed by the [Mars simulator](https://courses.missouristate.edu/KenVollmar/MARS). To use this backend, please run:
 ```
-simplecc --asm <source>
+simplecc --asm input.c0
 ```
-Assuming you already know Mars, use this command to launch it in a command line to interpret the MIPS code:
+
+### 2.2 LLVM IR
+
+We also integrate with the LLVM backend to enjoy its capacities of optimization and native codegen. To obtain an LLVM IR file, please run:
 ```
-java -jar Mars_<version>.jar <asm-file>
+simplecc --emit-llvm input.c0
 ```
-For more usages about the Mars simulator, please refer to their documentation.
-Besides emitting MIPS code, simplecc can emit [LLVM IR](https://llvm.org/docs/LangRef.html) as well.
-The command is:
-```
-simplecc --emit-llvm <source>
-```
-With that, a native executable can be derived by:
+For more examples of emitted IR, please see the `*.ll` files in `test/LLVM/ir/`.
+
+To obtain a native executable, please run:
 ```
 simplecc --emit-llvm | clang -x ir
 ```
-which generates an ``a.out`` in the current directory. Other than these, simplecc comes with some nice features to inspect the intermediate
-results of the compiler. To see a stream of tokens, run:
-```
-simplecc --print-tokens <source>
-```
-This will print the tokens extracted from the source with each one in a line.
-The command
-```
-simplecc --print-ast <source>
-```
-will pretty-print the AST representing the program with proper indentations. If built with llvm libraries, the command
-```
-simplecc --ast-graph <source>
-```
-will generate a dot format for visualizing the AST, which can be passed to ``dot`` to obtain an image, as in:
-```
-simplecc --ast-graph <source> | dot -T<format> -o <output>
-```
-If you just want to check the syntax of a source file, simplecc provides an option similar to ``-fsyntax-only``:
-```
-simplecc --check-only <source>
-```
-This will report any detected problem to stderr and return a proper error code. All options will write the output to stdout by default, or you can
-specify a filename through the ``-o`` switch to store it elsewhere. For input, if no source file is given, it will read from stdin. Thus, simplecc allows
-to used as a filter:
-```
-cat <source> | simplecc --emit-llvm | clang -x ir -o <output>
-```
-For options undocumented here, you can use
-```
-simplecc --help
-```
-to see all available sub-commands.
 
-## Build and Install
 
-To build simplecc, all you need is a C++ compiler that supports C++ 11 standard and cmake. The process is straightforward:
+## 3. Visualization & debug support
+
+We provide some support to inspect the intermediate results of the compiler. 
+
+### 3.1 Tokens
+To see a stream of tokens, please run:
 ```
-cd simplecc/
-mkdir build/
-cd build/
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME ../src
+simplecc --print-tokens input.c0
+```
+This will print details about the tokens extracted from the source (one token in a line).
+
+### 3.2 AST
+
+To pretty-print the AST of the program, please run:
+```
+simplecc --print-ast input.c0
+```
+
+To obtain a flowchart of the AST, the graphviz-based diagrams of AST can be generated with:
+```
+simplecc --ast-graph input.c0
+```
+This command will generate a dot file, which can be passed to ``dot`` as follows:
+```
+simplecc --ast-graph input.c0 | dot -Tpng -o input.png
+```
+
+
+### 3.3 Syntax checking
+
+To check the syntax of a source file (but not emitting anything), please run:
+```
+simplecc --check-only input.c0
+```
+This will print any detected errors to the console.
+
+
+## 4. Build & Install
+
+This project requires a modern compiler that supports C++11. Please run the following commands to build and install our executable:
+```
+cd simplecc/ && mkdir -p build/
+cd build/ && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME ../src
 make && make install
 ```
-The executable ``simplecc`` is the only artifact that got installed.
-If llvm libraries are installed, it will be detected and simplecc will gain the ability to emit LLVM IR and visualize
-various tree structures in the front end. In other words, switches ``--emit-llvm``, ``--cst-graph`` and ``--ast-graph``
-will be available.
+The command `simplecc` will then be available.
 
 
-## Optimization and Benchmark
+## 5. Optimization
 
-The compiler **does not** implement any heavy optimization itself. It just performs the basic constant folding and removal of
-unreachable code. However, with the powerful llvm infrastructure, you can perform meaningful optimizations. Reference commands:
+For simplicity, we do not implement too many optimization passes. Only simple constant folding and dead code elimination are implemented. Please see `src/lib/Transform` for more details.
+
+
+## 6. Citation
+
+If you use our code in your research, we highly recommend your proper citation as follows:
 ```
-simplecc --emit-llvm <source> | opt - -S
+
+@misc{cong_simplecc_2019,
+	title = {Simplecc: {A} simple and modular {C}-like compiler in {C}++},
+	shorttitle = {Simplecc},
+	url = {https://gitee.com/cgsdfc/simplecc.git},
+	abstract = {Simplecc is a small compiler written in modern C++ that compiles an educational C-like language C0. It has a primary backend that emits stack-based unoptimized Mips assembly. It also integrates with an external LLVM backend that enables optimization and native codegen. Internally it uses a generated parser and generated abstract syntax tree with other important components written in an object-oriented style.},
+	author = {Cong Feng},
+	year = {2019},
+}
 ```
-This will print to stderr the optimized LLVM bitcode in human-readable form. Without the ``-S``, you get the machine form.
-After that, use ``clang`` to get a native executable:
-```
-clang -x ir <bitcode> -o <output>
-```
-The ``Benchmark/Sample4Opt-1-while.c`` can be used to benchmark the compiler.
