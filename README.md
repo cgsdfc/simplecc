@@ -53,11 +53,11 @@ To pretty-print the AST of the program, please run:
 simplecc --print-ast input.c0
 ```
 
-To obtain a flowchart of the AST, the graphviz-based diagrams of AST can be generated with:
+To obtain a flowchart of the AST, a graphviz-based diagram of AST can be generated with:
 ```
 simplecc --ast-graph input.c0
 ```
-This command will generate a dot file, which can be passed to ``dot`` as follows:
+This command will generate a dot file, which can be passed to the command ``dot`` as follows:
 ```
 simplecc --ast-graph input.c0 | dot -Tpng -o input.png
 ```
@@ -91,8 +91,8 @@ For simplicity, we do not implement too many optimization passes. Only simple co
 ## 6. Citation
 
 If you use our code in your research, we highly recommend your proper citation as follows:
-```
 
+```bibtex
 @misc{cong_simplecc_2019,
 	title = {Simplecc: {A} simple and modular {C}-like compiler in {C}++},
 	shorttitle = {Simplecc},

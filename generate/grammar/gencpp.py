@@ -27,8 +27,8 @@ from operator import itemgetter
 from itertools import chain
 from pathlib import Path
 
-from simplecompiler.generate import generate_grammar
-from simplecompiler.generate.util import format_code, double_qoute
+from generate import generate_grammar
+from generate.util import format_code, double_qoute
 
 
 def join_ints(*ints):

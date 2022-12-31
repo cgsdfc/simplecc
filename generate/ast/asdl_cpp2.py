@@ -31,8 +31,8 @@ from pprint import pprint
 from itertools import chain
 from pathlib import Path
 
-from simplecompiler.generate import asdl
-from simplecompiler.generate.util import format_code
+from generate import asdl
+from generate.util import format_code
 
 
 def camal_case(name):
@@ -442,7 +442,7 @@ class HeaderTemplate:
 #include <iostream>
 #include <string>
 
-namespace simplecompiler {
+namespace simplecc {
 class AST {
 public:
     virtual ~AST() = default;
@@ -527,7 +527,7 @@ class ImplTemplate:
 #include <vector>
 #include <cassert>
 
-namespace simplecompiler {
+namespace simplecc {
 
 // Format Optional Ast
 std::ostream &operator<<(std::ostream &os, const AST *ast) {
@@ -948,7 +948,7 @@ class VisitorTemplate:
 #include "AST.h"
 #include <cassert>
 
-namespace simplecompiler {
+namespace simplecc {
 $visitor_base
 $children_visitor
 }

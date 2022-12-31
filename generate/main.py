@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 """
-Generate grammar table, symbols definition for simplecompiler.
+Generate grammar table, symbols definition for simplecc.
 """
 
 import argparse
@@ -41,7 +41,7 @@ generators = {
 
 def do_generate(args):
     mod_name = generators[args.artifact][args.language]
-    module = import_module('simplecompiler.generate.{}.{}'.format(args.artifact, mod_name))
+    module = import_module('generate.{}.{}'.format(args.artifact, mod_name))
     return module.generate(args)
 
 

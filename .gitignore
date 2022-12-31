@@ -53,3 +53,5 @@ t/
 
 # Python virtual environment
 venv/
+
+.vscode/
