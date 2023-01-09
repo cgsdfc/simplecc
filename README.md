@@ -1,5 +1,7 @@
 # A simple and modular C-like compiler in C++
 
+<img src="example/AST.png" style="zoom:70%;" />
+
 ## 1. Source language
 
 This project is a small compiler written in modern C++ for education and practice. The source language it compiles is called C0, which is a modified subset of C for educational purposes. The BNF grammar rules of C0 can be found in the file ``Grammar``. In brief, this tiny language consists of the following components:
